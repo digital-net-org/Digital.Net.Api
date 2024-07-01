@@ -1,0 +1,9 @@
+.idea
+.vscode
+.scripts
+.config
+release
+
+*.DotSettings.user
+.editorconfig
+.env

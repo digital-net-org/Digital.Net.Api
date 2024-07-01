@@ -1,0 +1,13 @@
+.idea
+.vscode
+*.DotSettings.user
+
+*/**/bin
+*/**/obj
+
+out/
+release/
+
+*/**/appsettings.Development.json
+*/**/.env
+.env

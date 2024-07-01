@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "ms-dotnettools.csdevkit",
+    "ms-dotnettools.csharp",
+    "ms-dotnettools.vscodeintellicode-csharp",
+    "csharpier.csharpier-vscode",
+    "EditorConfig.EditorConfig",
+    "Postman.postman-for-vscode",
+    "ryanluker.vscode-coverage-gutters"
+  ]
+}
