@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using SafariDigital.Api;
+using Tests.Core.Base;
 using Xunit;
 
 namespace Tests.Core.Integration;
 
-public abstract class IntegrationTest : IClassFixture<ApiFactory<Program>>
+public abstract class IntegrationTest : UnitTest, IClassFixture<ApiFactory<Program>>
 {
     protected readonly HttpClient Client;
     protected readonly IConfiguration Configuration;

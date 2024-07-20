@@ -13,13 +13,13 @@ public class JwtService(
 ) : IJwtService
 {
     private readonly TokenValidationParameters _tokenParameters = configuration.GetTokenParameters();
-    public string GetCookieName() => configuration.GetSettingOrThrow<string>(EApplicationSetting.JwtCookieName);
+    public string GetCookieName() => configuration.GetSectionOrThrow<string>(EApplicationSetting.JwtCookieName);
 
     public long GetBearerTokenExpiration() =>
-        configuration.GetSettingOrThrow<long>(EApplicationSetting.JwtBearerExpiration);
+        configuration.GetSectionOrThrow<long>(EApplicationSetting.JwtBearerExpiration);
 
     public long GetRefreshTokenExpiration() =>
-        configuration.GetSettingOrThrow<long>(EApplicationSetting.JwtRefreshExpiration);
+        configuration.GetSectionOrThrow<long>(EApplicationSetting.JwtRefreshExpiration);
 
     public TokenValidationParameters GetTokenParameters() => _tokenParameters;
 

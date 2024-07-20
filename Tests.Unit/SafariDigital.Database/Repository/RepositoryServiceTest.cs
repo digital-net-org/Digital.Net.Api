@@ -1,12 +1,13 @@
 using SafariDigital.Database.Context;
 using SafariDigital.Database.Models.User;
 using SafariDigital.Database.Repository;
+using Tests.Core.Base;
 using Tests.Core.Factories;
 using Tests.Core.Integration;
 
 namespace Tests.Unit.SafariDigital.Database.Repository;
 
-public class RepositoryServiceTest
+public class RepositoryServiceTest : UnitTest
 {
     private readonly SafariDigitalContext _context = new SqliteDatabase().Context;
     private IRepositoryService<User> _repository;

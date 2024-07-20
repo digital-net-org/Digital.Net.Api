@@ -4,7 +4,7 @@ namespace SafariDigital.Core.Application;
 
 public enum EApplicationSetting
 {
-    [Display(Name = "AllowedOrigins")] AllowedOrigins,
+    [Display(Name = "CorsAllowedOrigins")] CorsAllowedOrigins,
 
     [Display(Name = "Jwt:RefreshExpiration")]
     JwtRefreshExpiration,

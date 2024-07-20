@@ -3,17 +3,17 @@ using SafariDigital.Core.Application;
 using SafariDigital.Core.Random;
 using SafariDigital.Core.Validation;
 using SafariDigital.Services.Jwt;
+using Tests.Core.Base;
 
 namespace Tests.Unit.SafariDigital.Services.Jwt;
 
-public class JwtServiceTest
+public class JwtServiceTest : UnitTest
 {
     private readonly JwtService _jwtService;
     private string _secret;
 
     public JwtServiceTest()
     {
-        Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
         var securityKey = JwtUtils.GetSecurityKey(RandomUtils.GenerateRandomSecret());
         var configuration = new ConfigurationManager().AddProjectSettings().Build();
         foreach (var (key, value) in ((string, string)[])

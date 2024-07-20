@@ -18,11 +18,11 @@ public static class RateLimiterInjector
 
     private static void SetDefaultPolicy(this IConfiguration configuration, FixedWindowRateLimiterOptions options)
     {
-        var maxRequestAllowed = configuration.GetSettingOrThrow<int>(EApplicationSetting.SecurityMaxRequestAllowed);
+        var maxRequestAllowed = configuration.GetSectionOrThrow<int>(EApplicationSetting.SecurityMaxRequestAllowed);
         options.PermitLimit = maxRequestAllowed;
         options.Window =
             TimeSpan.FromMilliseconds(
-                configuration.GetSettingOrThrow<long>(EApplicationSetting.SecurityMaxRequestWindow));
+                configuration.GetSectionOrThrow<long>(EApplicationSetting.SecurityMaxRequestWindow));
         options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
         options.QueueLimit = maxRequestAllowed;
     }

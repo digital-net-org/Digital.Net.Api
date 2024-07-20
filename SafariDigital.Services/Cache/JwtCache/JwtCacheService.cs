@@ -12,7 +12,7 @@ public class JwtCacheService(
     : IJwtCacheService
 {
     private readonly int _maxTokenAllowed =
-        configuration.GetSettingOrThrow<int>(EApplicationSetting.JwtMaxTokenAllowed);
+        configuration.GetSectionOrThrow<int>(EApplicationSetting.JwtMaxTokenAllowed);
 
     public bool IsTokenRegistered(Guid userId, string userAgent, string token)
     {

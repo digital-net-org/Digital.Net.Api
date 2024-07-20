@@ -2,10 +2,11 @@ using System.Net;
 using Microsoft.AspNetCore.Http;
 using Moq;
 using SafariDigital.Core.Http;
+using Tests.Core.Base;
 
 namespace Tests.Unit.SafariDigital.Core.Http;
 
-public class HttpContextUtilsTest
+public class HttpContextUtilsTest : UnitTest
 {
     [Fact]
     public void GetRemoteIpAddressFromRequest_ReturnsExpectedIpAddress()

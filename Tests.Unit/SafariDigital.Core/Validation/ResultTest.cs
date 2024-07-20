@@ -2,10 +2,11 @@ using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using SafariDigital.Core.Enum;
 using SafariDigital.Core.Validation;
+using Tests.Core.Base;
 
 namespace Tests.Unit.SafariDigital.Core.Validation;
 
-public class ResultTest
+public class ResultTest : UnitTest
 {
     [Fact]
     public void AddError_ShouldHandleException()

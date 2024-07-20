@@ -16,6 +16,7 @@ public static class Builder
         var builder = WebApplication.CreateBuilder(args);
         return builder
             .AddProjectSettings()
+            .ValidateApplicationSettings()
             .ConnectDatabase()
             .ConfigureForwardedHeaders()
             .InjectServices()
@@ -44,11 +45,7 @@ public static class Builder
 
     private static WebApplicationBuilder AddCorsPolicy(this WebApplicationBuilder builder)
     {
-        var allowedOrigins =
-            builder.Configuration.GetSetting<string[]>(EApplicationSetting.AllowedOrigins)
-            ?? builder.Configuration.GetSection("CorsAllowedOrigins").Get<string[]>()
-            ?? throw new Exception("Allowed origins not found in configuration");
-
+        var allowedOrigins = builder.Configuration.GetSectionOrThrow<string[]>(EApplicationSetting.CorsAllowedOrigins);
         builder.Services.AddCors(options =>
         {
             options.AddDefaultPolicy(policyBuilder =>
@@ -69,8 +66,7 @@ public static class Builder
     {
         builder.Services.Configure<ForwardedHeadersOptions>(options =>
         {
-            options.ForwardedHeaders =
-                ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
             options.KnownNetworks.Clear();
             options.KnownProxies.Clear();
         });

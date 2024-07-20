@@ -1,3 +1,7 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
+using SafariDigital.Core.Enum;
+
 namespace SafariDigital.Core.Application;
 
 public static class ApplicationEnvironment
@@ -5,4 +9,21 @@ public static class ApplicationEnvironment
     public static string GetEnvironment =>
         Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
         ?? throw new Exception("Environment variable ASPNETCORE_ENVIRONMENT is not set.");
+
+    public static WebApplicationBuilder ValidateApplicationSettings(this WebApplicationBuilder builder)
+    {
+        foreach (var setting in EnumUtils.GetEnumDisplayNames<EApplicationSetting>())
+        {
+            var section = builder.Configuration.GetSection(setting);
+            if (!section.Exists())
+                throw new Exception($"Application setting {setting} is not set.");
+
+            var arrValue = section.Get<string[]>();
+            if ((arrValue is not null && arrValue.Length == 0) ||
+                (arrValue is null && string.IsNullOrEmpty(section.Value)))
+                throw new Exception($"Application setting {setting} is empty.");
+        }
+
+        return builder;
+    }
 }

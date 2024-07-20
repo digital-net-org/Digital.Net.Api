@@ -12,10 +12,10 @@ public class AttemptCacheService(IMemoryCache memoryCache, IConfiguration config
     : IAttemptCacheService
 {
     private readonly TimeSpan _attemptsWindow = TimeSpan.FromMilliseconds(
-        configuration.GetSettingOrThrow<long>(EApplicationSetting.SecurityMaxLoginWindow)
+        configuration.GetSectionOrThrow<long>(EApplicationSetting.SecurityMaxLoginWindow)
     );
 
-    private readonly int _maxAttemptsAllowed = configuration.GetSettingOrThrow<int>(
+    private readonly int _maxAttemptsAllowed = configuration.GetSectionOrThrow<int>(
         EApplicationSetting.SecurityMaxLoginAttempts
     );
 

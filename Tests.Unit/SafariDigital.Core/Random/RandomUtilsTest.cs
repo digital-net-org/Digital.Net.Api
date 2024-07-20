@@ -1,8 +1,9 @@
 using SafariDigital.Core.Random;
+using Tests.Core.Base;
 
 namespace Tests.Unit.SafariDigital.Core.Random;
 
-public class RandomUtilsTest
+public class RandomUtilsTest : UnitTest
 {
     [Fact]
     public void GenerateRandomSecret_Should_return_a_random_string()

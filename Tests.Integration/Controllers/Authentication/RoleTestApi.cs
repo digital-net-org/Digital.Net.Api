@@ -49,7 +49,7 @@ public class RoleTestApi : IntegrationTest
     {
         // Arrange
         var user = Setup();
-        var maxAttempts = Configuration.GetSettingOrThrow<int>(EApplicationSetting.SecurityMaxLoginAttempts);
+        var maxAttempts = Configuration.GetSectionOrThrow<int>(EApplicationSetting.SecurityMaxLoginAttempts);
         for (var i = 0; i < maxAttempts; i++)
             await Client.PostAsJsonAsync(LoginApi, new LoginRequest(user.Username, "wrongPassword"));
 

@@ -70,7 +70,7 @@ public class LoginApiTest : IntegrationTest
     public async Task Login_ShouldAllowOnlyXTokenPerUser()
     {
         // Arrange
-        var allowedConnections = Configuration.GetSettingOrThrow<int>(EApplicationSetting.JwtMaxTokenAllowed);
+        var allowedConnections = Configuration.GetSectionOrThrow<int>(EApplicationSetting.JwtMaxTokenAllowed);
         var user = Setup();
         var httpClients = new List<HttpClient>();
         var responses = new List<HttpResponseMessage>();

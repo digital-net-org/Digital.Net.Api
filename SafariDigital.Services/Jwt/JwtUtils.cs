@@ -13,9 +13,9 @@ public static class JwtUtils
         new()
         {
             ValidateIssuerSigningKey = true,
-            ValidIssuer = configuration.GetSettingOrThrow<string>(EApplicationSetting.JwtIssuer),
-            ValidAudience = configuration.GetSettingOrThrow<string>(EApplicationSetting.JwtAudience),
-            IssuerSigningKey = GetSecurityKey(configuration.GetSettingOrThrow<string>(EApplicationSetting.JwtSecret)),
+            ValidIssuer = configuration.GetSectionOrThrow<string>(EApplicationSetting.JwtIssuer),
+            ValidAudience = configuration.GetSectionOrThrow<string>(EApplicationSetting.JwtAudience),
+            IssuerSigningKey = GetSecurityKey(configuration.GetSectionOrThrow<string>(EApplicationSetting.JwtSecret)),
             ClockSkew = TimeSpan.Zero
         };
 

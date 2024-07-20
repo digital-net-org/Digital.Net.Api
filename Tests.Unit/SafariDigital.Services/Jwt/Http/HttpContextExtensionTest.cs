@@ -5,10 +5,11 @@ using SafariDigital.Core.Validation;
 using SafariDigital.Services.Jwt;
 using SafariDigital.Services.Jwt.Http;
 using SafariDigital.Services.Jwt.Models;
+using Tests.Core.Base;
 
 namespace Tests.Unit.SafariDigital.Services.Jwt.Http;
 
-public class HttpContextExtensionTest
+public class HttpContextExtensionTest : UnitTest
 {
     private const string DefaultBearerToken = "test_token";
     private const string DefaultCookieName = "test_cookie";
