@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
-using SafariLib.Jwt;
+using SafariDigital.Services.Jwt;
 
 namespace SafariDigital.Api.Builders.Injectors;
 

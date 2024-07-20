@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.HttpOverrides;
 using SafariDigital.Api.Builders.Injectors;
-using SafariDigital.Core.AppSettings;
+using SafariDigital.Core.Application;
 using SafariDigital.Database;
 using SafariDigital.Database.Context;
 using SafariDigital.Services.Authentication;
 using SafariDigital.Services.Cache;
-using SafariLib.Core.Environment;
+using SafariDigital.Services.Jwt;
 
 namespace SafariDigital.Api.Builders;
 
@@ -15,7 +15,7 @@ public static class Builder
     {
         var builder = WebApplication.CreateBuilder(args);
         return builder
-            // .AddProjectSettings()
+            .AddProjectSettings()
             .ConnectDatabase()
             .ConfigureForwardedHeaders()
             .InjectServices()
@@ -45,7 +45,7 @@ public static class Builder
     private static WebApplicationBuilder AddCorsPolicy(this WebApplicationBuilder builder)
     {
         var allowedOrigins =
-            builder.Configuration.GetSetting<string[]>(EAppSetting.AllowedOrigins)
+            builder.Configuration.GetSetting<string[]>(EApplicationSetting.AllowedOrigins)
             ?? builder.Configuration.GetSection("CorsAllowedOrigins").Get<string[]>()
             ?? throw new Exception("Allowed origins not found in configuration");
 

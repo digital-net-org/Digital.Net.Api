@@ -1,14 +1,14 @@
 using Microsoft.AspNetCore.Http;
-using SafariDigital.Core.AppMessages;
+using SafariDigital.Core.Application;
+using SafariDigital.Core.Http;
+using SafariDigital.Core.Validation;
 using SafariDigital.Database.Models.User;
+using SafariDigital.Database.Repository;
 using SafariDigital.Services.Authentication.Models;
 using SafariDigital.Services.Cache.AttemptCache;
-using SafariLib.Core.HttpContext;
-using SafariLib.Core.Validation;
-using SafariLib.Jwt.Cache;
-using SafariLib.Jwt.HttpContext;
-using SafariLib.Jwt.Services;
-using SafariLib.Repositories.RepositoryService;
+using SafariDigital.Services.Cache.JwtCache;
+using SafariDigital.Services.Jwt;
+using SafariDigital.Services.Jwt.Http;
 
 namespace SafariDigital.Services.Authentication;
 
@@ -32,7 +32,7 @@ public class AuthenticationService(
         var userAgent = request.GetUserAgent() ?? AuthenticationUtils.DefaultUserAgent;
 
         if (attemptCache.HasExceededAttempts(login, ipAddress))
-            return result.AddError(EAppMessage.TooManyLoginAttempts);
+            return result.AddError(EApplicationMessage.TooManyLoginAttempts);
 
         var user = await result.ValidateExpressionAsync(VerifyCredentials(login, password));
 
@@ -43,7 +43,7 @@ public class AuthenticationService(
         }
 
         if (!user.IsActive)
-            return result.AddError(EAppMessage.UserNotActive);
+            return result.AddError(EApplicationMessage.UserNotActive);
 
         var (bearerToken, refreshToken) = GenerateTokens(user, userAgent);
         response.SetCookieToken(refreshToken);
@@ -74,12 +74,12 @@ public class AuthenticationService(
         );
 
         if (!isTokenRegistered)
-            return result.AddError(EAppMessage.TokenNotKnown);
+            return result.AddError(EApplicationMessage.TokenNotKnown);
 
         var user = await userRepository.GetByPrimaryKeyAsync(userId);
 
         if (user.Value is null)
-            return result.AddError(EAppMessage.TokenNotKnown);
+            return result.AddError(EApplicationMessage.TokenNotKnown);
 
         var (bearerToken, refreshToken) = GenerateTokens(user.Value, userAgent);
         response.SetCookieToken(refreshToken);
@@ -118,7 +118,7 @@ public class AuthenticationService(
             u.Username == login || u.Email == login
         );
         return result.Value is null || !AuthenticationUtils.VerifyPassword(result.Value, password)
-            ? result.AddError(EAppMessage.WrongCredentials)
+            ? result.AddError(EApplicationMessage.WrongCredentials)
             : result;
     }
 

@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-using SafariLib.Core.Environment;
+using SafariDigital.Core.Application;
 
 namespace SafariDigital.Database.Context;
 

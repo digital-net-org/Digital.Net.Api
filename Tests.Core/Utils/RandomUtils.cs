@@ -1,4 +1,4 @@
-namespace Tests.Utils;
+namespace Tests.Core.Utils;
 
 public static class RandomUtils
 {

@@ -4,11 +4,11 @@ using Microsoft.Extensions.DependencyInjection;
 using SafariDigital.Api;
 using SafariDigital.Database.Context;
 using SafariDigital.Database.Models.User;
+using SafariDigital.Database.Repository;
 using SafariDigital.Services.Authentication.Models;
-using SafariLib.Repositories.Repository;
-using Tests.Core;
 using Tests.Core.Factories;
 using Tests.Core.Integration;
+using Tests.Core.Utils;
 
 namespace Tests.Integration.Controllers.Authentication;
 
@@ -16,12 +16,12 @@ public class RefreshApiTest : IntegrationTest
 {
     private const string LoginApi = "/authentication/login";
     private const string RefreshApi = "/authentication/refresh";
-    private readonly Repository<SafariDigitalContext, User> _userRepository;
+    private readonly Repository<User> _userRepository;
 
     public RefreshApiTest(ApiFactory<Program> fixture) : base(fixture)
     {
         _userRepository =
-            new Repository<SafariDigitalContext, User>(Factory.Services.GetRequiredService<SafariDigitalContext>());
+            new Repository<User>(Factory.Services.GetRequiredService<SafariDigitalContext>());
     }
 
     [Fact]

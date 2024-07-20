@@ -1,9 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
-using SafariDigital.Core.AppSettings;
-using SafariLib.Core.Environment;
-using SafariLib.Core.MemoryCache;
+using SafariDigital.Core.Application;
+using SafariDigital.Core.Memory;
 
 namespace SafariDigital.Services.Cache.AttemptCache;
 
@@ -12,18 +12,18 @@ public class AttemptCacheService(IMemoryCache memoryCache, IConfiguration config
     : IAttemptCacheService
 {
     private readonly TimeSpan _attemptsWindow = TimeSpan.FromMilliseconds(
-        configuration.GetSettingOrThrow<long>(EAppSetting.SecurityMaxLoginWindow)
+        configuration.GetSettingOrThrow<long>(EApplicationSetting.SecurityMaxLoginWindow)
     );
 
     private readonly int _maxAttemptsAllowed = configuration.GetSettingOrThrow<int>(
-        EAppSetting.SecurityMaxLoginAttempts
+        EApplicationSetting.SecurityMaxLoginAttempts
     );
 
     public void LogAttempt(string login, string ipAddress)
     {
         var key = $"{ipAddress}_{login}";
         var attempts = memoryCache.TryGetValue<List<string>>(key) ?? [];
-        attempts.Add(DateTime.UtcNow.ToString());
+        attempts.Add(DateTime.UtcNow.ToString(CultureInfo.CurrentCulture));
         memoryCache.Set(key, attempts, _attemptsWindow);
     }
 

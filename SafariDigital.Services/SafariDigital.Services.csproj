@@ -8,18 +8,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\SafariDigital.Core\SafariDigital.Core.csproj" />
-        <ProjectReference Include="..\SafariDigital.Database\SafariDigital.Database.csproj" />
+        <ProjectReference Include="..\SafariDigital.Core\SafariDigital.Core.csproj"/>
+        <ProjectReference Include="..\SafariDigital.Database\SafariDigital.Database.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
-        <PackageReference Include="SafariLib.Core" Version="1.1.0" />
-        <PackageReference Include="SafariLib.Jwt" Version="1.1.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Cache\Models\" />
+        <PackageReference Include="BCrypt.Net-Next" Version="4.0.3"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.6"/>
+        <PackageReference Include="Microsoft.OpenApi" Version="1.6.14"/>
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.6.2"/>
     </ItemGroup>
 
 </Project>

@@ -2,7 +2,7 @@ using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using SafariDigital.Services.Authentication.Models;
 
-namespace Tests.Core;
+namespace Tests.Core.Utils;
 
 public static class HttpUtils
 {

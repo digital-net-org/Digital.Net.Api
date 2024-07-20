@@ -1,6 +1,6 @@
 using SafariDigital.Database.Models.User;
 using SafariDigital.Services.Authentication;
-using Tests.Utils;
+using Tests.Core.Utils;
 
 namespace Tests.Core.Factories;
 

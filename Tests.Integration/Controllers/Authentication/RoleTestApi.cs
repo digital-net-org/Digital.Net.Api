@@ -2,15 +2,14 @@ using System.Net;
 using System.Net.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
 using SafariDigital.Api;
-using SafariDigital.Core.AppSettings;
+using SafariDigital.Core.Application;
 using SafariDigital.Database.Context;
 using SafariDigital.Database.Models.User;
+using SafariDigital.Database.Repository;
 using SafariDigital.Services.Authentication.Models;
-using SafariLib.Core.Environment;
-using SafariLib.Repositories.Repository;
-using Tests.Core;
 using Tests.Core.Factories;
 using Tests.Core.Integration;
+using Tests.Core.Utils;
 
 namespace Tests.Integration.Controllers.Authentication;
 
@@ -21,12 +20,12 @@ public class RoleTestApi : IntegrationTest
     private const string UserRoleTestApi = "/authentication/role/user/test";
     private const string AdminRoleTestApi = "/authentication/role/admin/test";
     private const string SuperAdminRoleTestApi = "/authentication/role/super-admin/test";
-    private readonly Repository<SafariDigitalContext, User> _userRepository;
+    private readonly Repository<User> _userRepository;
 
     public RoleTestApi(ApiFactory<Program> fixture) : base(fixture)
     {
         _userRepository =
-            new Repository<SafariDigitalContext, User>(Factory.Services.GetRequiredService<SafariDigitalContext>());
+            new Repository<User>(Factory.Services.GetRequiredService<SafariDigitalContext>());
     }
 
     [Fact]
@@ -50,7 +49,7 @@ public class RoleTestApi : IntegrationTest
     {
         // Arrange
         var user = Setup();
-        var maxAttempts = Configuration.GetSettingOrThrow<int>(EAppSetting.SecurityMaxLoginAttempts);
+        var maxAttempts = Configuration.GetSettingOrThrow<int>(EApplicationSetting.SecurityMaxLoginAttempts);
         for (var i = 0; i < maxAttempts; i++)
             await Client.PostAsJsonAsync(LoginApi, new LoginRequest(user.Username, "wrongPassword"));
 

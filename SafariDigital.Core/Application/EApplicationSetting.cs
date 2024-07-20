@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace SafariDigital.Core.AppSettings;
+namespace SafariDigital.Core.Application;
 
-public enum EAppSetting
+public enum EApplicationSetting
 {
     [Display(Name = "AllowedOrigins")] AllowedOrigins,
 

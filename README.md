@@ -31,6 +31,7 @@ Jwt__Issuer="string"
 Jwt__Audience="string"
 Jwt__RefreshExpiration="long"
 Jwt__BearerExpiration="long"
+Jwt__CookieName="string"
 Jwt__MaxTokenAllowed="int"
 
 Security__MaxLoginAttempts="int"

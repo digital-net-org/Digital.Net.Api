@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SafariDigital.Api.Builders;
 using SafariDigital.Database.Context;
-using SafariLib.Core.Environment;
 
 namespace SafariDigital.Api;
 
@@ -17,7 +16,7 @@ public sealed class Program
             .UseCors()
             .UseRateLimiter();
 
-        if (!app.Environment.IsTest())
+        if (!app.Environment.IsEnvironment("Test"))
             await ApplyDataMigrationsAsync(app);
 
         app.MapControllers().RequireRateLimiting("Default");

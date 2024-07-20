@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
-using SafariLib.Repositories.Models;
+using SafariDigital.Database.Models.Entity;
 
 namespace SafariDigital.Database.Models.User;
 
@@ -24,11 +24,7 @@ public class User : EntityWithGuid
     [Required]
     public required string Email { get; set; }
 
-    [Column("role")]
-    [Required]
-    public EUserRole Role { get; set; } = EUserRole.User;
+    [Column("role")] [Required] public EUserRole Role { get; set; } = EUserRole.User;
 
-    [Column("is_active")]
-    [Required]
-    public bool IsActive { get; set; } = false;
+    [Column("is_active")] [Required] public bool IsActive { get; set; } = false;
 }

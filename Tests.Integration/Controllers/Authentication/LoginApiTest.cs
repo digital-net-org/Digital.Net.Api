@@ -2,15 +2,14 @@ using System.Net;
 using System.Net.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
 using SafariDigital.Api;
-using SafariDigital.Core.AppSettings;
+using SafariDigital.Core.Application;
 using SafariDigital.Database.Context;
 using SafariDigital.Database.Models.User;
+using SafariDigital.Database.Repository;
 using SafariDigital.Services.Authentication.Models;
-using SafariLib.Core.Environment;
-using SafariLib.Repositories.Repository;
-using Tests.Core;
 using Tests.Core.Factories;
 using Tests.Core.Integration;
+using Tests.Core.Utils;
 
 namespace Tests.Integration.Controllers.Authentication;
 
@@ -19,12 +18,12 @@ public class LoginApiTest : IntegrationTest
     private const string Api = "/authentication/login";
     private const string RefreshApi = "/authentication/refresh";
     private const string RoleTestApi = "/authentication/role/user/test";
-    private readonly Repository<SafariDigitalContext, User> _userRepository;
+    private readonly Repository<User> _userRepository;
 
     public LoginApiTest(ApiFactory<Program> fixture) : base(fixture)
     {
         _userRepository =
-            new Repository<SafariDigitalContext, User>(Factory.Services.GetRequiredService<SafariDigitalContext>());
+            new Repository<User>(Factory.Services.GetRequiredService<SafariDigitalContext>());
     }
 
     [Fact]
@@ -71,7 +70,7 @@ public class LoginApiTest : IntegrationTest
     public async Task Login_ShouldAllowOnlyXTokenPerUser()
     {
         // Arrange
-        var allowedConnections = Configuration.GetSettingOrThrow<int>(EAppSetting.JwtMaxTokenAllowed);
+        var allowedConnections = Configuration.GetSettingOrThrow<int>(EApplicationSetting.JwtMaxTokenAllowed);
         var user = Setup();
         var httpClients = new List<HttpClient>();
         var responses = new List<HttpResponseMessage>();

@@ -1,7 +1,6 @@
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
-using SafariDigital.Core.AppSettings;
-using SafariLib.Core.Environment;
+using SafariDigital.Core.Application;
 
 namespace SafariDigital.Api.Builders.Injectors;
 
@@ -12,19 +11,18 @@ public static class RateLimiterInjector
         builder.Services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-            options.AddFixedWindowLimiter(
-                "Default", opts => builder.Configuration.SetDefaultPolicy(opts)
-            );
+            options.AddFixedWindowLimiter("Default", opts => builder.Configuration.SetDefaultPolicy(opts));
         });
         return builder;
     }
 
     private static void SetDefaultPolicy(this IConfiguration configuration, FixedWindowRateLimiterOptions options)
     {
-        var maxRequestAllowed = configuration.GetSettingOrThrow<int>(EAppSetting.SecurityMaxRequestAllowed);
+        var maxRequestAllowed = configuration.GetSettingOrThrow<int>(EApplicationSetting.SecurityMaxRequestAllowed);
         options.PermitLimit = maxRequestAllowed;
         options.Window =
-            TimeSpan.FromMilliseconds(configuration.GetSettingOrThrow<long>(EAppSetting.SecurityMaxRequestWindow));
+            TimeSpan.FromMilliseconds(
+                configuration.GetSettingOrThrow<long>(EApplicationSetting.SecurityMaxRequestWindow));
         options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
         options.QueueLimit = maxRequestAllowed;
     }

@@ -1,6 +1,6 @@
-namespace SafariDigital.Core.AppMessages;
+namespace SafariDigital.Core.Application;
 
-public enum EAppMessage
+public enum EApplicationMessage
 {
     UnhandledException = 0,
 

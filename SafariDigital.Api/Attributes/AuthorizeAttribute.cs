@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using SafariDigital.Database.Models.User;
 using SafariDigital.Services.Authentication.Models;
-using SafariLib.Jwt.HttpContext;
-using SafariLib.Jwt.Models;
-using SafariLib.Jwt.Services;
+using SafariDigital.Services.Jwt;
+using SafariDigital.Services.Jwt.Http;
+using SafariDigital.Services.Jwt.Models;
 
 namespace SafariDigital.Api.Attributes;
 

@@ -17,16 +17,15 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.6" />
-        <PackageReference Include="SafariLib.Jwt" Version="1.1.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
-        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.6.2" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.6"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.6.2"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\SafariDigital.Core\SafariDigital.Core.csproj" />
-        <ProjectReference Include="..\SafariDigital.Database\SafariDigital.Database.csproj" />
-        <ProjectReference Include="..\SafariDigital.Services\SafariDigital.Services.csproj" />
+        <ProjectReference Include="..\SafariDigital.Core\SafariDigital.Core.csproj"/>
+        <ProjectReference Include="..\SafariDigital.Database\SafariDigital.Database.csproj"/>
+        <ProjectReference Include="..\SafariDigital.Services\SafariDigital.Services.csproj"/>
     </ItemGroup>
 
 </Project>

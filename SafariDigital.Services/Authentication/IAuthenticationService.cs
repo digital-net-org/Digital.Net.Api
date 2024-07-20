@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
+using SafariDigital.Core.Validation;
 using SafariDigital.Services.Authentication.Models;
-using SafariLib.Core.Validation;
 
 namespace SafariDigital.Services.Authentication;
 
