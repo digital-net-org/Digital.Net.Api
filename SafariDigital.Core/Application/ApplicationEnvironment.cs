@@ -10,6 +10,8 @@ public static class ApplicationEnvironment
         Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
         ?? throw new Exception("Environment variable ASPNETCORE_ENVIRONMENT is not set.");
 
+    public static bool IsTestEnvironment => GetEnvironment == "Test";
+
     public static WebApplicationBuilder ValidateApplicationSettings(this WebApplicationBuilder builder)
     {
         foreach (var setting in EnumUtils.GetEnumDisplayNames<EApplicationSetting>())

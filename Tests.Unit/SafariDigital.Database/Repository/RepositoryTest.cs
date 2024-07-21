@@ -1,9 +1,9 @@
 using SafariDigital.Database.Context;
 using SafariDigital.Database.Models.User;
 using SafariDigital.Database.Repository;
+using SafariDigital.Database.Sqlite;
 using Tests.Core.Base;
 using Tests.Core.Factories;
-using Tests.Core.Integration;
 
 namespace Tests.Unit.SafariDigital.Database.Repository;
 

@@ -1,10 +1,10 @@
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using Moq;
-using SafariDigital.Core.Http;
+using SafariDigital.Services.HttpContext;
 using Tests.Core.Base;
 
-namespace Tests.Unit.SafariDigital.Core.Http;
+namespace Tests.Unit.SafariDigital.Services.HttpContext;
 
 public class HttpContextUtilsTest : UnitTest
 {
@@ -20,7 +20,7 @@ public class HttpContextUtilsTest : UnitTest
         var connectionMock = new Mock<ConnectionInfo>();
         connectionMock.Setup(m => m.RemoteIpAddress).Returns(IPAddress.Parse("192.168.1.2"));
 
-        var httpContextMock = new Mock<HttpContext>();
+        var httpContextMock = new Mock<Microsoft.AspNetCore.Http.HttpContext>();
         httpContextMock.Setup(m => m.Connection).Returns(connectionMock.Object);
 
         var requestMock = new Mock<HttpRequest>();

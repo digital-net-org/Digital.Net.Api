@@ -1,14 +1,13 @@
-using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using SafariDigital.Core.Application;
-using SafariDigital.Core.Http;
 using SafariDigital.Core.Validation;
 using SafariDigital.Database.Models.User;
 using SafariDigital.Database.Repository;
 using SafariDigital.Services.Authentication.Models;
 using SafariDigital.Services.Cache.AttemptCache;
 using SafariDigital.Services.Cache.JwtCache;
+using SafariDigital.Services.HttpContext;
 using SafariDigital.Services.Jwt;
-using SafariDigital.Services.Jwt.Http;
 
 namespace SafariDigital.Services.Authentication;
 
@@ -16,20 +15,34 @@ public class AuthenticationService(
     IJwtService jwtService,
     IJwtCacheService jwtCacheService,
     IAttemptCacheService attemptCache,
-    IRepositoryService<User> userRepository
+    IRepositoryService<User> userRepository,
+    IHttpContextService httpContextService,
+    IConfiguration configuration
 ) : IAuthenticationService
 {
+    private readonly string _cookieTokenName = configuration.GetCookieTokenName();
+    private readonly long _refreshExpiration = configuration.GetRefreshTokenExpiration();
+
+    public void LogoutAll()
+    {
+        var (request, response) = httpContextService.GetControllerContext();
+        var token = request.Cookies[_cookieTokenName];
+        var jwtToken = jwtService.GetJwtToken();
+        if (token is null || jwtToken.Content is null) return;
+
+        jwtCacheService.RevokeAllTokens(jwtToken.Content.Id ?? Guid.Empty);
+        response.Cookies.Delete(_cookieTokenName);
+    }
+
     public async Task<Result<LoginResponse>> Login(
-        HttpRequest request,
-        HttpResponse response,
         string login,
         string password
     )
     {
+        var (request, response) = httpContextService.GetControllerContext();
+        var ipAddress = request.GetRemoteIpAddress();
+        var userAgent = request.GetUserAgent();
         var result = new Result<LoginResponse>();
-
-        var ipAddress = request.GetRemoteIpAddress() ?? AuthenticationUtils.DefaultIpAddress;
-        var userAgent = request.GetUserAgent() ?? AuthenticationUtils.DefaultUserAgent;
 
         if (attemptCache.HasExceededAttempts(login, ipAddress))
             return result.AddError(EApplicationMessage.TooManyLoginAttempts);
@@ -42,74 +55,54 @@ public class AuthenticationService(
             return result;
         }
 
-        if (!user.IsActive)
-            return result.AddError(EApplicationMessage.UserNotActive);
-
+        if (!user.IsActive) return result.AddError(EApplicationMessage.UserNotActive);
         var (bearerToken, refreshToken) = GenerateTokens(user, userAgent);
-        response.SetCookieToken(refreshToken);
+
+        response.SetCookie(refreshToken, _cookieTokenName, _refreshExpiration);
         result.Value = new LoginResponse(bearerToken);
         attemptCache.ClearAttempts(login, ipAddress);
         return result;
     }
 
-    public async Task<Result<LoginResponse>> RefreshTokens(
-        HttpRequest request,
-        HttpResponse response
-    )
+    public async Task<Result<LoginResponse>> RefreshTokens()
     {
+        var (request, response) = httpContextService.GetControllerContext();
+        var userAgent = request.GetUserAgent();
+        var token = request.Cookies[_cookieTokenName];
         var result = new Result<LoginResponse>();
-        var userAgent = request.GetUserAgent() ?? AuthenticationUtils.DefaultUserAgent;
-        var tokenResult = jwtService.ValidateToken<AuthenticatedUser>(request.GetCookieToken());
-        var userId = tokenResult.Content?.Id ?? Guid.Empty;
 
+        var tokenResult = jwtService.ValidateToken(token);
         result.Merge(tokenResult);
+        if (result.HasError || tokenResult.Token is null) return result;
 
-        if (result.HasError || tokenResult.Token is null)
-            return result;
-
+        var userId = tokenResult.Content?.Id ?? Guid.Empty;
         var isTokenRegistered = jwtCacheService.IsTokenRegistered(
             userId,
             userAgent,
             tokenResult.Token
         );
-
-        if (!isTokenRegistered)
-            return result.AddError(EApplicationMessage.TokenNotKnown);
+        if (!isTokenRegistered) return result.AddError(EApplicationMessage.TokenNotKnown);
 
         var user = await userRepository.GetByPrimaryKeyAsync(userId);
-
-        if (user.Value is null)
-            return result.AddError(EApplicationMessage.TokenNotKnown);
+        if (user.Value is null) return result.AddError(EApplicationMessage.TokenNotKnown);
 
         var (bearerToken, refreshToken) = GenerateTokens(user.Value, userAgent);
-        response.SetCookieToken(refreshToken);
+        response.SetCookie(refreshToken, _cookieTokenName, _refreshExpiration);
         result.Value = new LoginResponse(bearerToken);
         return result;
     }
 
-    public void Logout(HttpRequest request, HttpResponse response)
+    public void Logout()
     {
-        var userAgent = request.GetUserAgent() ?? AuthenticationUtils.DefaultUserAgent;
-        var token = request.GetCookieToken();
-        var jwtToken = request.GetJwtToken<AuthenticatedUser>();
+        var (request, response) = httpContextService.GetControllerContext();
+        var userAgent = request.GetUserAgent();
+        var refreshToken = request.Cookies[_cookieTokenName];
+        var jwtToken = jwtService.GetJwtToken();
 
-        if (token is null || jwtToken.Content is null)
-            return;
+        if (refreshToken is null || jwtToken.Content is null) return;
 
-        jwtCacheService.RevokeToken(jwtToken.Content.Id ?? Guid.Empty, userAgent, token);
-        response.RemoveCookieToken();
-    }
-
-    public void LogoutAll(HttpRequest request, HttpResponse response)
-    {
-        var token = request.GetCookieToken();
-        var jwtToken = request.GetJwtToken<AuthenticatedUser>();
-
-        if (token is null || jwtToken.Content is null)
-            return;
-
-        jwtCacheService.RevokeAllTokens(jwtToken.Content.Id ?? Guid.Empty);
-        response.RemoveCookieToken();
+        jwtCacheService.RevokeToken(jwtToken.Content.Id ?? Guid.Empty, userAgent, refreshToken);
+        response.Cookies.Delete(_cookieTokenName);
     }
 
     private async Task<Result<User?>> VerifyCredentials(string login, string password)

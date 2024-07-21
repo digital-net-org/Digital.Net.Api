@@ -1,16 +1,18 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using SafariDigital.Core.Application;
 using SafariDigital.Core.Random;
 using SafariDigital.Core.Validation;
+using SafariDigital.Services.HttpContext;
 using SafariDigital.Services.Jwt;
 using Tests.Core.Base;
+using Tests.Core.Factories;
 
 namespace Tests.Unit.SafariDigital.Services.Jwt;
 
 public class JwtServiceTest : UnitTest
 {
     private readonly JwtService _jwtService;
-    private string _secret;
 
     public JwtServiceTest()
     {
@@ -25,23 +27,23 @@ public class JwtServiceTest : UnitTest
                      ("Jwt:BearerTokenExpiration", "2000"),
                      ("Jwt:RefreshTokenExpiration", "20000")
                  ]) Environment.SetEnvironmentVariable(key, value);
-        _jwtService = new JwtService(configuration);
+        _jwtService = new JwtService(new HttpContextService(new HttpContextAccessor()), configuration);
     }
 
     [Fact]
     public void ValidateToken_ReturnsExpectedResult()
     {
         // Arrange
-        var content = new TokenContent { Id = 1, Name = "test" };
+        var content = UserFactory.CreateUser();
         var token = _jwtService.GenerateBearerToken(content);
 
         // Act
-        var result = _jwtService.ValidateToken<TokenContent>(token);
+        var result = _jwtService.ValidateToken(token);
 
         // Assert
         Assert.Equal(token, result.Token);
         Assert.Equal(content.Id, result.Content!.Id);
-        Assert.Equal(content.Name, result.Content!.Name);
+        Assert.Equal(content.Role, result.Content!.Role);
         Assert.Empty(result.Errors);
         Assert.False(result.HasError);
     }
@@ -50,46 +52,14 @@ public class JwtServiceTest : UnitTest
     public void ValidateToken_ReturnsError()
     {
         // Arrange
-        var content = new TokenContent { Id = 1, Name = "test" };
+        var content = UserFactory.CreateUser();
         var token = _jwtService.GenerateBearerToken(content);
 
         // Act
-        var result = _jwtService.ValidateToken<TokenContent>($"{token}:invalid");
+        var result = _jwtService.ValidateToken($"{token}:invalid");
 
         // Assert
         Assert.Collection(result.Errors, e => Assert.IsType<ResultMessage>(e));
         Assert.True(result.HasError);
-    }
-
-    [Fact]
-    public void GenerateBearerToken_ReturnsExpectedResult()
-    {
-        // Arrange
-        var content = new { test = "test" };
-
-        // Act
-        var token = _jwtService.GenerateBearerToken(content);
-
-        // Assert
-        Assert.NotNull(token);
-    }
-
-    [Fact]
-    public void GenerateRefreshToken_ReturnsExpectedResult()
-    {
-        // Arrange
-        var content = new { test = "test" };
-
-        // Act
-        var token = _jwtService.GenerateRefreshToken(content);
-
-        // Assert
-        Assert.NotNull(token);
-    }
-
-    private class TokenContent
-    {
-        public int Id { get; set; }
-        public string? Name { get; set; }
     }
 }

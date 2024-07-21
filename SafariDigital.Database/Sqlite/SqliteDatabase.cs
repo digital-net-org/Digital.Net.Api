@@ -2,7 +2,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using SafariDigital.Database.Context;
 
-namespace Tests.Core.Integration;
+namespace SafariDigital.Database.Sqlite;
 
 public sealed class SqliteDatabase : IDisposable
 {

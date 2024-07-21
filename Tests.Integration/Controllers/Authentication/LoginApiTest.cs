@@ -74,6 +74,8 @@ public class LoginApiTest : IntegrationTest
         var user = Setup();
         var httpClients = new List<HttpClient>();
         var responses = new List<HttpResponseMessage>();
+
+        // +1 As the first client will be disconnected on the exceeding request
         for (var i = 0; i < allowedConnections + 1; i++)
         {
             var client = Factory.CreateClient();

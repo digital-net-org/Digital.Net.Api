@@ -3,9 +3,8 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using SafariDigital.Database.Models.User;
-using SafariDigital.Services.Authentication.Models;
+using SafariDigital.Services.HttpContext;
 using SafariDigital.Services.Jwt;
-using SafariDigital.Services.Jwt.Http;
 using SafariDigital.Services.Jwt.Models;
 
 namespace SafariDigital.Api.Attributes;
@@ -19,8 +18,8 @@ public class AuthorizeAttribute : Attribute, IAuthorizationFilter
     public void OnAuthorization(AuthorizationFilterContext context)
     {
         var jwtService = context.HttpContext.RequestServices.GetRequiredService<IJwtService>();
-        var token = context.HttpContext.GetBearerToken();
-        var result = jwtService.ValidateToken<AuthenticatedUser>(token);
+        var token = context.HttpContext.Request.GetBearerToken();
+        var result = jwtService.ValidateToken(token);
         var isUserAuthorized = result.Content?.Role >= Role;
 
         if (isUserAuthorized)

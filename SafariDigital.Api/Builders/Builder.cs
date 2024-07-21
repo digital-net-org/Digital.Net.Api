@@ -5,6 +5,7 @@ using SafariDigital.Database;
 using SafariDigital.Database.Context;
 using SafariDigital.Services.Authentication;
 using SafariDigital.Services.Cache;
+using SafariDigital.Services.HttpContext;
 using SafariDigital.Services.Jwt;
 
 namespace SafariDigital.Api.Builders;
@@ -31,6 +32,7 @@ public static class Builder
     {
         builder.Services
             .AddRepositories()
+            .AddHttpContextService()
             .AddJwtService()
             .AddCacheService()
             .AddAuthenticationService();

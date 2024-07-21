@@ -4,7 +4,7 @@ using SafariDigital.Database.Models.User;
 using SafariDigital.Services.Authentication;
 using SafariDigital.Services.Authentication.Models;
 
-namespace SafariDigital.Api.Controllers;
+namespace SafariDigital.Api.Controllers.Authentication;
 
 [ApiController]
 public class AuthController(IAuthenticationService authService) : ControllerBase
@@ -12,14 +12,14 @@ public class AuthController(IAuthenticationService authService) : ControllerBase
     [HttpPost("/authentication/login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        var result = await authService.Login(Request, Response, request.Login, request.Password);
+        var result = await authService.Login(request.Login, request.Password);
         return result.HasError || result.Value is null ? Unauthorized(result) : Ok(result.Value);
     }
 
     [HttpGet("/authentication/refresh")]
     public async Task<IActionResult> RefreshTokens()
     {
-        var result = await authService.RefreshTokens(Request, Response);
+        var result = await authService.RefreshTokens();
         return result.HasError ? Unauthorized(result) : Ok(result.Value);
     }
 
@@ -27,7 +27,7 @@ public class AuthController(IAuthenticationService authService) : ControllerBase
     [HttpPost("/authentication/logout")]
     public IActionResult Logout()
     {
-        authService.Logout(Request, Response);
+        authService.Logout();
         return Ok();
     }
 
@@ -35,7 +35,7 @@ public class AuthController(IAuthenticationService authService) : ControllerBase
     [HttpPost("/authentication/logout-all")]
     public IActionResult LogoutAll()
     {
-        authService.LogoutAll(Request, Response);
+        authService.LogoutAll();
         return Ok();
     }
 

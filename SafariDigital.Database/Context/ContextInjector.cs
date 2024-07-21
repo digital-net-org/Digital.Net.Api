@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SafariDigital.Core.Application;
 
 namespace SafariDigital.Database.Context;
 
@@ -10,8 +12,12 @@ public static class ContextInjector
     public static WebApplicationBuilder ConnectDatabase(this WebApplicationBuilder builder)
     {
         builder.Services.AddDbContext<SafariDigitalContext>(opts =>
-            opts.UseNpgsql(builder.GetConnectionString(), b
-                => b.MigrationsAssembly("SafariDigital.Database")));
+        {
+            if (ApplicationEnvironment.IsTestEnvironment)
+                opts.UseSqlite(new SqliteConnection("Filename=:memory:"));
+            else
+                opts.UseNpgsql(builder.GetConnectionString(), b => b.MigrationsAssembly("SafariDigital.Database"));
+        });
         return builder;
     }
 
