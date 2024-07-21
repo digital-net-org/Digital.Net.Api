@@ -1,12 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SafariDigital.Database.Models.Entity;
+namespace SafariDigital.Database.Models;
 
-public abstract class EntityWithGuid : BaseEntity
+public abstract class Entity : BaseEntity
 {
     [Column("id")]
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public Guid Id { get; init; }
+    public int Id { get; init; }
 }

@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
 using SafariDigital.Api;
 using SafariDigital.Database.Context;
-using SafariDigital.Database.Models.User;
+using SafariDigital.Database.Models.UserTable;
 using SafariDigital.Database.Repository;
 using SafariDigital.Services.Authentication.Models;
 using Tests.Core.Factories;

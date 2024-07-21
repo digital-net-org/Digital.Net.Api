@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SafariDigital.Api.Attributes;
-using SafariDigital.Database.Models.User;
+using SafariDigital.Database.Models.UserTable;
 using SafariDigital.Services.Authentication;
 using SafariDigital.Services.Authentication.Models;
 

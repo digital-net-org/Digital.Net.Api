@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using SafariDigital.Database.Models.User;
+using SafariDigital.Database.Models.UserTable;
 using SafariDigital.Services.HttpContext;
 using SafariDigital.Services.Jwt;
 using SafariDigital.Services.Jwt.Models;

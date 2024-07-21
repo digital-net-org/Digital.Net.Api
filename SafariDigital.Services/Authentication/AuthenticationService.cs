@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using SafariDigital.Core.Application;
 using SafariDigital.Core.Validation;
-using SafariDigital.Database.Models.User;
+using SafariDigital.Database.Models.UserTable;
 using SafariDigital.Database.Repository;
 using SafariDigital.Services.Authentication.Models;
 using SafariDigital.Services.Cache.AttemptCache;

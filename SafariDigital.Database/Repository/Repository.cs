@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using SafariDigital.Database.Context;
-using SafariDigital.Database.Models.Entity;
+using SafariDigital.Database.Models;
 
 namespace SafariDigital.Database.Repository;
 

@@ -1,5 +1,5 @@
 using SafariDigital.Database.Context;
-using SafariDigital.Database.Models.User;
+using SafariDigital.Database.Models.UserTable;
 using SafariDigital.Database.Repository;
 using SafariDigital.Database.Sqlite;
 using Tests.Core.Base;

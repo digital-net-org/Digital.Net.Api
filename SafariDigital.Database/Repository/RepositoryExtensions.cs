@@ -1,5 +1,5 @@
 using SafariDigital.Core.Validation;
-using SafariDigital.Database.Models.Entity;
+using SafariDigital.Database.Models;
 
 namespace SafariDigital.Database.Repository;
 

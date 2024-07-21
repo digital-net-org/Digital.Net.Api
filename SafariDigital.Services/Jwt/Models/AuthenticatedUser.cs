@@ -1,4 +1,4 @@
-using SafariDigital.Database.Models.User;
+using SafariDigital.Database.Models.UserTable;
 
 namespace SafariDigital.Services.Jwt.Models;
 

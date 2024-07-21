@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
-using SafariDigital.Database.Models.Entity;
+using SafariDigital.Database.Models.DocumentTable;
 
-namespace SafariDigital.Database.Models.User;
+namespace SafariDigital.Database.Models.UserTable;
 
 [Table("user")]
 [Index(nameof(Username), nameof(Email), IsUnique = true)]
@@ -26,5 +26,7 @@ public class User : EntityWithGuid
 
     [Column("role")] [Required] public EUserRole Role { get; set; } = EUserRole.User;
 
+    // [Column("avatar_id")] public Guid? AvatarId { get; set; }
+    [ForeignKey("avatar_id")] public virtual Document? Avatar { get; set; }
     [Column("is_active")] [Required] public bool IsActive { get; set; } = false;
 }
