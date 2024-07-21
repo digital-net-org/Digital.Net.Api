@@ -1,7 +1,7 @@
 using Microsoft.IdentityModel.Tokens;
 using SafariDigital.Core.Validation;
 
-namespace SafariDigital.Services.Jwt.Models;
+namespace SafariDigital.Services.JwtService.Models;
 
 public class JwtToken<T> : Result<T>
 {

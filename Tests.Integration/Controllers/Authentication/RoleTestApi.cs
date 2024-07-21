@@ -6,7 +6,7 @@ using SafariDigital.Core.Application;
 using SafariDigital.Database.Context;
 using SafariDigital.Database.Models.UserTable;
 using SafariDigital.Database.Repository;
-using SafariDigital.Services.Authentication.Models;
+using SafariDigital.Services.AuthenticationService.Models;
 using Tests.Core.Factories;
 using Tests.Core.Integration;
 using Tests.Core.Utils;

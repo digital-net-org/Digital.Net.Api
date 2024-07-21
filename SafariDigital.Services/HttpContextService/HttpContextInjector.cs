@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace SafariDigital.Services.HttpContext;
+namespace SafariDigital.Services.HttpContextService;
 
 public static class HttpContextInjector
 {

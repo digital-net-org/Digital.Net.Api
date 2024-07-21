@@ -20,7 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="HttpContext\Models\"/>
+        <Folder Include="HttpContextService\Models\" />
     </ItemGroup>
 
 </Project>

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace SafariDigital.Services.Authentication.Models;
+namespace SafariDigital.Services.AuthenticationService.Models;
 
 public record LoginRequest([Required] string Login, [Required] string Password);
 

@@ -1,6 +1,6 @@
 using SafariDigital.Database.Models.UserTable;
 
-namespace SafariDigital.Services.Authentication;
+namespace SafariDigital.Services.AuthenticationService;
 
 public static class AuthenticationUtils
 {

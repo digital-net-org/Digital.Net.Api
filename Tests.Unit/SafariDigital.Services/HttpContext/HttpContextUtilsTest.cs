@@ -1,7 +1,7 @@
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using Moq;
-using SafariDigital.Services.HttpContext;
+using SafariDigital.Services.HttpContextService;
 using Tests.Core.Base;
 
 namespace Tests.Unit.SafariDigital.Services.HttpContext;

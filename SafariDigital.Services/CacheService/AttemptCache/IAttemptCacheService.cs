@@ -1,4 +1,4 @@
-namespace SafariDigital.Services.Cache.AttemptCache;
+namespace SafariDigital.Services.CacheService.AttemptCache;
 
 public interface IAttemptCacheService
 {

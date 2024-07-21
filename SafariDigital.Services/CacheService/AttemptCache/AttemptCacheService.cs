@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using SafariDigital.Core.Application;
 using SafariDigital.Core.Memory;
 
-namespace SafariDigital.Services.Cache.AttemptCache;
+namespace SafariDigital.Services.CacheService.AttemptCache;
 
 [ExcludeFromCodeCoverage] // Tested in integration tests
 public class AttemptCacheService(IMemoryCache memoryCache, IConfiguration configuration)

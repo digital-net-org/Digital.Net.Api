@@ -3,9 +3,9 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using SafariDigital.Database.Models.UserTable;
-using SafariDigital.Services.HttpContext;
-using SafariDigital.Services.Jwt;
-using SafariDigital.Services.Jwt.Models;
+using SafariDigital.Services.HttpContextService;
+using SafariDigital.Services.JwtService;
+using SafariDigital.Services.JwtService.Models;
 
 namespace SafariDigital.Api.Attributes;
 

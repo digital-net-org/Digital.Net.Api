@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace SafariDigital.Services.HttpContext;
+namespace SafariDigital.Services.HttpContextService;
 
 public static class HttpContextUtils
 {

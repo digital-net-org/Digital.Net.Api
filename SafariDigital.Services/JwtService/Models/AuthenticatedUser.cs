@@ -1,6 +1,6 @@
 using SafariDigital.Database.Models.UserTable;
 
-namespace SafariDigital.Services.Jwt.Models;
+namespace SafariDigital.Services.JwtService.Models;
 
 public class AuthenticatedUser
 {

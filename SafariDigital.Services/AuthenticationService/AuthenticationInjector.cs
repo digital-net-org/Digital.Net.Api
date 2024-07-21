@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace SafariDigital.Services.Authentication;
+namespace SafariDigital.Services.AuthenticationService;
 
 public static class AuthenticationInjector
 {

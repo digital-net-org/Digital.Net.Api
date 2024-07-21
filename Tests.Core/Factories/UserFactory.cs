@@ -1,5 +1,5 @@
 using SafariDigital.Database.Models.UserTable;
-using SafariDigital.Services.Authentication;
+using SafariDigital.Services.AuthenticationService;
 using Tests.Core.Utils;
 
 namespace Tests.Core.Factories;

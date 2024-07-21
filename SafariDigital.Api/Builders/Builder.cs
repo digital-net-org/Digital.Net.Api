@@ -3,10 +3,10 @@ using SafariDigital.Api.Builders.Injectors;
 using SafariDigital.Core.Application;
 using SafariDigital.Database;
 using SafariDigital.Database.Context;
-using SafariDigital.Services.Authentication;
-using SafariDigital.Services.Cache;
-using SafariDigital.Services.HttpContext;
-using SafariDigital.Services.Jwt;
+using SafariDigital.Services.AuthenticationService;
+using SafariDigital.Services.CacheService;
+using SafariDigital.Services.HttpContextService;
+using SafariDigital.Services.JwtService;
 
 namespace SafariDigital.Api.Builders;
 

@@ -3,13 +3,13 @@ using SafariDigital.Core.Application;
 using SafariDigital.Core.Validation;
 using SafariDigital.Database.Models.UserTable;
 using SafariDigital.Database.Repository;
-using SafariDigital.Services.Authentication.Models;
-using SafariDigital.Services.Cache.AttemptCache;
-using SafariDigital.Services.Cache.JwtCache;
-using SafariDigital.Services.HttpContext;
-using SafariDigital.Services.Jwt;
+using SafariDigital.Services.AuthenticationService.Models;
+using SafariDigital.Services.CacheService.AttemptCache;
+using SafariDigital.Services.CacheService.JwtCache;
+using SafariDigital.Services.HttpContextService;
+using SafariDigital.Services.JwtService;
 
-namespace SafariDigital.Services.Authentication;
+namespace SafariDigital.Services.AuthenticationService;
 
 public class AuthenticationService(
     IJwtService jwtService,

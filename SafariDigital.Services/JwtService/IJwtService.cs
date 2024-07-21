@@ -1,7 +1,7 @@
 using SafariDigital.Database.Models.UserTable;
-using SafariDigital.Services.Jwt.Models;
+using SafariDigital.Services.JwtService.Models;
 
-namespace SafariDigital.Services.Jwt;
+namespace SafariDigital.Services.JwtService;
 
 public interface IJwtService
 {

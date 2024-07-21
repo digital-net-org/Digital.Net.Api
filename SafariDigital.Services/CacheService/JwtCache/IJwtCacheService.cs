@@ -1,4 +1,4 @@
-namespace SafariDigital.Services.Cache.JwtCache;
+namespace SafariDigital.Services.CacheService.JwtCache;
 
 public interface IJwtCacheService
 {

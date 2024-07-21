@@ -3,8 +3,8 @@ using Microsoft.Extensions.Configuration;
 using SafariDigital.Core.Application;
 using SafariDigital.Core.Random;
 using SafariDigital.Core.Validation;
-using SafariDigital.Services.HttpContext;
-using SafariDigital.Services.Jwt;
+using SafariDigital.Services.HttpContextService;
+using SafariDigital.Services.JwtService;
 using Tests.Core.Base;
 using Tests.Core.Factories;
 

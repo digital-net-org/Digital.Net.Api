@@ -1,7 +1,7 @@
 using SafariDigital.Core.Validation;
-using SafariDigital.Services.Authentication.Models;
+using SafariDigital.Services.AuthenticationService.Models;
 
-namespace SafariDigital.Services.Authentication;
+namespace SafariDigital.Services.AuthenticationService;
 
 public interface IAuthenticationService
 {

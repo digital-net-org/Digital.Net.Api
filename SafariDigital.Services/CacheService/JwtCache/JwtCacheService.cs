@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using SafariDigital.Core.Application;
 using SafariDigital.Core.Memory;
 
-namespace SafariDigital.Services.Cache.JwtCache;
+namespace SafariDigital.Services.CacheService.JwtCache;
 
 public class JwtCacheService(
     IMemoryCache memoryCache,

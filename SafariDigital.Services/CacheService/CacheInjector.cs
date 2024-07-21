@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
-using SafariDigital.Services.Cache.AttemptCache;
-using SafariDigital.Services.Cache.JwtCache;
+using SafariDigital.Services.CacheService.AttemptCache;
+using SafariDigital.Services.CacheService.JwtCache;
 
-namespace SafariDigital.Services.Cache;
+namespace SafariDigital.Services.CacheService;
 
 public static class CacheServiceInjector
 {

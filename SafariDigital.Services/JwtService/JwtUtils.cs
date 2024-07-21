@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using SafariDigital.Core.Application;
 
-namespace SafariDigital.Services.Jwt;
+namespace SafariDigital.Services.JwtService;
 
 public static class JwtUtils
 {

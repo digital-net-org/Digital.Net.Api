@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace SafariDigital.Services.Jwt;
+namespace SafariDigital.Services.JwtService;
 
 public static class JwtInjector
 {
