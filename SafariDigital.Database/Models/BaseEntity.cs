@@ -8,4 +8,13 @@ public class BaseEntity
     [Column("created_at")] [Required] public DateTime CreatedAt { get; init; }
 
     [Column("updated_at")] public DateTime? UpdatedAt { get; init; }
+
+    public T GetModel<T>()
+    {
+        var constructor = typeof(T).GetConstructor([GetType()]);
+        if (constructor == null)
+            throw new InvalidOperationException($"No suitable constructor found for type {typeof(T).Name}");
+
+        return (T)constructor.Invoke([this]);
+    }
 }

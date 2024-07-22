@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -11,10 +12,10 @@ namespace SafariDigital.Database.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<Guid>(
+            migrationBuilder.AddColumn<int>(
                 name: "avatar_id",
                 table: "user",
-                type: "uuid",
+                type: "integer",
                 nullable: true);
 
             migrationBuilder.CreateTable(
@@ -26,7 +27,7 @@ namespace SafariDigital.Database.Migrations
                     file_type = table.Column<int>(type: "integer", nullable: false),
                     mime_type = table.Column<int>(type: "integer", nullable: false),
                     file_size = table.Column<long>(type: "bigint", nullable: false),
-                    uploader_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    uploader_id = table.Column<Guid>(type: "uuid", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
@@ -37,6 +38,28 @@ namespace SafariDigital.Database.Migrations
                         name: "FK_document_user_uploader_id",
                         column: x => x.uploader_id,
                         principalTable: "user",
+                        principalColumn: "id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "avatar",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    document_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    pos_x = table.Column<int>(type: "integer", nullable: true),
+                    pos_y = table.Column<int>(type: "integer", nullable: true),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_avatar", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_avatar_document_document_id",
+                        column: x => x.document_id,
+                        principalTable: "document",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -45,6 +68,11 @@ namespace SafariDigital.Database.Migrations
                 name: "IX_user_avatar_id",
                 table: "user",
                 column: "avatar_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_avatar_document_id",
+                table: "avatar",
+                column: "document_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_document_file_name",
@@ -58,10 +86,10 @@ namespace SafariDigital.Database.Migrations
                 column: "uploader_id");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_user_document_avatar_id",
+                name: "FK_user_avatar_avatar_id",
                 table: "user",
                 column: "avatar_id",
-                principalTable: "document",
+                principalTable: "avatar",
                 principalColumn: "id");
         }
 
@@ -69,8 +97,11 @@ namespace SafariDigital.Database.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_user_document_avatar_id",
+                name: "FK_user_avatar_avatar_id",
                 table: "user");
+
+            migrationBuilder.DropTable(
+                name: "avatar");
 
             migrationBuilder.DropTable(
                 name: "document");

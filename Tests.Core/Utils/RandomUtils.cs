@@ -23,4 +23,6 @@ public static class RandomUtils
             Enumerable.Repeat(chars, length).Select(s => s[new Random().Next(s.Length)]).ToArray()
         );
     }
+
+    public static int GenerateRandomInt() => new Random().Next(-1000, 1000);
 }

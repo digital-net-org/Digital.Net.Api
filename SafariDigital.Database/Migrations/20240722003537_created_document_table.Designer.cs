@@ -12,7 +12,7 @@ using SafariDigital.Database.Context;
 namespace SafariDigital.Database.Migrations
 {
     [DbContext(typeof(SafariDigitalContext))]
-    [Migration("20240721230854_created_document_table")]
+    [Migration("20240722003537_created_document_table")]
     partial class created_document_table
     {
         /// <inheritdoc />
@@ -24,6 +24,41 @@ namespace SafariDigital.Database.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("SafariDigital.Database.Models.AvatarTable.Avatar", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("PosX")
+                        .HasColumnType("integer")
+                        .HasColumnName("pos_x");
+
+                    b.Property<int?>("PosY")
+                        .HasColumnType("integer")
+                        .HasColumnName("pos_y");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("document_id")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("document_id");
+
+                    b.ToTable("avatar");
+                });
 
             modelBuilder.Entity("SafariDigital.Database.Models.DocumentTable.Document", b =>
                 {
@@ -58,7 +93,7 @@ namespace SafariDigital.Database.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("uploader_id")
+                    b.Property<Guid?>("uploader_id")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -112,8 +147,8 @@ namespace SafariDigital.Database.Migrations
                         .HasColumnType("character varying(24)")
                         .HasColumnName("username");
 
-                    b.Property<Guid?>("avatar_id")
-                        .HasColumnType("uuid");
+                    b.Property<int?>("avatar_id")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -125,20 +160,29 @@ namespace SafariDigital.Database.Migrations
                     b.ToTable("user");
                 });
 
+            modelBuilder.Entity("SafariDigital.Database.Models.AvatarTable.Avatar", b =>
+                {
+                    b.HasOne("SafariDigital.Database.Models.DocumentTable.Document", "Document")
+                        .WithMany()
+                        .HasForeignKey("document_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Document");
+                });
+
             modelBuilder.Entity("SafariDigital.Database.Models.DocumentTable.Document", b =>
                 {
                     b.HasOne("SafariDigital.Database.Models.UserTable.User", "Uploader")
                         .WithMany()
-                        .HasForeignKey("uploader_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("uploader_id");
 
                     b.Navigation("Uploader");
                 });
 
             modelBuilder.Entity("SafariDigital.Database.Models.UserTable.User", b =>
                 {
-                    b.HasOne("SafariDigital.Database.Models.DocumentTable.Document", "Avatar")
+                    b.HasOne("SafariDigital.Database.Models.AvatarTable.Avatar", "Avatar")
                         .WithMany()
                         .HasForeignKey("avatar_id");
 

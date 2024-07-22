@@ -19,5 +19,5 @@ public class Document : EntityWithGuid
 
     [Column("file_size")] [Required] public required long FileSize { get; set; }
 
-    [ForeignKey("uploader_id")] public virtual User Uploader { get; set; }
+    [ForeignKey("uploader_id")] public virtual User? Uploader { get; set; }
 }

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SafariDigital.Database.Models.AvatarTable;
 using SafariDigital.Database.Models.DocumentTable;
 using SafariDigital.Database.Models.UserTable;
 
@@ -9,4 +10,5 @@ public class SafariDigitalContext(DbContextOptions<SafariDigitalContext> options
 {
     public DbSet<User> Users { get; set; }
     public DbSet<Document> Documents { get; set; }
+    public DbSet<Avatar> Avatars { get; set; }
 }
