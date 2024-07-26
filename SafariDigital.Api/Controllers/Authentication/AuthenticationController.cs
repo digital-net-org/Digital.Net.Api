@@ -39,6 +39,10 @@ public class AuthController(IAuthenticationService authService) : ControllerBase
         return Ok();
     }
 
+    [Authorize(Role = EUserRole.SuperAdmin)]
+    [HttpGet("/authentication/password/generate/{password:length(12, 64)}")]
+    public IActionResult GeneratePassword(string password) => Ok(authService.GeneratePassword(password));
+
     [HttpGet("/authentication/role/visitor/test")]
     public IActionResult TestVisitorAuthorization() => Ok();
 

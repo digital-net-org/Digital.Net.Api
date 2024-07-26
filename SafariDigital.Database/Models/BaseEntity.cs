@@ -18,3 +18,9 @@ public class BaseEntity
         return (T)constructor.Invoke([this]);
     }
 }
+
+public static class BaseEntityExtensions
+{
+    public static List<TModel> GetModel<TModel>(this IEnumerable<BaseEntity> entities) where TModel : class
+        => entities.Select(entity => entity.GetModel<TModel>()).ToList();
+}

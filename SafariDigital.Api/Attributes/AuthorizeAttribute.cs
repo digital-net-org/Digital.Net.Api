@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using SafariDigital.Database.Models.UserTable;
@@ -24,7 +23,7 @@ public class AuthorizeAttribute : Attribute, IAuthorizationFilter
 
         if (isUserAuthorized)
         {
-            context.HttpContext.Items["Token"] = JsonSerializer.Serialize(
+            context.HttpContext.AddTokenToContext(
                 new JwtToken<AuthenticatedUser>
                 {
                     Content = result.Content,

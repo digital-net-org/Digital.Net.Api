@@ -22,13 +22,13 @@ public class Result
     public void AddWarning(System.Enum message) => Warnings.Add(new ResultMessage(message));
     public void AddInfo(System.Enum message) => Infos.Add(new ResultMessage(message));
 
-    public TB? ValidateExpression<TB>(Result<TB?> func)
+    public TB ValidateExpression<TB>(Result<TB> func)
     {
         Merge(func);
         return func.Value;
     }
 
-    public async Task<TB?> ValidateExpressionAsync<TB>(Task<Result<TB?>> func)
+    public async Task<TB> ValidateExpressionAsync<TB>(Task<Result<TB>> func)
     {
         var subVm = await func;
         Merge(subVm);

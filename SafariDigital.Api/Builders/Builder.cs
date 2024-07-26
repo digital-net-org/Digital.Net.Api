@@ -7,6 +7,7 @@ using SafariDigital.Services.AuthenticationService;
 using SafariDigital.Services.CacheService;
 using SafariDigital.Services.HttpContextService;
 using SafariDigital.Services.JwtService;
+using SafariDigital.Services.PaginationService;
 
 namespace SafariDigital.Api.Builders;
 
@@ -35,6 +36,7 @@ public static class Builder
             .AddHttpContextService()
             .AddJwtService()
             .AddCacheService()
+            .AddPaginationServices()
             .AddAuthenticationService();
         return builder;
     }

@@ -27,7 +27,7 @@ public class JwtServiceTest : UnitTest
                      ("Jwt:BearerTokenExpiration", "2000"),
                      ("Jwt:RefreshTokenExpiration", "20000")
                  ]) Environment.SetEnvironmentVariable(key, value);
-        _jwtService = new JwtService(new HttpContextService(new HttpContextAccessor()), configuration);
+        _jwtService = new JwtService(new HttpContextService(new HttpContextAccessor(), null), configuration);
     }
 
     [Fact]
