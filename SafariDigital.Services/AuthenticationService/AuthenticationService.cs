@@ -105,6 +105,8 @@ public class AuthenticationService(
         response.Cookies.Delete(_cookieTokenName);
     }
 
+    public string GeneratePassword(string password) => AuthenticationUtils.HashPassword(password);
+
     private async Task<Result<User?>> VerifyCredentials(string login, string password)
     {
         var result = await userRepository.GetFirstOrDefaultAsync(u =>

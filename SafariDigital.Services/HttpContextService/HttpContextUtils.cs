@@ -1,4 +1,6 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Http;
+using SafariDigital.Services.JwtService.Models;
 
 namespace SafariDigital.Services.HttpContextService;
 
@@ -6,6 +8,15 @@ public static class HttpContextUtils
 {
     private const string DefaultIpAddress = "no_ip_address_found";
     private const string DefaultUserAgent = "no_user_agent_found";
+    public const string Token = "Token";
+
+    public static void AddTokenToContext(this HttpContext context, JwtToken<AuthenticatedUser> content) =>
+        context.Items[Token] = JsonSerializer.Serialize(content);
+
+    public static JwtToken<AuthenticatedUser>? GetTokenFromContext(this HttpContext context) =>
+        context.Items[Token] is not string item
+            ? default
+            : JsonSerializer.Deserialize<JwtToken<AuthenticatedUser>>(item);
 
     public static string GetRemoteIpAddressFromRequest(HttpRequest request)
     {

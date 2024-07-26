@@ -1,4 +1,4 @@
-namespace SafariDigital.Database.Models.UserTable;
+namespace SafariDigital.Database.Models.UserTable.Enum;
 
 public enum EUserRole
 {

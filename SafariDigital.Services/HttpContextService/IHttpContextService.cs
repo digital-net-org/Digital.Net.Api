@@ -6,6 +6,6 @@ namespace SafariDigital.Services.HttpContextService;
 public interface IHttpContextService
 {
     (HttpRequest request, HttpResponse response) GetControllerContext();
-    Microsoft.AspNetCore.Http.HttpContext GetContext();
+    HttpContext GetContext();
     Task<User> GetAuthenticatedUser();
 }

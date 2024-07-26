@@ -8,5 +8,5 @@ public static class HttpContextInjector
     public static IServiceCollection AddHttpContextService(this IServiceCollection services) =>
         services
             .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
-            .AddSingleton<IHttpContextService, HttpContextService>();
+            .AddScoped<IHttpContextService, HttpContextService>();
 }

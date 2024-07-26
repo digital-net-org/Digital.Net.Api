@@ -20,9 +20,7 @@ public class JwtService(
         var result = new JwtToken<AuthenticatedUser>();
         try
         {
-            return context.Items["Token"] is not string item
-                ? result
-                : JsonSerializer.Deserialize<JwtToken<AuthenticatedUser>>(item)!;
+            return context.GetTokenFromContext() ?? result;
         }
         catch (Exception e)
         {

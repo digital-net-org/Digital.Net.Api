@@ -1,16 +1,24 @@
 using Microsoft.AspNetCore.Http;
 using SafariDigital.Database.Models.UserTable;
+using SafariDigital.Database.Repository;
 
 namespace SafariDigital.Services.HttpContextService;
 
-public class HttpContextService(IHttpContextAccessor contextAccessor) : IHttpContextService
+public class HttpContextService(
+    IHttpContextAccessor contextAccessor,
+    IRepository<User> userRepository) : IHttpContextService
 {
     public (HttpRequest request, HttpResponse response) GetControllerContext() => (GetRequest(), GetResponse());
 
+    public async Task<User> GetAuthenticatedUser()
+    {
+        var context = GetContext();
+        var token = context.GetTokenFromContext();
+        var user = await userRepository.GetByPrimaryKeyAsync(token?.Content?.Id ?? Guid.Empty);
+        return user ?? throw new NullReferenceException("No user authenticated");
+    }
 
-    public Task<User> GetAuthenticatedUser() => throw new NotImplementedException();
-
-    public Microsoft.AspNetCore.Http.HttpContext GetContext() =>
+    public HttpContext GetContext() =>
         contextAccessor.HttpContext ?? throw new NullReferenceException("Http Context is not defined");
 
     private HttpRequest GetRequest() =>
