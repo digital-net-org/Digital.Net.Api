@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Microsoft.IdentityModel.Tokens;
 using SafariDigital.Core.Validation;
 
@@ -5,6 +6,11 @@ namespace SafariDigital.Services.JwtService.Models;
 
 public class JwtToken<T> : Result<T>
 {
+    [JsonConstructor]
+    public JwtToken()
+    {
+    }
+
     public string? Token { get; set; }
     public SecurityToken? SecurityToken { get; set; }
     public T? Content { get; set; }

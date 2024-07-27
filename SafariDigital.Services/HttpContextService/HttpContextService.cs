@@ -14,7 +14,7 @@ public class HttpContextService(
     {
         var context = GetContext();
         var token = context.GetTokenFromContext();
-        var user = await userRepository.GetByPrimaryKeyAsync(token?.Content?.Id ?? Guid.Empty);
+        var user = await userRepository.GetByPrimaryKeyAsync(token?.Id.ToString());
         return user ?? throw new NullReferenceException("No user authenticated");
     }
 

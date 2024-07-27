@@ -8,6 +8,7 @@ using SafariDigital.Services.AuthenticationService;
 using SafariDigital.Services.CacheService;
 using SafariDigital.Services.HttpContextService;
 using SafariDigital.Services.JwtService;
+using SafariDigital.Services.UserService;
 
 namespace SafariDigital.Api.Builders;
 
@@ -37,6 +38,7 @@ public static class Builder
             .AddJwtService()
             .AddCacheService()
             .AddIdentities()
+            .AddUserService()
             .AddAuthenticationService();
         return builder;
     }

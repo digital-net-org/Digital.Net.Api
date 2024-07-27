@@ -24,11 +24,11 @@ public class AuthorizeAttribute : Attribute, IAuthorizationFilter
         if (isUserAuthorized)
         {
             context.HttpContext.AddTokenToContext(
-                new JwtToken<AuthenticatedUser>
+                new AuthenticatedUser
                 {
-                    Content = result.Content,
-                    Token = result.Token,
-                    SecurityToken = result.SecurityToken
+                    Id = result.Content?.Id,
+                    Role = result.Content?.Role,
+                    Token = result.Token
                 }
             );
             return;

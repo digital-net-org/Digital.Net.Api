@@ -16,6 +16,10 @@ public enum EApplicationMessage
     [Display(Name = "User is not activated")]
     UserNotActive = 1003,
 
+    // User
+    [Display(Name = "Password does not meet requirements")]
+    PasswordDoesNotMeetRequirements = 1100,
+
     // Repository
     [Display(Name = "Invalid query argument")]
     QueryError = 2000

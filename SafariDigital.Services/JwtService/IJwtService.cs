@@ -5,7 +5,7 @@ namespace SafariDigital.Services.JwtService;
 
 public interface IJwtService
 {
-    JwtToken<AuthenticatedUser> GetJwtToken();
+    AuthenticatedUser GetJwtToken();
     JwtToken<AuthenticatedUser> ValidateToken(string? token);
     string GenerateBearerToken(User content);
     string GenerateRefreshToken(User content);

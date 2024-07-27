@@ -7,7 +7,7 @@ using SafariDigital.Services.AuthenticationService.Models;
 namespace SafariDigital.Api.Controllers.Authentication;
 
 [ApiController]
-public class AuthController(IAuthenticationService authService) : ControllerBase
+public class AuthController(IConfiguration configuration, IAuthenticationService authService) : ControllerBase
 {
     [HttpPost("/authentication/login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
@@ -38,6 +38,10 @@ public class AuthController(IAuthenticationService authService) : ControllerBase
         authService.LogoutAll();
         return Ok();
     }
+
+    [Authorize(Role = EUserRole.User)]
+    [HttpGet("/authentication/password/pattern")]
+    public IActionResult GetPasswordPattern() => Ok(configuration.GetPasswordRegex().ToString());
 
     [Authorize(Role = EUserRole.SuperAdmin)]
     [HttpGet("/authentication/password/generate/{password:length(12, 64)}")]

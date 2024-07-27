@@ -10,13 +10,13 @@ public static class HttpContextUtils
     private const string DefaultUserAgent = "no_user_agent_found";
     public const string Token = "Token";
 
-    public static void AddTokenToContext(this HttpContext context, JwtToken<AuthenticatedUser> content) =>
+    public static void AddTokenToContext(this HttpContext context, AuthenticatedUser content) =>
         context.Items[Token] = JsonSerializer.Serialize(content);
 
-    public static JwtToken<AuthenticatedUser>? GetTokenFromContext(this HttpContext context) =>
+    public static AuthenticatedUser? GetTokenFromContext(this HttpContext context) =>
         context.Items[Token] is not string item
             ? default
-            : JsonSerializer.Deserialize<JwtToken<AuthenticatedUser>>(item);
+            : JsonSerializer.Deserialize<AuthenticatedUser>(item);
 
     public static string GetRemoteIpAddressFromRequest(HttpRequest request)
     {

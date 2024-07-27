@@ -14,18 +14,11 @@ public class JwtService(
     IConfiguration configuration
 ) : IJwtService
 {
-    public JwtToken<AuthenticatedUser> GetJwtToken()
+    public AuthenticatedUser GetJwtToken()
     {
         var context = httpContextService.GetContext();
-        var result = new JwtToken<AuthenticatedUser>();
-        try
-        {
-            return context.GetTokenFromContext() ?? result;
-        }
-        catch (Exception e)
-        {
-            return result.AddError(e);
-        }
+        var result = new AuthenticatedUser();
+        return context.GetTokenFromContext() ?? result;
     }
 
     public JwtToken<AuthenticatedUser> ValidateToken(string? token)
@@ -52,11 +45,12 @@ public class JwtService(
     }
 
     public string GenerateBearerToken(User content) =>
-        SignToken(new AuthenticatedUser(content),
-            DateTime.UtcNow.AddMilliseconds(configuration.GetBearerTokenExpiration()));
+        SignToken(new AuthenticatedUser { Id = content.Id, Role = content.Role },
+            DateTime.UtcNow.AddMilliseconds(configuration.GetBearerTokenExpiration())
+        );
 
     public string GenerateRefreshToken(User content) =>
-        SignToken(new AuthenticatedUser(content),
+        SignToken(new AuthenticatedUser { Id = content.Id, Role = content.Role },
             DateTime.UtcNow.AddMilliseconds(configuration.GetRefreshTokenExpiration()));
 
 

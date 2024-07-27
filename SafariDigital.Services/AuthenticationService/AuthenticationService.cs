@@ -28,9 +28,8 @@ public class AuthenticationService(
         var (request, response) = httpContextService.GetControllerContext();
         var token = request.Cookies[_cookieTokenName];
         var jwtToken = jwtService.GetJwtToken();
-        if (token is null || jwtToken.Content is null) return;
-
-        jwtCacheService.RevokeAllTokens(jwtToken.Content.Id ?? Guid.Empty);
+        if (token is null || jwtToken.Id is null) return;
+        jwtCacheService.RevokeAllTokens(jwtToken.Id ?? Guid.Empty);
         response.Cookies.Delete(_cookieTokenName);
     }
 
@@ -99,9 +98,9 @@ public class AuthenticationService(
         var refreshToken = request.Cookies[_cookieTokenName];
         var jwtToken = jwtService.GetJwtToken();
 
-        if (refreshToken is null || jwtToken.Content is null) return;
+        if (refreshToken is null || jwtToken.Id is null) return;
 
-        jwtCacheService.RevokeToken(jwtToken.Content.Id ?? Guid.Empty, userAgent, refreshToken);
+        jwtCacheService.RevokeToken(jwtToken.Id ?? Guid.Empty, userAgent, refreshToken);
         response.Cookies.Delete(_cookieTokenName);
     }
 

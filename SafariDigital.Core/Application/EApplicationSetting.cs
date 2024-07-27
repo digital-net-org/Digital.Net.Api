@@ -33,5 +33,8 @@ public enum EApplicationSetting
     SecurityMaxRequestAllowed,
 
     [Display(Name = "Security:MaxRequestWindow")]
-    SecurityMaxRequestWindow
+    SecurityMaxRequestWindow,
+
+    [Display(Name = "Security:PasswordRegex")]
+    SecurityPasswordRegex
 }

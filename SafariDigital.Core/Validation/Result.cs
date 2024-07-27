@@ -17,11 +17,35 @@ public class Result
         return this;
     }
 
-    public void AddError(Exception ex) => Errors.Add(new ResultMessage(ex));
-    public void AddError(System.Enum message) => Errors.Add(new ResultMessage(message));
-    public void AddError(System.Enum message, Exception ex) => Errors.Add(new ResultMessage(ex, message));
-    public void AddWarning(System.Enum message) => Warnings.Add(new ResultMessage(message));
-    public void AddInfo(System.Enum message) => Infos.Add(new ResultMessage(message));
+    public Result AddError(Exception ex)
+    {
+        Errors.Add(new ResultMessage(ex));
+        return this;
+    }
+
+    public Result AddError(System.Enum message)
+    {
+        Errors.Add(new ResultMessage(message));
+        return this;
+    }
+
+    public Result AddError(System.Enum message, Exception ex)
+    {
+        Errors.Add(new ResultMessage(ex, message));
+        return this;
+    }
+
+    public Result AddWarning(System.Enum message)
+    {
+        Warnings.Add(new ResultMessage(message));
+        return this;
+    }
+
+    public Result AddInfo(System.Enum message)
+    {
+        Infos.Add(new ResultMessage(message));
+        return this;
+    }
 
     public TB ValidateExpression<TB>(Result<TB> func)
     {
