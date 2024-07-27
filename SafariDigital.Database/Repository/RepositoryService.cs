@@ -1,11 +1,12 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using SafariDigital.Core.Validation;
+using SafariDigital.Database.Models;
 
 namespace SafariDigital.Database.Repository;
 
 public class RepositoryService<T>(IRepository<T> repository) : IRepositoryService<T>
-    where T : class
+    where T : BaseEntity
 {
     public void Create(T entity) => repository.Create(entity);
 
@@ -31,10 +32,11 @@ public class RepositoryService<T>(IRepository<T> repository) : IRepositoryServic
         return new Result<T?>(entity);
     }
 
-    public Result<T?> GetByPrimaryKey(params object?[]? id) => new(repository.GetByPrimaryKey(id));
+    public Result<T?> GetByPrimaryKey(params object?[]? id) =>
+        RepositoryUtils.TryQuery(repository.GetByPrimaryKey(id));
 
     public async Task<Result<T?>> GetByPrimaryKeyAsync(params object?[]? id) =>
-        new(await repository.GetByPrimaryKeyAsync(id));
+        await RepositoryUtils.TryQueryAsync(repository.GetByPrimaryKeyAsync(id));
 
     public void Save() => repository.Save();
 

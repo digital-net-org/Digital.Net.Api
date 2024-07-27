@@ -1,7 +1,7 @@
 using SafariDigital.Database.Models.UserTable;
 using SafariDigital.Services.PaginationService.Models;
 
-namespace SafariDigital.Services.PaginationService.Services;
+namespace SafariDigital.DataIdentities.Pagination.User;
 
 public class UserQuery : PaginationQuery
 {

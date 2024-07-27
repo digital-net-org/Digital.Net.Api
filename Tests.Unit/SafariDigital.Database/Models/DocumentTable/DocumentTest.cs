@@ -1,4 +1,4 @@
-using SafariDigital.Database.Models.DocumentTable;
+using SafariDigital.DataIdentities.Models.Document;
 using Tests.Core.Factories;
 
 namespace Tests.Unit.SafariDigital.Database.Models.DocumentTable;

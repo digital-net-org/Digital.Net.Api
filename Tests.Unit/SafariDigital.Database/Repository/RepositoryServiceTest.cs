@@ -1,4 +1,5 @@
 using SafariDigital.Database.Context;
+using SafariDigital.Database.Models.AvatarTable;
 using SafariDigital.Database.Models.UserTable;
 using SafariDigital.Database.Repository;
 using SafariDigital.Database.Sqlite;
@@ -10,36 +11,36 @@ namespace Tests.Unit.SafariDigital.Database.Repository;
 public class RepositoryServiceTest : UnitTest
 {
     private readonly SafariDigitalContext _context = new SqliteDatabase().Context;
-    private IRepositoryService<User> _repository;
+    private IRepositoryService<Avatar> _avatarRepository;
+    private IRepositoryService<User> _userRepository;
 
-    // TODO: To replace with int based repository once available
-    // [Fact]
-    // public void GetById_WithInt_ShouldReturnEntity()
-    // {
-    //     // Arrange
-    //     var user = Setup();
-    //
-    //     // Act
-    //     var userById = _repository.GetById(user.Id);
-    //
-    //     // Assert
-    //     Assert.NotNull(userById);
-    //     Assert.Equal(user.Id, userById.Value!.Id);
-    // }
-    //
-    // [Fact]
-    // public async void GetByIdAsync_WithInt_ShouldReturnEntity()
-    // {
-    //     // Arrange
-    //     var user = Setup();
-    //
-    //     // Act
-    //     var userById = await _repository.GetByIdAsync(user.Id);
-    //
-    //     // Assert
-    //     Assert.NotNull(userById);
-    //     Assert.Equal(user.Id, userById.Value!.Id);
-    // }
+    [Fact]
+    public void GetById_WithInt_ShouldReturnEntity()
+    {
+        // Arrange
+        var avatar = SetupAvatar();
+
+        // Act
+        var avatarById = _avatarRepository.GetById(avatar.Id);
+
+        // Assert
+        Assert.NotNull(avatarById);
+        Assert.Equal(avatar.Id, avatarById.Value!.Id);
+    }
+
+    [Fact]
+    public async void GetByIdAsync_WithInt_ShouldReturnEntity()
+    {
+        // Arrange
+        var avatar = SetupAvatar();
+
+        // Act
+        var avatarById = await _avatarRepository.GetByIdAsync(avatar.Id);
+
+        // Assert
+        Assert.NotNull(avatarById);
+        Assert.Equal(avatar.Id, avatarById.Value!.Id);
+    }
 
     [Fact]
     public void GetById_WithGuid_ShouldReturnEntity()
@@ -48,7 +49,7 @@ public class RepositoryServiceTest : UnitTest
         var user = Setup();
 
         // Act
-        var userById = _repository.GetById(user.Id);
+        var userById = _userRepository.GetById(user.Id);
 
         // Assert
         Assert.NotNull(userById);
@@ -62,7 +63,7 @@ public class RepositoryServiceTest : UnitTest
         var user = Setup();
 
         // Act
-        var userById = await _repository.GetByIdAsync(user.Id);
+        var userById = await _userRepository.GetByIdAsync(user.Id);
 
         // Assert
         Assert.NotNull(userById);
@@ -76,7 +77,7 @@ public class RepositoryServiceTest : UnitTest
         var user = Setup();
 
         // Act
-        var userById = _repository.GetFirstOrDefault(u => u.Username == user.Username);
+        var userById = _userRepository.GetFirstOrDefault(u => u.Username == user.Username);
 
         // Assert
         Assert.NotNull(userById);
@@ -90,7 +91,7 @@ public class RepositoryServiceTest : UnitTest
         var user = Setup();
 
         // Act
-        var userById = await _repository.GetFirstOrDefaultAsync(u => u.Username == user.Username);
+        var userById = await _userRepository.GetFirstOrDefaultAsync(u => u.Username == user.Username);
 
         // Assert
         Assert.NotNull(userById);
@@ -100,9 +101,18 @@ public class RepositoryServiceTest : UnitTest
     private User Setup()
     {
         var user = UserFactory.CreateUser();
-        _repository = new RepositoryService<User>(new Repository<User>(_context));
-        _repository.Create(user);
-        _repository.Save();
-        return _repository.Get(u => u.Username == user.Username).Value!.FirstOrDefault()!;
+        _userRepository = new RepositoryService<User>(new Repository<User>(_context));
+        _userRepository.Create(user);
+        _userRepository.Save();
+        return _userRepository.Get(u => u.Username == user.Username).Value!.FirstOrDefault()!;
+    }
+
+    private Avatar SetupAvatar()
+    {
+        var avatar = AvatarFactory.CreateAvatar();
+        _avatarRepository = new RepositoryService<Avatar>(new Repository<Avatar>(_context));
+        _avatarRepository.Create(avatar);
+        _avatarRepository.Save();
+        return _avatarRepository.GetFirstOrDefault(a => a.Id != 0).Value!;
     }
 }

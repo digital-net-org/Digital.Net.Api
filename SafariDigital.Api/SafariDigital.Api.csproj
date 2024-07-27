@@ -26,6 +26,7 @@
     <ItemGroup>
         <ProjectReference Include="..\SafariDigital.Core\SafariDigital.Core.csproj"/>
         <ProjectReference Include="..\SafariDigital.Database\SafariDigital.Database.csproj"/>
+        <ProjectReference Include="..\SafariDigital.DataIdentities\SafariDigital.DataIdentities.csproj"/>
         <ProjectReference Include="..\SafariDigital.Services\SafariDigital.Services.csproj"/>
     </ItemGroup>
 

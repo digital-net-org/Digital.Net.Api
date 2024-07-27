@@ -1,6 +1,7 @@
-using SafariDigital.Database.Models.AvatarTable;
+using SafariDigital.Database.Models.UserTable;
+using SafariDigital.DataIdentities.Models.Avatar;
 
-namespace SafariDigital.Database.Models.UserTable;
+namespace SafariDigital.DataIdentities.Models.User;
 
 public class UserPublicModel
 {
@@ -8,7 +9,7 @@ public class UserPublicModel
     {
     }
 
-    public UserPublicModel(User user)
+    public UserPublicModel(Database.Models.UserTable.User user)
     {
         Id = user.Id;
         Username = user.Username;

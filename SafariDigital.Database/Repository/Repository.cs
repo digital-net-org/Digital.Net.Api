@@ -18,9 +18,9 @@ public class Repository<T>(SafariDigitalContext context) : IRepository<T>
 
     public IQueryable<T> Get(Expression<Func<T, bool>> expression) => context.Set<T>().Where(expression);
 
-    public T? GetByPrimaryKey(params object?[]? id) => context.Set<T>().Find(id);
+    public T? GetByPrimaryKey(params object?[]? id) => context.Set<T>().Find(ResolveId(id));
 
-    public async Task<T?> GetByPrimaryKeyAsync(params object?[]? id) => await context.Set<T>().FindAsync(id);
+    public async Task<T?> GetByPrimaryKeyAsync(params object?[]? id) => await context.Set<T>().FindAsync(ResolveId(id));
 
     public async Task SaveAsync()
     {
@@ -32,6 +32,14 @@ public class Repository<T>(SafariDigitalContext context) : IRepository<T>
     {
         AddTimestamps();
         context.SaveChanges();
+    }
+
+    public object ResolveId(params object?[]? id)
+    {
+        var str = id?[0]?.ToString();
+        if (Guid.TryParse(str, out var guid)) return guid;
+        if (int.TryParse(str, out var intId)) return intId;
+        throw new ArgumentException("Invalid id format");
     }
 
     private void AddTimestamps()

@@ -19,6 +19,7 @@ public class Result
 
     public void AddError(Exception ex) => Errors.Add(new ResultMessage(ex));
     public void AddError(System.Enum message) => Errors.Add(new ResultMessage(message));
+    public void AddError(System.Enum message, Exception ex) => Errors.Add(new ResultMessage(ex, message));
     public void AddWarning(System.Enum message) => Warnings.Add(new ResultMessage(message));
     public void AddInfo(System.Enum message) => Infos.Add(new ResultMessage(message));
 
@@ -58,6 +59,18 @@ public class Result<T> : Result
     public new Result<T> AddError(System.Enum message)
     {
         Errors.Add(new ResultMessage(message));
+        return this;
+    }
+
+    public new Result<T> AddError(System.Enum message, Exception ex)
+    {
+        Errors.Add(new ResultMessage(ex, message));
+        return this;
+    }
+
+    public Result<T> AddWarning(Exception ex)
+    {
+        Warnings.Add(new ResultMessage(ex));
         return this;
     }
 

@@ -13,24 +13,29 @@ public abstract class PaginationService<T, TModel, TQuery>(IRepository<T> reposi
     where TModel : class
     where TQuery : PaginationQuery
 {
-    public async Task<PaginationResult<TModel>> Get(TQuery query)
+    public PaginationResult<TModel> Get(TQuery query)
     {
         query.ValidateParameters();
+        var result = new PaginationResult<TModel>();
 
-        var items = repositoryService.Get(Filter(query));
-        var rowCount = await items.CountAsync();
-        items = items.AsNoTracking();
-        items = items.Skip((query.Index - 1) * query.Size).Take(query.Size);
-        items = items.OrderBy(query.OrderBy ?? "CreatedAt");
-        var result = items.ToList().GetModel<TModel>();
-
-        return new PaginationResult<TModel>
+        try
         {
-            Items = result,
-            Index = query.Index,
-            Size = query.Size,
-            Total = rowCount
-        };
+            var items = repositoryService.Get(Filter(query));
+            var rowCount = items.Count();
+            items = items.AsNoTracking();
+            items = items.Skip((query.Index - 1) * query.Size).Take(query.Size);
+            items = items.OrderBy(query.OrderBy ?? "CreatedAt");
+            result.Result = items.ToList().GetModel<TModel>();
+            result.Total = rowCount;
+            result.Index = query.Index;
+            result.Size = query.Size;
+        }
+        catch (Exception e)
+        {
+            result.AddError(e);
+        }
+
+        return result;
     }
 
     protected abstract Expression<Func<T, bool>> Filter(TQuery query);

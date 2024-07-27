@@ -1,16 +1,17 @@
 using System.Linq.Expressions;
 using SafariDigital.Core.Predicate;
-using SafariDigital.Database.Models.UserTable;
 using SafariDigital.Database.Repository;
+using SafariDigital.DataIdentities.Models.User;
+using SafariDigital.Services.PaginationService;
 
-namespace SafariDigital.Services.PaginationService.Services;
+namespace SafariDigital.DataIdentities.Pagination.User;
 
-public class UserPaginationService(IRepository<User> repositoryService)
-    : PaginationService<User, UserPublicModel, UserQuery>(repositoryService)
+public class UserPaginationService(IRepository<Database.Models.UserTable.User> repositoryService)
+    : PaginationService<Database.Models.UserTable.User, UserPublicModel, UserQuery>(repositoryService)
 {
-    protected override Expression<Func<User, bool>> Filter(UserQuery query)
+    protected override Expression<Func<Database.Models.UserTable.User, bool>> Filter(UserQuery query)
     {
-        var filter = PredicateBuilder.New<User>(true);
+        var filter = PredicateBuilder.New<Database.Models.UserTable.User>(true);
         if (!string.IsNullOrEmpty(query.Username))
             filter = filter.And(x => x.Username.StartsWith(query.Username));
         if (!string.IsNullOrEmpty(query.Email))

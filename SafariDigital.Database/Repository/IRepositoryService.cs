@@ -1,10 +1,11 @@
 using System.Linq.Expressions;
 using SafariDigital.Core.Validation;
+using SafariDigital.Database.Models;
 
 namespace SafariDigital.Database.Repository;
 
 public interface IRepositoryService<T>
-    where T : class
+    where T : BaseEntity
 {
     public void Create(T entity);
     public void Delete(T entity);

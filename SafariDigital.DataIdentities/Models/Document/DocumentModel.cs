@@ -1,4 +1,6 @@
-namespace SafariDigital.Database.Models.DocumentTable;
+using SafariDigital.Database.Models.DocumentTable;
+
+namespace SafariDigital.DataIdentities.Models.Document;
 
 public class DocumentModel
 {
@@ -6,7 +8,7 @@ public class DocumentModel
     {
     }
 
-    public DocumentModel(Document document)
+    public DocumentModel(Database.Models.DocumentTable.Document document)
     {
         Id = document.Id;
         FileName = document.FileName;

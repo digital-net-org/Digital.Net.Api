@@ -1,4 +1,4 @@
-using SafariDigital.Database.Models.UserTable;
+using SafariDigital.DataIdentities.Models.User;
 using Tests.Core.Factories;
 
 namespace Tests.Unit.SafariDigital.Database.Models.UserTable;

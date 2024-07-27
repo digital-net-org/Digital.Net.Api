@@ -5,7 +5,7 @@ namespace SafariDigital.Database.Models;
 
 public class BaseEntity
 {
-    [Column("created_at")] [Required] public DateTime CreatedAt { get; init; }
+    [Column("created_at")] [Required] public DateTime CreatedAt { get; set; }
 
     [Column("updated_at")] public DateTime? UpdatedAt { get; init; }
 

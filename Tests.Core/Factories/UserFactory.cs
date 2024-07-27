@@ -15,6 +15,9 @@ public static class UserFactory
             IsActive = true
         };
 
+    public static List<User> CreateManyUsers(int count) =>
+        Enumerable.Range(0, count).Select(_ => CreateUser()).ToList();
+
     public static User CreateUser(EUserRole? role = null, bool? isActive = null) =>
         new()
         {

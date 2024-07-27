@@ -1,4 +1,4 @@
-using SafariDigital.Database.Models.AvatarTable;
+using SafariDigital.DataIdentities.Models.Avatar;
 using Tests.Core.Factories;
 
 namespace Tests.Unit.SafariDigital.Database.Models.AvatarTable;

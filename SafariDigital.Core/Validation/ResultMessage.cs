@@ -12,19 +12,21 @@ public class ResultMessage
 
     public ResultMessage(System.Enum message)
     {
-        Code = message;
+        Code = message.GetHashCode();
+        Reference = message.ToString();
         Message = message.GetDisplayName();
     }
 
     public ResultMessage(Exception ex, System.Enum message)
     {
-        Code = message;
+        Code = message.GetHashCode();
+        Reference = message.ToString();
         Message = message.GetDisplayName();
         StackTrace = ex.StackTrace;
     }
 
-    public System.Enum? Code { get; init; }
-    public string? Reference => Code?.ToString();
+    public int? Code { get; init; }
+    public string? Reference { get; init; }
     public string? Message { get; init; }
     public string? StackTrace { get; init; }
 }

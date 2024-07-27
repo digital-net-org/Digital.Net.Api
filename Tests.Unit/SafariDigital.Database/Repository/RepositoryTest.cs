@@ -41,6 +41,34 @@ public class RepositoryTest : UnitTest
     }
 
     [Fact]
+    public async void GetById_WithStringId_ShouldReturnUser()
+    {
+        // Arrange
+        var user = Setup();
+
+        // Act
+        var userById = _repository.GetByPrimaryKey(user.Id.ToString());
+
+        // Assert
+        Assert.NotNull(userById);
+        Assert.Equal(user.Id, userById.Id);
+    }
+
+    [Fact]
+    public async void GetByIdAsync_WithStringId_ShouldReturnUser()
+    {
+        // Arrange
+        var user = Setup();
+
+        // Act
+        var userById = await _repository.GetByPrimaryKeyAsync(user.Id.ToString());
+
+        // Assert
+        Assert.NotNull(userById);
+        Assert.Equal(user.Id, userById.Id);
+    }
+
+    [Fact]
     public void Create_ShouldCreateEntity()
     {
         // Arrange

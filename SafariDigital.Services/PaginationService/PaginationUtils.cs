@@ -6,7 +6,7 @@ public static class PaginationUtils
 {
     public const int DefaultIndex = 1;
     public const int DefaultSize = 50;
-    public const int MaxSize = 200;
+    public const int MaxSize = 500;
 
     public static void ValidateParameters(this PaginationQuery query)
     {

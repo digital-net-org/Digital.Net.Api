@@ -41,7 +41,7 @@ public class ResultTest : UnitTest
         Assert.True(model.HasError);
         Assert.False(model.HasWarning);
         Assert.Equal(errorType.GetDisplayName(), error.Message);
-        Assert.Equal(errorType, error.Code);
+        Assert.Equal(errorType.GetHashCode(), error.Code);
     }
 
     [Fact]
@@ -60,7 +60,7 @@ public class ResultTest : UnitTest
         Assert.False(model.HasError);
         Assert.True(model.HasWarning);
         Assert.Equal(warningType.GetDisplayName(), warning.Message);
-        Assert.Equal(warningType, warning.Code);
+        Assert.Equal(warningType.GetHashCode(), warning.Code);
     }
 
     [Fact]
@@ -79,7 +79,7 @@ public class ResultTest : UnitTest
         Assert.False(model.HasError);
         Assert.False(model.HasWarning);
         Assert.Equal(infoType.GetDisplayName(), info.Message);
-        Assert.Equal(infoType, info.Code);
+        Assert.Equal(infoType.GetHashCode(), info.Code);
     }
 
     [Fact]
@@ -119,7 +119,7 @@ public class ResultTest : UnitTest
         Assert.Equal(5, result);
         Assert.True(model.HasError);
         Assert.Single((IEnumerable)model.Errors);
-        Assert.Equal(TestEnum.Test, model.Errors[0].Code);
+        Assert.Equal(TestEnum.Test.GetHashCode(), model.Errors[0].Code);
 
         return;
 
@@ -145,7 +145,7 @@ public class ResultTest : UnitTest
         Assert.Equal(5, result);
         Assert.True(model.HasError);
         Assert.Single((IEnumerable)model.Errors);
-        Assert.Equal(TestEnum.Test, model.Errors[0].Code);
+        Assert.Equal(TestEnum.Test.GetHashCode(), model.Errors[0].Code);
 
         return;
 

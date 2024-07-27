@@ -1,4 +1,4 @@
-namespace SafariDigital.Database.Models.AvatarTable;
+namespace SafariDigital.DataIdentities.Models.Avatar;
 
 public class AvatarModel
 {
@@ -6,7 +6,7 @@ public class AvatarModel
     {
     }
 
-    public AvatarModel(Avatar avatar)
+    public AvatarModel(Database.Models.AvatarTable.Avatar avatar)
     {
         Id = avatar.Id;
         documentId = avatar.Document.Id;
