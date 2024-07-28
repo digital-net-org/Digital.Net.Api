@@ -9,7 +9,7 @@ using SafariDigital.Services.PaginationService;
 using SafariDigital.Services.UserService;
 using SafariDigital.Services.UserService.Models;
 
-namespace SafariDigital.Api.Controllers.UserController;
+namespace SafariDigital.Api.Controllers;
 
 [ApiController]
 public class UserController(

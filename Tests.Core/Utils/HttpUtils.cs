@@ -11,10 +11,17 @@ public static class HttpUtils
         HttpResponseMessage loginResponse
     )
     {
-        var content = await loginResponse.Content.ReadAsStringAsync();
-        var token = JsonConvert.DeserializeObject<LoginResponse>(content)!.Token;
-        var refreshToken = loginResponse.Headers.GetValues("Set-Cookie").First();
-        client.DefaultRequestHeaders.Add("Cookie", refreshToken);
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        try
+        {
+            var content = await loginResponse.Content.ReadAsStringAsync();
+            var token = JsonConvert.DeserializeObject<LoginResponse>(content)!.Token;
+            var refreshToken = loginResponse.Headers.GetValues("Set-Cookie").FirstOrDefault();
+            client.DefaultRequestHeaders.Add("Cookie", refreshToken);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
 }

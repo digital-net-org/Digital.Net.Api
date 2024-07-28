@@ -4,7 +4,7 @@ using SafariDigital.Database.Models.UserTable;
 using SafariDigital.Services.AuthenticationService;
 using SafariDigital.Services.AuthenticationService.Models;
 
-namespace SafariDigital.Api.Controllers.Authentication;
+namespace SafariDigital.Api.Controllers;
 
 [ApiController]
 public class AuthController(IConfiguration configuration, IAuthenticationService authService) : ControllerBase

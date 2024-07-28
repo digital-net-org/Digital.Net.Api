@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SafariDigital.Core.Application;
 
-namespace SafariDigital.Api.Controllers.Root;
+namespace SafariDigital.Api.Controllers;
 
 [ApiController]
 public class PublicController : ControllerBase

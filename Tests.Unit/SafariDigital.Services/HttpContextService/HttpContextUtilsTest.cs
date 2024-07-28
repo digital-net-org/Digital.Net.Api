@@ -4,7 +4,7 @@ using Moq;
 using SafariDigital.Services.HttpContextService;
 using Tests.Core.Base;
 
-namespace Tests.Unit.SafariDigital.Services.HttpContext;
+namespace Tests.Unit.SafariDigital.Services.HttpContextService;
 
 public class HttpContextUtilsTest : UnitTest
 {

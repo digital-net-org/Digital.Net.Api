@@ -3,16 +3,15 @@ using Microsoft.Extensions.Configuration;
 using SafariDigital.Core.Application;
 using SafariDigital.Core.Random;
 using SafariDigital.Core.Validation;
-using SafariDigital.Services.HttpContextService;
 using SafariDigital.Services.JwtService;
 using Tests.Core.Base;
 using Tests.Core.Factories;
 
-namespace Tests.Unit.SafariDigital.Services.Jwt;
+namespace Tests.Unit.SafariDigital.Services.JwtService;
 
 public class JwtServiceTest : UnitTest
 {
-    private readonly JwtService _jwtService;
+    private readonly global::SafariDigital.Services.JwtService.JwtService _jwtService;
 
     public JwtServiceTest()
     {
@@ -27,7 +26,7 @@ public class JwtServiceTest : UnitTest
                      ("Jwt:BearerTokenExpiration", "2000"),
                      ("Jwt:RefreshTokenExpiration", "20000")
                  ]) Environment.SetEnvironmentVariable(key, value);
-        _jwtService = new JwtService(new HttpContextService(new HttpContextAccessor(), null), configuration);
+        _jwtService = new global::SafariDigital.Services.JwtService.JwtService(new global::SafariDigital.Services.HttpContextService.HttpContextService(new HttpContextAccessor(), null), configuration);
     }
 
     [Fact]

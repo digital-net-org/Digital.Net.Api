@@ -6,7 +6,7 @@ using SafariDigital.DataIdentities.Pagination.User;
 using SafariDigital.Services.PaginationService;
 using Tests.Core.Factories;
 
-namespace Tests.Unit.SafariDigital.Services.Pagination;
+namespace Tests.Unit.SafariDigital.Services.PaginationService;
 
 public class PaginationServiceTest
 {
