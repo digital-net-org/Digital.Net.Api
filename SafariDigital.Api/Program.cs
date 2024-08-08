@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SafariDigital.Api.Builders;
-using SafariDigital.Database.Context;
+using SafariDigital.Data.Context;
 
 namespace SafariDigital.Api;
 

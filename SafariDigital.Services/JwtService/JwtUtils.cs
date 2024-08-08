@@ -21,8 +21,6 @@ public static class JwtUtils
 
     public static SymmetricSecurityKey GetSecurityKey(string secret) => new(Encoding.ASCII.GetBytes(secret));
 
-    public static string ToString(this SymmetricSecurityKey key) => Encoding.ASCII.GetString(key.Key);
-
     public static string GetCookieTokenName(this IConfiguration configuration) =>
         configuration.GetSectionOrThrow<string>(EApplicationSetting.JwtCookieName);
 

@@ -1,5 +1,5 @@
-using SafariDigital.Core.Validation;
-using SafariDigital.Database.Models.UserTable;
+using Safari.Net.Core.Messages;
+using SafariDigital.Data.Models.Database;
 
 namespace SafariDigital.Services.UserService;
 

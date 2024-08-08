@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using SafariDigital.Database.Models.UserTable;
+using SafariDigital.Data.Models.Database;
 using SafariDigital.Services.HttpContextService;
 using SafariDigital.Services.JwtService.Models;
 

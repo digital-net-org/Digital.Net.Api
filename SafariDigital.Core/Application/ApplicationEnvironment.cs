@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
-using SafariDigital.Core.Enum;
+using Safari.Net.Core.Extensions.EnumUtilities;
 
 namespace SafariDigital.Core.Application;
 
@@ -13,7 +13,7 @@ public static class ApplicationEnvironment
 
     public static WebApplicationBuilder ValidateApplicationSettings(this WebApplicationBuilder builder)
     {
-        foreach (var setting in EnumUtils.GetEnumDisplayNames<EApplicationSetting>())
+        foreach (var setting in EnumDisplay.GetEnumDisplayNames<EApplicationSetting>())
         {
             var section = builder.Configuration.GetSection(setting);
             if (!section.Exists())

@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.HttpOverrides;
 using SafariDigital.Api.Builders.Injectors;
 using SafariDigital.Core.Application;
-using SafariDigital.Database;
-using SafariDigital.Database.Context;
-using SafariDigital.DataIdentities;
+using SafariDigital.Data;
+using SafariDigital.Data.Context;
 using SafariDigital.Services.AuthenticationService;
 using SafariDigital.Services.CacheService;
 using SafariDigital.Services.HttpContextService;
@@ -37,7 +36,6 @@ public static class Builder
             .AddHttpContextService()
             .AddJwtService()
             .AddCacheService()
-            .AddIdentities()
             .AddUserService()
             .AddAuthenticationService();
         return builder;

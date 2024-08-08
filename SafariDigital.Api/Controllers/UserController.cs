@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Safari.Net.Data.Entities;
+using Safari.Net.Data.Repositories;
 using SafariDigital.Api.Attributes;
-using SafariDigital.Database.Models.UserTable;
-using SafariDigital.DataIdentities.Models.User;
-using SafariDigital.DataIdentities.Pagination.User;
-using SafariDigital.Services.CrudService;
+using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Dto;
+using SafariDigital.Data.Services;
 using SafariDigital.Services.HttpContextService;
-using SafariDigital.Services.PaginationService;
 using SafariDigital.Services.UserService;
 using SafariDigital.Services.UserService.Models;
 
@@ -13,19 +13,19 @@ namespace SafariDigital.Api.Controllers;
 
 [ApiController]
 public class UserController(
-    IPaginationService<UserPublicModel, UserQuery> paginationService,
+    IEntityService<User, UserQuery> entityService,
+    IRepository<User> userRepository,
     IHttpContextService httpContextService,
-    ICrudService<User, UserPublicModel, UserQuery> crudService,
     IUserService userService
 ) : ControllerBase
 {
     [Authorize(Role = EUserRole.User)]
     [HttpGet("[controller]")]
-    public IActionResult Get([FromQuery] UserQuery query) => Ok(paginationService.Get(query));
+    public IActionResult Get([FromQuery] UserQuery query) => Ok(entityService.Get<UserModel>(query));
 
     [Authorize(Role = EUserRole.User)]
     [HttpGet("[controller]/{id}")]
-    public async Task<IActionResult> GetById(string id) => Ok(await crudService.GetById(id));
+    public async Task<IActionResult> GetById(string id) => Ok(await userRepository.GetByIdAsync(id));
 
     [Authorize(Role = EUserRole.User)]
     [HttpPut("[controller]/{id}/password")]

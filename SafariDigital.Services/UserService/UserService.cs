@@ -1,17 +1,16 @@
 using Microsoft.Extensions.Configuration;
+using Safari.Net.Core.Messages;
+using Safari.Net.Data.Repositories;
 using SafariDigital.Core.Application;
-using SafariDigital.Core.Validation;
-using SafariDigital.Database.Models.AvatarTable;
-using SafariDigital.Database.Models.UserTable;
-using SafariDigital.Database.Repository;
+using SafariDigital.Data.Models.Database;
 using SafariDigital.Services.AuthenticationService;
 
 namespace SafariDigital.Services.UserService;
 
 public class UserService(
     IConfiguration configuration,
-    IRepositoryService<User> userRepository,
-    IRepositoryService<Avatar> avatarRepository) : IUserService
+    IRepository<User> userRepository,
+    IRepository<Avatar> avatarRepository) : IUserService
 {
     public async Task<Result> UpdatePassword(User user, string currentPassword, string newPassword)
     {

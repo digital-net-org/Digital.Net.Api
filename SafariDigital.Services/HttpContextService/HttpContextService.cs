@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
-using SafariDigital.Database.Models.UserTable;
-using SafariDigital.Database.Repository;
+using Safari.Net.Data.Repositories;
+using SafariDigital.Data.Models.Database;
 
 namespace SafariDigital.Services.HttpContextService;
 
@@ -14,7 +14,7 @@ public class HttpContextService(
     {
         var context = GetContext();
         var token = context.GetTokenFromContext();
-        var user = await userRepository.GetByPrimaryKeyAsync(token?.Id.ToString());
+        var user = await userRepository.GetByIdAsync(token?.Id);
         return user ?? throw new NullReferenceException("No user authenticated");
     }
 

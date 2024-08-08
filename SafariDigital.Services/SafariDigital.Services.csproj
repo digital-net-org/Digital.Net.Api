@@ -9,7 +9,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\SafariDigital.Core\SafariDigital.Core.csproj"/>
-        <ProjectReference Include="..\SafariDigital.Database\SafariDigital.Database.csproj"/>
+        <ProjectReference Include="..\SafariDigital.Data\SafariDigital.Data.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,10 +1,10 @@
 using System.Text.Json.Serialization;
 using Microsoft.IdentityModel.Tokens;
-using SafariDigital.Core.Validation;
+using Safari.Net.Core.Messages;
 
 namespace SafariDigital.Services.JwtService.Models;
 
-public class JwtToken<T> : Result<T>
+public class JwtToken<T> : Result<T> where T : class
 {
     [JsonConstructor]
     public JwtToken()
