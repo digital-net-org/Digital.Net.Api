@@ -3,11 +3,10 @@ using SafariDigital.Api.Builders.Injectors;
 using SafariDigital.Core.Application;
 using SafariDigital.Data;
 using SafariDigital.Data.Context;
-using SafariDigital.Services.AuthenticationService;
-using SafariDigital.Services.CacheService;
-using SafariDigital.Services.HttpContextService;
-using SafariDigital.Services.JwtService;
-using SafariDigital.Services.UserService;
+using SafariDigital.Services.Authentication;
+using SafariDigital.Services.HttpContext;
+using SafariDigital.Services.Jwt;
+using SafariDigital.Services.Users;
 
 namespace SafariDigital.Api.Builders;
 
@@ -35,7 +34,6 @@ public static class Builder
             .AddRepositories()
             .AddHttpContextService()
             .AddJwtService()
-            .AddCacheService()
             .AddUserService()
             .AddAuthenticationService();
         return builder;

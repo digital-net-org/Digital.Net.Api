@@ -4,9 +4,7 @@ namespace SafariDigital.Data.Models.Dto;
 
 public class DocumentModel
 {
-    public DocumentModel()
-    {
-    }
+    public DocumentModel() { }
 
     public DocumentModel(Document document)
     {
@@ -23,7 +21,7 @@ public class DocumentModel
     public Guid Id { get; init; }
     public string? FileName { get; init; }
     public EDocumentType DocumentType { get; init; }
-    public EMimeType MimeType { get; init; }
+    public string? MimeType { get; init; }
     public long FileSize { get; init; }
     public Guid? UploaderId { get; init; }
     public DateTime CreatedAt { get; init; }

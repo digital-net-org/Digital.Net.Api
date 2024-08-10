@@ -1,5 +1,5 @@
 using Microsoft.OpenApi.Models;
-using SafariDigital.Services.JwtService;
+using SafariDigital.Services.Jwt;
 
 namespace SafariDigital.Api.Builders.Injectors;
 

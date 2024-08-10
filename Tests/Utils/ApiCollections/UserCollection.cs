@@ -1,5 +1,5 @@
 using System.Net.Http.Json;
-using SafariDigital.Services.UserService.Models;
+using SafariDigital.Services.Users.Models;
 
 namespace Tests.Utils.ApiCollections;
 

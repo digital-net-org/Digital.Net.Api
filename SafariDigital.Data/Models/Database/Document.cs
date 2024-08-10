@@ -14,23 +14,24 @@ public class Document : EntityWithGuid
     [Required]
     public required string FileName { get; set; }
 
-    [Column("file_type")] [Required] public required EDocumentType DocumentType { get; set; }
-    [Column("mime_type")] [Required] public required EMimeType MimeType { get; set; }
+    [Column("file_type")]
+    [Required]
+    public required EDocumentType DocumentType { get; set; }
 
-    [Column("file_size")] [Required] public required long FileSize { get; set; }
+    [Column("mime_type")]
+    [MaxLength(255)]
+    [Required]
+    public required string MimeType { get; set; }
 
-    [ForeignKey("uploader_id")] public virtual User? Uploader { get; set; }
+    [Column("file_size")]
+    [Required]
+    public required long FileSize { get; set; }
+
+    [ForeignKey("uploader_id")]
+    public virtual User? Uploader { get; set; }
 }
 
 public enum EDocumentType
 {
     Avatar
-}
-
-public enum EMimeType
-{
-    [Display(Name = "image/png")] Png = 0,
-    [Display(Name = "image/jpeg")] Jpg = 1,
-    [Display(Name = "image/svg+xml")] Svg = 2,
-    [Display(Name = "image/bmp")] Bmp = 3
 }

@@ -1,1 +1,1 @@
-dotnet ef migrations remove --project "SafariDigital.Database"
+dotnet ef migrations remove --project "SafariDigital.Data"

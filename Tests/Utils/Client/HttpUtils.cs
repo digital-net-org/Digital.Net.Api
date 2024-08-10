@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 using Safari.Net.Core.Extensions.HttpUtilities;
-using SafariDigital.Services.AuthenticationService.Models;
+using SafariDigital.Services.Authentication.Models;
 
 namespace Tests.Utils.Client;
 

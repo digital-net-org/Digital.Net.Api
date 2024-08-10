@@ -1,6 +1,6 @@
 ﻿using SafariDigital.Data.Models.Database;
 using Safari.Net.Core.Random;
-using SafariDigital.Services.AuthenticationService;
+using SafariDigital.Services.Authentication;
 
 namespace Tests.Utils.Factories;
 

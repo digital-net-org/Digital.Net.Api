@@ -1,7 +1,10 @@
 ﻿using System.Linq.Expressions;
+using Microsoft.AspNetCore.JsonPatch.Operations;
+using Safari.Net.Core.Messages;
 using Safari.Net.Core.Predicates;
 using Safari.Net.Data.Entities;
 using Safari.Net.Data.Repositories;
+using SafariDigital.Core.Application;
 using SafariDigital.Data.Models.Database;
 
 namespace SafariDigital.Data.Services;
@@ -25,5 +28,11 @@ public class UserService(IRepository<User> repositoryService)
         if (query.UpdatedAt.HasValue)
             filter = filter.Add(x => x.UpdatedAt >= query.UpdatedAt);
         return filter;
+    }
+
+    protected override void ValidatePatch(Operation<User> patch, Result result)
+    {
+        if (patch.path is "/role" or "/password" or "/is_active")
+            result.AddError(EApplicationMessage.UserPatchError);
     }
 }

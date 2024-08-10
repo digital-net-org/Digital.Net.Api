@@ -1,14 +1,13 @@
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Safari.Net.Core.Extensions.HttpUtilities;
 using SafariDigital.Data.Models.Database;
-using SafariDigital.Services.HttpContextService;
-using SafariDigital.Services.JwtService;
-using SafariDigital.Services.JwtService.Models;
+using SafariDigital.Services.HttpContext;
+using SafariDigital.Services.Jwt;
+using SafariDigital.Services.Jwt.Models;
 
 namespace SafariDigital.Api.Attributes;
 
-[ExcludeFromCodeCoverage] // Tested in Integration tests
 [AttributeUsage(AttributeTargets.Method)]
 public class AuthorizeAttribute : Attribute, IAuthorizationFilter
 {
@@ -18,16 +17,17 @@ public class AuthorizeAttribute : Attribute, IAuthorizationFilter
     {
         var jwtService = context.HttpContext.RequestServices.GetRequiredService<IJwtService>();
         var token = context.HttpContext.Request.GetBearerToken();
-        var result = jwtService.ValidateToken(token);
-        var isUserAuthorized = result.Content?.Role >= Role;
+        var result = jwtService.ValidateBearerToken(token);
+        var isUserAuthorized = result.Value?.Role >= Role;
 
         if (isUserAuthorized)
         {
-            context.HttpContext.AddTokenToContext(
+            context.HttpContext.AddItem(
+                HttpContextService.Token,
                 new AuthenticatedUser
                 {
-                    Id = result.Content?.Id,
-                    Role = result.Content?.Role,
+                    Id = result.Value?.Id,
+                    Role = result.Value?.Role,
                     Token = result.Token
                 }
             );

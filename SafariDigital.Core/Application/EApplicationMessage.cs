@@ -19,6 +19,8 @@ public enum EApplicationMessage
     // User
     [Display(Name = "Password does not meet requirements")]
     PasswordDoesNotMeetRequirements = 1100,
+    [Display(Name = "This value cannot be patched, use the corresponding POST/PUT endpoint")]
+    UserPatchError = 1101,
 
     // Repository
     [Display(Name = "Invalid query argument")]

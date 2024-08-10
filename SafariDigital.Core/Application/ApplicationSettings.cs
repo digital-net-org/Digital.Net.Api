@@ -21,9 +21,9 @@ public static class ApplicationSettings
     public static IConfigurationBuilder AddProjectSettings(this IConfigurationBuilder builder, string projectName) =>
         builder.SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "..", projectName)).AddProjectSettings();
 
-    public static T? GetSection<T>(this IConfiguration configuration, System.Enum setting) =>
+    public static T? GetSection<T>(this IConfiguration configuration, Enum setting) =>
         configuration.GetSection(setting.GetDisplayName()).Get<T>();
 
-    public static T GetSectionOrThrow<T>(this IConfiguration configuration, System.Enum setting) =>
+    public static T GetSectionOrThrow<T>(this IConfiguration configuration, Enum setting) =>
         configuration.GetSection<T>(setting) ?? throw new Exception($"Setting {setting.GetDisplayName()} not found");
 }
