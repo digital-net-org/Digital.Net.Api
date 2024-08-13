@@ -9,13 +9,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Using Include="Xunit" />
+        <Using Include="Xunit"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\SafariDigital.Core\SafariDigital.Core.csproj" />
-        <ProjectReference Include="..\SafariDigital.Api\SafariDigital.Api.csproj" />
-        <ProjectReference Include="..\SafariDigital.Services\SafariDigital.Services.csproj" />
+        <ProjectReference Include="..\SafariDigital.Core\SafariDigital.Core.csproj"/>
+        <ProjectReference Include="..\SafariDigital.Api\SafariDigital.Api.csproj"/>
+        <ProjectReference Include="..\SafariDigital.Services\SafariDigital.Services.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -27,13 +27,13 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.7" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
-        <PackageReference Include="Safari.Net.TestTools" Version="1.1.0" />
-        <PackageReference Include="Safari.Net.Core" Version="1.1.0" />
-        <PackageReference Include="Safari.Net.Data" Version="1.1.0" />
-        <PackageReference Include="xunit" Version="2.5.3" />
-        <PackageReference Include="Moq" Version="4.20.70" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.7"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0"/>
+        <PackageReference Include="Safari.Net.TestTools" Version="1.1.1"/>
+        <PackageReference Include="Safari.Net.Core" Version="1.1.1"/>
+        <PackageReference Include="Safari.Net.Data" Version="1.1.4"/>
+        <PackageReference Include="xunit" Version="2.5.3"/>
+        <PackageReference Include="Moq" Version="4.20.70"/>
     </ItemGroup>
 
 </Project>
