@@ -1,7 +1,6 @@
 using System.Net.Http.Json;
-using Microsoft.AspNetCore.JsonPatch;
+using System.Text;
 using Safari.Net.Core.Extensions.HttpUtilities;
-using SafariDigital.Data.Models.Database;
 using SafariDigital.Data.Services;
 using SafariDigital.Services.Users.Models;
 
@@ -16,8 +15,11 @@ public static class UserCollection
         await client.GetAsync($"/user/{id.ToString()}");
 
     public static async Task<HttpResponseMessage> PatchUser(this HttpClient client, Guid id,
-        JsonPatchDocument<User> patch) =>
-        await client.PatchAsJsonAsync($"/user/{id.ToString()}", patch);
+        string patch)
+    {
+        var body = new StringContent(patch, Encoding.UTF8, "application/json");
+        return await client.PatchAsync($"/user/{id.ToString()}", body);
+    }
 
     public static async Task<HttpResponseMessage> UpdatePassword(this HttpClient client, Guid id,
         string currentPassword, string newPassword) =>

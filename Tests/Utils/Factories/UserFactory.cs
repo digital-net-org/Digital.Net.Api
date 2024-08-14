@@ -8,6 +8,7 @@ namespace Tests.Utils.Factories;
 public class UserFactory(IRepository<User> repository)
 {
     private readonly DataFactory<User> _userFactory = new(repository);
+    public void Dispose() => _userFactory.Dispose();
 
     public (User, string) CreateUser(UserPayload? userPayload = null)
     {

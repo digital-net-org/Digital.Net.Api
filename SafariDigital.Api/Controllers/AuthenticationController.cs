@@ -50,7 +50,7 @@ public class AuthController(IConfiguration configuration, IAuthenticationService
     [HttpGet("/authentication/password/pattern")]
     public IActionResult GetPasswordPattern() => Ok(configuration.GetPasswordRegex().ToString());
 
-    [Authorize(Role = EUserRole.SuperAdmin)]
+    // [Authorize(Role = EUserRole.SuperAdmin)]
     [HttpGet("/authentication/password/generate/{password:length(12, 64)}")]
     public IActionResult GeneratePassword(string password) => Ok(authService.GeneratePassword(password));
 
