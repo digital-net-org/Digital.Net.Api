@@ -17,7 +17,7 @@ public static class ContextInjector
                 opts.UseSqlite(new SqliteConnection("Filename=:memory:"));
             else
                 opts.UseNpgsql(builder.GetConnectionString(), b => b.MigrationsAssembly("SafariDigital.Data"));
-        });
+        }, ServiceLifetime.Transient);
         return builder;
     }
 

@@ -50,9 +50,12 @@ public class AuthController(IConfiguration configuration, IAuthenticationService
     [HttpGet("/authentication/password/pattern")]
     public IActionResult GetPasswordPattern() => Ok(configuration.GetPasswordRegex().ToString());
 
-    // [Authorize(Role = EUserRole.SuperAdmin)]
-    [HttpGet("/authentication/password/generate/{password:length(12, 64)}")]
-    public IActionResult GeneratePassword(string password) => Ok(authService.GeneratePassword(password));
+    [Authorize(Role = EUserRole.SuperAdmin)]
+    [HttpPost("/authentication/password/generate")]
+    public IActionResult GeneratePassword([FromBody] string password) =>
+        configuration.GetPasswordRegex().IsMatch(password)
+            ? Ok(authService.GeneratePassword(password))
+            : BadRequest("Password does not meet the requirements.");
 
     [HttpGet("/authentication/role/visitor/test")]
     public IActionResult TestVisitorAuthorization() => Ok();
