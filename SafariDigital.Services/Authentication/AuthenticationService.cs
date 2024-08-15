@@ -21,10 +21,10 @@ public class AuthenticationService(
 ) : IAuthenticationService
 {
     private TimeSpan AttemptsWindow =>
-        TimeSpan.FromMilliseconds(configuration.GetSectionOrThrow<long>(EApplicationSetting.SecurityMaxLoginWindow));
+        TimeSpan.FromMilliseconds(configuration.GetSection<long>(EApplicationSetting.SecurityMaxLoginWindow));
 
     private int MaxAttemptsAllowed =>
-        configuration.GetSectionOrThrow<int>(EApplicationSetting.SecurityMaxLoginAttempts);
+        configuration.GetSection<int>(EApplicationSetting.SecurityMaxLoginAttempts);
 
     private string CookieTokenName => configuration.GetCookieTokenName();
     private long RefreshExpiration => configuration.GetRefreshTokenExpiration();

@@ -9,11 +9,11 @@ namespace SafariDigital.Data.Context;
 
 public static class ContextInjector
 {
-    public static WebApplicationBuilder ConnectDatabase(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder AddDatabase(this WebApplicationBuilder builder)
     {
         builder.Services.AddDbContext<SafariDigitalContext>(opts =>
         {
-            if (ApplicationEnvironment.IsTestEnvironment)
+            if (ApplicationEnvironment.IsTest)
                 opts.UseSqlite(new SqliteConnection("Filename=:memory:"));
             else
                 opts.UseNpgsql(builder.GetConnectionString(), b => b.MigrationsAssembly("SafariDigital.Data"));

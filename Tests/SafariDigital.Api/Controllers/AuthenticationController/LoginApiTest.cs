@@ -49,7 +49,7 @@ public class LoginApiTest : IntegrationTest<Program, SafariDigitalContext>
     [Fact]
     public async Task Login_ShouldAllowOnlyXTokenPerUser()
     {
-        var allowedConnections = Configuration.GetSectionOrThrow<int>(EApplicationSetting.JwtMaxTokenAllowed);
+        var allowedConnections = Configuration.GetSection<int>(EApplicationSetting.JwtMaxTokenAllowed);
         var (user, password) = _userFactory.CreateUser();
         var responses = new List<HttpResponseMessage>();
 

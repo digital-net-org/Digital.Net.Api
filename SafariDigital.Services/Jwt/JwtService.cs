@@ -20,7 +20,7 @@ public class JwtService(
     IRepository<RecordedToken> tokenRecordsRepository
 ) : IJwtService
 {
-    private int MaxTokenAllowed => configuration.GetSectionOrThrow<int>(EApplicationSetting.JwtMaxTokenAllowed);
+    private int MaxTokenAllowed => configuration.GetSection<int>(EApplicationSetting.JwtMaxTokenAllowed);
     private TokenValidationParameters TokenParams => configuration.GetTokenParameters();
     private long BearerTokenExpiration => configuration.GetBearerTokenExpiration();
     private long RefreshTokenExpiration => configuration.GetRefreshTokenExpiration();

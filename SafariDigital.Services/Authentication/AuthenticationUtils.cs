@@ -18,7 +18,7 @@ public static class AuthenticationUtils
 
     public static Regex GetPasswordRegex(this IConfiguration configuration)
     {
-        var pattern = configuration.GetSectionOrThrow<string>(EApplicationSetting.SecurityPasswordRegex);
+        var pattern = configuration.GetSection<string>(EApplicationSetting.SecurityPasswordRegex);
         return new Regex(pattern);
     }
 }

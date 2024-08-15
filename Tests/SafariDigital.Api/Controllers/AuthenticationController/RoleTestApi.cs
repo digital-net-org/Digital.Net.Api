@@ -37,7 +37,7 @@ public class RoleTestApi : IntegrationTest<Program, SafariDigitalContext>
     public async Task Visitor_ShouldNotExceedMaxLoginAttempts()
     {
         var (user, _) = _userFactory.CreateUser();
-        var maxAttempts = Configuration.GetSectionOrThrow<int>(EApplicationSetting.SecurityMaxLoginAttempts);
+        var maxAttempts = Configuration.GetSection<int>(EApplicationSetting.SecurityMaxLoginAttempts);
         for (var i = 0; i < maxAttempts; i++) await BaseClient.Login(user.Username, "wrongPassword");
         var response = await BaseClient.Login(user.Username, "wrongPassword");
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
