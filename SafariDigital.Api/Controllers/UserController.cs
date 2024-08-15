@@ -1,7 +1,8 @@
-using Microsoft.AspNetCore.JsonPatch;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Safari.Net.Data.Entities;
 using SafariDigital.Api.Attributes;
+using SafariDigital.Api.Formatters;
 using SafariDigital.Data.Models.Database;
 using SafariDigital.Data.Models.Dto;
 using SafariDigital.Data.Services;
@@ -28,11 +29,11 @@ public class UserController(
 
     [Authorize(Role = EUserRole.User)]
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> Patch(Guid id, [FromBody] JsonPatchDocument<User> patch)
+    public async Task<IActionResult> Patch(Guid id, [FromBody] JsonElement patch)
     {
         var user = await GetAuthorizedUser(id);
         if (user is null) return Unauthorized();
-        var result = await entityService.Patch<UserModel>(patch, id);
+        var result = await entityService.Patch<UserModel>(JsonPatchFormatter.GetPatchDocument<User>(patch), id);
         return Ok(result);
     }
 
