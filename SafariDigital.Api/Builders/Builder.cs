@@ -17,10 +17,9 @@ public static class Builder
         var builder = WebApplication.CreateBuilder(args);
         return builder
             .AddProjectSettings()
-            .ValidateApplicationSettings()
-            .ConnectDatabase()
-            .ConfigureForwardedHeaders()
-            .InjectServices()
+            .AddDatabase()
+            .SetForwardedHeaders()
+            .AddServices()
             .AddCorsPolicy()
             .AddRateLimiter()
             .AddControllers()
@@ -28,7 +27,7 @@ public static class Builder
             .Build();
     }
 
-    private static WebApplicationBuilder InjectServices(this WebApplicationBuilder builder)
+    private static WebApplicationBuilder AddServices(this WebApplicationBuilder builder)
     {
         builder.Services
             .AddRepositories()
@@ -47,7 +46,7 @@ public static class Builder
 
     private static WebApplicationBuilder AddCorsPolicy(this WebApplicationBuilder builder)
     {
-        var allowedOrigins = builder.Configuration.GetSectionOrThrow<string[]>(EApplicationSetting.CorsAllowedOrigins);
+        var allowedOrigins = builder.Configuration.GetSection<string[]>(EApplicationSetting.CorsAllowedOrigins);
         builder.Services.AddCors(options =>
         {
             options.AddDefaultPolicy(policyBuilder =>
@@ -62,7 +61,7 @@ public static class Builder
         return builder;
     }
 
-    private static WebApplicationBuilder ConfigureForwardedHeaders(
+    private static WebApplicationBuilder SetForwardedHeaders(
         this WebApplicationBuilder builder
     )
     {
