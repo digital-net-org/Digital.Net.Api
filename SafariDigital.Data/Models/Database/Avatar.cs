@@ -7,9 +7,14 @@ namespace SafariDigital.Data.Models.Database;
 [Table("avatar")]
 public class Avatar : EntityWithId
 {
-    [ForeignKey("document_id")] [Required] public virtual required Document Document { get; set; }
+    [Column("document_id")]
+    [ForeignKey("document")]
+    [Required]
+    public Guid DocumentId { get; set; }
 
-    [Column("pos_x")] public required int? PosX { get; set; } = null;
+    public virtual Document? Document { get; set; }
 
-    [Column("pos_y")] public required int? PosY { get; set; } = null;
+    [Column("pos_x")] public int? PosX { get; set; }
+
+    [Column("pos_y")] public int? PosY { get; set; }
 }

@@ -26,8 +26,13 @@ public class User : EntityWithGuid
 
     [Column("role")] [Required] public EUserRole Role { get; set; } = EUserRole.User;
 
-    [ForeignKey("avatar_id")] public virtual Avatar? Avatar { get; set; }
     [Column("is_active")] [Required] public bool IsActive { get; set; } = false;
+
+    [Column("avatar_id")]
+    [ForeignKey("avatar")]
+    public int? AvatarId { get; set; }
+
+    public virtual Avatar? Avatar { get; set; }
 }
 
 public enum EUserRole

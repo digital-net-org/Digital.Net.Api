@@ -49,8 +49,23 @@ public class UserController(
 
     [Authorize(Role = EUserRole.User)]
     [HttpPut("{id:guid}/avatar")]
-    public async Task<IActionResult> UpdateAvatar(Guid id, IFormFile avatar) =>
-        throw new NotImplementedException();
+    public async Task<IActionResult> UpdateAvatar(Guid id, IFormFile avatar)
+    {
+        var user = await GetAuthorizedUser(id);
+        if (user is null) return Unauthorized();
+        var result = await userService.UpdateAvatar(user, avatar);
+        return Ok(result);
+    }
+
+    [Authorize(Role = EUserRole.User)]
+    [HttpDelete("{id:guid}/avatar")]
+    public async Task<IActionResult> RemoveAvatar(Guid id)
+    {
+        var user = await GetAuthorizedUser(id);
+        if (user is null) return Unauthorized();
+        var result = await userService.RemoveUserAvatar(user);
+        return Ok(result);
+    }
 
     private async Task<User?> GetAuthorizedUser(Guid id)
     {

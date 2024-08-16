@@ -1,14 +1,17 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Safari.Net.Core.Messages;
 using Safari.Net.Data.Repositories;
 using SafariDigital.Core.Application;
 using SafariDigital.Data.Models.Database;
 using SafariDigital.Services.Authentication;
+using SafariDigital.Services.Documents;
 
 namespace SafariDigital.Services.Users;
 
 public class UserService(
     IConfiguration configuration,
+    IDocumentService documentService,
     IRepository<User> userRepository,
     IRepository<Avatar> avatarRepository) : IUserService
 {
@@ -27,5 +30,44 @@ public class UserService(
         return result;
     }
 
-    public async Task<Result> UpdateAvatar(string id, string avatar) => throw new NotImplementedException();
+    public async Task<Result<Document>> UpdateAvatar(User user, IFormFile form)
+    {
+        var result = await documentService.SaveDocumentAsync(form, EDocumentType.Avatar);
+        if (result.HasError || result.Value is null)
+            return result;
+        if (user.AvatarId is not null)
+            await RemoveUserAvatar(user);
+
+        return await SaveAvatarAsync(result, user);
+    }
+
+    public async Task<Result> RemoveUserAvatar(User user)
+    {
+        var documentId = user.Avatar!.DocumentId;
+        user.AvatarId = null;
+        avatarRepository.Delete(user.Avatar!);
+        await userRepository.SaveAsync();
+        await avatarRepository.SaveAsync();
+        return await documentService.RemoveDocumentAsync(documentId);
+    }
+
+    private async Task<Result<Document>> SaveAvatarAsync(Result<Document> result, User user)
+    {
+        try
+        {
+            var avatar = new Avatar { DocumentId = result.Value!.Id };
+            await avatarRepository.CreateAsync(avatar);
+            await avatarRepository.SaveAsync();
+
+            user.AvatarId = avatar.Id;
+            await userRepository.SaveAsync();
+        }
+        catch (Exception ex)
+        {
+            result.AddError(ex);
+            await documentService.RemoveDocumentAsync(result.Value!.Id);
+        }
+
+        return result;
+    }
 }

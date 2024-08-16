@@ -5,6 +5,7 @@ namespace SafariDigital.Core.Application;
 public enum EApplicationSetting
 {
     [Display(Name = "CorsAllowedOrigins")] CorsAllowedOrigins,
+    [Display(Name = "FileSystem:Path")] FileSystemPath,
 
     [Display(Name = "Jwt:RefreshExpiration")]
     JwtRefreshExpiration,

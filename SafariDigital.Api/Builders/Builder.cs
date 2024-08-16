@@ -4,6 +4,7 @@ using SafariDigital.Core.Application;
 using SafariDigital.Data;
 using SafariDigital.Data.Context;
 using SafariDigital.Services.Authentication;
+using SafariDigital.Services.Documents;
 using SafariDigital.Services.HttpContext;
 using SafariDigital.Services.Jwt;
 using SafariDigital.Services.Users;
@@ -33,6 +34,7 @@ public static class Builder
             .AddRepositories()
             .AddHttpContextService()
             .AddJwtService()
+            .AddDocumentService()
             .AddUserService()
             .AddAuthenticationService();
         return builder;
