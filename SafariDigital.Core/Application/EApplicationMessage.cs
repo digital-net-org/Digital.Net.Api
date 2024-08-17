@@ -20,6 +20,15 @@ public enum EApplicationMessage
     [Display(Name = "Password does not meet requirements")]
     PasswordDoesNotMeetRequirements = 1100,
 
+    [Display(Name = "Username does not meet requirements")]
+    UsernameDoesNotMeetRequirements = 1101,
+
+    [Display(Name = "Invalid email address")]
+    EmailDoesNotMeetRequirements = 1102,
+
+    [Display(Name = "Image size is too heavy")]
+    AvatarSizeTooHeavy = 1103,
+
     // Repository
     [Display(Name = "Invalid query argument")]
     QueryError = 2000

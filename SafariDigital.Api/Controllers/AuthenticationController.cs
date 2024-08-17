@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using SafariDigital.Api.Attributes;
-using SafariDigital.Core;
 using SafariDigital.Data.Models.Database;
 using SafariDigital.Services.Authentication;
 using SafariDigital.Services.Authentication.Models;
@@ -39,16 +38,6 @@ public class AuthController(IConfiguration configuration, IAuthenticationService
         authService.LogoutAll();
         return Ok();
     }
-
-    [HttpGet("/authentication/username/pattern")]
-    public IActionResult GetUsernamePattern() => Ok(RegularExpressions.GetUsernameRegex().ToString());
-
-    [HttpGet("/authentication/email/pattern")]
-    public IActionResult GetEmailPattern() => Ok(RegularExpressions.GetEmailRegex().ToString());
-
-    [Authorize(Role = EUserRole.User)]
-    [HttpGet("/authentication/password/pattern")]
-    public IActionResult GetPasswordPattern() => Ok(configuration.GetPasswordRegex().ToString());
 
     [Authorize(Role = EUserRole.SuperAdmin)]
     [HttpPost("/authentication/password/generate")]

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Safari.Net.Core.Messages;
 using Safari.Net.Data.Repositories;
 using SafariDigital.Core.Application;
+using SafariDigital.Core.Files;
 using SafariDigital.Data.Models.Database;
 using SafariDigital.Services.Authentication;
 using SafariDigital.Services.Documents;
@@ -15,6 +16,8 @@ public class UserService(
     IRepository<User> userRepository,
     IRepository<Avatar> avatarRepository) : IUserService
 {
+    private long MaxAvatarSize => configuration.GetSection<long>(EApplicationSetting.FileSystemMaxAvatarSize);
+
     public async Task<Result> UpdatePassword(User user, string currentPassword, string newPassword)
     {
         var result = new Result();
@@ -32,7 +35,11 @@ public class UserService(
 
     public async Task<Result<Document>> UpdateAvatar(User user, IFormFile form)
     {
-        var result = await documentService.SaveDocumentAsync(form, EDocumentType.Avatar);
+        if (form.Length > MaxAvatarSize)
+            return new Result<Document>().AddError(EApplicationMessage.AvatarSizeTooHeavy);
+
+        var compressed = form.CompressImage();
+        var result = await documentService.SaveDocumentAsync(compressed, EDocumentType.Avatar);
         if (result.HasError || result.Value is null)
             return result;
         if (user.AvatarId is not null)

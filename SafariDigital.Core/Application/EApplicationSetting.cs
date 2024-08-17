@@ -7,6 +7,9 @@ public enum EApplicationSetting
     [Display(Name = "CorsAllowedOrigins")] CorsAllowedOrigins,
     [Display(Name = "FileSystem:Path")] FileSystemPath,
 
+    [Display(Name = "FileSystem:maxAvatarSize")]
+    FileSystemMaxAvatarSize,
+
     [Display(Name = "Jwt:RefreshExpiration")]
     JwtRefreshExpiration,
 
