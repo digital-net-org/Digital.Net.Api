@@ -37,9 +37,10 @@ public class UserService(
     {
         if (form.Length > MaxAvatarSize)
             return new Result<Document>().AddError(EApplicationMessage.AvatarSizeTooHeavy);
+        if (!form.IsImage())
+            return new Result<Document>().AddError(EApplicationMessage.AvatarInvalidFormat);
 
-        var compressed = form.CompressImage();
-        var result = await documentService.SaveDocumentAsync(compressed, EDocumentType.Avatar);
+        var result = await documentService.SaveImageDocumentAsync(form, EDocumentType.Avatar);
         if (result.HasError || result.Value is null)
             return result;
         if (user.AvatarId is not null)

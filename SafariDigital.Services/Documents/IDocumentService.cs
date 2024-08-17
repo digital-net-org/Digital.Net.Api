@@ -6,7 +6,7 @@ namespace SafariDigital.Services.Documents;
 
 public interface IDocumentService
 {
-    Task<Result<Document>> SaveDocumentAsync(IFormFile file, EDocumentType type);
+    Task<Result<Document>> SaveImageDocumentAsync(IFormFile file, EDocumentType type, int? quality = null);
     Task<Result> RemoveDocumentAsync(Document? document);
     Task<Result> RemoveDocumentAsync(Guid id);
 }

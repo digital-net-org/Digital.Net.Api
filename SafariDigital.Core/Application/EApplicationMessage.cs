@@ -29,6 +29,9 @@ public enum EApplicationMessage
     [Display(Name = "Image size is too heavy")]
     AvatarSizeTooHeavy = 1103,
 
+    [Display(Name = "Invalid image format")]
+    AvatarInvalidFormat,
+
     // Repository
     [Display(Name = "Invalid query argument")]
     QueryError = 2000
