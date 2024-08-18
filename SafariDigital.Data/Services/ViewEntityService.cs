@@ -36,16 +36,16 @@ public class ViewEntityService(IRepository<View> viewRepository, IRepository<Vie
     {
         switch (patch.path)
         {
-            case "/type":
+            case "type":
                 throw new InvalidOperationException("This value cannot be patched");
-            case "/title" when patch.value.ToString()?.Length > 1024:
+            case "title" when patch.value.ToString()?.Length > 1024:
                 throw new InvalidOperationException("Title maximum length exceeded");
-            case "/title" when string.IsNullOrEmpty(patch.value.ToString())
-                               || string.IsNullOrWhiteSpace(patch.value.ToString()):
+            case "title" when string.IsNullOrEmpty(patch.value.ToString())
+                              || string.IsNullOrWhiteSpace(patch.value.ToString()):
                 throw new InvalidOperationException("Title cannot be empty");
-            case "/title" when _viewRepository.Get(v => v.Title == patch.value.ToString()).Any(v => v.Id != entity.Id):
+            case "title" when _viewRepository.Get(v => v.Title == patch.value.ToString()).Any(v => v.Id != entity.Id):
                 throw new InvalidOperationException("Title already exists");
-            case "/published_frame_id" when _viewFrameRepository
+            case "published_frame_id" when _viewFrameRepository
                 .Get(v => v.Id == (int)patch.value)
                 .Any(vf => vf.ViewId != entity.Id):
                 throw new InvalidOperationException("Frame does not belong to this view");

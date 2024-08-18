@@ -36,15 +36,15 @@ public class UserEntityService(IRepository<User> userRepository) : EntityService
     {
         switch (patch.path)
         {
-            case "/role" or "/password" or "/is_active" or "/avatar_id":
+            case "role" or "password" or "is_active" or "avatar_id":
                 throw new InvalidOperationException("This value cannot be patched");
-            case "/username" when !ValidateUsername(patch.value.ToString()):
+            case "username" when !ValidateUsername(patch.value.ToString()):
                 throw new InvalidOperationException("Username does not meet requirements");
-            case "/username" when _userRepository.Get(u => u.Username == patch.value.ToString()).Any():
+            case "username" when _userRepository.Get(u => u.Username == patch.value.ToString()).Any():
                 throw new InvalidOperationException("Username is already taken");
-            case "/email" when !ValidateEmail(patch.value.ToString()):
+            case "email" when !ValidateEmail(patch.value.ToString()):
                 throw new InvalidOperationException("Email does not meet requirements");
-            case "/email" when _userRepository.Get(u => u.Email == patch.value.ToString()).Any():
+            case "email" when _userRepository.Get(u => u.Email == patch.value.ToString()).Any():
                 throw new InvalidOperationException("Email is already taken");
         }
     }
