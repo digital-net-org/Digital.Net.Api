@@ -32,7 +32,7 @@ public class UserEntityService(IRepository<User> userRepository) : EntityService
         return filter;
     }
 
-    protected override void ValidatePatch(Operation<User> patch)
+    protected override void ValidatePatch(Operation<User> patch, User entity)
     {
         switch (patch.path)
         {

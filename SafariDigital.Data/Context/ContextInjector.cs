@@ -13,6 +13,8 @@ public static class ContextInjector
     {
         builder.Services.AddDbContext<SafariDigitalContext>(opts =>
         {
+            opts.UseLazyLoadingProxies();
+
             if (ApplicationEnvironment.IsTest)
                 opts.UseSqlite(new SqliteConnection("Filename=:memory:"));
             else

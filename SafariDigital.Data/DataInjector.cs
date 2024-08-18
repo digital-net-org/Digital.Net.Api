@@ -12,5 +12,6 @@ public static class DataInjector
     public static IServiceCollection AddRepositories(this IServiceCollection services) =>
         services
             .AddScoped(typeof(IRepository<>), typeof(SafariDigitalRepository<>))
-            .AddScoped<IEntityService<User, UserQuery>, UserEntityService>();
+            .AddScoped<IEntityService<User, UserQuery>, UserEntityService>()
+            .AddScoped<IEntityService<View, ViewQuery>, ViewEntityService>();
 }

@@ -54,15 +54,16 @@ public class JwtService(
 
     public async Task RegisterToken(string token, User user, string userAgent, string ipAddress)
     {
-        await HandleMaxTokenAllowed(user);
+        HandleMaxTokenAllowed(user);
         var record = new RecordedToken
         {
             IpAddress = ipAddress,
             UserAgent = userAgent.Length > 1024 ? userAgent[..1024] : userAgent,
             Token = token,
-            User = user,
+            UserId = user.Id,
             ExpiredAt = DateTime.UtcNow.AddMilliseconds(RefreshTokenExpiration)
         };
+
         await tokenRecordsRepository.CreateAsync(record);
         await tokenRecordsRepository.SaveAsync();
     }
@@ -91,16 +92,13 @@ public class JwtService(
         SignToken(new AuthenticatedUser { Id = content.Id, Role = content.Role },
             DateTime.UtcNow.AddMilliseconds(RefreshTokenExpiration));
 
-    private async Task HandleMaxTokenAllowed(User user)
+    private void HandleMaxTokenAllowed(User user)
     {
         var userTokens = tokenRecordsRepository.Get(t => t.User.Id == user.Id && t.ExpiredAt > DateTime.UtcNow);
         if (userTokens.Count() < MaxTokenAllowed) return;
 
-        var tokens = userTokens.OrderBy(t => t.CreatedAt).ToList();
-        for (var i = 0; i < tokens.Count - MaxTokenAllowed + 1; i++)
-            tokens[i].ExpiredAt = DateTime.UtcNow;
-
-        await tokenRecordsRepository.SaveAsync();
+        var tokens = userTokens.OrderByDescending(t => t.CreatedAt).Skip(MaxTokenAllowed);
+        foreach (var token in tokens) token.ExpiredAt = DateTime.UtcNow;
     }
 
     private string SignToken(AuthenticatedUser obj, DateTime expires)

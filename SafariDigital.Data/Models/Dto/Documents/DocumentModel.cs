@@ -1,10 +1,12 @@
 using SafariDigital.Data.Models.Database;
 
-namespace SafariDigital.Data.Models.Dto;
+namespace SafariDigital.Data.Models.Dto.Documents;
 
 public class DocumentModel
 {
-    public DocumentModel() { }
+    public DocumentModel()
+    {
+    }
 
     public DocumentModel(Document document)
     {

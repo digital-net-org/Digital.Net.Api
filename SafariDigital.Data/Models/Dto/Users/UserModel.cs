@@ -1,6 +1,7 @@
 using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Dto.Avatars;
 
-namespace SafariDigital.Data.Models.Dto;
+namespace SafariDigital.Data.Models.Dto.Users;
 
 public class UserModel
 {

@@ -7,8 +7,7 @@ using SafariDigital.Services.Authentication;
 
 namespace SafariDigital.Api.Controllers;
 
-[ApiController]
-[Route("[controller]")]
+[ApiController, Route("[controller]")]
 public class ValidationController(IConfiguration configuration) : ControllerBase
 {
     [HttpGet("username/pattern")]
@@ -17,8 +16,7 @@ public class ValidationController(IConfiguration configuration) : ControllerBase
     [HttpGet("email/pattern")]
     public IActionResult GetEmailPattern() => Ok(RegularExpressions.GetEmailRegex().ToString());
 
-    [Authorize(Role = EUserRole.User)]
-    [HttpGet("password/pattern")]
+    [HttpGet("password/pattern"), Authorize(Role = EUserRole.User)]
     public IActionResult GetPasswordPattern() => Ok(configuration.GetPasswordRegex().ToString());
 
     [HttpGet("avatar/size")]

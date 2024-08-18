@@ -23,24 +23,21 @@ public class AuthController(IConfiguration configuration, IAuthenticationService
         return result.HasError ? Unauthorized(result) : Ok(result.Value);
     }
 
-    [Authorize(Role = EUserRole.User)]
-    [HttpPost("/authentication/logout")]
+    [HttpPost("/authentication/logout"), Authorize(Role = EUserRole.User)]
     public IActionResult Logout()
     {
         authService.Logout();
         return Ok();
     }
 
-    [Authorize(Role = EUserRole.User)]
-    [HttpPost("/authentication/logout-all")]
+    [HttpPost("/authentication/logout-all"), Authorize(Role = EUserRole.User)]
     public IActionResult LogoutAll()
     {
         authService.LogoutAll();
         return Ok();
     }
 
-    [Authorize(Role = EUserRole.SuperAdmin)]
-    [HttpPost("/authentication/password/generate")]
+    [HttpPost("/authentication/password/generate"), Authorize(Role = EUserRole.SuperAdmin)]
     public IActionResult GeneratePassword([FromBody] string password) =>
         configuration.GetPasswordRegex().IsMatch(password)
             ? Ok(authService.GeneratePassword(password))
@@ -49,15 +46,12 @@ public class AuthController(IConfiguration configuration, IAuthenticationService
     [HttpGet("/authentication/role/visitor/test")]
     public IActionResult TestVisitorAuthorization() => Ok();
 
-    [Authorize(Role = EUserRole.User)]
-    [HttpGet("/authentication/role/user/test")]
+    [HttpGet("/authentication/role/user/test"), Authorize(Role = EUserRole.User)]
     public IActionResult TestUserAuthorization() => Ok();
 
-    [Authorize(Role = EUserRole.Admin)]
-    [HttpGet("/authentication/role/admin/test")]
+    [HttpGet("/authentication/role/admin/test"), Authorize(Role = EUserRole.Admin)]
     public IActionResult TestAdminAuthorization() => Ok();
 
-    [Authorize(Role = EUserRole.SuperAdmin)]
-    [HttpGet("/authentication/role/super-admin/test")]
+    [HttpGet("/authentication/role/super-admin/test"), Authorize(Role = EUserRole.SuperAdmin)]
     public IActionResult TestSuperAdminAuthorization() => Ok();
 }

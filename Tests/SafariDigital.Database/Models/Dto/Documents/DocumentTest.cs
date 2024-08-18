@@ -1,9 +1,9 @@
 using Safari.Net.Core.Models;
 using SafariDigital.Data.Models.Database;
-using SafariDigital.Data.Models.Dto;
+using SafariDigital.Data.Models.Dto.Documents;
 using Tests.Utils.Factories;
 
-namespace Tests.SafariDigital.Database.Models.Dto;
+namespace Tests.SafariDigital.Database.Models.Dto.Documents;
 
 public class DocumentTest
 {

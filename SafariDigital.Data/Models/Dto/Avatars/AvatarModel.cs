@@ -1,6 +1,6 @@
 using SafariDigital.Data.Models.Database;
 
-namespace SafariDigital.Data.Models.Dto;
+namespace SafariDigital.Data.Models.Dto.Avatars;
 
 public class AvatarModel
 {
