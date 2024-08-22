@@ -28,19 +28,10 @@ public class ViewTest
                 new()
                 {
                     Id = 1,
-                    Title = "title",
+                    Name = "title",
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now,
-                    Content = new List<ViewContent>
-                    {
-                        new()
-                        {
-                            Id = Guid.NewGuid(),
-                            Type = "type",
-                            Props = "{}",
-                            ViewFrameId = 1
-                        }
-                    }
+                    Data = "data"
                 }
             },
             CreatedAt = DateTime.Now,

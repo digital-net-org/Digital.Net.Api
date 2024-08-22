@@ -14,31 +14,52 @@ public class FrameTest
     }
 
     [Fact]
+    public void FrameLightModel_DefaultConstructor_ReturnsValidModel()
+    {
+        var model = new FrameLightModel();
+        Assert.NotNull(model);
+        Assert.IsType<FrameLightModel>(model);
+    }
+
+    [Fact]
     public void FrameModel_ConstructorWithViewFrame_ReturnsValidModel()
     {
         var viewFrame = new ViewFrame
         {
             Id = 1,
-            Title = "title",
+            Name = "title",
+            Data = "data",
             CreatedAt = DateTime.Now,
-            UpdatedAt = DateTime.Now,
-            Content = new List<ViewContent>
-            {
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    Type = "type",
-                    Props = "{}",
-                    ViewFrameId = 1
-                }
-            }
+            UpdatedAt = DateTime.Now
         };
 
         var model = new FrameModel(viewFrame);
         Assert.NotNull(model);
         Assert.IsType<FrameModel>(model);
         Assert.Equal(viewFrame.Id, model.Id);
-        Assert.Equal(viewFrame.Title, model.Root!.Props.Title);
+        Assert.Equal(viewFrame.Name, model.Name);
+        Assert.Equal(viewFrame.Data, model.Data);
+        Assert.Equal(viewFrame.CreatedAt, model.CreatedAt);
+        Assert.Equal(viewFrame.UpdatedAt, model.UpdatedAt);
+    }
+
+    [Fact]
+    public void FrameLightModel_ConstructorWithViewFrame_ReturnsValidModel()
+    {
+        var viewFrame = new ViewFrame
+        {
+            Id = 1,
+            Name = "title",
+            Data = "data",
+            CreatedAt = DateTime.Now,
+            UpdatedAt = DateTime.Now
+        };
+
+        var model = new FrameLightModel(viewFrame);
+        Assert.NotNull(model);
+        Assert.IsType<FrameLightModel>(model);
+        Assert.Equal(viewFrame.Id, model.Id);
+        Assert.Equal(viewFrame.Name, model.Name);
         Assert.Equal(viewFrame.CreatedAt, model.CreatedAt);
         Assert.Equal(viewFrame.UpdatedAt, model.UpdatedAt);
     }

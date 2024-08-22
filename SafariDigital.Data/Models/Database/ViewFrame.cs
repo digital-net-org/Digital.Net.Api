@@ -5,16 +5,17 @@ using Safari.Net.Data.Entities.Models;
 
 namespace SafariDigital.Data.Models.Database;
 
-[Table("view_frame"), Index(nameof(Title), IsUnique = true)]
+[Table("view_frame"), Index(nameof(Name), IsUnique = true)]
 public class ViewFrame : EntityWithId
 {
-    [Column("title"), Required, MaxLength(1024)]
-    public required string Title { get; set; }
+    [Column("name"), Required, MaxLength(1024)]
+    public required string Name { get; set; }
 
     [Column("view_id"), Required, ForeignKey("view")]
     public int ViewId { get; set; }
 
     public virtual View View { get; set; } = default!;
 
-    public virtual ICollection<ViewContent> Content { get; set; } = [];
+    [Column("data")]
+    public string? Data { get; set; }
 }

@@ -27,10 +27,63 @@ public class ViewController(IEntityService<View, ViewQuery> entityService, IView
         return Ok(result);
     }
 
+    [HttpPost("duplicate"), Authorize(Role = EUserRole.User)]
+    public async Task<IActionResult> PostDuplicate([FromBody] DuplicateViewRequest request)
+    {
+        var result = await viewService.TryViewDuplicateAsync(request.Title);
+        return Ok(result);
+    }
+
+    [HttpPost("duplicate/frame"), Authorize(Role = EUserRole.User)]
+    public async Task<IActionResult> PostDuplicateFrame([FromBody] DuplicateViewFrameRequest request)
+    {
+        var result = await viewService.TryViewFrameDuplicateAsync(request.Name);
+        return Ok(result);
+    }
+
     [HttpPost(""), Authorize(Role = EUserRole.User)]
     public async Task<IActionResult> Post([FromBody] CreateViewRequest request)
     {
-        var result = await viewService.CreateAsync(request);
+        var result = await viewService.CreateViewAsync(request);
+        return Ok(result);
+    }
+
+    [HttpDelete("{id:int}"), Authorize(Role = EUserRole.User)]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var result = await viewService.DeleteViewAsync(id);
+        return Ok(result);
+    }
+
+    [HttpGet("{id:int}/frame/{frameId:int}"), Authorize(Role = EUserRole.User)]
+    public async Task<IActionResult> GetFrame(int id, int frameId)
+    {
+        var result = await viewService.GetViewFrameAsync(id, frameId);
+        return Ok(result);
+    }
+
+    [HttpPost("{id:int}/frame"), Authorize(Role = EUserRole.User)]
+    public async Task<IActionResult> PostFrame(int id, [FromBody] CreateViewFrameRequest request)
+    {
+        var result = await viewService.CreateViewFrameAsync(id, request.Name);
+        return Ok(result);
+    }
+
+    [HttpDelete("{id:int}/frame/{frameId:int}"), Authorize(Role = EUserRole.User)]
+    public async Task<IActionResult> DeleteFrame(int id, int frameId)
+    {
+        var result = await viewService.DeleteViewFrameAsync(id, frameId);
+        return Ok(result);
+    }
+
+    [HttpPatch("{id:int}/frame/{frameId:int}"), Authorize(Role = EUserRole.User)]
+    public async Task<IActionResult> PatchFrame(int id, int frameId, [FromBody] JsonElement patch)
+    {
+        var result = await viewService.PatchViewFrameAsync(
+            id,
+            frameId,
+            JsonPatchFormatter.GetPatchDocument<ViewFrame>(patch)
+        );
         return Ok(result);
     }
 }

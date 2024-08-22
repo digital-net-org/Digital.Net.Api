@@ -7,8 +7,11 @@ public enum EApplicationMessage
     UnhandledException = 0,
 
     // Authentication
-    [Display(Name = "Token not known")] TokenNotKnown = 1000,
-    [Display(Name = "Wrong credentials")] WrongCredentials = 1001,
+    [Display(Name = "Token not known")]
+    TokenNotKnown = 1000,
+
+    [Display(Name = "Wrong credentials")]
+    WrongCredentials = 1001,
 
     [Display(Name = "Too many login attempts")]
     TooManyLoginAttempts = 1002,
@@ -34,5 +37,11 @@ public enum EApplicationMessage
 
     // Repository
     [Display(Name = "Invalid query argument")]
-    QueryError = 2000
+    QueryError = 2000,
+
+    [Display(Name = "Entity not found")]
+    EntityNotFound = 2001,
+
+    [Display(Name = "Entity unique constraint violation")]
+    EntityUniqueViolation = 2002
 }

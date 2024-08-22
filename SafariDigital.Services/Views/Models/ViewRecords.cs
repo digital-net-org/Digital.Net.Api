@@ -8,3 +8,15 @@ public record CreateViewRequest(
     string Title,
     [Required]
     EViewType Type);
+
+public record CreateViewFrameRequest(
+    [Required]
+    string Name);
+
+public record DuplicateViewRequest(
+    [Required]
+    string Title);
+
+public record DuplicateViewFrameRequest(
+    [Required]
+    string Name);

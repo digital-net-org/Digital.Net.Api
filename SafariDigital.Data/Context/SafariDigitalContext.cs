@@ -13,7 +13,6 @@ public class SafariDigitalContext(DbContextOptions<SafariDigitalContext> options
     public DbSet<RecordedToken> RecordedTokens { get; init; }
     public DbSet<View> Views { get; init; }
     public DbSet<ViewFrame> ViewFrames { get; init; }
-    public DbSet<ViewContent> ViewContents { get; init; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

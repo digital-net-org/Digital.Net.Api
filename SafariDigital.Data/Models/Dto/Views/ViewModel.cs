@@ -16,7 +16,7 @@ public class ViewModel
         IsPublished = view.IsPublished;
         Type = view.Type;
         PublishedFrameId = view.PublishedFrameId;
-        Frames = Mapper.Map<ViewFrame, FrameModel>(view.Frames.ToList());
+        Frames = Mapper.Map<ViewFrame, FrameLightModel>(view.Frames.ToList());
         CreatedAt = view.CreatedAt;
         UpdatedAt = view.UpdatedAt;
     }
@@ -26,7 +26,7 @@ public class ViewModel
     public bool? IsPublished { get; set; }
     public EViewType? Type { get; set; }
     public int? PublishedFrameId { get; set; }
-    public List<FrameModel>? Frames { get; init; }
+    public List<FrameLightModel>? Frames { get; init; }
     public DateTime CreatedAt { get; init; }
     public DateTime? UpdatedAt { get; init; }
 }

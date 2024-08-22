@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.JsonPatch.Operations;
 using Safari.Net.Core.Predicates;
 using Safari.Net.Data.Entities;
 using Safari.Net.Data.Repositories;
-using SafariDigital.Core;
 using SafariDigital.Data.Models.Database;
 
 namespace SafariDigital.Data.Services;
@@ -11,10 +10,7 @@ namespace SafariDigital.Data.Services;
 public class ViewEntityService(IRepository<View> viewRepository, IRepository<ViewFrame> viewFrameRepository)
     : EntityService<View, ViewQuery>(viewRepository)
 {
-    private readonly IRepository<ViewFrame> _viewFrameRepository = viewFrameRepository;
     private readonly IRepository<View> _viewRepository = viewRepository;
-    private static bool ValidateUsername(string? str) => RegularExpressions.GetUsernameRegex().IsMatch(str ?? "");
-    private static bool ValidateEmail(string? str) => RegularExpressions.GetEmailRegex().IsMatch(str ?? "");
 
     protected override Expression<Func<View, bool>> Filter(ViewQuery query)
     {
@@ -45,7 +41,7 @@ public class ViewEntityService(IRepository<View> viewRepository, IRepository<Vie
                 throw new InvalidOperationException("Title cannot be empty");
             case "title" when _viewRepository.Get(v => v.Title == patch.value.ToString()).Any(v => v.Id != entity.Id):
                 throw new InvalidOperationException("Title already exists");
-            case "published_frame_id" when _viewFrameRepository
+            case "published_frame_id" when viewFrameRepository
                 .Get(v => v.Id == (int)patch.value)
                 .Any(vf => vf.ViewId != entity.Id):
                 throw new InvalidOperationException("Frame does not belong to this view");
