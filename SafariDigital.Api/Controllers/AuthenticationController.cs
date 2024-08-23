@@ -37,7 +37,7 @@ public class AuthController(IConfiguration configuration, IAuthenticationService
         return Ok();
     }
 
-    [HttpPost("/authentication/password/generate"), Authorize(Role = EUserRole.SuperAdmin)]
+    [HttpPost("/authentication/password/generate"), ApiKey]
     public IActionResult GeneratePassword([FromBody] string password) =>
         configuration.GetPasswordRegex().IsMatch(password)
             ? Ok(authService.GeneratePassword(password))

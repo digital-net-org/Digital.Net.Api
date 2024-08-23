@@ -6,6 +6,7 @@ namespace SafariDigital.Data.Context;
 public class SafariDigitalContext(DbContextOptions<SafariDigitalContext> options)
     : DbContext(options)
 {
+    public DbSet<ApiKey> ApiKeys { get; init; }
     public DbSet<User> Users { get; init; }
     public DbSet<Document> Documents { get; init; }
     public DbSet<Avatar> Avatars { get; init; }
