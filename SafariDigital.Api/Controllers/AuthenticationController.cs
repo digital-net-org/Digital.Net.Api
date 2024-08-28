@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Safari.Net.Core.Messages;
 using SafariDigital.Api.Attributes;
 using SafariDigital.Data.Models.Database;
 using SafariDigital.Services.Authentication;
@@ -10,17 +11,17 @@ namespace SafariDigital.Api.Controllers;
 public class AuthController(IConfiguration configuration, IAuthenticationService authService) : ControllerBase
 {
     [HttpPost("/authentication/login")]
-    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    public async Task<ActionResult<Result<LoginResponse>>> Login([FromBody] LoginRequest request)
     {
         var result = await authService.Login(request.Login, request.Password);
-        return result.HasError || result.Value is null ? Unauthorized(result) : Ok(result.Value);
+        return result.HasError || result.Value is null ? Unauthorized(result) : Ok(result);
     }
 
-    [HttpGet("/authentication/refresh")]
-    public async Task<IActionResult> RefreshTokens()
+    [HttpPost("/authentication/refresh")]
+    public async Task<ActionResult<Result<LoginResponse>>> RefreshTokens()
     {
         var result = await authService.RefreshTokens();
-        return result.HasError ? Unauthorized(result) : Ok(result.Value);
+        return result.HasError ? Unauthorized(result) : Ok(result);
     }
 
     [HttpPost("/authentication/logout"), Authorize(Role = EUserRole.User)]

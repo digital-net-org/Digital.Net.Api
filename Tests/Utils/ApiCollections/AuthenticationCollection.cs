@@ -15,7 +15,7 @@ public static class AuthenticationCollection
 
     public static async Task<HttpResponseMessage> RefreshTokens(this HttpClient client)
     {
-        var response = await client.GetAsync("/authentication/refresh");
+        var response = await client.PostAsync("/authentication/refresh", null);
         await client.SetAuthorizations(response);
         return response;
     }
