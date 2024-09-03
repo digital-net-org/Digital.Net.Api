@@ -63,7 +63,7 @@ public class LoginApiTest : IntegrationTest<Program, SafariDigitalContext>
 
         var unauthorizedResponse = await BaseClient.RefreshTokens();
         foreach (var response in responses)
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, unauthorizedResponse.StatusCode);
     }
 }

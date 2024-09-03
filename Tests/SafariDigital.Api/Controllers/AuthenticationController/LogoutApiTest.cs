@@ -27,7 +27,7 @@ public class LogoutApiTest : IntegrationTest<Program, SafariDigitalContext>
         var logoutResponse = await BaseClient.Logout();
         var cookies = BaseClient.DefaultRequestHeaders.GetValues("Cookie");
 
-        Assert.Equal(HttpStatusCode.OK, logoutResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, logoutResponse.StatusCode);
         Assert.DoesNotContain("RefreshToken", cookies);
     }
 }

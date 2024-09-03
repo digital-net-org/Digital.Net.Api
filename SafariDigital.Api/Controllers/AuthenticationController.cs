@@ -28,14 +28,14 @@ public class AuthController(IConfiguration configuration, IAuthenticationService
     public IActionResult Logout()
     {
         authService.Logout();
-        return Ok();
+        return NoContent();
     }
 
     [HttpPost("/authentication/logout-all"), Authorize(Role = EUserRole.User)]
     public IActionResult LogoutAll()
     {
         authService.LogoutAll();
-        return Ok();
+        return NoContent();
     }
 
     [HttpPost("/authentication/password/generate"), ApiKey]
@@ -45,14 +45,14 @@ public class AuthController(IConfiguration configuration, IAuthenticationService
             : BadRequest("Password does not meet the requirements.");
 
     [HttpGet("/authentication/role/visitor/test")]
-    public IActionResult TestVisitorAuthorization() => Ok();
+    public IActionResult TestVisitorAuthorization() => NoContent();
 
     [HttpGet("/authentication/role/user/test"), Authorize(Role = EUserRole.User)]
-    public IActionResult TestUserAuthorization() => Ok();
+    public IActionResult TestUserAuthorization() => NoContent();
 
     [HttpGet("/authentication/role/admin/test"), Authorize(Role = EUserRole.Admin)]
-    public IActionResult TestAdminAuthorization() => Ok();
+    public IActionResult TestAdminAuthorization() => NoContent();
 
     [HttpGet("/authentication/role/super-admin/test"), Authorize(Role = EUserRole.SuperAdmin)]
-    public IActionResult TestSuperAdminAuthorization() => Ok();
+    public IActionResult TestSuperAdminAuthorization() => NoContent();
 }

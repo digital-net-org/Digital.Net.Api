@@ -27,7 +27,7 @@ public class RoleTestApi : IntegrationTest<Program, SafariDigitalContext>
         var unauthorizedUserResponse = await BaseClient.TestUserAuthorization();
         var unauthorizedAdminResponse = await BaseClient.TestAdminAuthorization();
         var unauthorizedSuperAdminResponse = await BaseClient.TestSuperAdminAuthorization();
-        Assert.Equal(HttpStatusCode.OK, okResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, okResponse.StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, unauthorizedUserResponse.StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, unauthorizedAdminResponse.StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, unauthorizedSuperAdminResponse.StatusCode);
@@ -54,8 +54,8 @@ public class RoleTestApi : IntegrationTest<Program, SafariDigitalContext>
         var unauthorizedAdminResponse = await BaseClient.TestAdminAuthorization();
         var unauthorizedSuperAdminResponse = await BaseClient.TestSuperAdminAuthorization();
 
-        Assert.Equal(HttpStatusCode.OK, okResponse.StatusCode);
-        Assert.Equal(HttpStatusCode.OK, okUserResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, okResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, okUserResponse.StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, unauthorizedAdminResponse.StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, unauthorizedSuperAdminResponse.StatusCode);
     }
@@ -71,9 +71,9 @@ public class RoleTestApi : IntegrationTest<Program, SafariDigitalContext>
         var okAdminResponse = await BaseClient.TestAdminAuthorization();
         var unauthorizedSuperAdminResponse = await BaseClient.TestSuperAdminAuthorization();
 
-        Assert.Equal(HttpStatusCode.OK, okResponse.StatusCode);
-        Assert.Equal(HttpStatusCode.OK, okUserResponse.StatusCode);
-        Assert.Equal(HttpStatusCode.OK, okAdminResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, okResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, okUserResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, okAdminResponse.StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, unauthorizedSuperAdminResponse.StatusCode);
     }
 
@@ -88,9 +88,9 @@ public class RoleTestApi : IntegrationTest<Program, SafariDigitalContext>
         var okAdminResponse = await BaseClient.TestAdminAuthorization();
         var okSuperAdminResponse = await BaseClient.TestSuperAdminAuthorization();
 
-        Assert.Equal(HttpStatusCode.OK, okResponse.StatusCode);
-        Assert.Equal(HttpStatusCode.OK, okUserResponse.StatusCode);
-        Assert.Equal(HttpStatusCode.OK, okAdminResponse.StatusCode);
-        Assert.Equal(HttpStatusCode.OK, okSuperAdminResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, okResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, okUserResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, okAdminResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, okSuperAdminResponse.StatusCode);
     }
 }
