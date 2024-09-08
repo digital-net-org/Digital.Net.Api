@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using Safari.Net.Core.Messages;
 using Safari.Net.Data.Entities;
 using SafariDigital.Api.Attributes;
 using SafariDigital.Api.Formatters;
@@ -19,45 +20,42 @@ public class UserController(
     IUserService userService) : ControllerBase
 {
     [HttpGet(""), Authorize(Role = EUserRole.User)]
-    public IActionResult Get([FromQuery] UserQuery query) => Ok(entityService.Get<UserModel>(query));
+    public ActionResult<QueryResult<UserModel>> Get([FromQuery] UserQuery query) =>
+        entityService.Get<UserModel>(query);
 
     [HttpGet("{id:guid}"), Authorize(Role = EUserRole.User)]
-    public IActionResult GetById(Guid id) => Ok(entityService.Get<UserModel>(id));
+    public ActionResult<Result<UserModel>> GetById(Guid id) => entityService.Get<UserModel>(id);
 
     [HttpPatch("{id:guid}"), Authorize(Role = EUserRole.User)]
-    public async Task<IActionResult> Patch(Guid id, [FromBody] JsonElement patch)
+    public async Task<ActionResult<Result<UserModel>>> Patch(Guid id, [FromBody] JsonElement patch)
     {
         var user = await GetAuthorizedUser(id);
         if (user is null) return Unauthorized();
-        var result = await entityService.Patch<UserModel>(JsonPatchFormatter.GetPatchDocument<User>(patch), id);
-        return Ok(result);
+        return await entityService.Patch<UserModel>(JsonPatchFormatter.GetPatchDocument<User>(patch), id);
     }
 
     [HttpPut("{id:guid}/password"), Authorize(Role = EUserRole.User)]
-    public async Task<IActionResult> UpdatePassword(Guid id, UpdatePasswordRequest request)
+    public async Task<ActionResult<Result>> UpdatePassword(Guid id, UpdatePasswordRequest request)
     {
         var user = await GetAuthorizedUser(id);
         if (user is null) return Unauthorized();
-        var result = await userService.UpdatePassword(user, request.CurrentPassword, request.NewPassword);
-        return Ok(result);
+        return await userService.UpdatePassword(user, request.CurrentPassword, request.NewPassword);
     }
 
     [HttpPut("{id:guid}/avatar"), Authorize(Role = EUserRole.User)]
-    public async Task<IActionResult> UpdateAvatar(Guid id, IFormFile avatar)
+    public async Task<ActionResult<Result<Document>>> UpdateAvatar(Guid id, IFormFile avatar)
     {
         var user = await GetAuthorizedUser(id);
         if (user is null) return Unauthorized();
-        var result = await userService.UpdateAvatar(user, avatar);
-        return Ok(result);
+        return await userService.UpdateAvatar(user, avatar);
     }
 
     [HttpDelete("{id:guid}/avatar"), Authorize(Role = EUserRole.User)]
-    public async Task<IActionResult> RemoveAvatar(Guid id)
+    public async Task<ActionResult<Result>> RemoveAvatar(Guid id)
     {
         var user = await GetAuthorizedUser(id);
         if (user is null) return Unauthorized();
-        var result = await userService.RemoveUserAvatar(user);
-        return Ok(result);
+        return await userService.RemoveUserAvatar(user);
     }
 
     private async Task<User?> GetAuthorizedUser(Guid id)
