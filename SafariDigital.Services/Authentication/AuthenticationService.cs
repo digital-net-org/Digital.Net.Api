@@ -33,15 +33,6 @@ public class AuthenticationService(
     private string UserAgent => Request.GetUserAgent() ?? string.Empty;
     private string IpAddress => Request.GetRemoteIpAddress() ?? string.Empty;
 
-    public void LogoutAll()
-    {
-        var token = Request.Cookies[CookieTokenName];
-        var jwtToken = jwtService.GetJwtToken();
-        if (token is null || jwtToken.Id is null) return;
-        jwtService.RevokeAllTokens(jwtToken.Id ?? Guid.Empty);
-        Response.Cookies.Delete(CookieTokenName);
-    }
-
     public async Task<Result<LoginResponse>> Login(string login, string password)
     {
         var result = new Result<LoginResponse>();
@@ -59,7 +50,7 @@ public class AuthenticationService(
         }
 
         if (!user.Value.IsActive) return result.AddError(EApplicationMessage.UserNotActive);
-        var (bearerToken, refreshToken) = GenerateTokens(user.Value);
+        var (bearerToken, refreshToken) = await GenerateTokens(user.Value);
 
         Response.SetCookie(refreshToken, CookieTokenName, RefreshExpiration);
         result.Value = new LoginResponse(bearerToken);
@@ -78,21 +69,30 @@ public class AuthenticationService(
         var user = await userRepository.GetByIdAsync(tokenResult.Value?.Id);
         if (user is null) return result.AddError(EApplicationMessage.TokenNotKnown);
 
-        var (bearerToken, refreshToken) = GenerateTokens(user);
+        var (bearerToken, refreshToken) = await GenerateTokens(user);
         Response.SetCookie(refreshToken, CookieTokenName, RefreshExpiration);
         result.Value = new LoginResponse(bearerToken);
         return result;
     }
 
-    public void Logout()
+    public async Task Logout()
     {
         var refreshToken = Request.Cookies[CookieTokenName];
         if (refreshToken is null) return;
-        jwtService.RevokeToken(refreshToken);
+        await jwtService.RevokeToken(refreshToken);
         Response.Cookies.Delete(CookieTokenName);
     }
 
     public string GeneratePassword(string password) => AuthenticationUtils.HashPassword(password);
+
+    public async Task LogoutAll()
+    {
+        var token = Request.Cookies[CookieTokenName];
+        var jwtToken = jwtService.GetJwtToken();
+        if (token is null || jwtToken.Id is null) return;
+        await jwtService.RevokeAllTokens(jwtToken.Id ?? Guid.Empty);
+        Response.Cookies.Delete(CookieTokenName);
+    }
 
     private async Task<Result<User>> VerifyCredentials(string login, string password)
     {
@@ -107,11 +107,11 @@ public class AuthenticationService(
             : result;
     }
 
-    private (string, string) GenerateTokens(User user)
+    private async Task<(string, string)> GenerateTokens(User user)
     {
         var bearerToken = jwtService.GenerateBearerToken(user);
         var refreshToken = jwtService.GenerateRefreshToken(user);
-        jwtService.RegisterToken(refreshToken, user, UserAgent, IpAddress);
+        await jwtService.RegisterToken(refreshToken, user, UserAgent, IpAddress);
         return (bearerToken, refreshToken);
     }
 

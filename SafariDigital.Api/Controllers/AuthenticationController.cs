@@ -25,16 +25,16 @@ public class AuthController(IConfiguration configuration, IAuthenticationService
     }
 
     [HttpPost("/authentication/logout"), Authorize(Role = EUserRole.User)]
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout()
     {
-        authService.Logout();
+        await authService.Logout();
         return NoContent();
     }
 
     [HttpPost("/authentication/logout-all"), Authorize(Role = EUserRole.User)]
-    public IActionResult LogoutAll()
+    public async Task<IActionResult> LogoutAll()
     {
-        authService.LogoutAll();
+        await authService.LogoutAll();
         return NoContent();
     }
 

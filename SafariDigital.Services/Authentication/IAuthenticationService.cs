@@ -8,6 +8,6 @@ public interface IAuthenticationService
     string GeneratePassword(string password);
     Task<Result<LoginResponse>> Login(string login, string password);
     Task<Result<LoginResponse>> RefreshTokens();
-    void Logout();
-    void LogoutAll();
+    Task Logout();
+    Task LogoutAll();
 }
