@@ -47,7 +47,7 @@ public class ViewController(IEntityService<View, ViewQuery> entityService, IView
     public async Task<ActionResult<ViewModel>> Post([FromBody] CreateViewRequest request)
     {
         var result = await viewService.CreateViewAsync(request);
-        return Ok(result);
+        return result.HasError ? BadRequest(result) : Ok(result);
     }
 
     [HttpDelete("{id:int}"), Authorize(Role = EUserRole.User)]

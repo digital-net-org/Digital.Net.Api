@@ -39,7 +39,7 @@ public class AuthController(IConfiguration configuration, IAuthenticationService
     }
 
     [HttpPost("/authentication/password/generate"), ApiKey]
-    public IActionResult GeneratePassword([FromBody] string password) =>
+    public ActionResult<string> GeneratePassword([FromBody] string password) =>
         configuration.GetPasswordRegex().IsMatch(password)
             ? Ok(authService.GeneratePassword(password))
             : BadRequest("Password does not meet the requirements.");

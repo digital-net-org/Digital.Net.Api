@@ -11,15 +11,15 @@ namespace SafariDigital.Api.Controllers;
 public class ValidationController(IConfiguration configuration) : ControllerBase
 {
     [HttpGet("username/pattern")]
-    public IActionResult GetUsernamePattern() => Ok(RegularExpressions.GetUsernameRegex().ToString());
+    public ActionResult<string> GetUsernamePattern() => Ok(RegularExpressions.GetUsernameRegex().ToString());
 
     [HttpGet("email/pattern")]
-    public IActionResult GetEmailPattern() => Ok(RegularExpressions.GetEmailRegex().ToString());
+    public ActionResult<string> GetEmailPattern() => Ok(RegularExpressions.GetEmailRegex().ToString());
 
     [HttpGet("password/pattern"), Authorize(Role = EUserRole.User)]
-    public IActionResult GetPasswordPattern() => Ok(configuration.GetPasswordRegex().ToString());
+    public ActionResult<string> GetPasswordPattern() => Ok(configuration.GetPasswordRegex().ToString());
 
     [HttpGet("avatar/size")]
-    public IActionResult GetAvatarMaxSize() =>
+    public ActionResult<long> GetAvatarMaxSize() =>
         Ok(configuration.GetSection<long>(EApplicationSetting.FileSystemMaxAvatarSize));
 }

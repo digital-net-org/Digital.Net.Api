@@ -7,8 +7,8 @@ namespace SafariDigital.Api.Controllers;
 public class PublicController : ControllerBase
 {
     [HttpGet("/ping")]
-    public IActionResult Ping() => Ok("Pong!");
+    public ActionResult<string> Ping() => Ok("Pong!");
 
     [HttpGet("/version")]
-    public IActionResult Version() => Ok(ApplicationVersion.GetAssemblyVersion());
+    public ActionResult<string> Version() => Ok(ApplicationVersion.GetAssemblyVersion());
 }
