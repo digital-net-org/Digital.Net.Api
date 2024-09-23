@@ -1,56 +1,58 @@
 using Microsoft.AspNetCore.Mvc;
+using Safari.Net.Core.Messages;
 using SafariDigital.Api.Attributes;
-using SafariDigital.Database.Models.User;
+using SafariDigital.Data.Models.Database;
 using SafariDigital.Services.Authentication;
 using SafariDigital.Services.Authentication.Models;
 
 namespace SafariDigital.Api.Controllers;
 
 [ApiController]
-public class AuthController(IAuthenticationService authService) : ControllerBase
+public class AuthController(IConfiguration configuration, IAuthenticationService authService) : ControllerBase
 {
     [HttpPost("/authentication/login")]
-    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    public async Task<ActionResult<Result<LoginResponse>>> Login([FromBody] LoginRequest request)
     {
-        var result = await authService.Login(Request, Response, request.Login, request.Password);
-        return result.HasError || result.Value is null ? Unauthorized(result) : Ok(result.Value);
+        var result = await authService.Login(request.Login, request.Password);
+        return result.HasError || result.Value is null ? Unauthorized(result) : Ok(result);
     }
 
-    [HttpGet("/authentication/refresh")]
-    public async Task<IActionResult> RefreshTokens()
+    [HttpPost("/authentication/refresh")]
+    public async Task<ActionResult<Result<LoginResponse>>> RefreshTokens()
     {
-        var result = await authService.RefreshTokens(Request, Response);
-        return result.HasError ? Unauthorized(result) : Ok(result.Value);
+        var result = await authService.RefreshTokens();
+        return result.HasError ? Unauthorized(result) : Ok(result);
     }
 
-    [Authorize(Role = EUserRole.User)]
-    [HttpPost("/authentication/logout")]
-    public IActionResult Logout()
+    [HttpPost("/authentication/logout"), Authorize(Role = EUserRole.User)]
+    public async Task<IActionResult> Logout()
     {
-        authService.Logout(Request, Response);
-        return Ok();
+        await authService.Logout();
+        return NoContent();
     }
 
-    [Authorize(Role = EUserRole.User)]
-    [HttpPost("/authentication/logout-all")]
-    public IActionResult LogoutAll()
+    [HttpPost("/authentication/logout-all"), Authorize(Role = EUserRole.User)]
+    public async Task<IActionResult> LogoutAll()
     {
-        authService.LogoutAll(Request, Response);
-        return Ok();
+        await authService.LogoutAll();
+        return NoContent();
     }
+
+    [HttpPost("/authentication/password/generate"), ApiKey]
+    public ActionResult<string> GeneratePassword([FromBody] string password) =>
+        configuration.GetPasswordRegex().IsMatch(password)
+            ? Ok(authService.GeneratePassword(password))
+            : BadRequest("Password does not meet the requirements.");
 
     [HttpGet("/authentication/role/visitor/test")]
-    public IActionResult TestVisitorAuthorization() => Ok();
+    public IActionResult TestVisitorAuthorization() => NoContent();
 
-    [Authorize(Role = EUserRole.User)]
-    [HttpGet("/authentication/role/user/test")]
-    public IActionResult TestUserAuthorization() => Ok();
+    [HttpGet("/authentication/role/user/test"), Authorize(Role = EUserRole.User)]
+    public IActionResult TestUserAuthorization() => NoContent();
 
-    [Authorize(Role = EUserRole.Admin)]
-    [HttpGet("/authentication/role/admin/test")]
-    public IActionResult TestAdminAuthorization() => Ok();
+    [HttpGet("/authentication/role/admin/test"), Authorize(Role = EUserRole.Admin)]
+    public IActionResult TestAdminAuthorization() => NoContent();
 
-    [Authorize(Role = EUserRole.SuperAdmin)]
-    [HttpGet("/authentication/role/super-admin/test")]
-    public IActionResult TestSuperAdminAuthorization() => Ok();
+    [HttpGet("/authentication/role/super-admin/test"), Authorize(Role = EUserRole.SuperAdmin)]
+    public IActionResult TestSuperAdminAuthorization() => NoContent();
 }

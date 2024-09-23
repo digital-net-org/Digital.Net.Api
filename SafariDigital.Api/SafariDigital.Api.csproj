@@ -3,6 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <LangVersion>12</LangVersion>
+        <AssemblyVersion>0.1.0.0</AssemblyVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -24,7 +25,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\SafariDigital.Core\SafariDigital.Core.csproj"/>
-        <ProjectReference Include="..\SafariDigital.Database\SafariDigital.Database.csproj"/>
+        <ProjectReference Include="..\SafariDigital.Data\SafariDigital.Data.csproj"/>
         <ProjectReference Include="..\SafariDigital.Services\SafariDigital.Services.csproj"/>
     </ItemGroup>
 

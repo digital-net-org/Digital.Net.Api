@@ -26,6 +26,9 @@ ASPNETCORE_ENVIRONMENT="Development" or "Production"
 ConnectionStrings__Default="string"
 AllowedOrigins="string"
 
+FileSystem__path="string"
+FileSystem__maxAvatarSize="long" // expressed in bytes
+
 Jwt__Secret="string"
 Jwt__Issuer="string"
 Jwt__Audience="string"
@@ -38,4 +41,5 @@ Security__MaxLoginAttempts="int"
 Security__MaxLoginWindow="long"
 Security__MaxRequestAllowed="int"
 Security__MaxRequestWindow="long"
+Security__PasswordRegex="string"
 ```

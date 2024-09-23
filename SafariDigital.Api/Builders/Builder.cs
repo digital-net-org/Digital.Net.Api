@@ -1,11 +1,14 @@
 using Microsoft.AspNetCore.HttpOverrides;
 using SafariDigital.Api.Builders.Injectors;
 using SafariDigital.Core.Application;
-using SafariDigital.Database;
-using SafariDigital.Database.Context;
+using SafariDigital.Data;
+using SafariDigital.Data.Context;
 using SafariDigital.Services.Authentication;
-using SafariDigital.Services.Cache;
+using SafariDigital.Services.Documents;
+using SafariDigital.Services.HttpContext;
 using SafariDigital.Services.Jwt;
+using SafariDigital.Services.Users;
+using SafariDigital.Services.Views;
 
 namespace SafariDigital.Api.Builders;
 
@@ -16,10 +19,9 @@ public static class Builder
         var builder = WebApplication.CreateBuilder(args);
         return builder
             .AddProjectSettings()
-            .ValidateApplicationSettings()
-            .ConnectDatabase()
-            .ConfigureForwardedHeaders()
-            .InjectServices()
+            .AddDatabase()
+            .SetForwardedHeaders()
+            .AddServices()
             .AddCorsPolicy()
             .AddRateLimiter()
             .AddControllers()
@@ -27,12 +29,15 @@ public static class Builder
             .Build();
     }
 
-    private static WebApplicationBuilder InjectServices(this WebApplicationBuilder builder)
+    private static WebApplicationBuilder AddServices(this WebApplicationBuilder builder)
     {
         builder.Services
             .AddRepositories()
+            .AddHttpContextService()
             .AddJwtService()
-            .AddCacheService()
+            .AddDocumentService()
+            .AddUserService()
+            .AddViewService()
             .AddAuthenticationService();
         return builder;
     }
@@ -45,7 +50,7 @@ public static class Builder
 
     private static WebApplicationBuilder AddCorsPolicy(this WebApplicationBuilder builder)
     {
-        var allowedOrigins = builder.Configuration.GetSectionOrThrow<string[]>(EApplicationSetting.CorsAllowedOrigins);
+        var allowedOrigins = builder.Configuration.GetSection<string[]>(EApplicationSetting.CorsAllowedOrigins);
         builder.Services.AddCors(options =>
         {
             options.AddDefaultPolicy(policyBuilder =>
@@ -60,7 +65,7 @@ public static class Builder
         return builder;
     }
 
-    private static WebApplicationBuilder ConfigureForwardedHeaders(
+    private static WebApplicationBuilder SetForwardedHeaders(
         this WebApplicationBuilder builder
     )
     {

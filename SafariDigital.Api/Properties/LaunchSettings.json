@@ -4,7 +4,7 @@
         "SafariDigital.Api Development": {
             "commandName": "Project",
             "launchUrl": "swagger",
-            "applicationUrl": "https://localhost:5099;http://localhost:5098",
+            "applicationUrl": "http://localhost:5099",
             "dotnetRunMessages": true,
             "launchBrowser": true,
             "environmentVariables": {

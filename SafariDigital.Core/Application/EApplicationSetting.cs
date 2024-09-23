@@ -5,6 +5,10 @@ namespace SafariDigital.Core.Application;
 public enum EApplicationSetting
 {
     [Display(Name = "CorsAllowedOrigins")] CorsAllowedOrigins,
+    [Display(Name = "FileSystem:Path")] FileSystemPath,
+
+    [Display(Name = "FileSystem:maxAvatarSize")]
+    FileSystemMaxAvatarSize,
 
     [Display(Name = "Jwt:RefreshExpiration")]
     JwtRefreshExpiration,
@@ -33,5 +37,8 @@ public enum EApplicationSetting
     SecurityMaxRequestAllowed,
 
     [Display(Name = "Security:MaxRequestWindow")]
-    SecurityMaxRequestWindow
+    SecurityMaxRequestWindow,
+
+    [Display(Name = "Security:PasswordRegex")]
+    SecurityPasswordRegex
 }

@@ -9,7 +9,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\SafariDigital.Core\SafariDigital.Core.csproj"/>
-        <ProjectReference Include="..\SafariDigital.Database\SafariDigital.Database.csproj"/>
+        <ProjectReference Include="..\SafariDigital.Data\SafariDigital.Data.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -17,6 +17,7 @@
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.6"/>
         <PackageReference Include="Microsoft.OpenApi" Version="1.6.14"/>
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.6.2"/>
+        <PackageReference Include="System.Linq.Dynamic.Core" Version="1.4.3"/>
     </ItemGroup>
 
 </Project>
