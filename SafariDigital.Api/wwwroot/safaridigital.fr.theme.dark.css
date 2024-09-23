@@ -1,0 +1,13 @@
+:root {
+    --sd-palette-primary: #007E6D;
+    --sd-palette-secondary: #FACC0E;
+    --sd-palette-tertiary: #FF5757;
+    --sd-palette-text: #181818;
+    --sd-palette-text-inverted: #F0F0F0;
+    --sd-palette-text-disabled: #707070;
+    --sd-palette-paper: #FCFCFC;
+
+    --sd-font-text: 'Roboto', sans-serif;
+    --sd-font-text-size: 1rem;
+    --sd-font-text-weight: 400;
+}
