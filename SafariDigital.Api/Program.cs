@@ -10,8 +10,8 @@ public sealed class Program
     {
         var app = Builder.CreateApp(args);
         app
-            .UseAuthorization()
             .UseCors()
+            .UseAuthorization()
             .UseRateLimiter()
             .UseStaticFiles();
 
