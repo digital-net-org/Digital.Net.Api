@@ -12,7 +12,7 @@ public sealed class Program
         app
             .UseCors()
             .UseAuthorization()
-            .UseRateLimiter()
+            // .UseRateLimiter()
             .UseStaticFiles();
 
         UseSwaggerPage(app);
