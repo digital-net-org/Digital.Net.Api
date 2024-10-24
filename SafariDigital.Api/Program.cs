@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SafariDigital.Api.Builders;
 using SafariDigital.Data.Context;
+using SafariDigital.Data.Models;
 
 namespace SafariDigital.Api;
 
@@ -17,6 +18,7 @@ public sealed class Program
 
         UseSwaggerPage(app);
         await ApplyDataMigrationsAsync(app);
+        await SeedDatabaseAsync(app);
 
         app.MapControllers().RequireRateLimiting("Default");
         await app.RunAsync();
@@ -28,6 +30,14 @@ public sealed class Program
         using var scope = app.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<SafariDigitalContext>();
         await context.Database.MigrateAsync();
+    }
+
+    private static async Task SeedDatabaseAsync(WebApplication app)
+    {
+        if (!app.Environment.IsEnvironment("Development")) return;
+        using var scope = app.Services.CreateScope();
+        var seeder = scope.ServiceProvider.GetRequiredService<ISeeder>();
+        await seeder.SeedDevelopmentData();
     }
 
     private static void UseSwaggerPage(WebApplication app)

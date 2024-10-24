@@ -7,52 +7,52 @@ using SafariDigital.Services.Authentication.Models;
 
 namespace SafariDigital.Api.Controllers;
 
-[ApiController]
-public class AuthController(IConfiguration configuration, IAuthenticationService authService) : ControllerBase
+[ApiController, Route("[controller]")]
+public class AuthenticationController(IConfiguration configuration, IAuthenticationService authService) : ControllerBase
 {
-    [HttpPost("/authentication/login")]
+    [HttpPost("login")]
     public async Task<ActionResult<Result<LoginResponse>>> Login([FromBody] LoginRequest request)
     {
         var result = await authService.Login(request.Login, request.Password);
         return result.HasError || result.Value is null ? Unauthorized(result) : Ok(result);
     }
 
-    [HttpPost("/authentication/refresh")]
+    [HttpPost("refresh")]
     public async Task<ActionResult<Result<LoginResponse>>> RefreshTokens()
     {
         var result = await authService.RefreshTokens();
         return result.HasError ? Unauthorized(result) : Ok(result);
     }
 
-    [HttpPost("/authentication/logout"), Authorize(Role = EUserRole.User)]
+    [HttpPost("logout"), Authorize(Role = EUserRole.User)]
     public async Task<IActionResult> Logout()
     {
         await authService.Logout();
         return NoContent();
     }
 
-    [HttpPost("/authentication/logout-all"), Authorize(Role = EUserRole.User)]
+    [HttpPost("logout-all"), Authorize(Role = EUserRole.User)]
     public async Task<IActionResult> LogoutAll()
     {
         await authService.LogoutAll();
         return NoContent();
     }
 
-    [HttpPost("/authentication/password/generate"), ApiKey]
+    [HttpPost("password/generate"), ApiKey]
     public ActionResult<string> GeneratePassword([FromBody] string password) =>
         configuration.GetPasswordRegex().IsMatch(password)
             ? Ok(authService.GeneratePassword(password))
             : BadRequest("Password does not meet the requirements.");
 
-    [HttpGet("/authentication/role/visitor/test")]
+    [HttpGet("role/visitor/test")]
     public IActionResult TestVisitorAuthorization() => NoContent();
 
-    [HttpGet("/authentication/role/user/test"), Authorize(Role = EUserRole.User)]
+    [HttpGet("role/user/test"), Authorize(Role = EUserRole.User)]
     public IActionResult TestUserAuthorization() => NoContent();
 
-    [HttpGet("/authentication/role/admin/test"), Authorize(Role = EUserRole.Admin)]
+    [HttpGet("role/admin/test"), Authorize(Role = EUserRole.Admin)]
     public IActionResult TestAdminAuthorization() => NoContent();
 
-    [HttpGet("/authentication/role/super-admin/test"), Authorize(Role = EUserRole.SuperAdmin)]
+    [HttpGet("role/super-admin/test"), Authorize(Role = EUserRole.SuperAdmin)]
     public IActionResult TestSuperAdminAuthorization() => NoContent();
 }
