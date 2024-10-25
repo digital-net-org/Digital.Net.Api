@@ -1,5 +1,5 @@
 using Safari.Net.Core.Models;
-using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Database.Users;
 using SafariDigital.Data.Models.Dto.Users;
 
 namespace Tests.SafariDigital.Database.Models.Dto.Users;

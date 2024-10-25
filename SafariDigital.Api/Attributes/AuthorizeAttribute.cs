@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Safari.Net.Core.Extensions.HttpUtilities;
-using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Database.Users;
 using SafariDigital.Services.HttpContext;
 using SafariDigital.Services.Jwt;
 using SafariDigital.Services.Jwt.Models;

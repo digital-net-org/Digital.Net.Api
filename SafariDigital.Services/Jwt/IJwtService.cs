@@ -1,5 +1,5 @@
 using Safari.Net.Core.Messages;
-using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Database.Users;
 using SafariDigital.Services.Jwt.Models;
 
 namespace SafariDigital.Services.Jwt;

@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Safari.Net.Data.Entities.Models;
 
-namespace SafariDigital.Data.Models.Database;
+namespace SafariDigital.Data.Models.Database.Records;
 
 [Table("recorded_login")]
 public class RecordedLogin : EntityWithId

@@ -7,7 +7,6 @@ public class ViewQuery : Query
 {
     public string? Title { get; set; }
     public bool? IsPublished { get; set; }
-    public EViewType? Type { get; set; }
     public DateTime? CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 }

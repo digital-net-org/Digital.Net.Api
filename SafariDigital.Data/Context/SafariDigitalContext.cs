@@ -1,5 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Database.ApiKeys;
+using SafariDigital.Data.Models.Database.Avatars;
+using SafariDigital.Data.Models.Database.Documents;
+using SafariDigital.Data.Models.Database.Frames;
+using SafariDigital.Data.Models.Database.Records;
+using SafariDigital.Data.Models.Database.Users;
+using SafariDigital.Data.Models.Database.Views;
 
 namespace SafariDigital.Data.Context;
 
@@ -13,20 +19,5 @@ public class SafariDigitalContext(DbContextOptions<SafariDigitalContext> options
     public DbSet<RecordedLogin> RecordedLogins { get; init; }
     public DbSet<RecordedToken> RecordedTokens { get; init; }
     public DbSet<View> Views { get; init; }
-    public DbSet<ViewFrame> ViewFrames { get; init; }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<View>()
-            .HasMany(v => v.Frames)
-            .WithOne(v => v.View)
-            .HasForeignKey(v => v.ViewId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<View>()
-            .HasOne(v => v.PublishedFrame)
-            .WithOne()
-            .HasForeignKey<View>(v => v.PublishedFrameId)
-            .OnDelete(DeleteBehavior.Restrict);
-    }
+    public DbSet<Frame> Frames { get; init; }
 }

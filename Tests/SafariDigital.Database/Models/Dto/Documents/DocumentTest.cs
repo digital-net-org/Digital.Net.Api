@@ -1,5 +1,5 @@
 using Safari.Net.Core.Models;
-using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Database.Documents;
 using SafariDigital.Data.Models.Dto.Documents;
 using Tests.Utils.Factories;
 

@@ -5,6 +5,7 @@ using Safari.Net.TestTools.Integration;
 using SafariDigital.Api;
 using SafariDigital.Data.Context;
 using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Database.Users;
 using SafariDigital.Data.Models.Dto.Users;
 using SafariDigital.Data.Services;
 using Tests.Utils.ApiCollections;

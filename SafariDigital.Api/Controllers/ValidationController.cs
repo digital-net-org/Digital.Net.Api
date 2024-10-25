@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using SafariDigital.Api.Attributes;
 using SafariDigital.Core;
 using SafariDigital.Core.Application;
-using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Database.Users;
 using SafariDigital.Services.Authentication;
 
 namespace SafariDigital.Api.Controllers;

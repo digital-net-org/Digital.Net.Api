@@ -43,5 +43,8 @@ public enum EApplicationMessage
     EntityNotFound = 2001,
 
     [Display(Name = "Entity unique constraint violation")]
-    EntityUniqueViolation = 2002
+    EntityUniqueViolation = 2002,
+
+    [Display(Name = "Linked entity not found")]
+    LinkedEntityNotFound = 2003
 }

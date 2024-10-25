@@ -2,8 +2,9 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Safari.Net.Data.Entities.Models;
+using SafariDigital.Data.Models.Database.Users;
 
-namespace SafariDigital.Data.Models.Database;
+namespace SafariDigital.Data.Models.Database.Documents;
 
 [Table("document"), Index(nameof(FileName), IsUnique = true)]
 public class Document : EntityWithGuid

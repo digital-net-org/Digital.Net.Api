@@ -1,7 +1,7 @@
-using SafariDigital.Data.Models.Database;
-using SafariDigital.Data.Models.Dto.Views;
+using SafariDigital.Data.Models.Database.Frames;
+using SafariDigital.Data.Models.Dto.Frames;
 
-namespace Tests.SafariDigital.Database.Models.Dto.Views;
+namespace Tests.SafariDigital.Database.Models.Dto.Frames;
 
 public class FrameTest
 {
@@ -24,7 +24,7 @@ public class FrameTest
     [Fact]
     public void FrameModel_ConstructorWithViewFrame_ReturnsValidModel()
     {
-        var viewFrame = new ViewFrame
+        var viewFrame = new Frame
         {
             Id = 1,
             Name = "title",
@@ -46,7 +46,7 @@ public class FrameTest
     [Fact]
     public void FrameLightModel_ConstructorWithViewFrame_ReturnsValidModel()
     {
-        var viewFrame = new ViewFrame
+        var viewFrame = new Frame
         {
             Id = 1,
             Name = "title",

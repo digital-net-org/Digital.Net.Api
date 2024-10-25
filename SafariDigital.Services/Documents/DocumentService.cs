@@ -5,7 +5,7 @@ using Safari.Net.Core.Messages;
 using Safari.Net.Core.Random;
 using Safari.Net.Data.Repositories;
 using SafariDigital.Core.Application;
-using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Database.Documents;
 using SafariDigital.Services.HttpContext;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
@@ -15,7 +15,8 @@ namespace SafariDigital.Services.Documents;
 public class DocumentService(
     IConfiguration configuration,
     IHttpContextService httpContextService,
-    IRepository<Document> documentRepository) : IDocumentService
+    IRepository<Document> documentRepository
+) : IDocumentService
 {
     private string FileSystemPath => configuration.GetSection<string>(EApplicationSetting.FileSystemPath);
 

@@ -1,5 +1,5 @@
 using Safari.Net.Data.Entities;
-using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Database.Users;
 
 namespace SafariDigital.Data.Services;
 

@@ -1,7 +1,7 @@
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 using SafariDigital.Core.Application;
-using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Database.Users;
 
 namespace SafariDigital.Services.Authentication;
 

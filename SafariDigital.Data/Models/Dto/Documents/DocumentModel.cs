@@ -1,4 +1,4 @@
-using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Database.Documents;
 
 namespace SafariDigital.Data.Models.Dto.Documents;
 

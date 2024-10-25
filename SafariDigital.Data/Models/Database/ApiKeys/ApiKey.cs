@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Safari.Net.Data.Entities.Models;
 
-namespace SafariDigital.Data.Models.Database;
+namespace SafariDigital.Data.Models.Database.ApiKeys;
 
 [Table("api_key"), Index(nameof(Key), IsUnique = true)]
 public class ApiKey : EntityWithGuid

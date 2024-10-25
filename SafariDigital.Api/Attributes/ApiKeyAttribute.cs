@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Safari.Net.Core.Messages;
 using Safari.Net.Data.Repositories;
-using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Database.ApiKeys;
 
 namespace SafariDigital.Api.Attributes;
 

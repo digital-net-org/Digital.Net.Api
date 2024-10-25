@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Http;
-using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Database.Users;
 
 namespace SafariDigital.Services.HttpContext;
 

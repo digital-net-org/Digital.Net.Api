@@ -4,7 +4,9 @@ using Safari.Net.Core.Messages;
 using Safari.Net.Data.Repositories;
 using SafariDigital.Core.Application;
 using SafariDigital.Core.Files;
-using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Database.Avatars;
+using SafariDigital.Data.Models.Database.Documents;
+using SafariDigital.Data.Models.Database.Users;
 using SafariDigital.Services.Authentication;
 using SafariDigital.Services.Documents;
 

@@ -1,7 +1,8 @@
 using Microsoft.Extensions.Logging;
 using Safari.Net.Core.Messages;
 using Safari.Net.Data.Repositories;
-using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Database.ApiKeys;
+using SafariDigital.Data.Models.Database.Users;
 using SafariDigital.Data.Models.Seeds;
 
 namespace SafariDigital.Data.Models;

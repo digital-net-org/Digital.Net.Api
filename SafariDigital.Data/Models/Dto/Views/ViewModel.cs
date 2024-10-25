@@ -1,5 +1,7 @@
 using Safari.Net.Core.Models;
-using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Database.Frames;
+using SafariDigital.Data.Models.Database.Views;
+using SafariDigital.Data.Models.Dto.Frames;
 
 namespace SafariDigital.Data.Models.Dto.Views;
 
@@ -14,9 +16,8 @@ public class ViewModel
         Id = view.Id;
         Title = view.Title;
         IsPublished = view.IsPublished;
-        Type = view.Type;
-        PublishedFrameId = view.PublishedFrameId;
-        Frames = Mapper.Map<ViewFrame, FrameLightModel>(view.Frames.ToList());
+        FrameId = view.FrameId;
+        Frame = view.Frame is not null ? Mapper.Map<Frame, FrameLightModel>(view.Frame) : null;
         CreatedAt = view.CreatedAt;
         UpdatedAt = view.UpdatedAt;
     }
@@ -24,9 +25,8 @@ public class ViewModel
     public int? Id { get; init; }
     public string? Title { get; set; }
     public bool? IsPublished { get; set; }
-    public EViewType? Type { get; set; }
-    public int? PublishedFrameId { get; set; }
-    public List<FrameLightModel>? Frames { get; init; }
+    public int? FrameId { get; set; }
+    public FrameLightModel? Frame { get; init; }
     public DateTime CreatedAt { get; init; }
     public DateTime? UpdatedAt { get; init; }
 }

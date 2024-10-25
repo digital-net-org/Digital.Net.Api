@@ -1,4 +1,5 @@
-using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Database.Frames;
+using SafariDigital.Data.Models.Database.Views;
 using SafariDigital.Data.Models.Dto.Views;
 
 namespace Tests.SafariDigital.Database.Models.Dto.Views;
@@ -21,18 +22,14 @@ public class ViewTest
             Id = 1,
             Title = "title",
             IsPublished = true,
-            Type = EViewType.Page,
-            PublishedFrameId = 1,
-            Frames = new List<ViewFrame>
-            {
-                new()
+            FrameId = 1,
+            Frame = new Frame
                 {
                     Id = 1,
                     Name = "title",
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now,
                     Data = "data"
-                }
             },
             CreatedAt = DateTime.Now,
             UpdatedAt = DateTime.Now
@@ -44,8 +41,7 @@ public class ViewTest
         Assert.Equal(view.Id, model.Id);
         Assert.Equal(view.Title, model.Title);
         Assert.Equal(view.IsPublished, model.IsPublished);
-        Assert.Equal(view.Type, model.Type);
-        Assert.Equal(view.PublishedFrameId, model.PublishedFrameId);
+        Assert.Equal(view.FrameId, model.FrameId);
         Assert.Equal(view.CreatedAt, model.CreatedAt);
         Assert.Equal(view.UpdatedAt, model.UpdatedAt);
     }

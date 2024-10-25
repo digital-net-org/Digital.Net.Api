@@ -6,6 +6,8 @@ using Safari.Net.Core.Messages;
 using Safari.Net.Data.Repositories;
 using SafariDigital.Core.Application;
 using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Database.Records;
+using SafariDigital.Data.Models.Database.Users;
 using SafariDigital.Services.Authentication.Models;
 using SafariDigital.Services.HttpContext;
 using SafariDigital.Services.Jwt;

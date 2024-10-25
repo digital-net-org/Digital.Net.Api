@@ -1,4 +1,4 @@
-using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Database.Users;
 using SafariDigital.Data.Models.Dto.Avatars;
 
 namespace SafariDigital.Data.Models.Dto.Users;

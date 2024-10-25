@@ -3,12 +3,11 @@ using Microsoft.AspNetCore.JsonPatch.Operations;
 using Safari.Net.Core.Predicates;
 using Safari.Net.Data.Entities;
 using Safari.Net.Data.Repositories;
-using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Database.Views;
 
 namespace SafariDigital.Data.Services;
 
-public class ViewEntityService(IRepository<View> viewRepository, IRepository<ViewFrame> viewFrameRepository)
-    : EntityService<View, ViewQuery>(viewRepository)
+public class ViewEntityService(IRepository<View> viewRepository) : EntityService<View, ViewQuery>(viewRepository)
 {
     private readonly IRepository<View> _viewRepository = viewRepository;
 
@@ -17,8 +16,6 @@ public class ViewEntityService(IRepository<View> viewRepository, IRepository<Vie
         var filter = PredicateBuilder.New<View>();
         if (!string.IsNullOrEmpty(query.Title))
             filter = filter.Add(x => x.Title.StartsWith(query.Title));
-        if (query.Type.HasValue)
-            filter = filter.Add(x => x.Type == query.Type);
         if (query.IsPublished.HasValue)
             filter = filter.Add(x => x.IsPublished == query.IsPublished);
         if (query.CreatedAt.HasValue)
@@ -32,8 +29,6 @@ public class ViewEntityService(IRepository<View> viewRepository, IRepository<Vie
     {
         switch (patch.path)
         {
-            case "type":
-                throw new InvalidOperationException("This value cannot be patched");
             case "title" when patch.value.ToString()?.Length > 1024:
                 throw new InvalidOperationException("Title maximum length exceeded");
             case "title" when string.IsNullOrEmpty(patch.value.ToString())
@@ -41,10 +36,6 @@ public class ViewEntityService(IRepository<View> viewRepository, IRepository<Vie
                 throw new InvalidOperationException("Title cannot be empty");
             case "title" when _viewRepository.Get(v => v.Title == patch.value.ToString()).Any(v => v.Id != entity.Id):
                 throw new InvalidOperationException("Title already exists");
-            case "published_frame_id" when viewFrameRepository
-                .Get(v => v.Id == (int)patch.value)
-                .Any(vf => vf.ViewId != entity.Id):
-                throw new InvalidOperationException("Frame does not belong to this view");
         }
     }
 }

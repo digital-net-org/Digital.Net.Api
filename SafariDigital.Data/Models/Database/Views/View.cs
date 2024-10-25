@@ -2,8 +2,9 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Safari.Net.Data.Entities.Models;
+using SafariDigital.Data.Models.Database.Frames;
 
-namespace SafariDigital.Data.Models.Database;
+namespace SafariDigital.Data.Models.Database.Views;
 
 [Table("view"), Index(nameof(Title), IsUnique = true)]
 public class View : EntityWithId
@@ -14,19 +15,8 @@ public class View : EntityWithId
     [Column("is_published"), Required]
     public bool IsPublished { get; set; } = false;
 
-    [Column("type"), Required]
-    public EViewType Type { get; set; } = EViewType.Page;
+    [Column("frame_id"), ForeignKey("frame")]
+    public int? FrameId { get; set; }
 
-    [Column("published_frame_id"), ForeignKey("view_frame")]
-    public int? PublishedFrameId { get; set; }
-
-    public virtual ViewFrame? PublishedFrame { get; set; }
-
-    public virtual ICollection<ViewFrame> Frames { get; set; } = [];
-}
-
-public enum EViewType
-{
-    Page,
-    Article
+    public virtual Frame? Frame { get; set; }
 }

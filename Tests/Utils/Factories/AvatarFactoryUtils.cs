@@ -1,5 +1,5 @@
 using Safari.Net.Core.Random;
-using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Database.Avatars;
 
 namespace Tests.Utils.Factories;
 

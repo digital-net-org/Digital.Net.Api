@@ -1,7 +1,7 @@
 ﻿using Safari.Net.Core.Random;
 using Safari.Net.Data.Repositories;
 using Safari.Net.TestTools.Data.Factories;
-using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Database.Users;
 
 namespace Tests.Utils.Factories;
 

@@ -2,8 +2,9 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Safari.Net.Data.Entities.Models;
+using SafariDigital.Data.Models.Database.Avatars;
 
-namespace SafariDigital.Data.Models.Database;
+namespace SafariDigital.Data.Models.Database.Users;
 
 [Table("user"), Index(nameof(Username), nameof(Email), IsUnique = true)]
 public class User : EntityWithGuid
@@ -29,9 +30,3 @@ public class User : EntityWithGuid
     public virtual Avatar? Avatar { get; set; }
 }
 
-public enum EUserRole
-{
-    User,
-    Admin,
-    SuperAdmin
-}

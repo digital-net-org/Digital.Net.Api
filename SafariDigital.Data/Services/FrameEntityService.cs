@@ -5,20 +5,18 @@ using Newtonsoft.Json.Linq;
 using Safari.Net.Core.Predicates;
 using Safari.Net.Data.Entities;
 using Safari.Net.Data.Repositories;
-using SafariDigital.Data.Models.Database;
+using SafariDigital.Data.Models.Database.Frames;
 
 namespace SafariDigital.Data.Services;
 
-public class ViewFrameEntityService(IRepository<ViewFrame> viewFrameRepository)
-    : EntityService<ViewFrame, ViewFrameQuery>(viewFrameRepository)
+public class FrameEntityService(IRepository<Frame> viewFrameRepository)
+    : EntityService<Frame, FrameQuery>(viewFrameRepository)
 {
-    protected override Expression<Func<ViewFrame, bool>> Filter(ViewFrameQuery query)
+    protected override Expression<Func<Frame, bool>> Filter(FrameQuery query)
     {
-        var filter = PredicateBuilder.New<ViewFrame>();
+        var filter = PredicateBuilder.New<Frame>();
         if (!string.IsNullOrEmpty(query.Name))
             filter = filter.Add(x => x.Name.StartsWith(query.Name));
-        if (query.ViewId.HasValue)
-            filter = filter.Add(x => x.ViewId == query.ViewId);
         if (query.CreatedAt.HasValue)
             filter = filter.Add(x => x.CreatedAt >= query.CreatedAt);
         if (query.UpdatedAt.HasValue)
@@ -26,12 +24,10 @@ public class ViewFrameEntityService(IRepository<ViewFrame> viewFrameRepository)
         return filter;
     }
 
-    protected override void ValidatePatch(Operation<ViewFrame> patch, ViewFrame entity)
+    protected override void ValidatePatch(Operation<Frame> patch, Frame entity)
     {
         switch (patch.path)
         {
-            case "view_id":
-                throw new InvalidOperationException("This value cannot be patched");
             case "name" when patch.value.ToString()?.Length > 1024:
                 throw new InvalidOperationException("Name maximum length exceeded");
             case "data" when string.IsNullOrEmpty(patch.value.ToString())
