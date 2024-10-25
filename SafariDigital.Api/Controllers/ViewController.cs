@@ -20,7 +20,7 @@ public class ViewController(IEntityService<View, ViewQuery> entityService, IView
     public ActionResult<QueryResult<ViewModel>> Get([FromQuery] ViewQuery query) =>
         Ok(entityService.Get<ViewModel>(query));
 
-    [HttpGet("{id:int}")]
+    [HttpGet("{id:int}"), Authorize(Role = EUserRole.User)]
     public ActionResult<Result<ViewModel>> GetById(int id) => Ok(entityService.Get<ViewModel>(id));
 
     [HttpPatch("{id:int}"), Authorize(Role = EUserRole.User)]

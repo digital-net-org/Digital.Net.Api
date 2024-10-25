@@ -21,7 +21,7 @@ public class FrameController(IEntityService<Frame, FrameQuery> entityService, IF
     public ActionResult<QueryResult<FrameModel>> Get([FromQuery] FrameQuery query) =>
         Ok(entityService.Get<FrameModel>(query));
 
-    [HttpGet("{id:int}")]
+    [HttpGet("{id:int}"), Authorize(Role = EUserRole.User)]
     public ActionResult<Result<FrameModel>> GetById(int id) => Ok(entityService.Get<FrameModel>(id));
 
     [HttpPatch("{id:int}"), Authorize(Role = EUserRole.User)]
