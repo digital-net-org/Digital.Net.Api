@@ -12,7 +12,7 @@ public class FrameModel
     {
         Id = frame.Id;
         Name = frame.Name;
-        Data = frame.Data;
+        Data = frame.GetDecodedData();
         CreatedAt = frame.CreatedAt;
         UpdatedAt = frame.UpdatedAt;
     }

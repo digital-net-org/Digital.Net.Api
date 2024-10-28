@@ -17,7 +17,7 @@ namespace SafariDigital.Api.Controllers;
 public class FrameController(IEntityService<Frame, FrameQuery> entityService, IFrameService frameService)
     : ControllerBase
 {
-    [HttpGet(""), Authorize(Role = EUserRole.User)]
+    [HttpGet, Authorize(Role = EUserRole.User)]
     public ActionResult<QueryResult<FrameModel>> Get([FromQuery] FrameQuery query) =>
         Ok(entityService.Get<FrameModel>(query));
 
@@ -38,10 +38,10 @@ public class FrameController(IEntityService<Frame, FrameQuery> entityService, IF
         return Ok(result);
     }
 
-    [HttpPost(""), Authorize(Role = EUserRole.User)]
+    [HttpPost, Authorize(Role = EUserRole.User)]
     public async Task<ActionResult<FrameModel>> Post([FromBody] CreateFrameRequest request)
     {
-        var result = await frameService.CreateFrameAsync(request.Name, request.ViewId);
+        var result = await frameService.CreateFrameAsync(request);
         return result.HasError ? BadRequest(result) : Ok(result);
     }
 

@@ -4,6 +4,7 @@ namespace SafariDigital.Services.Frames.Models;
 
 public record CreateFrameRequest(
     [Required]
+    string Data,
     string Name,
     int? ViewId
 );

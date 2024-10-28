@@ -9,6 +9,7 @@ using SafariDigital.Data.Models.Database.Frames;
 using SafariDigital.Data.Models.Database.Views;
 using SafariDigital.Data.Models.Dto.Frames;
 using SafariDigital.Data.Services;
+using SafariDigital.Services.Frames.Models;
 
 namespace SafariDigital.Services.Frames;
 
@@ -52,16 +53,21 @@ public class FrameService(
         return result;
     }
 
-    public async Task<Result<FrameModel>> CreateFrameAsync(string name, int? viewId)
+    public async Task<Result<FrameModel>> CreateFrameAsync(CreateFrameRequest request)
     {
         var result = new Result<FrameModel>();
-        var frame = new Frame { Name = name };
+        var frame = new Frame
+        {
+            Name = request.Name,
+            Data = request.Data
+        };
+        frame.EncodeData();
         try
         {
             await frameRepository.CreateAsync(frame);
-            if (viewId.HasValue)
+            if (request.ViewId is not null)
             {
-                var view = await viewRepository.GetByIdAsync(viewId.Value);
+                var view = await viewRepository.GetByIdAsync(request.ViewId);
                 if (view is null)
                     result.AddError(EApplicationMessage.LinkedEntityNotFound);
                 else
