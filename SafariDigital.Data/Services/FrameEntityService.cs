@@ -1,7 +1,5 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.AspNetCore.JsonPatch.Operations;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Safari.Net.Core.Predicates;
 using Safari.Net.Data.Entities;
 using Safari.Net.Data.Repositories;
@@ -32,18 +30,7 @@ public class FrameEntityService(IRepository<Frame> viewFrameRepository)
                 throw new InvalidOperationException("Name maximum length exceeded");
             case "data" when string.IsNullOrEmpty(patch.value.ToString())
                              || string.IsNullOrWhiteSpace(patch.value.ToString()):
-                throw new InvalidOperationException("Data cannot be empty, should be a valid JSON string");
-            case "data" when patch.value.ToString() is not null:
-                try
-                {
-                    JObject.Parse(patch.value.ToString()!);
-                }
-                catch (JsonReaderException)
-                {
-                    throw new InvalidOperationException("Data should be a valid JSON string");
-                }
-
-                break;
+                throw new InvalidOperationException("Data cannot be empty, should be a valid base64 string");
         }
     }
 }
