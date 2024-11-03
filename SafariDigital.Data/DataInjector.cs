@@ -6,7 +6,6 @@ using SafariDigital.Data.Models;
 using SafariDigital.Data.Models.Database.Frames;
 using SafariDigital.Data.Models.Database.Users;
 using SafariDigital.Data.Models.Database.Views;
-using SafariDigital.Data.Services;
 
 namespace SafariDigital.Data;
 

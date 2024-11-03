@@ -1,7 +1,6 @@
 using Safari.Net.Data.Entities;
-using SafariDigital.Data.Models.Database.Users;
 
-namespace SafariDigital.Data.Services;
+namespace SafariDigital.Data.Models.Database.Users;
 
 public class UserQuery : Query
 {

@@ -7,7 +7,6 @@ using SafariDigital.Api.Formatters;
 using SafariDigital.Data.Models.Database.Frames;
 using SafariDigital.Data.Models.Database.Users;
 using SafariDigital.Data.Models.Dto.Frames;
-using SafariDigital.Data.Services;
 using SafariDigital.Services.Frames;
 using SafariDigital.Services.Frames.Models;
 

@@ -1,11 +1,11 @@
 ﻿using System.Linq.Expressions;
+using System.Text;
 using Microsoft.AspNetCore.JsonPatch.Operations;
 using Safari.Net.Core.Predicates;
 using Safari.Net.Data.Entities;
 using Safari.Net.Data.Repositories;
-using SafariDigital.Data.Models.Database.Frames;
 
-namespace SafariDigital.Data.Services;
+namespace SafariDigital.Data.Models.Database.Frames;
 
 public class FrameEntityService(IRepository<Frame> viewFrameRepository)
     : EntityService<Frame, FrameQuery>(viewFrameRepository)
@@ -28,9 +28,15 @@ public class FrameEntityService(IRepository<Frame> viewFrameRepository)
         {
             case "name" when patch.value.ToString()?.Length > 1024:
                 throw new InvalidOperationException("Name maximum length exceeded");
-            case "data" when string.IsNullOrEmpty(patch.value.ToString())
-                             || string.IsNullOrWhiteSpace(patch.value.ToString()):
-                throw new InvalidOperationException("Data cannot be empty, should be a valid base64 string");
+            case "data":
+            {
+                var value = patch.value.ToString();
+                if (string.IsNullOrEmpty(value) || string.IsNullOrWhiteSpace(value))
+                    throw new InvalidOperationException("Data cannot be empty, should be a valid base64 string");
+
+                patch.value = Convert.ToBase64String(Encoding.UTF8.GetBytes(value));
+                break;
+            }
         }
     }
 }

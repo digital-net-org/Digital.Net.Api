@@ -3,9 +3,8 @@ using Microsoft.AspNetCore.JsonPatch.Operations;
 using Safari.Net.Core.Predicates;
 using Safari.Net.Data.Entities;
 using Safari.Net.Data.Repositories;
-using SafariDigital.Data.Models.Database.Views;
 
-namespace SafariDigital.Data.Services;
+namespace SafariDigital.Data.Models.Database.Views;
 
 public class ViewEntityService(IRepository<View> viewRepository) : EntityService<View, ViewQuery>(viewRepository)
 {

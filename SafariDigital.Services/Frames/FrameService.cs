@@ -8,7 +8,6 @@ using SafariDigital.Core.Application;
 using SafariDigital.Data.Models.Database.Frames;
 using SafariDigital.Data.Models.Database.Views;
 using SafariDigital.Data.Models.Dto.Frames;
-using SafariDigital.Data.Services;
 using SafariDigital.Services.Frames.Models;
 
 namespace SafariDigital.Services.Frames;

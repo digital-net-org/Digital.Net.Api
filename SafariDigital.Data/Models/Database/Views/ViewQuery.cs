@@ -1,7 +1,6 @@
 using Safari.Net.Data.Entities;
-using SafariDigital.Data.Models.Database;
 
-namespace SafariDigital.Data.Services;
+namespace SafariDigital.Data.Models.Database.Views;
 
 public class ViewQuery : Query
 {

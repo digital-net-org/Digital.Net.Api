@@ -4,9 +4,8 @@ using Safari.Net.Core.Predicates;
 using Safari.Net.Data.Entities;
 using Safari.Net.Data.Repositories;
 using SafariDigital.Core;
-using SafariDigital.Data.Models.Database.Users;
 
-namespace SafariDigital.Data.Services;
+namespace SafariDigital.Data.Models.Database.Users;
 
 public class UserEntityService(IRepository<User> userRepository) : EntityService<User, UserQuery>(userRepository)
 {

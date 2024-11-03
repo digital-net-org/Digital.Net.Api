@@ -1,6 +1,6 @@
 using Safari.Net.Data.Entities;
 
-namespace SafariDigital.Data.Services;
+namespace SafariDigital.Data.Models.Database.Frames;
 
 public class FrameQuery : Query
 {
