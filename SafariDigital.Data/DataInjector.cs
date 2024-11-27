@@ -1,6 +1,6 @@
+using Digital.Net.Entities.Repositories;
+using Digital.Net.Entities.Services;
 using Microsoft.Extensions.DependencyInjection;
-using Safari.Net.Data.Entities;
-using Safari.Net.Data.Repositories;
 using SafariDigital.Data.Context;
 using SafariDigital.Data.Models;
 using SafariDigital.Data.Models.Database.Frames;

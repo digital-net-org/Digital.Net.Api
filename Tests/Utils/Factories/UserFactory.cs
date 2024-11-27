@@ -1,6 +1,6 @@
-﻿using Safari.Net.Core.Random;
-using Safari.Net.Data.Repositories;
-using Safari.Net.TestTools.Data.Factories;
+﻿using Digital.Net.Core.Random;
+using Digital.Net.Entities.Repositories;
+using Digital.Net.TestTools.Data.Factories;
 using SafariDigital.Data.Models.Database.Users;
 
 namespace Tests.Utils.Factories;

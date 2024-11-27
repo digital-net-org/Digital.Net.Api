@@ -1,4 +1,4 @@
-using Safari.Net.Core.Messages;
+using Digital.Net.Core.Messages;
 using SafariDigital.Data.Models.Dto.Views;
 using SafariDigital.Services.Views.Models;
 

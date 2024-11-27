@@ -19,13 +19,13 @@ public class ViewTest
     {
         var view = new View
         {
-            Id = 1,
+            Id = Guid.NewGuid(),
             Title = "title",
             IsPublished = true,
-            FrameId = 1,
+            FrameId = new Guid(),
             Frame = new Frame
                 {
-                    Id = 1,
+                    Id = new Guid(),
                     Name = "title",
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now,

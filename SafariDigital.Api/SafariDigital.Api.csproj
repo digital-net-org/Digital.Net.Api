@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <LangVersion>12</LangVersion>
-        <AssemblyVersion>0.1.0.0</AssemblyVersion>
+        <AssemblyVersion>0.0.2.0</AssemblyVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -31,6 +31,15 @@
 
     <ItemGroup>
         <Folder Include="wwwroot\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="Digital.Net.Core">
+            <HintPath>..\Digital.Net.Core.dll</HintPath>
+        </Reference>
+        <Reference Include="Digital.Net.Entities">
+            <HintPath>..\Digital.Net.Entities.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
 </Project>

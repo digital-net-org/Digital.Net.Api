@@ -17,7 +17,7 @@ public class FrameModel
         UpdatedAt = frame.UpdatedAt;
     }
 
-    public int? Id { get; init; }
+    public Guid? Id { get; init; }
     public string Name { get; set; }
     public string? Data { get; set; }
     public DateTime? CreatedAt { get; init; }

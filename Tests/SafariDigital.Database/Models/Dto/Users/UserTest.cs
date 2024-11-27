@@ -1,4 +1,4 @@
-using Safari.Net.Core.Models;
+using Digital.Net.Core.Models;
 using SafariDigital.Data.Models.Database.Users;
 using SafariDigital.Data.Models.Dto.Users;
 
@@ -21,7 +21,7 @@ public class UserTest
             CreatedAt = DateTime.Now,
             UpdatedAt = DateTime.Now
         };
-        var model = Mapper.Map<User, UserModel>(user);
+        var model = Mapper.MapFromConstructor<User, UserModel>(user);
         Assert.NotNull(model);
         Assert.IsType<UserModel>(model);
         Assert.Equal(user.Id, model.Id);

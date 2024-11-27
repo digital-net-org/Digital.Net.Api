@@ -29,11 +29,18 @@
         </PackageReference>
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.7"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0"/>
-        <PackageReference Include="Safari.Net.TestTools" Version="1.1.3"/>
-        <PackageReference Include="Safari.Net.Core" Version="1.1.3"/>
-        <PackageReference Include="Safari.Net.Data" Version="1.1.6"/>
         <PackageReference Include="xunit" Version="2.5.3"/>
         <PackageReference Include="Moq" Version="4.20.70"/>
+
+        <Reference Include="Digital.Net.TestTools">
+            <HintPath>../Digital.Net.TestTools.dll</HintPath>
+        </Reference>
+        <Reference Include="Digital.Net.Core">
+            <HintPath>../Digital.Net.Core.dll</HintPath>
+        </Reference>
+        <Reference Include="Digital.Net.Entities">
+            <HintPath>../Digital.Net.Entities.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
 </Project>

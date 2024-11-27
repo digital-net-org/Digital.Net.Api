@@ -1,11 +1,10 @@
+using Digital.Net.Core.Extensions.HttpUtilities;
+using Digital.Net.Core.Messages;
+using Digital.Net.Entities.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Safari.Net.Core.Extensions.HttpUtilities;
-using Safari.Net.Core.Messages;
-using Safari.Net.Data.Repositories;
 using SafariDigital.Core.Application;
-using SafariDigital.Data.Models.Database;
 using SafariDigital.Data.Models.Database.Records;
 using SafariDigital.Data.Models.Database.Users;
 using SafariDigital.Services.Authentication.Models;

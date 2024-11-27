@@ -1,4 +1,4 @@
-﻿using Safari.Net.Core.Random;
+﻿using Digital.Net.Core.Random;
 using SafariDigital.Data.Models.Database.Users;
 using SafariDigital.Services.Authentication;
 

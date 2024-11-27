@@ -1,6 +1,6 @@
+using Digital.Net.Core.Extensions.EnumUtilities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
-using Safari.Net.Core.Extensions.EnumUtilities;
 
 namespace SafariDigital.Core.Application;
 

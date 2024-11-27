@@ -1,12 +1,12 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
+using Digital.Net.Core.Extensions.HttpUtilities;
+using Digital.Net.Core.Messages;
+using Digital.Net.Entities.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using Safari.Net.Core.Extensions.HttpUtilities;
-using Safari.Net.Core.Messages;
-using Safari.Net.Data.Repositories;
 using SafariDigital.Core.Application;
 using SafariDigital.Data.Models.Database.Records;
 using SafariDigital.Data.Models.Database.Users;

@@ -1,7 +1,7 @@
+using Digital.Net.Core.Messages;
+using Digital.Net.Entities.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Safari.Net.Core.Messages;
-using Safari.Net.Data.Repositories;
 using SafariDigital.Core.Application;
 using SafariDigital.Core.Files;
 using SafariDigital.Data.Models.Database.Avatars;

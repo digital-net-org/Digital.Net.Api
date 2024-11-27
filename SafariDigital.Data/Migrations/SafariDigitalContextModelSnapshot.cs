@@ -8,7 +8,7 @@ using SafariDigital.Data.Context;
 
 #nullable disable
 
-namespace SafariDigital.Database.Migrations
+namespace SafariDigital.Data.Migrations
 {
     [DbContext(typeof(SafariDigitalContext))]
     partial class SafariDigitalContextModelSnapshot : ModelSnapshot
@@ -57,12 +57,10 @@ namespace SafariDigital.Database.Migrations
 
             modelBuilder.Entity("SafariDigital.Data.Models.Database.Avatars.Avatar", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -142,12 +140,10 @@ namespace SafariDigital.Database.Migrations
 
             modelBuilder.Entity("SafariDigital.Data.Models.Database.Frames.Frame", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -177,12 +173,10 @@ namespace SafariDigital.Database.Migrations
 
             modelBuilder.Entity("SafariDigital.Data.Models.Database.Records.RecordedLogin", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -215,12 +209,10 @@ namespace SafariDigital.Database.Migrations
 
             modelBuilder.Entity("SafariDigital.Data.Models.Database.Records.RecordedToken", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -270,8 +262,8 @@ namespace SafariDigital.Database.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<int?>("AvatarId")
-                        .HasColumnType("integer")
+                    b.Property<Guid?>("AvatarId")
+                        .HasColumnType("uuid")
                         .HasColumnName("avatar_id");
 
                     b.Property<DateTime>("CreatedAt")
@@ -320,19 +312,17 @@ namespace SafariDigital.Database.Migrations
 
             modelBuilder.Entity("SafariDigital.Data.Models.Database.Views.View", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<int?>("FrameId")
-                        .HasColumnType("integer")
+                    b.Property<Guid?>("FrameId")
+                        .HasColumnType("uuid")
                         .HasColumnName("frame_id");
 
                     b.Property<bool>("IsPublished")

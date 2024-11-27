@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
+using Digital.Net.Core.Messages;
 using Microsoft.IdentityModel.Tokens;
-using Safari.Net.Core.Messages;
 
 namespace SafariDigital.Services.Jwt.Models;
 

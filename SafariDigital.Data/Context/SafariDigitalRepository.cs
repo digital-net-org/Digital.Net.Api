@@ -1,5 +1,5 @@
-﻿using Safari.Net.Data.Entities.Models;
-using Safari.Net.Data.Repositories;
+﻿using Digital.Net.Entities.Models;
+using Digital.Net.Entities.Repositories;
 
 namespace SafariDigital.Data.Context;
 

@@ -1,4 +1,4 @@
-using Safari.Net.Core.Models;
+using Digital.Net.Core.Models;
 using SafariDigital.Data.Models.Database.Documents;
 using SafariDigital.Data.Models.Dto.Documents;
 using Tests.Utils.Factories;
@@ -11,7 +11,7 @@ public class DocumentTest
     public void DocumentModel_ReturnsValidModel()
     {
         var document = DocumentFactoryUtils.CreateDocument();
-        var documentModel = Mapper.Map<Document, DocumentModel>(document);
+        var documentModel = Mapper.MapFromConstructor<Document, DocumentModel>(document);
         Assert.NotNull(documentModel);
         Assert.IsType<DocumentModel>(documentModel);
         Assert.Equal(document.Id, documentModel.Id);

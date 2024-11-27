@@ -20,4 +20,13 @@
         <PackageReference Include="System.Linq.Dynamic.Core" Version="1.4.3"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <Reference Include="Digital.Net.Core">
+            <HintPath>..\Digital.Net.Core.dll</HintPath>
+        </Reference>
+        <Reference Include="Digital.Net.Entities">
+            <HintPath>..\Digital.Net.Entities.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
 </Project>

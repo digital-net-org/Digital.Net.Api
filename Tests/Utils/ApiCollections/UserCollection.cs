@@ -1,6 +1,6 @@
 using System.Net.Http.Json;
 using System.Text;
-using Safari.Net.Core.Extensions.HttpUtilities;
+using Digital.Net.Core.Extensions.HttpUtilities;
 using SafariDigital.Data.Models.Database.Users;
 using SafariDigital.Services.Users.Models;
 

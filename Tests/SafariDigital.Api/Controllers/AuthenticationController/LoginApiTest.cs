@@ -1,5 +1,5 @@
 using System.Net;
-using Safari.Net.TestTools.Integration;
+using Digital.Net.TestTools.Integration;
 using SafariDigital.Api;
 using SafariDigital.Core.Application;
 using SafariDigital.Data.Context;

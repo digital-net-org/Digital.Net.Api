@@ -1,7 +1,8 @@
 using System.Text.Json;
+using Digital.Net.Core.Messages;
+using Digital.Net.Entities.Models;
+using Digital.Net.Entities.Services;
 using Microsoft.AspNetCore.Mvc;
-using Safari.Net.Core.Messages;
-using Safari.Net.Data.Entities;
 using SafariDigital.Api.Attributes;
 using SafariDigital.Api.Formatters;
 using SafariDigital.Data.Models.Database.Users;

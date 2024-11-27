@@ -1,7 +1,7 @@
+using Digital.Net.Core.Messages;
+using Digital.Net.Core.Models;
+using Digital.Net.Entities.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Safari.Net.Core.Messages;
-using Safari.Net.Core.Models;
-using Safari.Net.Data.Repositories;
 using SafariDigital.Core.Application;
 using SafariDigital.Data.Models.Database.Views;
 using SafariDigital.Data.Models.Dto.Views;
@@ -19,7 +19,7 @@ public class ViewService(IRepository<View> viewRepository) : IViewService
             var view = new View { Title = payload.Title };
             await viewRepository.CreateAsync(view);
             await viewRepository.SaveAsync();
-            result.Value = Mapper.Map<View, ViewModel>(view);
+            result.Value = Mapper.MapFromConstructor<View, ViewModel>(view);
         }
         catch (Exception ex)
         {

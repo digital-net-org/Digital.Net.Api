@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Digital.Net.Entities.Models;
 using Microsoft.EntityFrameworkCore;
-using Safari.Net.Data.Entities.Models;
 using SafariDigital.Data.Models.Database.Users;
 
 namespace SafariDigital.Data.Models.Database.Documents;

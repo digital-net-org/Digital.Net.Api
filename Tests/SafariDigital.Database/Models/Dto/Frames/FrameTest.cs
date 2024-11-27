@@ -22,45 +22,46 @@ public class FrameTest
     }
 
     [Fact]
-    public void FrameModel_ConstructorWithViewFrame_ReturnsValidModel()
+    public void FrameModel_ConstructorWithFrame_ReturnsValidModel()
     {
-        var viewFrame = new Frame
+        var frame = new Frame
         {
-            Id = 1,
+            Id = new Guid(),
             Name = "title",
             Data = "data",
             CreatedAt = DateTime.Now,
             UpdatedAt = DateTime.Now
         };
 
-        var model = new FrameModel(viewFrame);
+
+        var model = new FrameModel(frame);
         Assert.NotNull(model);
         Assert.IsType<FrameModel>(model);
-        Assert.Equal(viewFrame.Id, model.Id);
-        Assert.Equal(viewFrame.Name, model.Name);
-        Assert.Equal(viewFrame.Data, model.Data);
-        Assert.Equal(viewFrame.CreatedAt, model.CreatedAt);
-        Assert.Equal(viewFrame.UpdatedAt, model.UpdatedAt);
+        Assert.Equal(frame.Id, model.Id);
+        Assert.Equal(frame.Name, model.Name);
+        Assert.Equal("data", model.Data);
+        Assert.Equal(frame.CreatedAt, model.CreatedAt);
+        Assert.Equal(frame.UpdatedAt, model.UpdatedAt);
     }
 
     [Fact]
-    public void FrameLightModel_ConstructorWithViewFrame_ReturnsValidModel()
+    public void FrameLightModel_ConstructorWithFrame_ReturnsValidModel()
     {
-        var viewFrame = new Frame
+        var frame = new Frame
         {
-            Id = 1,
+            Id = new Guid(),
             Name = "title",
             Data = "data",
             CreatedAt = DateTime.Now,
             UpdatedAt = DateTime.Now
         };
 
-        var model = new FrameLightModel(viewFrame);
+        var model = new FrameLightModel(frame);
         Assert.NotNull(model);
         Assert.IsType<FrameLightModel>(model);
-        Assert.Equal(viewFrame.Id, model.Id);
-        Assert.Equal(viewFrame.Name, model.Name);
-        Assert.Equal(viewFrame.CreatedAt, model.CreatedAt);
-        Assert.Equal(viewFrame.UpdatedAt, model.UpdatedAt);
+        Assert.Equal(frame.Id, model.Id);
+        Assert.Equal(frame.Name, model.Name);
+        Assert.Equal(frame.CreatedAt, model.CreatedAt);
+        Assert.Equal(frame.UpdatedAt, model.UpdatedAt);
     }
 }

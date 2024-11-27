@@ -1,10 +1,9 @@
 using System.Net.Http.Json;
-using Safari.Net.Core.Messages;
-using Safari.Net.Data.Entities;
-using Safari.Net.TestTools.Integration;
+using Digital.Net.Core.Messages;
+using Digital.Net.Entities.Models;
+using Digital.Net.TestTools.Integration;
 using SafariDigital.Api;
 using SafariDigital.Data.Context;
-using SafariDigital.Data.Models.Database;
 using SafariDigital.Data.Models.Database.Users;
 using SafariDigital.Data.Models.Dto.Users;
 using Tests.Utils.ApiCollections;

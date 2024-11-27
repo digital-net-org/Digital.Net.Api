@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Digital.Net.Core.Extensions.FormFileUtilities;
+using Digital.Net.Core.Messages;
+using Digital.Net.Core.Random;
+using Digital.Net.Entities.Repositories;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Safari.Net.Core.Extensions.FormFileUtilities;
-using Safari.Net.Core.Messages;
-using Safari.Net.Core.Random;
-using Safari.Net.Data.Repositories;
 using SafariDigital.Core.Application;
 using SafariDigital.Data.Models.Database.Documents;
 using SafariDigital.Services.HttpContext;

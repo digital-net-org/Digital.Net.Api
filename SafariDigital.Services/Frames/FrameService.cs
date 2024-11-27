@@ -1,9 +1,9 @@
+using Digital.Net.Core.Messages;
+using Digital.Net.Core.Models;
+using Digital.Net.Entities.Repositories;
+using Digital.Net.Entities.Services;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
-using Safari.Net.Core.Messages;
-using Safari.Net.Core.Models;
-using Safari.Net.Data.Entities;
-using Safari.Net.Data.Repositories;
 using SafariDigital.Core.Application;
 using SafariDigital.Data.Models.Database.Frames;
 using SafariDigital.Data.Models.Database.Views;
@@ -23,7 +23,7 @@ public class FrameService(
         var result = new Result<FrameModel>();
         var frame = await frameRepository.GetByIdAsync(id);
         if (frame is null) return result.AddError(EApplicationMessage.EntityNotFound);
-        result.Value = Mapper.Map<Frame, FrameModel>(frame);
+        result.Value = Mapper.MapFromConstructor<Frame, FrameModel>(frame);
         return result;
     }
 
@@ -55,12 +55,7 @@ public class FrameService(
     public async Task<Result<FrameModel>> CreateFrameAsync(CreateFrameRequest request)
     {
         var result = new Result<FrameModel>();
-        var frame = new Frame
-        {
-            Name = request.Name,
-            Data = request.Data
-        };
-        frame.EncodeData();
+        var frame = new Frame { Name = request.Name, Data = request.Data };
         try
         {
             await frameRepository.CreateAsync(frame);
@@ -74,7 +69,7 @@ public class FrameService(
             }
 
             await frameRepository.SaveAsync();
-            result.Value = Mapper.Map<Frame, FrameModel>(frame);
+            result.Value = Mapper.MapFromConstructor<Frame, FrameModel>(frame);
         }
         catch (Exception ex)
         {

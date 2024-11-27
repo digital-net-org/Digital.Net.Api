@@ -1,4 +1,4 @@
-using Safari.Net.Core.Messages;
+using Digital.Net.Core.Messages;
 using SafariDigital.Services.Authentication.Models;
 
 namespace SafariDigital.Services.Authentication;

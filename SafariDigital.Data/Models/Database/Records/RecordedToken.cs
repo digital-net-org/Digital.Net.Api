@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Safari.Net.Data.Entities.Models;
+using Digital.Net.Entities.Models;
 using SafariDigital.Data.Models.Database.Users;
 
 namespace SafariDigital.Data.Models.Database.Records;
 
 [Table("recorded_token")]
-public class RecordedToken : EntityWithId
+public class RecordedToken : EntityWithGuid
 {
     [Column("token"), Required, MaxLength(1024)]
     public required string Token { get; set; }

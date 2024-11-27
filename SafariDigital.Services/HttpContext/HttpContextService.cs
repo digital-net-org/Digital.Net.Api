@@ -1,6 +1,6 @@
+using Digital.Net.Core.Extensions.HttpUtilities;
+using Digital.Net.Entities.Repositories;
 using Microsoft.AspNetCore.Http;
-using Safari.Net.Core.Extensions.HttpUtilities;
-using Safari.Net.Data.Repositories;
 using SafariDigital.Data.Models.Database.Users;
 using SafariDigital.Services.Jwt.Models;
 

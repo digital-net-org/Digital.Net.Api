@@ -9,11 +9,11 @@ using SafariDigital.Data.Context;
 
 #nullable disable
 
-namespace SafariDigital.Database.Migrations
+namespace SafariDigital.Data.Migrations
 {
     [DbContext(typeof(SafariDigitalContext))]
-    [Migration("20240810202148_AuthRecords")]
-    partial class AuthRecords
+    [Migration("20241127124731_Init_database_v2")]
+    partial class Init_database_v2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,18 +25,53 @@ namespace SafariDigital.Database.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("SafariDigital.Data.Models.Database.Avatar", b =>
+            modelBuilder.Entity("SafariDigital.Data.Models.Database.ApiKeys.ApiKey", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("ExpiredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expired_at");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("key");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.ToTable("api_key");
+                });
+
+            modelBuilder.Entity("SafariDigital.Data.Models.Database.Avatars.Avatar", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("document_id");
 
                     b.Property<int?>("PosX")
                         .HasColumnType("integer")
@@ -50,17 +85,14 @@ namespace SafariDigital.Database.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("document_id")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("document_id");
+                    b.HasIndex("DocumentId");
 
                     b.ToTable("avatar");
                 });
 
-            modelBuilder.Entity("SafariDigital.Data.Models.Database.Document", b =>
+            modelBuilder.Entity("SafariDigital.Data.Models.Database.Documents.Document", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -95,27 +127,59 @@ namespace SafariDigital.Database.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid?>("uploader_id")
-                        .HasColumnType("uuid");
+                    b.Property<Guid?>("UploaderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("uploader_id");
 
                     b.HasKey("Id");
 
                     b.HasIndex("FileName")
                         .IsUnique();
 
-                    b.HasIndex("uploader_id");
+                    b.HasIndex("UploaderId");
 
                     b.ToTable("document");
                 });
 
-            modelBuilder.Entity("SafariDigital.Data.Models.Database.RecordedLogin", b =>
+            modelBuilder.Entity("SafariDigital.Data.Models.Database.Frames.Frame", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Data")
+                        .HasColumnType("text")
+                        .HasColumnName("data");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)")
+                        .HasColumnName("name");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("frame");
+                });
+
+            modelBuilder.Entity("SafariDigital.Data.Models.Database.Records.RecordedLogin", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -146,14 +210,12 @@ namespace SafariDigital.Database.Migrations
                     b.ToTable("recorded_login");
                 });
 
-            modelBuilder.Entity("SafariDigital.Data.Models.Database.RecordedToken", b =>
+            modelBuilder.Entity("SafariDigital.Data.Models.Database.Records.RecordedToken", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -185,22 +247,27 @@ namespace SafariDigital.Database.Migrations
                         .HasColumnType("character varying(1024)")
                         .HasColumnName("user_agent");
 
-                    b.Property<Guid>("user_id")
-                        .HasColumnType("uuid");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("user_id");
+                    b.HasIndex("UserId");
 
                     b.ToTable("recorded_token");
                 });
 
-            modelBuilder.Entity("SafariDigital.Data.Models.Database.User", b =>
+            modelBuilder.Entity("SafariDigital.Data.Models.Database.Users.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<Guid?>("AvatarId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("avatar_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -236,12 +303,9 @@ namespace SafariDigital.Database.Migrations
                         .HasColumnType("character varying(24)")
                         .HasColumnName("username");
 
-                    b.Property<int?>("avatar_id")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("avatar_id");
+                    b.HasIndex("AvatarId");
 
                     b.HasIndex("Username", "Email")
                         .IsUnique();
@@ -249,44 +313,98 @@ namespace SafariDigital.Database.Migrations
                     b.ToTable("user");
                 });
 
-            modelBuilder.Entity("SafariDigital.Data.Models.Database.Avatar", b =>
+            modelBuilder.Entity("SafariDigital.Data.Models.Database.Views.View", b =>
                 {
-                    b.HasOne("SafariDigital.Data.Models.Database.Document", "Document")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("FrameId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("frame_id");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_published");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)")
+                        .HasColumnName("title");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FrameId")
+                        .IsUnique();
+
+                    b.HasIndex("Title")
+                        .IsUnique();
+
+                    b.ToTable("view");
+                });
+
+            modelBuilder.Entity("SafariDigital.Data.Models.Database.Avatars.Avatar", b =>
+                {
+                    b.HasOne("SafariDigital.Data.Models.Database.Documents.Document", "Document")
                         .WithMany()
-                        .HasForeignKey("document_id")
+                        .HasForeignKey("DocumentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Document");
                 });
 
-            modelBuilder.Entity("SafariDigital.Data.Models.Database.Document", b =>
+            modelBuilder.Entity("SafariDigital.Data.Models.Database.Documents.Document", b =>
                 {
-                    b.HasOne("SafariDigital.Data.Models.Database.User", "Uploader")
+                    b.HasOne("SafariDigital.Data.Models.Database.Users.User", "Uploader")
                         .WithMany()
-                        .HasForeignKey("uploader_id");
+                        .HasForeignKey("UploaderId");
 
                     b.Navigation("Uploader");
                 });
 
-            modelBuilder.Entity("SafariDigital.Data.Models.Database.RecordedToken", b =>
+            modelBuilder.Entity("SafariDigital.Data.Models.Database.Records.RecordedToken", b =>
                 {
-                    b.HasOne("SafariDigital.Data.Models.Database.User", "User")
+                    b.HasOne("SafariDigital.Data.Models.Database.Users.User", "User")
                         .WithMany()
-                        .HasForeignKey("user_id")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("SafariDigital.Data.Models.Database.User", b =>
+            modelBuilder.Entity("SafariDigital.Data.Models.Database.Users.User", b =>
                 {
-                    b.HasOne("SafariDigital.Data.Models.Database.Avatar", "Avatar")
+                    b.HasOne("SafariDigital.Data.Models.Database.Avatars.Avatar", "Avatar")
                         .WithMany()
-                        .HasForeignKey("avatar_id");
+                        .HasForeignKey("AvatarId");
 
                     b.Navigation("Avatar");
+                });
+
+            modelBuilder.Entity("SafariDigital.Data.Models.Database.Views.View", b =>
+                {
+                    b.HasOne("SafariDigital.Data.Models.Database.Frames.Frame", "Frame")
+                        .WithOne("View")
+                        .HasForeignKey("SafariDigital.Data.Models.Database.Views.View", "FrameId");
+
+                    b.Navigation("Frame");
+                });
+
+            modelBuilder.Entity("SafariDigital.Data.Models.Database.Frames.Frame", b =>
+                {
+                    b.Navigation("View");
                 });
 #pragma warning restore 612, 618
         }

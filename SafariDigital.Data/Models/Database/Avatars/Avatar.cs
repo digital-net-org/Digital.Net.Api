@@ -1,12 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Safari.Net.Data.Entities.Models;
+using Digital.Net.Entities.Models;
 using SafariDigital.Data.Models.Database.Documents;
 
 namespace SafariDigital.Data.Models.Database.Avatars;
 
 [Table("avatar")]
-public class Avatar : EntityWithId
+public class Avatar : EntityWithGuid
 {
     [Column("pos_x")]
     public int? PosX { get; set; }

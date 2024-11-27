@@ -1,7 +1,7 @@
+using Digital.Net.Core.Messages;
+using Digital.Net.Entities.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Safari.Net.Core.Messages;
-using Safari.Net.Data.Repositories;
 using SafariDigital.Data.Models.Database.ApiKeys;
 
 namespace SafariDigital.Api.Attributes;

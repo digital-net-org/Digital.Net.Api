@@ -1,4 +1,4 @@
-using Safari.Net.Core.Models;
+using Digital.Net.Core.Models;
 using SafariDigital.Data.Models.Database.Avatars;
 using SafariDigital.Data.Models.Dto.Avatars;
 using Tests.Utils.Factories;
@@ -11,7 +11,7 @@ public class AvatarTest
     public void AvatarModel_ReturnsValidModel()
     {
         var avatar = AvatarFactoryUtils.CreateAvatar();
-        var avatarModel = Mapper.Map<Avatar, AvatarModel>(avatar);
+        var avatarModel = Mapper.MapFromConstructor<Avatar, AvatarModel>(avatar);
         Assert.NotNull(avatarModel);
         Assert.IsType<AvatarModel>(avatarModel);
         Assert.Equal(avatar.Id, avatarModel.Id);

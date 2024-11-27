@@ -1,5 +1,5 @@
+using Digital.Net.Core.Messages;
 using Microsoft.AspNetCore.Mvc;
-using Safari.Net.Core.Messages;
 using SafariDigital.Api.Attributes;
 using SafariDigital.Data.Models.Database.Users;
 using SafariDigital.Services.Authentication;

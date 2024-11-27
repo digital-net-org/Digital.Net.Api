@@ -11,3 +11,5 @@ release/
 */**/appsettings.Development.json
 */**/.env
 .env
+
+Digital.Net.*.dll
