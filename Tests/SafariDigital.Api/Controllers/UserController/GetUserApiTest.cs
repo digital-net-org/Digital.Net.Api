@@ -1,11 +1,11 @@
 using System.Net.Http.Json;
 using Digital.Net.Core.Messages;
-using Digital.Net.Entities.Models;
+using Digital.Net.Mvc.Controllers.Pagination;
 using Digital.Net.TestTools.Integration;
 using SafariDigital.Api;
+using SafariDigital.Api.Controllers.UserApi.Dto;
 using SafariDigital.Data.Context;
 using SafariDigital.Data.Models.Database.Users;
-using SafariDigital.Data.Models.Dto.Users;
 using Tests.Utils.ApiCollections;
 using Tests.Utils.Factories;
 

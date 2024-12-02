@@ -1,5 +1,5 @@
 using System.Net.Http.Json;
-using SafariDigital.Services.Authentication.Models;
+using SafariDigital.Api.Controllers.AuthenticationApi.Dto;
 using Tests.Utils.Client;
 
 namespace Tests.Utils.ApiCollections;
@@ -8,7 +8,10 @@ public static class AuthenticationCollection
 {
     public static async Task<HttpResponseMessage> Login(this HttpClient client, string username, string password)
     {
-        var response = await client.PostAsJsonAsync("/authentication/login", new LoginRequest(username, password));
+        var response = await client.PostAsJsonAsync(
+            "/authentication/login",
+            new LoginPayload { Login = username, Password = password }
+        );
         await client.SetAuthorizations(response);
         return response;
     }

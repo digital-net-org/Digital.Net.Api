@@ -1,6 +1,6 @@
 using Digital.Net.Core.Models;
+using SafariDigital.Api.Controllers.UserApi.Dto;
 using SafariDigital.Data.Models.Database.Users;
-using SafariDigital.Data.Models.Dto.Users;
 
 namespace Tests.SafariDigital.Database.Models.Dto.Users;
 

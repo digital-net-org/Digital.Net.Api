@@ -3,11 +3,11 @@ using SafariDigital.Api.Attributes;
 using SafariDigital.Core;
 using SafariDigital.Core.Application;
 using SafariDigital.Data.Models.Database.Users;
-using SafariDigital.Services.Authentication;
+using SafariDigital.Services.Authentication.Service;
 
 namespace SafariDigital.Api.Controllers;
 
-[ApiController, Route("[controller]")]
+[ApiController, Route("validation")]
 public class ValidationController(IConfiguration configuration) : ControllerBase
 {
     [HttpGet("username/pattern")]

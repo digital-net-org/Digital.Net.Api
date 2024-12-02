@@ -15,7 +15,7 @@ public static class HttpUtils
         try
         {
             var content = await loginResponse.Content.ReadAsStringAsync();
-            var token = JsonConvert.DeserializeObject<Result<LoginResponse>>(content)!.Value?.Token;
+            var token = JsonConvert.DeserializeObject<Result<TokenResult>>(content)!.Value?.Token;
             var refreshToken = loginResponse.TryGetCookie();
 
             if (refreshToken is not null)

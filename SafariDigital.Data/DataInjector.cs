@@ -1,21 +1,39 @@
+using Digital.Net.Entities;
 using Digital.Net.Entities.Repositories;
-using Digital.Net.Entities.Services;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SafariDigital.Core.Application;
 using SafariDigital.Data.Context;
 using SafariDigital.Data.Models;
-using SafariDigital.Data.Models.Database.Frames;
-using SafariDigital.Data.Models.Database.Users;
-using SafariDigital.Data.Models.Database.Views;
 
 namespace SafariDigital.Data;
 
 public static class DataInjector
 {
-    public static IServiceCollection AddRepositories(this IServiceCollection services) =>
-        services
+    public static WebApplicationBuilder AddDatabase(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddDbContext<SafariDigitalContext>(opts =>
+        {
+            opts.UseLazyLoadingProxies();
+
+            if (ApplicationEnvironment.IsTest)
+                opts.UseSqlite(new SqliteConnection("Filename=:memory:"));
+            else
+                opts.UseNpgsql(builder.GetConnectionString(), b => b.MigrationsAssembly("SafariDigital.Data"));
+        }, ServiceLifetime.Transient);
+
+        builder.Services
+            .AddDigitalEntities()
             .AddScoped(typeof(IRepository<>), typeof(SafariDigitalRepository<>))
-            .AddScoped<ISeeder, Seeder>()
-            .AddScoped<IEntityService<User, UserQuery>, UserEntityService>()
-            .AddScoped<IEntityService<View, ViewQuery>, ViewEntityService>()
-            .AddScoped<IEntityService<Frame, FrameQuery>, FrameEntityService>();
+            .AddScoped<ISeeder, Seeder>();
+
+        return builder;
+    }
+
+    private static string GetConnectionString(this WebApplicationBuilder builder) =>
+        builder.Configuration.GetConnectionString("Default") ??
+        throw new InvalidOperationException("Postgres connection string is not set");
 }

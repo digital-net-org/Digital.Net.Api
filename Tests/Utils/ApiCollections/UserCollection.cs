@@ -1,8 +1,7 @@
 using System.Net.Http.Json;
 using System.Text;
 using Digital.Net.Core.Extensions.HttpUtilities;
-using SafariDigital.Data.Models.Database.Users;
-using SafariDigital.Services.Users.Models;
+using SafariDigital.Api.Controllers.UserApi.Dto;
 
 namespace Tests.Utils.ApiCollections;
 
@@ -24,5 +23,5 @@ public static class UserCollection
     public static async Task<HttpResponseMessage> UpdatePassword(this HttpClient client, Guid id,
         string currentPassword, string newPassword) =>
         await client.PutAsJsonAsync($"/user/{id.ToString()}/password",
-            new UpdatePasswordRequest(currentPassword, newPassword));
+            new UpdatePasswordPayload { CurrentPassword = currentPassword, NewPassword = newPassword });
 }

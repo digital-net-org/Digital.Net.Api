@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using SafariDigital.Core.Application;
 using SafariDigital.Data.Models.Database.Documents;
-using SafariDigital.Services.HttpContext;
+using SafariDigital.Services.Authentication.Service;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
 
@@ -14,7 +14,7 @@ namespace SafariDigital.Services.Documents;
 
 public class DocumentService(
     IConfiguration configuration,
-    IHttpContextService httpContextService,
+    IAuthenticatedUserService authenticatedUserService,
     IRepository<Document> documentRepository
 ) : IDocumentService
 {
@@ -81,7 +81,7 @@ public class DocumentService(
         var result = new Result<Document>();
         try
         {
-            var user = await httpContextService.GetAuthenticatedUser();
+            var user = await authenticatedUserService.GetAuthenticatedUser();
             result.Value = new Document
             {
                 FileName = file.FileName,

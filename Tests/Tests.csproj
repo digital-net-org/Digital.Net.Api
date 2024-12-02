@@ -31,6 +31,9 @@
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0"/>
         <PackageReference Include="xunit" Version="2.5.3"/>
         <PackageReference Include="Moq" Version="4.20.70"/>
+        <Reference Include="Digital.Net.Mvc">
+            <HintPath>..\Digital.Net.Mvc.dll</HintPath>
+        </Reference>
 
         <Reference Include="Digital.Net.TestTools">
             <HintPath>../Digital.Net.TestTools.dll</HintPath>

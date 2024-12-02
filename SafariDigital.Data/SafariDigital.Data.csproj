@@ -39,6 +39,7 @@
 
     <ItemGroup>
         <Folder Include="Migrations\"/>
+        <Folder Include="Models\Dto\Users\"/>
     </ItemGroup>
 
 </Project>

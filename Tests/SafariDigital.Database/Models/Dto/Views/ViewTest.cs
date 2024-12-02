@@ -1,6 +1,6 @@
+using SafariDigital.Api.Controllers.ViewApi.Dto;
 using SafariDigital.Data.Models.Database.Frames;
 using SafariDigital.Data.Models.Database.Views;
-using SafariDigital.Data.Models.Dto.Views;
 
 namespace Tests.SafariDigital.Database.Models.Dto.Views;
 

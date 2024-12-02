@@ -7,7 +7,7 @@ using SafariDigital.Core.Files;
 using SafariDigital.Data.Models.Database.Avatars;
 using SafariDigital.Data.Models.Database.Documents;
 using SafariDigital.Data.Models.Database.Users;
-using SafariDigital.Services.Authentication;
+using SafariDigital.Services.Authentication.Service;
 using SafariDigital.Services.Documents;
 
 namespace SafariDigital.Services.Users;

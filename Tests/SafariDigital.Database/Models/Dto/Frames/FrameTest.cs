@@ -1,5 +1,5 @@
+using SafariDigital.Api.Controllers.FrameApi.Dto;
 using SafariDigital.Data.Models.Database.Frames;
-using SafariDigital.Data.Models.Dto.Frames;
 
 namespace Tests.SafariDigital.Database.Models.Dto.Frames;
 

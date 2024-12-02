@@ -1,15 +1,11 @@
+using Digital.Net.Mvc;
 using Microsoft.AspNetCore.HttpOverrides;
 using SafariDigital.Api.Builders.Injectors;
 using SafariDigital.Core.Application;
 using SafariDigital.Data;
-using SafariDigital.Data.Context;
 using SafariDigital.Services.Authentication;
 using SafariDigital.Services.Documents;
-using SafariDigital.Services.Frames;
-using SafariDigital.Services.HttpContext;
-using SafariDigital.Services.Jwt;
 using SafariDigital.Services.Users;
-using SafariDigital.Services.Views;
 
 namespace SafariDigital.Api.Builders;
 
@@ -33,20 +29,16 @@ public static class Builder
     private static WebApplicationBuilder AddServices(this WebApplicationBuilder builder)
     {
         builder.Services
-            .AddRepositories()
-            .AddHttpContextService()
-            .AddJwtService()
-            .AddDocumentService()
-            .AddUserService()
-            .AddViewService()
-            .AddFrameService()
-            .AddAuthenticationService();
+            .AddAuthenticationServices()
+            .AddDocumentServices()
+            .AddUserServices();
         return builder;
     }
-
+    
     private static WebApplicationBuilder AddControllers(this WebApplicationBuilder builder)
     {
         builder.Services.AddControllers();
+        builder.Services.AddDigitalMvc();
         return builder;
     }
 
