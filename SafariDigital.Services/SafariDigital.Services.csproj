@@ -8,28 +8,19 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\SafariDigital.Core\SafariDigital.Core.csproj"/>
-        <ProjectReference Include="..\SafariDigital.Data\SafariDigital.Data.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="BCrypt.Net-Next" Version="4.0.3"/>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.6"/>
         <PackageReference Include="Microsoft.OpenApi" Version="1.6.14"/>
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.6.2"/>
         <PackageReference Include="System.Linq.Dynamic.Core" Version="1.4.3"/>
+        <PackageReference Include="Digital.Net.Core" Version="0.1.0"/>
+        <PackageReference Include="Digital.Net.Entities" Version="0.1.0"/>
+        <PackageReference Include="Digital.Net.Mvc" Version="0.1.0"/>
     </ItemGroup>
 
     <ItemGroup>
-        <Reference Include="Digital.Net.Core">
-            <HintPath>..\Digital.Net.Core.dll</HintPath>
-        </Reference>
-        <Reference Include="Digital.Net.Entities">
-            <HintPath>..\Digital.Net.Entities.dll</HintPath>
-        </Reference>
-        <Reference Include="Digital.Net.Mvc">
-            <HintPath>..\Digital.Net.Mvc.dll</HintPath>
-        </Reference>
+        <ProjectReference Include="..\SafariDigital.Core\SafariDigital.Core.csproj"/>
+        <ProjectReference Include="..\SafariDigital.Data\SafariDigital.Data.csproj"/>
     </ItemGroup>
 
 </Project>

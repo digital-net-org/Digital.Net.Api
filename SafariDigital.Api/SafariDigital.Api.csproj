@@ -18,9 +18,16 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Folder Include="wwwroot\"/>
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.6"/>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.6.2"/>
+        <PackageReference Include="Digital.Net.Core" Version="0.1.0"/>
+        <PackageReference Include="Digital.Net.Entities" Version="0.1.0"/>
+        <PackageReference Include="Digital.Net.Mvc" Version="0.1.0"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -28,21 +35,5 @@
         <ProjectReference Include="..\SafariDigital.Data\SafariDigital.Data.csproj"/>
         <ProjectReference Include="..\SafariDigital.Services\SafariDigital.Services.csproj"/>
     </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="wwwroot\" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Reference Include="Digital.Net.Core">
-            <HintPath>..\Digital.Net.Core.dll</HintPath>
-        </Reference>
-        <Reference Include="Digital.Net.Entities">
-            <HintPath>..\Digital.Net.Entities.dll</HintPath>
-        </Reference>
-        <Reference Include="Digital.Net.Mvd">
-            <HintPath>..\Digital.Net.Mvc.dll</HintPath>
-        </Reference>
-    </ItemGroup>
-
+    
 </Project>

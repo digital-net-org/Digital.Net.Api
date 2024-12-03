@@ -13,6 +13,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Folder Include="Migrations\"/>
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.4"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.4"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.4"/>
@@ -22,24 +26,11 @@
         </PackageReference>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.4"/>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Reference Include="Digital.Net.Core">
-            <HintPath>..\Digital.Net.Core.dll</HintPath>
-        </Reference>
-        <Reference Include="Digital.Net.Entities">
-            <HintPath>../Digital.Net.Entities.dll</HintPath>
-        </Reference>
+        <PackageReference Include="Digital.Net.Core" Version="0.1.0"/>
+        <PackageReference Include="Digital.Net.Entities" Version="0.1.0"/>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\SafariDigital.Core\SafariDigital.Core.csproj"/>
     </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Migrations\"/>
-        <Folder Include="Models\Dto\Users\"/>
-    </ItemGroup>
-
 </Project>
