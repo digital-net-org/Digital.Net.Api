@@ -31,19 +31,10 @@
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0"/>
         <PackageReference Include="xunit" Version="2.5.3"/>
         <PackageReference Include="Moq" Version="4.20.70"/>
-        <Reference Include="Digital.Net.Mvc">
-            <HintPath>..\Digital.Net.Mvc.dll</HintPath>
-        </Reference>
-
-        <Reference Include="Digital.Net.TestTools">
-            <HintPath>../Digital.Net.TestTools.dll</HintPath>
-        </Reference>
-        <Reference Include="Digital.Net.Core">
-            <HintPath>../Digital.Net.Core.dll</HintPath>
-        </Reference>
-        <Reference Include="Digital.Net.Entities">
-            <HintPath>../Digital.Net.Entities.dll</HintPath>
-        </Reference>
+        <PackageReference Include="Digital.Net.Core" Version="0.1.0"/>
+        <PackageReference Include="Digital.Net.Entities" Version="0.1.0"/>
+        <PackageReference Include="Digital.Net.Mvc" Version="0.1.0"/>
+        <PackageReference Include="Digital.Net.TestTools" Version="1.0.0"/>
     </ItemGroup>
 
 </Project>
