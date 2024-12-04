@@ -1,11 +1,10 @@
-using System.Net.Http.Json;
-using Digital.Net.Mvc.Controllers.Pagination;
 using Digital.Net.TestTools.Integration;
 using SafariDigital.Api;
 using SafariDigital.Api.Controllers.FrameApi.Dto;
 using SafariDigital.Data.Context;
 using SafariDigital.Data.Models.Database.Users;
 using Tests.Utils.ApiCollections;
+using Tests.Utils.ApiCollections.Models;
 using Tests.Utils.Factories;
 
 namespace Tests.SafariDigital.Api.Controllers.FrameController;
@@ -21,17 +20,29 @@ public class CreateApiTest : IntegrationTest<Program, SafariDigitalContext>
     }
 
     [Fact]
-    public async Task CreateFrame_CreateFrameInDB() // TODO: Add tests for everi APIs + Fix this one
+    public async Task CreateFrame_CreateFrameInDB()
     {
         var (user, password) = _userFactory.CreateUser();
         await BaseClient.Login(user.Username, password);
-        var response = await BaseClient.CreateFrame(new FramePayload { Data = "TestData", Name = "TestFrame" });
-        var result = await (await BaseClient.GetAllFrames()).Content.ReadFromJsonAsync<QueryResult<FrameModel>>();
+        await BaseClient.CreateFrame(new FramePayload { Data = "TestData", Name = "TestFrame" });
+        var saved = GetContext().Frames.First();
+        Assert.Equal(Convert.ToBase64String("TestData"u8.ToArray()), saved.Data);
+        _userFactory.Dispose();
+    }
+
+    [Fact]
+    public async Task PatchFrame_PatchFrameInDB()
+    {
+        var (user, password) = _userFactory.CreateUser();
+        await BaseClient.Login(user.Username, password);
+
+        await BaseClient.CreateFrame(new FramePayload { Data = "TestData", Name = "TestFrame" });
         var saved = GetContext().Frames.First();
 
-        Assert.True(response.IsSuccessStatusCode);
-        Assert.Equal("TestData", result?.Value.First().Data);
-        Assert.Equal(Convert.ToBase64String("TestData"u8.ToArray()), saved.Data);
+        await BaseClient.PatchFrame(saved.Id, new PatchFramePayload { Data = "TestData2" });
+        saved = GetContext().Frames.First();
+
+        Assert.Equal(Convert.ToBase64String("TestData2"u8.ToArray()), saved.Data);
         _userFactory.Dispose();
     }
 }

@@ -34,6 +34,7 @@
         <PackageReference Include="Digital.Net.Core" Version="0.1.0"/>
         <PackageReference Include="Digital.Net.Entities" Version="0.1.0"/>
         <PackageReference Include="Digital.Net.Mvc" Version="0.1.0"/>
+        <PackageReference Include="Digital.Net.Http" Version="0.1.0"/>
         <PackageReference Include="Digital.Net.TestTools" Version="1.0.0"/>
     </ItemGroup>
 
