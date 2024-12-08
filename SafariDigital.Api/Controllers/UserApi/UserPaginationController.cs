@@ -9,7 +9,7 @@ using SafariDigital.Data.Models.Database.Users;
 
 namespace SafariDigital.Api.Controllers.UserApi;
 
-[ApiController, Route("user"), Authorize(Role = EUserRole.User)]
+[ApiController, Route("user"), Authorize(Role = EUserRole.Admin)]
 public class UserPaginationController(
     IRepository<User> userRepository
 ) : PaginationController<User, UserModel, UserQuery>(userRepository)

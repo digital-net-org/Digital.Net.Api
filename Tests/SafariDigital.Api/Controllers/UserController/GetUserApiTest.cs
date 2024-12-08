@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using Digital.Net.Core.Messages;
+using Digital.Net.Core.Random;
 using Digital.Net.Mvc.Controllers.Pagination;
 using Digital.Net.TestTools.Integration;
 using SafariDigital.Api;
@@ -61,7 +62,11 @@ public class GetUserApiTest : IntegrationTest<Program, SafariDigitalContext>
 
     private List<User> Setup()
     {
-        var (user, password) = _userFactory.CreateUser();
+        var (user, password) = _userFactory.CreateUser(new UserPayload
+        {
+            Password = Randomizer.GenerateRandomString(),
+            Role = EUserRole.Admin
+        });
         BaseClient.Login(user.Username, password).Wait();
 
         List<User> users = [];
