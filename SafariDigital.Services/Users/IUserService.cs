@@ -1,7 +1,7 @@
 using Digital.Net.Core.Messages;
 using Microsoft.AspNetCore.Http;
-using SafariDigital.Data.Models.Database.Documents;
-using SafariDigital.Data.Models.Database.Users;
+using SafariDigital.Data.Models.Documents;
+using SafariDigital.Data.Models.Users;
 
 namespace SafariDigital.Services.Users;
 

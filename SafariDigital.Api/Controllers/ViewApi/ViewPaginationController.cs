@@ -1,16 +1,16 @@
 using System.Linq.Expressions;
+using Digital.Net.Authentication.Attributes;
 using Digital.Net.Core.Predicates;
 using Digital.Net.Entities.Repositories;
 using Digital.Net.Mvc.Controllers.Pagination;
 using Microsoft.AspNetCore.Mvc;
 using SafariDigital.Api.Attributes;
-using SafariDigital.Api.Controllers.ViewApi.Dto;
-using SafariDigital.Data.Models.Database.Users;
-using SafariDigital.Data.Models.Database.Views;
+using SafariDigital.Api.Dto.Entities;
+using SafariDigital.Data.Models.Views;
 
 namespace SafariDigital.Api.Controllers.ViewApi;
 
-[ApiController, Route("view"), Authorize(Role = EUserRole.User)]
+[ApiController, Route("view"), Authorize(AuthorizeType.Jwt)]
 public class ViewPaginationController(
     IRepository<View> viewRepository
 ) : PaginationController<View, ViewModel, ViewQuery>(viewRepository)

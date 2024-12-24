@@ -1,6 +1,6 @@
 using Digital.Net.Core.Models;
-using SafariDigital.Data.Models.Database.Avatars;
-using SafariDigital.Data.Models.Dto.Avatars;
+using SafariDigital.Api.Dto.Entities;
+using SafariDigital.Data.Models.Avatars;
 using Tests.Utils.Factories;
 
 namespace Tests.SafariDigital.Database.Models.Dto.Avatars;

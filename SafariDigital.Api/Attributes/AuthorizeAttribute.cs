@@ -1,40 +1,23 @@
-using Digital.Net.Mvc.Services;
-using Microsoft.AspNetCore.Mvc;
+using Digital.Net.Authentication.Attributes;
+using Digital.Net.Entities.Repositories;
 using Microsoft.AspNetCore.Mvc.Filters;
-using SafariDigital.Data.Models.Database.Users;
-using SafariDigital.Services.Authentication.Jwt;
-using SafariDigital.Services.Authentication.Service;
-using SafariDigital.Services.Jwt.Models;
+using SafariDigital.Data.Models.Users;
 
 namespace SafariDigital.Api.Attributes;
 
-[AttributeUsage(AttributeTargets.All)]
-public class AuthorizeAttribute : Attribute, IAuthorizationFilter
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
+public class AuthorizeAttribute(
+    AuthorizeType type,
+    UserRole role = UserRole.User
+) : AuthorizeAttribute<User>(type)
 {
-    public EUserRole Role { get; set; }
+    public UserRole Role { get; set; } = role;
 
-    public void OnAuthorization(AuthorizationFilterContext context)
+    public override void OnJwtAuthorization(AuthorizationFilterContext context, string? token, Guid? apiUserId)
     {
-        var jwtService = context.HttpContext.RequestServices.GetRequiredService<IJwtService>();
-        var httpContextService = context.HttpContext.RequestServices.GetRequiredService<IHttpContextService>();
-
-        var result = jwtService.ValidateBearerToken(httpContextService.BearerToken);
-        var isUserAuthorized = result.Value?.Role >= Role;
-
-        if (isUserAuthorized)
-        {
-            httpContextService.AddItem(
-                AuthenticatedUserService.Token,
-                new AuthenticatedUser
-                {
-                    Id = result.Value?.Id,
-                    Role = result.Value?.Role,
-                    Token = result.Token
-                }
-            );
-            return;
-        }
-
-        context.Result = new JsonResult(result) { StatusCode = 401 };
+        var userRepository = context.HttpContext.RequestServices.GetRequiredService<IRepository<User>>();
+        var user = userRepository.GetById(apiUserId);
+        if (user is null || user.Role < Role)
+            throw new UnauthorizedAccessException();
     }
 }

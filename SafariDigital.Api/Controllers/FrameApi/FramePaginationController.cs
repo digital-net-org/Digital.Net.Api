@@ -1,16 +1,16 @@
 using System.Linq.Expressions;
+using Digital.Net.Authentication.Attributes;
 using Digital.Net.Core.Predicates;
 using Digital.Net.Entities.Repositories;
 using Digital.Net.Mvc.Controllers.Pagination;
 using Microsoft.AspNetCore.Mvc;
 using SafariDigital.Api.Attributes;
-using SafariDigital.Api.Controllers.FrameApi.Dto;
-using SafariDigital.Data.Models.Database.Frames;
-using SafariDigital.Data.Models.Database.Users;
+using SafariDigital.Api.Dto.Entities;
+using SafariDigital.Data.Models.Frames;
 
 namespace SafariDigital.Api.Controllers.FrameApi;
 
-[ApiController, Route("frame"), Authorize(Role = EUserRole.User)]
+[ApiController, Route("frame"), Authorize(AuthorizeType.Jwt)]
 public class FramePaginationController(
     IRepository<Frame> frameRepository
 ) : PaginationController<Frame, FrameLightModel, FrameQuery>(frameRepository)

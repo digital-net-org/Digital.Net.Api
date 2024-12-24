@@ -1,62 +1,71 @@
 using System.Text.Json;
+using Digital.Net.Authentication.Attributes;
+using Digital.Net.Authentication.Services.Authentication.ApiUsers;
 using Digital.Net.Core.Messages;
 using Digital.Net.Entities.Services;
+using Digital.Net.Mvc.Controllers.Crud;
 using Microsoft.AspNetCore.Mvc;
 using SafariDigital.Api.Attributes;
-using SafariDigital.Api.Controllers.UserApi.Dto;
-using SafariDigital.Api.Formatters;
-using SafariDigital.Data.Models.Database.Documents;
-using SafariDigital.Data.Models.Database.Users;
-using SafariDigital.Services.Authentication.Service;
+using SafariDigital.Api.Dto.Entities;
+using SafariDigital.Api.Dto.Payloads.UserApi;
+using SafariDigital.Data.Models.Documents;
+using SafariDigital.Data.Models.Users;
 using SafariDigital.Services.Users;
 
 namespace SafariDigital.Api.Controllers.UserApi;
 
-[ApiController, Route("user/{id:guid}")]
+[ApiController, Route("user"), Authorize(AuthorizeType.Jwt)]
 public class UserController(
     IEntityService<User> entityService,
-    IAuthenticatedUserService authenticatedUserService,
-    IUserService userService) : ControllerBase
+    IApiUserService<User> apiUserService,
+    IUserService userService) : CrudController<User, UserModel, UserModel>(entityService)
 {
-
-    [HttpGet(""), Authorize(Role = EUserRole.User)]
-    public ActionResult<Result<UserModel>> GetById(Guid id) => entityService.Get<UserModel>(id);
-
-    [HttpPatch(""), Authorize(Role = EUserRole.User)]
-    public async Task<ActionResult<Result>> Patch(Guid id, [FromBody] JsonElement patch)
+    [HttpPatch("{id}")]
+    public override async Task<ActionResult<Result>> Patch(string id, [FromBody] JsonElement patch)
     {
-        var user = await GetAuthorizedUser(id);
-        if (user is null) return Unauthorized();
-        return await entityService.Patch(JsonPatchFormatter.GetPatchDocument<User>(patch), id);
+        var user = await GetAuthorizedUser(Guid.Parse(id));
+        if (user is null)
+            return Unauthorized();
+
+        return await base.Patch(id, patch);
     }
 
-    [HttpPut("password"), Authorize(Role = EUserRole.User)]
+    [NonAction]
+    public override async Task<ActionResult<Result>> Post([FromBody] UserModel payload) => NotFound();
+
+    [NonAction]
+    public override async Task<ActionResult<Result>> Delete(string id) => NotFound();
+
+    [HttpPut("{id:guid}/password")]
     public async Task<ActionResult<Result>> UpdatePassword([FromBody] UpdatePasswordPayload request, Guid id)
     {
         var user = await GetAuthorizedUser(id);
-        if (user is null) return Unauthorized();
+        if (user is null)
+            return Unauthorized();
         return await userService.UpdatePassword(user, request.CurrentPassword, request.NewPassword);
     }
 
-    [HttpPut("avatar"), Authorize(Role = EUserRole.User)]
+    [HttpPut("{id:guid}/avatar")]
     public async Task<ActionResult<Result<Document>>> UpdateAvatar(Guid id, IFormFile avatar)
     {
         var user = await GetAuthorizedUser(id);
-        if (user is null) return Unauthorized();
+        if (user is null)
+            return Unauthorized();
         return await userService.UpdateAvatar(user, avatar);
     }
 
-    [HttpDelete("avatar"), Authorize(Role = EUserRole.User)]
+    [HttpDelete("{id:guid}/avatar")]
     public async Task<ActionResult<Result>> RemoveAvatar(Guid id)
     {
         var user = await GetAuthorizedUser(id);
-        if (user is null) return Unauthorized();
+        if (user is null)
+            return Unauthorized();
         return await userService.RemoveUserAvatar(user);
     }
 
     private async Task<User?> GetAuthorizedUser(Guid id)
     {
-        var user = await authenticatedUserService.GetAuthenticatedUser();
-        return user.Id != id ? null : user;
+        var user = await apiUserService.GetAuthenticatedUserAsync();
+        return user?.Id != id ? null : user;
     }
 }

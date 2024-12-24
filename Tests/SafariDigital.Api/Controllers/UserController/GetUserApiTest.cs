@@ -1,12 +1,13 @@
 using System.Net.Http.Json;
 using Digital.Net.Core.Messages;
 using Digital.Net.Core.Random;
+using Digital.Net.Entities.Repositories;
 using Digital.Net.Mvc.Controllers.Pagination;
 using Digital.Net.TestTools.Integration;
 using SafariDigital.Api;
-using SafariDigital.Api.Controllers.UserApi.Dto;
+using SafariDigital.Api.Dto.Entities;
 using SafariDigital.Data.Context;
-using SafariDigital.Data.Models.Database.Users;
+using SafariDigital.Data.Models.Users;
 using Tests.Utils.ApiCollections;
 using Tests.Utils.Factories;
 
@@ -19,7 +20,7 @@ public class GetUserApiTest : IntegrationTest<Program, SafariDigitalContext>
 
     public GetUserApiTest(AppFactory<Program, SafariDigitalContext> fixture) : base(fixture)
     {
-        SafariDigitalRepository<User> userRepository = new(GetContext());
+        Repository<User> userRepository = new(GetContext());
         _userFactory = new UserFactory(userRepository);
         _userPool = Setup();
     }
@@ -65,9 +66,9 @@ public class GetUserApiTest : IntegrationTest<Program, SafariDigitalContext>
         var (user, password) = _userFactory.CreateUser(new UserPayload
         {
             Password = Randomizer.GenerateRandomString(),
-            Role = EUserRole.Admin
+            Role = UserRole.Admin
         });
-        BaseClient.Login(user.Username, password).Wait();
+        BaseClient.Login(user.Login, password).Wait();
 
         List<User> users = [];
         for (var i = 0; i < 25; i++)
@@ -76,7 +77,7 @@ public class GetUserApiTest : IntegrationTest<Program, SafariDigitalContext>
             {
                 Username = $"user{i}",
                 Email = $"user{i}@msn.com",
-                Role = i is >= 10 and <= 20 ? EUserRole.Admin : i > 20 ? EUserRole.SuperAdmin : EUserRole.User,
+                Role = i is >= 10 and <= 20 ? UserRole.Admin : i > 20 ? UserRole.SuperAdmin : UserRole.User,
                 IsActive = i > 5
             });
             users.Add(usr);

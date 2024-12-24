@@ -1,5 +1,5 @@
 using Digital.Net.Core.Random;
-using SafariDigital.Data.Models.Database.Documents;
+using SafariDigital.Data.Models.Documents;
 
 namespace Tests.Utils.Factories;
 
@@ -9,7 +9,7 @@ public static class DocumentFactoryUtils
         new()
         {
             FileName = Guid.NewGuid() + ".png",
-            DocumentType = EDocumentType.Avatar,
+            DocumentType = DocumentType.Avatar,
             MimeType = "image/png",
             FileSize = Randomizer.GenerateRandomInt(),
             Uploader = null

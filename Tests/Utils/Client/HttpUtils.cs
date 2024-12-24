@@ -1,7 +1,6 @@
 using Digital.Net.Core.Extensions.HttpUtilities;
 using Digital.Net.Core.Messages;
 using Newtonsoft.Json;
-using SafariDigital.Services.Authentication.Models;
 
 namespace Tests.Utils.Client;
 
@@ -15,7 +14,7 @@ public static class HttpUtils
         try
         {
             var content = await loginResponse.Content.ReadAsStringAsync();
-            var token = JsonConvert.DeserializeObject<Result<TokenResult>>(content)!.Value?.Token;
+            var token = JsonConvert.DeserializeObject<Result<string>>(content)!.Value;
             var refreshToken = loginResponse.TryGetCookie();
 
             if (refreshToken is not null)

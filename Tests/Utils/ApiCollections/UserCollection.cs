@@ -1,7 +1,8 @@
 using System.Net.Http.Json;
 using System.Text;
 using Digital.Net.Core.Extensions.HttpUtilities;
-using SafariDigital.Api.Controllers.UserApi.Dto;
+using SafariDigital.Api.Dto.Entities;
+using SafariDigital.Api.Dto.Payloads.UserApi;
 
 namespace Tests.Utils.ApiCollections;
 

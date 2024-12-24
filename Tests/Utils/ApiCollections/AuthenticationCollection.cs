@@ -1,5 +1,5 @@
 using System.Net.Http.Json;
-using SafariDigital.Api.Controllers.AuthenticationApi.Dto;
+using Digital.Net.Authentication.Controllers.Models;
 using Tests.Utils.Client;
 
 namespace Tests.Utils.ApiCollections;
@@ -9,7 +9,7 @@ public static class AuthenticationCollection
     public static async Task<HttpResponseMessage> Login(this HttpClient client, string username, string password)
     {
         var response = await client.PostAsJsonAsync(
-            "/authentication/login",
+            "/authentication/user/login",
             new LoginPayload { Login = username, Password = password }
         );
         await client.SetAuthorizations(response);
@@ -18,40 +18,34 @@ public static class AuthenticationCollection
 
     public static async Task<HttpResponseMessage> RefreshTokens(this HttpClient client)
     {
-        var response = await client.PostAsync("/authentication/refresh", null);
+        var response = await client.PostAsync("/authentication/user/refresh", null);
         await client.SetAuthorizations(response);
         return response;
     }
 
     public static async Task<HttpResponseMessage> Logout(this HttpClient client)
     {
-        var response = await client.PostAsync("/authentication/logout", null);
+        var response = await client.PostAsync("/authentication/user/logout", null);
         client.DefaultRequestHeaders.Remove("Authorization");
         return response;
     }
 
     public static async Task<HttpResponseMessage> LogoutAll(this HttpClient client)
     {
-        var response = await client.PostAsync("/authentication/logout-all", null);
+        var response = await client.PostAsync("/authentication/user/logout-all", null);
         client.DefaultRequestHeaders.Remove("Authorization");
         return response;
     }
 
     public static async Task<HttpResponseMessage> GetPasswordPattern(this HttpClient client) =>
-        await client.GetAsync("/authentication/password/pattern");
-
-    public static async Task<HttpResponseMessage> GeneratePassword(this HttpClient client, string password) =>
-        await client.GetAsync($"/authentication/password/generate/{password}");
-
-    public static async Task<HttpResponseMessage> TestVisitorAuthorization(this HttpClient client) =>
-        await client.GetAsync("/authentication/role/visitor/test");
+        await client.GetAsync("/validation/password/pattern");
 
     public static async Task<HttpResponseMessage> TestUserAuthorization(this HttpClient client) =>
-        await client.GetAsync("/authentication/role/user/test");
+        await client.GetAsync("/authentication/user/role/0/test");
 
     public static async Task<HttpResponseMessage> TestAdminAuthorization(this HttpClient client) =>
-        await client.GetAsync("/authentication/role/admin/test");
+        await client.GetAsync("/authentication/user/role/1/test");
 
     public static async Task<HttpResponseMessage> TestSuperAdminAuthorization(this HttpClient client) =>
-        await client.GetAsync("/authentication/role/super-admin/test");
+        await client.GetAsync("/authentication/user/role/2/test");
 }

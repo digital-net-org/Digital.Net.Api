@@ -1,12 +1,14 @@
-﻿using Digital.Net.Core.Extensions.FormFileUtilities;
+﻿using System.Security.Authentication;
+using Digital.Net.Authentication.Services.Authentication.ApiUsers;
+using Digital.Net.Core.Extensions.FormFileUtilities;
 using Digital.Net.Core.Messages;
 using Digital.Net.Core.Random;
 using Digital.Net.Entities.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using SafariDigital.Core.Application;
-using SafariDigital.Data.Models.Database.Documents;
-using SafariDigital.Services.Authentication.Service;
+using SafariDigital.Data.Models.Documents;
+using SafariDigital.Data.Models.Users;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
 
@@ -14,13 +16,13 @@ namespace SafariDigital.Services.Documents;
 
 public class DocumentService(
     IConfiguration configuration,
-    IAuthenticatedUserService authenticatedUserService,
+    IApiUserService<User> apiUserService,
     IRepository<Document> documentRepository
 ) : IDocumentService
 {
-    private string FileSystemPath => configuration.GetSection<string>(EApplicationSetting.FileSystemPath);
+    private string FileSystemPath => configuration.GetSection<string>(ApplicationSettingPath.FileSystemPath);
 
-    public async Task<Result<Document>> SaveImageDocumentAsync(IFormFile form, EDocumentType type, int? quality = null)
+    public async Task<Result<Document>> SaveImageDocumentAsync(IFormFile form, DocumentType type, int? quality = null)
     {
         try
         {
@@ -30,7 +32,7 @@ public class DocumentService(
 
             var encoder = new JpegEncoder { Quality = quality ?? 75 };
             var fileName =
-                $"{Randomizer.GenerateRandomString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", 60)}.jpg";
+                $"{Randomizer.GenerateRandomString(Randomizer.AnyLetterOrNumber, 60)}.jpg";
             await image.SaveAsync(memStream, encoder);
 
             var compressed = new FormFile(memStream, 0, memStream.ToArray().Length, "avatar", fileName)
@@ -76,12 +78,12 @@ public class DocumentService(
     public Result WriteDocument(IFormFile form, Document document) =>
         form.TryWriteFile(Path.Combine(FileSystemPath, document.FileName));
 
-    private async Task<Result<Document>> SaveDocumentAsync(IFormFile file, EDocumentType type)
+    private async Task<Result<Document>> SaveDocumentAsync(IFormFile file, DocumentType type)
     {
         var result = new Result<Document>();
         try
         {
-            var user = await authenticatedUserService.GetAuthenticatedUser();
+            var user = await apiUserService.GetAuthenticatedUserAsync() ?? throw new AuthenticationException();
             result.Value = new Document
             {
                 FileName = file.FileName,

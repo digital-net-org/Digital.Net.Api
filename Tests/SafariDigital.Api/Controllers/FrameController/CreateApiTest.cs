@@ -1,8 +1,9 @@
+using Digital.Net.Entities.Repositories;
 using Digital.Net.TestTools.Integration;
 using SafariDigital.Api;
-using SafariDigital.Api.Controllers.FrameApi.Dto;
+using SafariDigital.Api.Dto.Entities;
 using SafariDigital.Data.Context;
-using SafariDigital.Data.Models.Database.Users;
+using SafariDigital.Data.Models.Users;
 using Tests.Utils.ApiCollections;
 using Tests.Utils.ApiCollections.Models;
 using Tests.Utils.Factories;
@@ -15,7 +16,7 @@ public class CreateApiTest : IntegrationTest<Program, SafariDigitalContext>
 
     public CreateApiTest(AppFactory<Program, SafariDigitalContext> fixture) : base(fixture)
     {
-        SafariDigitalRepository<User> userRepository = new(GetContext());
+        Repository<User> userRepository = new(GetContext());
         _userFactory = new UserFactory(userRepository);
     }
 
@@ -23,7 +24,7 @@ public class CreateApiTest : IntegrationTest<Program, SafariDigitalContext>
     public async Task CreateFrame_CreateFrameInDB()
     {
         var (user, password) = _userFactory.CreateUser();
-        await BaseClient.Login(user.Username, password);
+        await BaseClient.Login(user.Login, password);
         await BaseClient.CreateFrame(new FramePayload { Data = "TestData", Name = "TestFrame" });
         var saved = GetContext().Frames.First();
         Assert.Equal(Convert.ToBase64String("TestData"u8.ToArray()), saved.Data);
@@ -34,7 +35,7 @@ public class CreateApiTest : IntegrationTest<Program, SafariDigitalContext>
     public async Task PatchFrame_PatchFrameInDB()
     {
         var (user, password) = _userFactory.CreateUser();
-        await BaseClient.Login(user.Username, password);
+        await BaseClient.Login(user.Login, password);
 
         await BaseClient.CreateFrame(new FramePayload { Data = "TestData", Name = "TestFrame" });
         var saved = GetContext().Frames.First();

@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SafariDigital.Api.Builders;
 using SafariDigital.Data.Context;
-using SafariDigital.Data.Models;
+using SafariDigital.Services.Seeder;
 
 namespace SafariDigital.Api;
 
@@ -16,7 +16,7 @@ public sealed class Program
             .UseRateLimiter()
             .UseStaticFiles();
 
-        UseSwaggerPage(app);
+        UseSwaggerPage(app); // TODO: Swashbuckle.AspNetCore mismatch version??
         await ApplyDataMigrationsAsync(app);
         await SeedDatabaseAsync(app);
 
@@ -34,20 +34,22 @@ public sealed class Program
 
     private static async Task SeedDatabaseAsync(WebApplication app)
     {
-        if (!app.Environment.IsEnvironment("Development")) return;
+        if (!app.Environment.IsEnvironment("Development"))
+            return;
+
         using var scope = app.Services.CreateScope();
-        var seeder = scope.ServiceProvider.GetRequiredService<ISeeder>();
-        await seeder.SeedDevelopmentData();
+        var seederService = scope.ServiceProvider.GetRequiredService<ISeederService>();
+        await seederService.SeedDevelopmentDataAsync();
     }
 
     private static void UseSwaggerPage(WebApplication app)
     {
         if (!app.Environment.IsEnvironment("Development")) return;
-        app.UseSwagger();
-        app.UseSwaggerUI(c =>
+        app.UseSwagger(opts => { opts.SerializeAsV2 = true; });
+        app.UseSwaggerUI(opts =>
         {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "SafariDigital API V1");
-            c.RoutePrefix = "swagger";
+            opts.SwaggerEndpoint("/swagger/v1/swagger.json", "SafariDigital API V1");
+            opts.RoutePrefix = "swagger";
         });
     }
 }

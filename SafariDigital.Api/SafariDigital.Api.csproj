@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <LangVersion>12</LangVersion>
         <AssemblyVersion>0.0.2.0</AssemblyVersion>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -22,18 +22,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.6"/>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
-        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.6.2"/>
-        <PackageReference Include="Digital.Net.Core" Version="0.1.0"/>
-        <PackageReference Include="Digital.Net.Entities" Version="0.1.0"/>
-        <PackageReference Include="Digital.Net.Mvc" Version="0.1.0"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="..\SafariDigital.Core\SafariDigital.Core.csproj"/>
         <ProjectReference Include="..\SafariDigital.Data\SafariDigital.Data.csproj"/>
         <ProjectReference Include="..\SafariDigital.Services\SafariDigital.Services.csproj"/>
     </ItemGroup>
-    
+
 </Project>

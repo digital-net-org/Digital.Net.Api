@@ -1,5 +1,5 @@
-using SafariDigital.Api.Controllers.FrameApi.Dto;
-using SafariDigital.Data.Models.Database.Frames;
+using SafariDigital.Api.Dto.Entities;
+using SafariDigital.Data.Models.Frames;
 
 namespace Tests.SafariDigital.Database.Models.Dto.Frames;
 
@@ -29,8 +29,8 @@ public class FrameTest
             Id = new Guid(),
             Name = "title",
             Data = "data",
-            CreatedAt = DateTime.Now,
-            UpdatedAt = DateTime.Now
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
 
 
@@ -52,8 +52,8 @@ public class FrameTest
             Id = new Guid(),
             Name = "title",
             Data = "data",
-            CreatedAt = DateTime.Now,
-            UpdatedAt = DateTime.Now
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
 
         var model = new FrameLightModel(frame);

@@ -6,29 +6,13 @@ namespace SafariDigital.Core.Application;
 
 public static class ApplicationSettings
 {
-    public static WebApplicationBuilder AddProjectSettings(this WebApplicationBuilder builder)
-    {
-        builder.Configuration.AddProjectSettings();
-        builder.ValidateApplicationSettings();
-        return builder;
-    }
-
-    public static IConfigurationBuilder AddProjectSettings(this IConfigurationBuilder builder, string projectName) =>
-        builder.SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "..", projectName)).AddProjectSettings();
-
     public static T GetSection<T>(this IConfiguration configuration, Enum setting) =>
         configuration.GetSection(setting.GetDisplayName()).Get<T>()
         ?? throw new Exception($"Setting {setting.GetDisplayName()} not found");
 
-    private static IConfigurationBuilder AddProjectSettings(this IConfigurationBuilder builder) =>
-        builder
-            .AddJsonFile("appsettings.json", true, true)
-            .AddJsonFile($"appsettings.{ApplicationEnvironment.Get}.json", true, true)
-            .AddEnvironmentVariables();
-
-    private static WebApplicationBuilder ValidateApplicationSettings(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder ValidateApplicationSettings(this WebApplicationBuilder builder)
     {
-        foreach (var setting in EnumDisplay.GetEnumDisplayNames<EApplicationSetting>())
+        foreach (var setting in EnumDisplay.GetEnumDisplayNames<ApplicationSettingPath>())
         {
             var section = builder.Configuration.GetSection(setting);
             if (!section.Exists())

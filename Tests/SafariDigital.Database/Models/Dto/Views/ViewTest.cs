@@ -1,6 +1,6 @@
-using SafariDigital.Api.Controllers.ViewApi.Dto;
-using SafariDigital.Data.Models.Database.Frames;
-using SafariDigital.Data.Models.Database.Views;
+using SafariDigital.Api.Dto.Entities;
+using SafariDigital.Data.Models.Frames;
+using SafariDigital.Data.Models.Views;
 
 namespace Tests.SafariDigital.Database.Models.Dto.Views;
 
@@ -24,15 +24,15 @@ public class ViewTest
             IsPublished = true,
             FrameId = new Guid(),
             Frame = new Frame
-                {
-                    Id = new Guid(),
-                    Name = "title",
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now,
-                    Data = "data"
+            {
+                Id = new Guid(),
+                Name = "title",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                Data = "data"
             },
-            CreatedAt = DateTime.Now,
-            UpdatedAt = DateTime.Now
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
 
         var model = new ViewModel(view);

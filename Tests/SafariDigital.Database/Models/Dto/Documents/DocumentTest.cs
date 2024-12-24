@@ -1,6 +1,6 @@
 using Digital.Net.Core.Models;
-using SafariDigital.Data.Models.Database.Documents;
-using SafariDigital.Data.Models.Dto.Documents;
+using SafariDigital.Api.Dto.Entities;
+using SafariDigital.Data.Models.Documents;
 using Tests.Utils.Factories;
 
 namespace Tests.SafariDigital.Database.Models.Dto.Documents;

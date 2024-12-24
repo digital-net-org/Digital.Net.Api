@@ -1,8 +1,9 @@
 using System.Net;
+using Digital.Net.Entities.Repositories;
 using Digital.Net.TestTools.Integration;
 using SafariDigital.Api;
 using SafariDigital.Data.Context;
-using SafariDigital.Data.Models.Database.Users;
+using SafariDigital.Data.Models.Users;
 using Tests.Utils.ApiCollections;
 using Tests.Utils.Factories;
 
@@ -14,7 +15,7 @@ public class UpdatePasswordApiTest : IntegrationTest<Program, SafariDigitalConte
 
     public UpdatePasswordApiTest(AppFactory<Program, SafariDigitalContext> fixture) : base(fixture)
     {
-        SafariDigitalRepository<User> userRepository = new(GetContext());
+        Repository<User> userRepository = new(GetContext());
         _userFactory = new UserFactory(userRepository);
     }
 
@@ -22,7 +23,7 @@ public class UpdatePasswordApiTest : IntegrationTest<Program, SafariDigitalConte
     public async Task UpdatePassword_ShouldReturnOk()
     {
         var (user, password) = _userFactory.CreateUser();
-        await BaseClient.Login(user.Username, password);
+        var res = await BaseClient.Login(user.Login, password);
         var response = await BaseClient.UpdatePassword(user.Id, password, "1newPassword*");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
