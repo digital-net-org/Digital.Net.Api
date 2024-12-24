@@ -13,7 +13,7 @@ using SafariDigital.Data.Models.Frames;
 namespace SafariDigital.Api.Controllers.FrameApi;
 
 [ApiController, Route("frame"), Authorize(AuthorizeType.Jwt)]
-public class FrameCrudController(
+public class FrameController(
     IRepository<Frame> frameRepository,
     IEntityService<Frame> frameService
 ) : CrudController<Frame, FrameModel, FramePayload>(frameService)

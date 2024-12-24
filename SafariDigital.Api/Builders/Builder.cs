@@ -14,6 +14,7 @@ using SafariDigital.Data.Models.ApiTokens;
 using SafariDigital.Data.Models.Events;
 using SafariDigital.Data.Models.Users;
 using SafariDigital.Services;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace SafariDigital.Api.Builders;
 
@@ -78,9 +79,23 @@ public static class Builder
 
     private static WebApplicationBuilder AddSwagger(this WebApplicationBuilder builder)
     {
-        builder.Services.AddSwaggerGen(opts =>
+        builder.Services.AddSwaggerGen(c =>
         {
-            opts.SwaggerDoc("v1", new OpenApiInfo { Title = "SafariDigital", Version = "v1.0" });
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "SafariDigital", Version = "v1.0" });
+            c.EnableAnnotations();
+            c.OrderActionsBy(apiDesc => $"{apiDesc.ActionDescriptor.RouteValues["controller"]}_{apiDesc.HttpMethod}");
+            c.DocInclusionPredicate((_, api) =>
+            {
+                if (!api.ActionDescriptor.RouteValues.TryGetValue("controller", out var controller))
+                    return true;
+
+                if (controller is not null && controller.EndsWith("Pagination"))
+                    api.ActionDescriptor.EndpointMetadata.Add(
+                        new SwaggerOperationAttribute { Tags = [controller.Replace("Pagination", string.Empty)] }
+                    );
+
+                return true;
+            });
         });
         return builder;
     }
