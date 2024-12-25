@@ -15,7 +15,7 @@ public class AvatarTest
         Assert.NotNull(avatarModel);
         Assert.IsType<AvatarModel>(avatarModel);
         Assert.Equal(avatar.Id, avatarModel.Id);
-        Assert.Equal(avatar.Document.Id, avatarModel.DocumentId);
+        Assert.Equal(avatar.Document?.Id, avatarModel.DocumentId);
         Assert.Equal(avatar.PosX, avatarModel.PosX);
         Assert.Equal(avatar.PosY, avatarModel.PosY);
     }

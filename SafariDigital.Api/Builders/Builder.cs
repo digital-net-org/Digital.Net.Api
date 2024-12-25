@@ -79,11 +79,15 @@ public static class Builder
 
     private static WebApplicationBuilder AddSwagger(this WebApplicationBuilder builder)
     {
+        if (builder.Environment.IsEnvironment("Test") || builder.Environment.IsEnvironment("Production"))
+            return builder;
+
         builder.Services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "SafariDigital", Version = "v1.0" });
             c.EnableAnnotations();
-            c.OrderActionsBy(apiDesc => $"{apiDesc.ActionDescriptor.RouteValues["controller"]}_{apiDesc.HttpMethod}");
+            c.OrderActionsBy(
+                apiDesc => $"{apiDesc.ActionDescriptor.RouteValues["controller"]}_{apiDesc.HttpMethod}");
             c.DocInclusionPredicate((_, api) =>
             {
                 if (!api.ActionDescriptor.RouteValues.TryGetValue("controller", out var controller))

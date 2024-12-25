@@ -16,7 +16,7 @@ public sealed class Program
             .UseRateLimiter()
             .UseStaticFiles();
 
-        UseSwaggerPage(app); // TODO: Swashbuckle.AspNetCore mismatch version??
+        UseSwaggerPage(app);
         await ApplyDataMigrationsAsync(app);
         await SeedDatabaseAsync(app);
 
@@ -26,7 +26,8 @@ public sealed class Program
 
     private static async Task ApplyDataMigrationsAsync(WebApplication app)
     {
-        if (app.Environment.IsEnvironment("Test")) return;
+        if (app.Environment.IsEnvironment("Test"))
+            return;
         using var scope = app.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<SafariDigitalContext>();
         await context.Database.MigrateAsync();
@@ -44,7 +45,9 @@ public sealed class Program
 
     private static void UseSwaggerPage(WebApplication app)
     {
-        if (!app.Environment.IsEnvironment("Development")) return;
+        if (!app.Environment.IsEnvironment("Development"))
+            return;
+
         app.UseSwagger(opts => { opts.SerializeAsV2 = true; });
         app.UseSwaggerUI(opts =>
         {

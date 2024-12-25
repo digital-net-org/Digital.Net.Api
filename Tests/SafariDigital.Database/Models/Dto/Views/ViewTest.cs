@@ -22,14 +22,14 @@ public class ViewTest
             Id = Guid.NewGuid(),
             Title = "title",
             IsPublished = true,
-            FrameId = new Guid(),
+            FrameId = Guid.Empty,
             Frame = new Frame
             {
-                Id = new Guid(),
+                Id = Guid.Empty,
                 Name = "title",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                Data = "data"
+                Data = null
             },
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
