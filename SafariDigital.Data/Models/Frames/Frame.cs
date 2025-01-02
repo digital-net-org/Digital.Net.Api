@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
+using Digital.Net.Entities.Attributes;
 using Digital.Net.Entities.Models;
 using Microsoft.EntityFrameworkCore;
 using SafariDigital.Data.Models.Views;
@@ -13,7 +14,7 @@ public class Frame : EntityGuid
     [Column("Name"), Required, MaxLength(1024)]
     public required string Name { get; set; }
 
-    [Column("Data")]
+    [Column("Data"), DataFlag("puck")]
     public JsonDocument? Data { get; set; }
 
     public virtual View? View { get; set; }

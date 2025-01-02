@@ -36,7 +36,7 @@
         <PackageReference Include="Digital.Net.Entities" Version="0.2.1"/>
         <PackageReference Include="Digital.Net.Authentication" Version="0.2.2"/>
         <PackageReference Include="Digital.Net.Database" Version="0.2.1"/>
-        <PackageReference Include="Digital.Net.Mvc" Version="0.2.1"/>
+        <PackageReference Include="Digital.Net.Mvc" Version="0.2.2"/>
     </ItemGroup>
 
 </Project>
