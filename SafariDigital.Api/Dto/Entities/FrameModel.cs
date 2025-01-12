@@ -1,4 +1,3 @@
-using System.Text.Json;
 using SafariDigital.Data.Models.Frames;
 
 namespace SafariDigital.Api.Dto.Entities;
@@ -20,7 +19,7 @@ public class FrameModel
 
     public Guid? Id { get; init; }
     public string Name { get; set; }
-    public JsonDocument? Data { get; set; }
+    public string? Data { get; set; }
     public DateTime? CreatedAt { get; init; }
     public DateTime? UpdatedAt { get; init; }
 }

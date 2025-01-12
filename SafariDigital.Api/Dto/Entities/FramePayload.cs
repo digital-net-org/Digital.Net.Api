@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json;
 
 namespace SafariDigital.Api.Dto.Entities;
 
@@ -9,7 +8,7 @@ public class FramePayload
     {
     }
 
-    public FramePayload(JsonDocument? data, string name)
+    public FramePayload(string? data, string name)
     {
         Data = data;
         Name = name;
@@ -18,5 +17,5 @@ public class FramePayload
     [Required]
     public string Name { get; set; }
 
-    public JsonDocument? Data { get; set; }
+    public string? Data { get; set; }
 }

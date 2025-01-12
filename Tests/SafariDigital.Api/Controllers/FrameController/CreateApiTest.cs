@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Digital.Net.Entities.Repositories;
 using Digital.Net.TestTools.Integration;
 using SafariDigital.Api;
@@ -26,11 +25,10 @@ public class CreateApiTest : IntegrationTest<Program, SafariDigitalContext>
     {
         var (user, password) = _userFactory.CreateUser();
         await BaseClient.Login(user.Login, password);
-        await BaseClient.CreateFrame(new FramePayload(JsonDocument.Parse("{\"test\":\"test\"}"), "TestFrame"));
+        await BaseClient.CreateFrame(new FramePayload("{\"test\":\"test\"}", "TestFrame"));
 
         var saved = GetContext().Frames.First();
-        var test = GetContext().Frames.ToList();
-        Assert.Equal("{\"test\":\"test\"}", saved.Data!.ToString());
+        Assert.Equal("{\"test\":\"test\"}", saved.Data);
         _userFactory.Dispose();
     }
 
@@ -40,13 +38,13 @@ public class CreateApiTest : IntegrationTest<Program, SafariDigitalContext>
         var (user, password) = _userFactory.CreateUser();
         await BaseClient.Login(user.Login, password);
 
-        await BaseClient.CreateFrame(new FramePayload(JsonDocument.Parse("{\"test\":\"test\"}"), "TestFrame"));
+        await BaseClient.CreateFrame(new FramePayload("{\"test\":\"test\"}", "TestFrame"));
         var saved = GetContext().Frames.First();
 
         await BaseClient.PatchFrame(saved.Id, new PatchFramePayload { Data = "TestData2" });
         saved = GetContext().Frames.First();
 
-        Assert.Equal("TestData2", saved.Data!.ToString());
+        Assert.Equal("TestData2", saved.Data!);
         _userFactory.Dispose();
     }
 }

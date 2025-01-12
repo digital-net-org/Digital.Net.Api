@@ -1,4 +1,3 @@
-using System.Text.Json;
 using SafariDigital.Api.Dto.Entities;
 using SafariDigital.Data.Models.Frames;
 
@@ -29,7 +28,7 @@ public class FrameTest
         {
             Id = Guid.Empty,
             Name = "title",
-            Data = JsonDocument.Parse("{\"test\":\"test\"}"),
+            Data = "{\"test\":\"test\"}",
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -39,7 +38,7 @@ public class FrameTest
         Assert.IsType<FrameModel>(model);
         Assert.Equal(frame.Id, model.Id);
         Assert.Equal(frame.Name, model.Name);
-        Assert.Equal(frame.Data.RootElement, model.Data?.RootElement);
+        Assert.Equal(frame.Data, model.Data);
         Assert.Equal(frame.CreatedAt, model.CreatedAt);
         Assert.Equal(frame.UpdatedAt, model.UpdatedAt);
     }
