@@ -13,6 +13,8 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Digital.Net\Digital.Net.Http\Digital.Net.Http.csproj" />
+        <ProjectReference Include="..\Digital.Net\Digital.Net.TestTools\Digital.Net.TestTools.csproj" />
         <ProjectReference Include="..\SafariDigital.Core\SafariDigital.Core.csproj"/>
         <ProjectReference Include="..\SafariDigital.Api\SafariDigital.Api.csproj"/>
         <ProjectReference Include="..\SafariDigital.Services\SafariDigital.Services.csproj"/>
@@ -31,11 +33,6 @@
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0"/>
         <PackageReference Include="xunit" Version="2.9.2"/>
         <PackageReference Include="Moq" Version="4.20.72"/>
-        <PackageReference Include="Digital.Net.Core" Version="0.2.2"/>
-        <PackageReference Include="Digital.Net.Entities" Version="0.2.2"/>
-        <PackageReference Include="Digital.Net.Mvc" Version="0.2.2"/>
-        <PackageReference Include="Digital.Net.Http" Version="0.2.1"/>
-        <PackageReference Include="Digital.Net.TestTools" Version="0.2.1"/>
     </ItemGroup>
 
 </Project>

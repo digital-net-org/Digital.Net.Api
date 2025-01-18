@@ -32,11 +32,14 @@
         <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="7.2.0"/>
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="7.2.0"/>
 
-        <PackageReference Include="Digital.Net.Core" Version="0.3.0"/>
-        <PackageReference Include="Digital.Net.Entities" Version="0.3.0"/>
-        <PackageReference Include="Digital.Net.Authentication" Version="0.3.0"/>
-        <PackageReference Include="Digital.Net.Database" Version="0.3.0"/>
-        <PackageReference Include="Digital.Net.Mvc" Version="0.3.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../Digital.Net/Digital.Net.Core/Digital.Net.Core.csproj"/>
+        <ProjectReference Include="../Digital.Net/Digital.Net.Entities/Digital.Net.Entities.csproj"/>
+        <ProjectReference Include="../Digital.Net/Digital.Net.Authentication/Digital.Net.Authentication.csproj"/>
+        <ProjectReference Include="../Digital.Net/Digital.Net.Database/Digital.Net.Database.csproj"/>
+        <ProjectReference Include="../Digital.Net/Digital.Net.Mvc/Digital.Net.Mvc.csproj"/>
     </ItemGroup>
 
 </Project>
