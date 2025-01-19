@@ -5,5 +5,5 @@ namespace SafariDigital.Api.Dto.Entities;
 public class ViewPayload
 {
     [Required]
-    private string Title { get; set; }
+    public string Title { get; set; }
 }
