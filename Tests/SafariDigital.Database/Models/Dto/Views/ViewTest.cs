@@ -21,6 +21,7 @@ public class ViewTest
         {
             Id = Guid.NewGuid(),
             Title = "title",
+            Path = "/",
             IsPublished = true,
             FrameId = Guid.Empty,
             Frame = new Frame

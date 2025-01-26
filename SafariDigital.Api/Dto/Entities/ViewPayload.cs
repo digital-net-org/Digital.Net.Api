@@ -6,4 +6,7 @@ public class ViewPayload
 {
     [Required]
     public string Title { get; set; }
+
+    [Required]
+    public string Path { get; set; }
 }

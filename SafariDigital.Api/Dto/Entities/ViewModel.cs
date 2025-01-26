@@ -14,6 +14,7 @@ public class ViewModel
     {
         Id = view.Id;
         Title = view.Title;
+        Path = view.Path;
         IsPublished = view.IsPublished;
         FrameId = view.FrameId;
         Frame = view.Frame is not null ? Mapper.MapFromConstructor<Frame, FrameLightModel>(view.Frame) : null;
@@ -23,6 +24,7 @@ public class ViewModel
 
     public Guid? Id { get; init; }
     public string? Title { get; set; }
+    public string? Path { get; set; }
     public bool? IsPublished { get; set; }
     public Guid? FrameId { get; set; }
     public FrameLightModel? Frame { get; init; }

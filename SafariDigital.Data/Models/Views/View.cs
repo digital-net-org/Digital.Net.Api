@@ -12,6 +12,9 @@ public class View : EntityGuid
     [Column("Title"), Required, MaxLength(1024)]
     public required string Title { get; set; }
 
+    [Column("Path"), Required, MaxLength(128)] // TODO: Add regex to enforce path structure
+    public required string Path { get; set; }
+
     [Column("IsPublished"), Required]
     public bool IsPublished { get; set; } = false;
 
