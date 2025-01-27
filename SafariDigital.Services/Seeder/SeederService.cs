@@ -14,7 +14,7 @@ public class SeederService(
     public async Task SeedDevelopmentDataAsync()
     {
         var result = await userSeeder.SeedAsync(DevelopmentSeed.Users);
-        if (result.HasError)
+        if (result.HasError())
             throw new Exception(result.Errors.First().Message);
 
         foreach (var apiKey in result.Value!.Select(

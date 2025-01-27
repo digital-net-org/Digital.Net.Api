@@ -44,7 +44,7 @@ public class UserService(
             return new Result<Document>().AddError(ApplicationMessageCode.InvalidFormat);
 
         var result = await documentService.SaveImageDocumentAsync(form, DocumentType.Avatar);
-        if (result.HasError || result.Value is null)
+        if (result.HasError() || result.Value is null)
             return result;
         if (user.AvatarId is not null)
             await RemoveUserAvatar(user);
