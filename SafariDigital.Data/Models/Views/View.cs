@@ -6,13 +6,17 @@ using SafariDigital.Data.Models.Frames;
 
 namespace SafariDigital.Data.Models.Views;
 
-[Table("View"), Index(nameof(Title), IsUnique = true)]
+[
+    Table("View"),
+    Index(nameof(Title), IsUnique = true),
+    Index(nameof(Path), IsUnique = true)
+]
 public class View : EntityGuid
 {
     [Column("Title"), Required, MaxLength(1024)]
     public required string Title { get; set; }
 
-    [Column("Path"), Required, MaxLength(128)] // TODO: Add regex to enforce path structure
+    [Column("Path"), Required, MaxLength(128)]
     public required string Path { get; set; }
 
     [Column("IsPublished"), Required]
