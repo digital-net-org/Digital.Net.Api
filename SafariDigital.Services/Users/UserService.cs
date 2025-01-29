@@ -43,7 +43,7 @@ public class UserService(
         if (!form.IsImage())
             return new Result<Document>().AddError(ApplicationMessageCode.InvalidFormat);
 
-        var result = await documentService.SaveImageDocumentAsync(form, DocumentType.Avatar);
+        var result = await documentService.SaveImageDocumentAsync(form);
         if (result.HasError() || result.Value is null)
             return result;
         if (user.AvatarId is not null)

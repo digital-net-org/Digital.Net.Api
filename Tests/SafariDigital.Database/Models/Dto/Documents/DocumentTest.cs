@@ -16,7 +16,6 @@ public class DocumentTest
         Assert.IsType<DocumentModel>(documentModel);
         Assert.Equal(document.Id, documentModel.Id);
         Assert.Equal(document.FileName, documentModel.FileName);
-        Assert.Equal(document.DocumentType, documentModel.DocumentType);
         Assert.Equal(document.MimeType, documentModel.MimeType);
         Assert.Equal(document.FileSize, documentModel.FileSize);
         Assert.Equal(document.Uploader?.Id, documentModel.UploaderId);

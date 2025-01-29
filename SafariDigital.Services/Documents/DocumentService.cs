@@ -22,7 +22,7 @@ public class DocumentService(
 {
     private string FileSystemPath => configuration.GetSection<string>(ApplicationSettingPath.FileSystemPath);
 
-    public async Task<Result<Document>> SaveImageDocumentAsync(IFormFile form, DocumentType type, int? quality = null)
+    public async Task<Result<Document>> SaveImageDocumentAsync(IFormFile form, int? quality = null)
     {
         try
         {
@@ -41,7 +41,7 @@ public class DocumentService(
                 ContentType = "image/jpeg"
             };
 
-            var result = await SaveDocumentAsync(compressed, type);
+            var result = await SaveDocumentAsync(compressed);
             result.Merge(await compressed.TryWriteFileAsync(Path.Combine(FileSystemPath, fileName)));
             return result;
         }
@@ -78,7 +78,7 @@ public class DocumentService(
     public Result WriteDocument(IFormFile form, Document document) =>
         form.TryWriteFile(Path.Combine(FileSystemPath, document.FileName));
 
-    private async Task<Result<Document>> SaveDocumentAsync(IFormFile file, DocumentType type)
+    private async Task<Result<Document>> SaveDocumentAsync(IFormFile file)
     {
         var result = new Result<Document>();
         try
@@ -87,7 +87,6 @@ public class DocumentService(
             result.Value = new Document
             {
                 FileName = file.FileName,
-                DocumentType = type,
                 MimeType = file.ContentType,
                 FileSize = file.Length,
                 UploaderId = user.Id

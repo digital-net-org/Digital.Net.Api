@@ -12,7 +12,6 @@ public class DocumentModel
     {
         Id = document.Id;
         FileName = document.FileName;
-        DocumentType = document.DocumentType;
         MimeType = document.MimeType;
         FileSize = document.FileSize;
         UploaderId = document.Uploader?.Id;
@@ -22,7 +21,6 @@ public class DocumentModel
 
     public Guid Id { get; init; }
     public string? FileName { get; init; }
-    public DocumentType DocumentType { get; init; }
     public string? MimeType { get; init; }
     public long FileSize { get; init; }
     public Guid? UploaderId { get; init; }

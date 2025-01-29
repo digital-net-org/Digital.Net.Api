@@ -13,9 +13,6 @@ public class Document : EntityGuid
     [Column("FileName"), MaxLength(64), Required, ReadOnly]
     public required string FileName { get; set; }
 
-    [Column("FileType"), Required, ReadOnly]
-    public required DocumentType DocumentType { get; set; }
-
     [Column("MimeType"), MaxLength(255), Required, ReadOnly]
     public required string MimeType { get; set; }
 
@@ -28,7 +25,3 @@ public class Document : EntityGuid
     public virtual User? Uploader { get; set; }
 }
 
-public enum DocumentType
-{
-    Avatar
-}

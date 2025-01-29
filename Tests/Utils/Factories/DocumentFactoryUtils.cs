@@ -9,7 +9,6 @@ public static class DocumentFactoryUtils
         new()
         {
             FileName = Guid.NewGuid() + ".png",
-            DocumentType = DocumentType.Avatar,
             MimeType = "image/png",
             FileSize = Randomizer.GenerateRandomInt(),
             Uploader = null
