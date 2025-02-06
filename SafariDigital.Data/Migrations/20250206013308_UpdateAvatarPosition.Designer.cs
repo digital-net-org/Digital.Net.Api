@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SafariDigital.Data.Context;
@@ -11,9 +12,11 @@ using SafariDigital.Data.Context;
 namespace SafariDigital.Data.Migrations
 {
     [DbContext(typeof(SafariDigitalContext))]
-    partial class SafariDigitalContextModelSnapshot : ModelSnapshot
+    [Migration("20250206013308_UpdateAvatarPosition")]
+    partial class UpdateAvatarPosition
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

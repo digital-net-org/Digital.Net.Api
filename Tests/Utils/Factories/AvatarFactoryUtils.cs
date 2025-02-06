@@ -8,8 +8,8 @@ public static class AvatarFactoryUtils
     public static Avatar CreateAvatar() =>
         new()
         {
-            PosX = Randomizer.GenerateRandomInt(),
-            PosY = Randomizer.GenerateRandomInt(),
+            X = Randomizer.GenerateRandomInt(),
+            Y = Randomizer.GenerateRandomInt(),
             Document = DocumentFactoryUtils.CreateDocument()
         };
 }

@@ -12,12 +12,12 @@ public class AvatarModel
     {
         Id = avatar.Id;
         DocumentId = avatar.DocumentId;
-        PosX = avatar.PosX;
-        PosY = avatar.PosY;
+        X = avatar.X;
+        Y = avatar.Y;
     }
 
     public Guid Id { get; init; }
     public Guid? DocumentId { get; init; }
-    public int? PosX { get; init; }
-    public int? PosY { get; init; }
+    public int X { get; init; }
+    public int Y { get; init; }
 }
