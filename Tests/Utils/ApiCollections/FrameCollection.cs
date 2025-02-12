@@ -1,6 +1,6 @@
 using System.Net.Http.Json;
 using Digital.Lib.Net.Http.Factories;
-using SafariDigital.Api.Dto.Entities;
+using Digital.Pages.Api.Dto.Entities;
 using Tests.Utils.ApiCollections.Models;
 
 namespace Tests.Utils.ApiCollections;

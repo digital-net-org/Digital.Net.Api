@@ -1,0 +1,15 @@
+{
+    "$schema": "http://json.schemastore.org/launchsettings.json",
+    "profiles": {
+        "Digital.Pages.Api Development": {
+            "commandName": "Project",
+            "launchUrl": "swagger",
+            "applicationUrl": "http://localhost:5099",
+            "dotnetRunMessages": true,
+            "launchBrowser": true,
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        }
+    }
+}

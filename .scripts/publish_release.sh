@@ -1,2 +1,2 @@
 #!/bin/bash
-dotnet publish SafariDigital.Api/SafariDigital.Api.csproj -c Release -o release
+dotnet publish Digital.Pages.Api/Digital.Pages.Api.csproj -c Release -o release

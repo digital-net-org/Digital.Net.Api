@@ -5,4 +5,4 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-dotnet ef migrations add "$1" --project "SafariDigital.Data" --context "SafariDigitalContext"
+dotnet ef migrations add "$1" --project "Digital.Pages.Data" --context "SafariDigitalContext"

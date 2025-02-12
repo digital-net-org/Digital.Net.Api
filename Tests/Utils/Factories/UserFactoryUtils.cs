@@ -1,6 +1,6 @@
 ﻿using Digital.Lib.Net.Authentication.Services.Security;
 using Digital.Lib.Net.Core.Random;
-using SafariDigital.Data.Models.Users;
+using Digital.Pages.Data.Models.Users;
 
 namespace Tests.Utils.Factories;
 

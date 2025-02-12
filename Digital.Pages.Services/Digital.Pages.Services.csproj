@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <LangVersion>12</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Digital.Pages.Core\Digital.Pages.Core.csproj" />
+        <ProjectReference Include="..\Digital.Pages.Data\Digital.Pages.Data.csproj"/>
+    </ItemGroup>
+
+</Project>

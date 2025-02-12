@@ -15,9 +15,9 @@
     <ItemGroup>
         <ProjectReference Include="..\Digital.Lib\Digital.Lib.Net.Http\Digital.Lib.Net.Http.csproj" />
         <ProjectReference Include="..\Digital.Lib\Digital.Lib.Net.TestTools\Digital.Lib.Net.TestTools.csproj" />
-        <ProjectReference Include="..\SafariDigital.Core\SafariDigital.Core.csproj"/>
-        <ProjectReference Include="..\SafariDigital.Api\SafariDigital.Api.csproj"/>
-        <ProjectReference Include="..\SafariDigital.Services\SafariDigital.Services.csproj"/>
+        <ProjectReference Include="..\Digital.Pages.Core\Digital.Pages.Core.csproj" />
+        <ProjectReference Include="..\Digital.Pages.Api\Digital.Pages.Api.csproj" />
+        <ProjectReference Include="..\Digital.Pages.Services\Digital.Pages.Services.csproj" />
     </ItemGroup>
 
     <ItemGroup>

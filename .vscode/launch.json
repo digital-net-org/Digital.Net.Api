@@ -2,13 +2,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "SafariDigital.Api Debug",
+      "name": "Digital.Pages.Api Debug",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "buildapi",
-      "program": "${workspaceFolder}/SafariDigital.Api/bin/Debug/net8.0/SafariDigital.Api.dll",
+      "program": "${workspaceFolder}/Digital.Pages.Api/bin/Debug/net8.0/Digital.Pages.Api.dll",
       "args": [],
-      "cwd": "${workspaceFolder}/SafariDigital.Api",
+      "cwd": "${workspaceFolder}/Digital.Pages.Api",
       "stopAtEntry": false,
       "serverReadyAction": {
         "action": "openExternally",
@@ -35,13 +35,13 @@
       }
     },
     {
-      "name": "SafariDigital.Api Test",
+      "name": "Digital.Pages.Api Test",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "test",
-      "program": "${workspaceFolder}/SafariDigital.Api/bin/Debug/net8.0/SafariDigital.Api.dll",
+      "program": "${workspaceFolder}/Digital.Pages.Api/bin/Debug/net8.0/Digital.Pages.Api.dll",
       "args": [],
-      "cwd": "${workspaceFolder}/SafariDigital.Api",
+      "cwd": "${workspaceFolder}/Digital.Pages.Api",
       "stopAtEntry": false,
       "internalConsoleOptions": "openOnSessionStart",
       "env": {
