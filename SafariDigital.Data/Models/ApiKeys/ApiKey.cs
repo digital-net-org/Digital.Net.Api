@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using Digital.Net.Authentication.Models.Authorizations;
-using Digital.Net.Authentication.Services.Security;
+using Digital.Lib.Net.Authentication.Models.Authorizations;
+using Digital.Lib.Net.Authentication.Services.Security;
 using Microsoft.EntityFrameworkCore;
 
 namespace SafariDigital.Data.Models.ApiKeys;

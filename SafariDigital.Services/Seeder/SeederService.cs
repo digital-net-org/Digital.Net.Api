@@ -1,5 +1,5 @@
-using Digital.Net.Entities.Repositories;
-using Digital.Net.Entities.Services;
+using Digital.Lib.Net.Entities.Repositories;
+using Digital.Lib.Net.Entities.Services;
 using SafariDigital.Data.Models.ApiKeys;
 using SafariDigital.Data.Models.Users;
 using SafariDigital.Services.Seeder.Seeds;

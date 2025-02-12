@@ -35,11 +35,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../Digital.Net/Digital.Net.Core/Digital.Net.Core.csproj"/>
-        <ProjectReference Include="../Digital.Net/Digital.Net.Entities/Digital.Net.Entities.csproj"/>
-        <ProjectReference Include="../Digital.Net/Digital.Net.Authentication/Digital.Net.Authentication.csproj"/>
-        <ProjectReference Include="../Digital.Net/Digital.Net.Database/Digital.Net.Database.csproj"/>
-        <ProjectReference Include="../Digital.Net/Digital.Net.Mvc/Digital.Net.Mvc.csproj"/>
+        <ProjectReference Include="../Digital.Lib/Digital.Lib.Net.Core/Digital.Lib.Net.Core.csproj"/>
+        <ProjectReference Include="../Digital.Lib/Digital.Lib.Net.Entities/Digital.Lib.Net.Entities.csproj"/>
+        <ProjectReference Include="../Digital.Lib/Digital.Lib.Net.Authentication/Digital.Lib.Net.Authentication.csproj"/>
+        <ProjectReference Include="../Digital.Lib/Digital.Lib.Net.Database/Digital.Lib.Net.Database.csproj"/>
+        <ProjectReference Include="../Digital.Lib/Digital.Lib.Net.Mvc/Digital.Lib.Net.Mvc.csproj"/>
     </ItemGroup>
 
 </Project>

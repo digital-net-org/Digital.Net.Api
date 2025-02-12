@@ -1,9 +1,9 @@
 using System.Net.Http.Json;
-using Digital.Net.Core.Messages;
-using Digital.Net.Core.Random;
-using Digital.Net.Entities.Repositories;
-using Digital.Net.Mvc.Controllers.Pagination;
-using Digital.Net.TestTools.Integration;
+using Digital.Lib.Net.Core.Messages;
+using Digital.Lib.Net.Core.Random;
+using Digital.Lib.Net.Entities.Repositories;
+using Digital.Lib.Net.Mvc.Controllers.Pagination;
+using Digital.Lib.Net.TestTools.Integration;
 using SafariDigital.Api;
 using SafariDigital.Api.Dto.Entities;
 using SafariDigital.Data.Context;

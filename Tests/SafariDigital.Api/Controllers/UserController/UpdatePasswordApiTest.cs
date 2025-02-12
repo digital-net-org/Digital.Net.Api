@@ -1,6 +1,6 @@
 using System.Net;
-using Digital.Net.Entities.Repositories;
-using Digital.Net.TestTools.Integration;
+using Digital.Lib.Net.Entities.Repositories;
+using Digital.Lib.Net.TestTools.Integration;
 using SafariDigital.Api;
 using SafariDigital.Data.Context;
 using SafariDigital.Data.Models.Users;

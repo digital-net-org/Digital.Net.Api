@@ -1,4 +1,4 @@
-using Digital.Net.Mvc.Controllers.Pagination;
+using Digital.Lib.Net.Mvc.Controllers.Pagination;
 
 namespace SafariDigital.Api.Dto.Entities;
 

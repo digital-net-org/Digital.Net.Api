@@ -1,4 +1,4 @@
-using Digital.Net.Core.Random;
+using Digital.Lib.Net.Core.Random;
 using SafariDigital.Data.Models.Avatars;
 
 namespace Tests.Utils.Factories;

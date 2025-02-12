@@ -1,5 +1,5 @@
-using Digital.Net.Core.Extensions.HttpUtilities;
-using Digital.Net.Core.Messages;
+using Digital.Lib.Net.Core.Extensions.HttpUtilities;
+using Digital.Lib.Net.Core.Messages;
 using Newtonsoft.Json;
 
 namespace Tests.Utils.Client;

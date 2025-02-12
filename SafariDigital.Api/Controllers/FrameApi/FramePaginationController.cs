@@ -1,8 +1,8 @@
 using System.Linq.Expressions;
-using Digital.Net.Authentication.Attributes;
-using Digital.Net.Core.Predicates;
-using Digital.Net.Entities.Repositories;
-using Digital.Net.Mvc.Controllers.Pagination;
+using Digital.Lib.Net.Authentication.Attributes;
+using Digital.Lib.Net.Core.Predicates;
+using Digital.Lib.Net.Entities.Repositories;
+using Digital.Lib.Net.Mvc.Controllers.Pagination;
 using Microsoft.AspNetCore.Mvc;
 using SafariDigital.Api.Attributes;
 using SafariDigital.Api.Dto.Entities;

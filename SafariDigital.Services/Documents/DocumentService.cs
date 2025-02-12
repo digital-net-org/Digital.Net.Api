@@ -1,9 +1,9 @@
 ﻿using System.Security.Authentication;
-using Digital.Net.Authentication.Services.Authentication.ApiUsers;
-using Digital.Net.Core.Extensions.FormFileUtilities;
-using Digital.Net.Core.Messages;
-using Digital.Net.Core.Random;
-using Digital.Net.Entities.Repositories;
+using Digital.Lib.Net.Authentication.Services.Authentication.ApiUsers;
+using Digital.Lib.Net.Core.Extensions.FormFileUtilities;
+using Digital.Lib.Net.Core.Messages;
+using Digital.Lib.Net.Core.Random;
+using Digital.Lib.Net.Entities.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using SafariDigital.Core.Application;

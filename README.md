@@ -1,45 +1,32 @@
-<p align="center">
-    <img width="300" src=".assets/logo-v1_full.svg">
-</p>
-<div align="center">
-    <a href="https://github.com/SafariLib"><img src="https://img.shields.io/badge/SafariLib-yellow.svg"></a>
-    <a href="https://dotnet.microsoft.com/en-us/"><img src="https://img.shields.io/badge/.net_8.0-blue.svg"></a>
+<h1>
+    <img width="300" src="https://raw.githubusercontent.com/digital-net-org/.github/refs/heads/master/assets/logo_v2025.svg">
+</h1>
+<div justify="center">
+    <a href="https://www.docker.com/"><img src="https://img.shields.io/badge/Docker-blue.svg?color=1d63ed"></a>
+        <a href="https://dotnet.microsoft.com/en-us/languages/csharp"><img src="https://img.shields.io/badge/C%23-blue.svg?color=622075"></a>
+    <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview?WT.mc_id=dotnet-35129-website"><img src="https://img.shields.io/badge/Dotnet-blue.svg?color=4f2bce"></a>
 </div>
 
-<p align="center">
-    <em>safaridigital.fr backend applications.</em>
-</p>
+_@digital-net-org/digital-api_
 
----
+Digital Net Rest API solution.
+
+## :memo: Configuration
+
+You can configurate the application using environment variables and volume while mounting the docker image.
+
+### :whale2: Dockerfile
 
 #### Environment variables
 
-```
-POSTGRES_DB="string"
-POSTGRES_USER="string"
-POSTGRES_PASSWORD="string"
-POSTGRES_HOST="string"
-POSTGRES_PORT="int"
-
-ASPNETCORE_ENVIRONMENT="Development" or "Production"
-
-ConnectionStrings__Default="string"
-AllowedOrigins="string"
-
-FileSystem__path="string"
-FileSystem__maxAvatarSize="long" // expressed in bytes
-
-Jwt__Secret="string"
-Jwt__Issuer="string"
-Jwt__Audience="string"
-Jwt__RefreshExpiration="long"
-Jwt__BearerExpiration="long"
-Jwt__CookieName="string"
-Jwt__MaxTokenAllowed="int"
-
-Security__MaxLoginAttempts="int"
-Security__MaxLoginWindow="long"
-Security__MaxRequestAllowed="int"
-Security__MaxRequestWindow="long"
-Security__PasswordRegex="string"
-```
+| Variable                 | Type       | Description                                                            |
+|--------------------------|------------|------------------------------------------------------------------------|
+| `ASPNETCORE_ENVIRONMENT` | `string`   | Supports `Development` or `Production`.                                |
+| `DB_CONNECTION_STRING`   | `string`   | The Database connection string.                                        |
+| `ALLOWED_ORIGINS`        | `string[]` | Cors allowed origins.                                                  |
+| `APP_URL`                | `string`   | Url the API is served from.                                            |
+| `AUDIENCE`               | `string[]` | The Database connection string.                                        |
+| `JWT_EXP_BEARER`         | `number`   | The validity duration of the bearer token, expressed in milliseconds.  |
+| `JWT_EXP_REFRESH`        | `number`   | The validity duration of the refresh token, expressed in milliseconds. |
+| `JWT_COOKIE_NAME`        | `string`   | The name of the cookie containing the token.                           |
+| `PASSWORD_REGEX`         | `string`   | Admins password regular expression.                                    |

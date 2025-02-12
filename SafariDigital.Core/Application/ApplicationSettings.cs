@@ -1,4 +1,4 @@
-using Digital.Net.Core.Extensions.EnumUtilities;
+using Digital.Lib.Net.Core.Extensions.EnumUtilities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 

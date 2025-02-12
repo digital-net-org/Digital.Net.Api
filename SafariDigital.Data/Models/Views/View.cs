@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Digital.Net.Entities.Models;
+using Digital.Lib.Net.Entities.Models;
 using Microsoft.EntityFrameworkCore;
 using SafariDigital.Data.Models.Frames;
 

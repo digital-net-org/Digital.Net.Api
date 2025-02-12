@@ -1,8 +1,8 @@
 using System.Threading.RateLimiting;
-using Digital.Net.Authentication;
-using Digital.Net.Authentication.Options.Jwt;
-using Digital.Net.Core.Application;
-using Digital.Net.Mvc;
+using Digital.Lib.Net.Authentication;
+using Digital.Lib.Net.Authentication.Options.Jwt;
+using Digital.Lib.Net.Core.Application;
+using Digital.Lib.Net.Mvc;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.OpenApi.Models;

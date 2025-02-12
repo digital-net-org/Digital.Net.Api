@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using Digital.Net.Authentication.Models.Authorizations;
+using Digital.Lib.Net.Authentication.Models.Authorizations;
 
 namespace SafariDigital.Data.Models.ApiTokens;
 

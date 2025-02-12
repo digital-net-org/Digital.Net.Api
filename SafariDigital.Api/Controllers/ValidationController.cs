@@ -1,4 +1,4 @@
-using Digital.Net.Authentication.Attributes;
+using Digital.Lib.Net.Authentication.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using SafariDigital.Api.Attributes;
 using SafariDigital.Core;

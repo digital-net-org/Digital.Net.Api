@@ -1,7 +1,7 @@
-using Digital.Net.Authentication.Attributes;
-using Digital.Net.Core.Messages;
-using Digital.Net.Entities.Services;
-using Digital.Net.Mvc.Controllers.Crud;
+using Digital.Lib.Net.Authentication.Attributes;
+using Digital.Lib.Net.Core.Messages;
+using Digital.Lib.Net.Entities.Services;
+using Digital.Lib.Net.Mvc.Controllers.Crud;
 using Microsoft.AspNetCore.Mvc;
 using SafariDigital.Api.Attributes;
 using SafariDigital.Api.Dto.Entities;

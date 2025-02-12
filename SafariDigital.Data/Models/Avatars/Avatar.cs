@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Digital.Net.Core.Geometry.Models;
-using Digital.Net.Entities.Models;
+using Digital.Lib.Net.Core.Geometry.Models;
+using Digital.Lib.Net.Entities.Models;
 using SafariDigital.Data.Models.Documents;
 
 namespace SafariDigital.Data.Models.Avatars;

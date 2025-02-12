@@ -1,5 +1,5 @@
-using Digital.Net.Authentication.Attributes;
-using Digital.Net.Entities.Repositories;
+using Digital.Lib.Net.Authentication.Attributes;
+using Digital.Lib.Net.Entities.Repositories;
 using Microsoft.AspNetCore.Mvc.Filters;
 using SafariDigital.Data.Models.Users;
 

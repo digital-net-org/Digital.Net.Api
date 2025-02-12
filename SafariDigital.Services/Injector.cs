@@ -1,4 +1,4 @@
-using Digital.Net.Entities.Services;
+using Digital.Lib.Net.Entities.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using SafariDigital.Services.Documents;

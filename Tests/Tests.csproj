@@ -13,8 +13,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Digital.Net\Digital.Net.Http\Digital.Net.Http.csproj" />
-        <ProjectReference Include="..\Digital.Net\Digital.Net.TestTools\Digital.Net.TestTools.csproj" />
+        <ProjectReference Include="..\Digital.Lib\Digital.Lib.Net.Http\Digital.Lib.Net.Http.csproj" />
+        <ProjectReference Include="..\Digital.Lib\Digital.Lib.Net.TestTools\Digital.Lib.Net.TestTools.csproj" />
         <ProjectReference Include="..\SafariDigital.Core\SafariDigital.Core.csproj"/>
         <ProjectReference Include="..\SafariDigital.Api\SafariDigital.Api.csproj"/>
         <ProjectReference Include="..\SafariDigital.Services\SafariDigital.Services.csproj"/>

@@ -1,6 +1,6 @@
-using Digital.Net.Authentication.Attributes;
-using Digital.Net.Authentication.Controllers;
-using Digital.Net.Authentication.Services.Authentication;
+using Digital.Lib.Net.Authentication.Attributes;
+using Digital.Lib.Net.Authentication.Controllers;
+using Digital.Lib.Net.Authentication.Services.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using SafariDigital.Api.Attributes;
 using SafariDigital.Data.Models.Users;

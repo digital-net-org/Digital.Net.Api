@@ -1,3 +1,3 @@
-[submodule "Digital.Net"]
-	path = Digital.Net
-	url = git@github.com:Safari-digital/Digital.Net.git
+[submodule "Digital.Lib.Net"]
+	path = Digital.Lib
+	url = git@github.com:digital-net-org/Digital.Lib.Net.git

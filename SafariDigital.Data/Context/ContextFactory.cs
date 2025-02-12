@@ -1,4 +1,4 @@
-using Digital.Net.Core.Application;
+using Digital.Lib.Net.Core.Application;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 

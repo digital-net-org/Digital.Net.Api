@@ -1,6 +1,6 @@
 using System.Net.Http.Json;
 using System.Text;
-using Digital.Net.Core.Extensions.HttpUtilities;
+using Digital.Lib.Net.Core.Extensions.HttpUtilities;
 using SafariDigital.Api.Dto.Entities;
 using SafariDigital.Api.Dto.Payloads.UserApi;
 

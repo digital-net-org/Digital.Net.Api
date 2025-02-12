@@ -1,5 +1,5 @@
 using System.Net.Http.Json;
-using Digital.Net.Http.Factories;
+using Digital.Lib.Net.Http.Factories;
 using SafariDigital.Api.Dto.Entities;
 using Tests.Utils.ApiCollections.Models;
 

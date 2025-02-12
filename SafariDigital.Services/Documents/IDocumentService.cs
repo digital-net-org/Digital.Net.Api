@@ -1,4 +1,4 @@
-﻿using Digital.Net.Core.Messages;
+﻿using Digital.Lib.Net.Core.Messages;
 using Microsoft.AspNetCore.Http;
 using SafariDigital.Data.Models.Documents;
 

@@ -1,8 +1,8 @@
-using Digital.Net.Core.Application;
-using Digital.Net.Core.Environment;
-using Digital.Net.Database;
-using Digital.Net.Database.Options;
-using Digital.Net.Entities;
+using Digital.Lib.Net.Core.Application;
+using Digital.Lib.Net.Core.Environment;
+using Digital.Lib.Net.Database;
+using Digital.Lib.Net.Database.Options;
+using Digital.Lib.Net.Entities;
 using Microsoft.AspNetCore.Builder;
 using SafariDigital.Data.Context;
 

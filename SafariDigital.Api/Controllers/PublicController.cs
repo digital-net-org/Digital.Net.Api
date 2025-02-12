@@ -1,4 +1,4 @@
-using Digital.Net.Core.Application;
+using Digital.Lib.Net.Core.Application;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SafariDigital.Api.Controllers;

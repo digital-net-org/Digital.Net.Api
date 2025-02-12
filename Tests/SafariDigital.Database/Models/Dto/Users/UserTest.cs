@@ -1,4 +1,4 @@
-using Digital.Net.Core.Models;
+using Digital.Lib.Net.Core.Models;
 using SafariDigital.Api.Dto.Entities;
 using SafariDigital.Data.Models.Users;
 

@@ -1,5 +1,5 @@
 using System.Net.Http.Json;
-using Digital.Net.Authentication.Controllers.Models;
+using Digital.Lib.Net.Authentication.Controllers.Models;
 using Tests.Utils.Client;
 
 namespace Tests.Utils.ApiCollections;

@@ -1,6 +1,6 @@
-using Digital.Net.Authentication.Services.Security;
-using Digital.Net.Core.Messages;
-using Digital.Net.Entities.Repositories;
+using Digital.Lib.Net.Authentication.Services.Security;
+using Digital.Lib.Net.Core.Messages;
+using Digital.Lib.Net.Entities.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using SafariDigital.Core.Application;

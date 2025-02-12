@@ -1,4 +1,4 @@
-﻿using Digital.Net.Core.Messages;
+﻿using Digital.Lib.Net.Core.Messages;
 using SafariDigital.Data.Models.Documents;
 
 namespace SafariDigital.Services.Documents;

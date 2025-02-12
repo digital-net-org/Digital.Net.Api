@@ -1,5 +1,5 @@
-using Digital.Net.Core.Models;
-using Digital.Net.Entities.Repositories;
+using Digital.Lib.Net.Core.Models;
+using Digital.Lib.Net.Entities.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using SafariDigital.Api.Dto.Entities;
 using SafariDigital.Data.Models.Views;

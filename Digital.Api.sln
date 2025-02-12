@@ -13,33 +13,33 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SafariDigital.Services", "S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{AA5B5738-B4D2-497F-B366-88B1F3D30EBE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Authentication", "Digital.Net\Digital.Net.Authentication\Digital.Net.Authentication.csproj", "{44E4E498-8078-47B9-9DB7-71DE9133C6F6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Lib.NetAuthentication", "Digital.Lib\Digital.Lib.Net.Authentication\Digital.Lib.Net.Authentication.csproj", "{44E4E498-8078-47B9-9DB7-71DE9133C6F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Authentication.Test", "Digital.Net\Digital.Net.Authentication.Test\Digital.Net.Authentication.Test.csproj", "{A217E435-406E-4780-AC25-D444AAE79638}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Lib.NetAuthentication.Test", "Digital.Lib\Digital.Lib.Net.Authentication.Test\Digital.Lib.Net.Authentication.Test.csproj", "{A217E435-406E-4780-AC25-D444AAE79638}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Core", "Digital.Net\Digital.Net.Core\Digital.Net.Core.csproj", "{7D92E993-7ECE-4E6A-9C0B-28ABC43EE8C9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Lib.NetCore", "Digital.Lib\Digital.Lib.Net.Core\Digital.Lib.Net.Core.csproj", "{7D92E993-7ECE-4E6A-9C0B-28ABC43EE8C9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Core.Test", "Digital.Net\Digital.Net.Core.Test\Digital.Net.Core.Test.csproj", "{3B9D484A-CA78-429C-A9B0-C23336F8DB36}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Lib.NetCore.Test", "Digital.Lib\Digital.Lib.Net.Core.Test\Digital.Lib.Net.Core.Test.csproj", "{3B9D484A-CA78-429C-A9B0-C23336F8DB36}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Database", "Digital.Net\Digital.Net.Database\Digital.Net.Database.csproj", "{C0E5CFA5-D080-45A4-B870-8695B0F0A4C9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Lib.NetDatabase", "Digital.Lib\Digital.Lib.Net.Database\Digital.Lib.Net.Database.csproj", "{C0E5CFA5-D080-45A4-B870-8695B0F0A4C9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Database.Test", "Digital.Net\Digital.Net.Database.Test\Digital.Net.Database.Test.csproj", "{F0016239-0B11-4B47-826E-00CEB8260651}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Lib.NetDatabase.Test", "Digital.Lib\Digital.Lib.Net.Database.Test\Digital.Lib.Net.Database.Test.csproj", "{F0016239-0B11-4B47-826E-00CEB8260651}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Entities", "Digital.Net\Digital.Net.Entities\Digital.Net.Entities.csproj", "{C6A1008C-6BF1-4388-94D5-BF2D4FF8BB93}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Lib.NetEntities", "Digital.Lib\Digital.Lib.Net.Entities\Digital.Lib.Net.Entities.csproj", "{C6A1008C-6BF1-4388-94D5-BF2D4FF8BB93}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Entities.Test", "Digital.Net\Digital.Net.Entities.Test\Digital.Net.Entities.Test.csproj", "{AB220169-96E3-40AC-82C4-A7E607B022BC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Lib.NetEntities.Test", "Digital.Lib\Digital.Lib.Net.Entities.Test\Digital.Lib.Net.Entities.Test.csproj", "{AB220169-96E3-40AC-82C4-A7E607B022BC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Http", "Digital.Net\Digital.Net.Http\Digital.Net.Http.csproj", "{C49ED102-9107-4A51-8C8A-2637D30EF23C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Lib.NetHttp", "Digital.Lib\Digital.Lib.Net.Http\Digital.Lib.Net.Http.csproj", "{C49ED102-9107-4A51-8C8A-2637D30EF23C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Http.Test", "Digital.Net\Digital.Net.Http.Test\Digital.Net.Http.Test.csproj", "{C929F899-A054-498F-ACBB-136976D60592}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Lib.NetHttp.Test", "Digital.Lib\Digital.Lib.Net.Http.Test\Digital.Lib.Net.Http.Test.csproj", "{C929F899-A054-498F-ACBB-136976D60592}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Mvc", "Digital.Net\Digital.Net.Mvc\Digital.Net.Mvc.csproj", "{FCE860CE-14B9-41AE-91B1-B0EBD21D7DAC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Lib.NetMvc", "Digital.Lib\Digital.Lib.Net.Mvc\Digital.Lib.Net.Mvc.csproj", "{FCE860CE-14B9-41AE-91B1-B0EBD21D7DAC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Mvc.Test", "Digital.Net\Digital.Net.Mvc.Test\Digital.Net.Mvc.Test.csproj", "{C0F3E08F-40D5-43BB-B814-77099E8CAE54}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Lib.NetMvc.Test", "Digital.Lib\Digital.Lib.Net.Mvc.Test\Digital.Lib.Net.Mvc.Test.csproj", "{C0F3E08F-40D5-43BB-B814-77099E8CAE54}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.TestTools", "Digital.Net\Digital.Net.TestTools\Digital.Net.TestTools.csproj", "{B06F5A0A-BB94-4D2A-B369-8ACA31E99FD7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Lib.NetTestTools", "Digital.Lib\Digital.Lib.Net.TestTools\Digital.Lib.Net.TestTools.csproj", "{B06F5A0A-BB94-4D2A-B369-8ACA31E99FD7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InternalTestProgram", "Digital.Net\InternalTestProgram\InternalTestProgram.csproj", "{12483578-6F9A-4C9D-BBCF-5A4463A20A1E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InternalTestProgram", "Digital.Lib\InternalTestProgram\InternalTestProgram.csproj", "{12483578-6F9A-4C9D-BBCF-5A4463A20A1E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

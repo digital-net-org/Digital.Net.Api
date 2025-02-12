@@ -1,5 +1,5 @@
-using Digital.Net.Entities.Repositories;
-using Digital.Net.TestTools.Integration;
+using Digital.Lib.Net.Entities.Repositories;
+using Digital.Lib.Net.TestTools.Integration;
 using SafariDigital.Api;
 using SafariDigital.Api.Dto.Entities;
 using SafariDigital.Data.Context;

@@ -1,4 +1,4 @@
-using Digital.Net.Core.Models;
+using Digital.Lib.Net.Core.Models;
 using SafariDigital.Data.Models.Frames;
 using SafariDigital.Data.Models.Views;
 
