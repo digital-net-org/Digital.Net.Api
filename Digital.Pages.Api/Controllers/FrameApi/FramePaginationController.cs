@@ -3,17 +3,16 @@ using Digital.Lib.Net.Authentication.Attributes;
 using Digital.Lib.Net.Core.Predicates;
 using Digital.Lib.Net.Entities.Repositories;
 using Digital.Lib.Net.Mvc.Controllers.Pagination;
-using Digital.Pages.Api.Attributes;
-using Digital.Pages.Api.Dto.Entities;
+using Digital.Pages.Api.Data;
+using Digital.Pages.Api.Data.Frames;
 using Microsoft.AspNetCore.Mvc;
-using Digital.Pages.Data.Models.Frames;
 
 namespace Digital.Pages.Api.Controllers.FrameApi;
 
 [ApiController, Route("frame"), Authorize(AuthorizeType.Jwt)]
 public class FramePaginationController(
-    IRepository<Frame> frameRepository
-) : PaginationController<Frame, FrameLightModel, FrameQuery>(frameRepository)
+    IRepository<Frame, DigitalPagesContext> frameRepository
+) : PaginationController<Frame, DigitalPagesContext, FrameLightDto, FrameQuery>(frameRepository)
 {
     protected override Expression<Func<Frame, bool>> Filter(Expression<Func<Frame, bool>> predicate, FrameQuery query)
     {
