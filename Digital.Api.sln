@@ -3,10 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Pages.Api", "Digital.Pages.Api\Digital.Pages.Api.csproj", "{6535D808-8036-4D83-BC9E-8F2884BB34A6}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Pages.Api.Test", "Digital.Pages.Api.Test\Digital.Pages.Api.Test.csproj", "{AA5B5738-B4D2-497F-B366-88B1F3D30EBE}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Lib.NetAuthentication", "Digital.Lib\Digital.Lib.Net.Authentication\Digital.Lib.Net.Authentication.csproj", "{44E4E498-8078-47B9-9DB7-71DE9133C6F6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Lib.NetAuthentication.Test", "Digital.Lib\Digital.Lib.Net.Authentication.Test\Digital.Lib.Net.Authentication.Test.csproj", "{A217E435-406E-4780-AC25-D444AAE79638}"
