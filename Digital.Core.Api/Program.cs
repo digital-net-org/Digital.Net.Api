@@ -1,3 +1,4 @@
+using Digital.Lib.Net.Bootstrap.Defaults;
 using Digital.Lib.Net.Entities.Context;
 using Digital.Lib.Net.Entities.Seeds;
 
@@ -15,7 +16,7 @@ public sealed class Program
             .UseCors()
             .UseAuthorization()
             .UseRateLimiter()
-            .UseSwagger()
+            .UseSwaggerPage("Digital.Core", "v1")
             .UseStaticFiles();
         app
             .MapControllers()
