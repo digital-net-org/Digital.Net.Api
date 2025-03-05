@@ -3,7 +3,7 @@ using System.Text;
 using Digital.Core.Api.Controllers.UserApi.Dto;
 using Digital.Lib.Net.Core.Extensions.HttpUtilities;
 
-namespace Digital.Core.Api.Test.TestUtilities;
+namespace Digital.Core.Api.Test.Collections;
 
 public static class UserCollection
 {
@@ -29,10 +29,4 @@ public static class UserCollection
 
     public static async Task<HttpResponseMessage> TestUserAuthorization(this HttpClient client) =>
         await client.GetAsync($"{BaseUrl}/role/0/test");
-
-    public static async Task<HttpResponseMessage> TestAdminAuthorization(this HttpClient client) =>
-        await client.GetAsync($"{BaseUrl}/user/role/1/test");
-
-    public static async Task<HttpResponseMessage> TestSuperAdminAuthorization(this HttpClient client) =>
-        await client.GetAsync($"{BaseUrl}/user/role/2/test");
 }

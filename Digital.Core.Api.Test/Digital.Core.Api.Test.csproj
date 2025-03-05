@@ -27,7 +27,6 @@
         <ProjectReference Include="..\Digital.Lib\Digital.Lib.Net.Http\Digital.Lib.Net.Http.csproj" />
         <ProjectReference Include="..\Digital.Lib\Digital.Lib.Net.TestTools\Digital.Lib.Net.TestTools.csproj" />
         <ProjectReference Include="..\Digital.Core.Api\Digital.Core.Api.csproj" />
-        <ProjectReference Include="..\Digital.Pages.Api\Digital.Pages.Api.csproj" />
     </ItemGroup>
 
     <ItemGroup>

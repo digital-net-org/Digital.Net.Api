@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Digital.Core.Api.Controllers.UserApi;
 
-[ApiController, Route("user"), Authorize(AuthorizeType.Jwt, UserRole.Admin)]
+[ApiController, Route("user"), Authorize(AuthorizeType.Any)]
 public class UserPaginationController(
     IRepository<User, DigitalContext> userRepository
 ) : PaginationController<User, DigitalContext, UserDto, UserQuery>(userRepository)
@@ -21,8 +21,6 @@ public class UserPaginationController(
             predicate = predicate.Add(x => x.Username.StartsWith(query.Username));
         if (!string.IsNullOrEmpty(query.Email))
             predicate = predicate.Add(x => x.Email.StartsWith(query.Email));
-        if (query.Role.HasValue)
-            predicate = predicate.Add(x => x.Role == query.Role);
         if (query.IsActive.HasValue)
             predicate = predicate.Add(x => x.IsActive == query.IsActive);
         return predicate;

@@ -2,9 +2,10 @@ using System.Net.Http.Json;
 using Digital.Core.Api.Controllers.AuthenticationApi.Dto;
 using Digital.Lib.Net.Core.Extensions.HttpUtilities;
 using Digital.Lib.Net.Core.Messages;
+using Digital.Lib.Net.Http.HttpClient.Extensions;
 using Newtonsoft.Json;
 
-namespace Digital.Core.Api.Test.TestUtilities;
+namespace Digital.Core.Api.Test.Collections;
 
 public static class AuthenticationCollection
 {
@@ -47,14 +48,13 @@ public static class AuthenticationCollection
     {
         try
         {
-            var content = await loginResponse.Content.ReadAsStringAsync();
-            var token = JsonConvert.DeserializeObject<Result<string>>(content)!.Value;
+            var token = await loginResponse.Content.ReadContentAsync<Result<string>>();
             var refreshToken = loginResponse.TryGetCookie();
 
             if (refreshToken is not null)
                 client.AddCookie(refreshToken);
-            if (token is not null)
-                client.AddAuthorization(token);
+            if (token!.Value is not null)
+                client.AddAuthorization(token.Value);
         }
         catch (Exception e)
         {

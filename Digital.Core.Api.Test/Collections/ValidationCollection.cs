@@ -1,4 +1,4 @@
-namespace Digital.Core.Api.Test.TestUtilities;
+namespace Digital.Core.Api.Test.Collections;
 
 public static class ValidationCollection
 {
