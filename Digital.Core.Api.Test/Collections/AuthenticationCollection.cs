@@ -1,7 +1,9 @@
 using System.Net.Http.Json;
 using Digital.Core.Api.Controllers.AuthenticationApi.Dto;
+using Digital.Core.Api.Test.Integration.Authentication;
 using Digital.Lib.Net.Core.Extensions.HttpUtilities;
 using Digital.Lib.Net.Core.Messages;
+using Digital.Lib.Net.Entities.Models.Users;
 using Digital.Lib.Net.Http.HttpClient.Extensions;
 using Newtonsoft.Json;
 
@@ -19,6 +21,9 @@ public static class AuthenticationCollection
         await client.SetAuthorizations(response);
         return response;
     }
+
+    public static async Task<HttpResponseMessage> Login(this HttpClient client, User user) =>
+        await Login(client, user.Login, AuthenticationDataFactory.TestUserPassword);
 
     public static async Task<HttpResponseMessage> RefreshTokens(this HttpClient client)
     {

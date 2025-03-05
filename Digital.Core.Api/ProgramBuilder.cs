@@ -1,8 +1,11 @@
+using Digital.Core.Api.Seeds.Development;
 using Digital.Core.Api.Services.Users;
 using Digital.Lib.Net.Authentication;
 using Digital.Lib.Net.Bootstrap.Defaults;
 using Digital.Lib.Net.Core.Application;
+using Digital.Lib.Net.Core.Environment;
 using Digital.Lib.Net.Entities;
+using Digital.Lib.Net.Entities.Seeds;
 using Digital.Lib.Net.Files;
 using Digital.Lib.Net.Mvc;
 
@@ -36,7 +39,9 @@ public static class ProgramBuilder
     private static WebApplicationBuilder AddDatabaseServices(this WebApplicationBuilder builder)
     {
         builder.AddDigitalContext();
-        builder.Services.AddDataSeeds();
+        if (AspNetEnv.IsDevelopment)
+            builder.Services.AddScoped<ISeed, DevelopmentSeed>();
+        
         return builder;
     }
 

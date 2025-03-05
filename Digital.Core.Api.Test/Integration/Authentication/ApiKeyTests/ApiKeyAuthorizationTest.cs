@@ -1,26 +1,13 @@
 using System.Net;
 using Digital.Core.Api.Test.Collections;
 using Digital.Lib.Net.Core.Random;
-using Digital.Lib.Net.Entities.Context;
 using Digital.Lib.Net.Entities.Models.ApiKeys;
-using Digital.Lib.Net.Entities.Models.Users;
-using Digital.Lib.Net.Entities.Repositories;
 using Digital.Lib.Net.TestTools.Integration;
 
-namespace Digital.Core.Api.Test.Integration.Authentication;
+namespace Digital.Core.Api.Test.Integration.Authentication.ApiKeyTests;
 
-public class ApiKeyIntegrationTest : IntegrationTest<Program>
+public class ApiKeyAuthorizationTest(AppFactory<Program> fixture) : AuthenticationTest(fixture)
 {
-    private readonly string _header = $"{AppFactorySettings.TestSettings["Domain"] ?? throw new Exception()}_auth";
-    private readonly IRepository<User, DigitalContext> _userRepository;
-    private readonly IRepository<ApiKey, DigitalContext> _apiKeyRepository;
-
-    public ApiKeyIntegrationTest(AppFactory<Program> fixture) : base(fixture)
-    {
-        _userRepository = GetRepository<User, DigitalContext>();
-        _apiKeyRepository = GetRepository<ApiKey, DigitalContext>();
-    }
-
     [Fact]
     public async Task Authorize_WithValidApiKey_ShouldReturnOk()
     {
@@ -45,7 +32,7 @@ public class ApiKeyIntegrationTest : IntegrationTest<Program>
     [Fact]
     public async Task Authorize_ShouldReturnUnauthorized_OnInvalidApiKey()
     {
-        BaseClient.DefaultRequestHeaders.Add(_header, "SomeString");
+        BaseClient.DefaultRequestHeaders.Add(HeaderKey, "SomeString");
         await ExecuteTest(HttpStatusCode.Unauthorized);
     }
 
@@ -55,9 +42,9 @@ public class ApiKeyIntegrationTest : IntegrationTest<Program>
 
     private async Task Setup(string key, DateTime? expiry = null, string? header = null)
     {
-        var user = _userRepository.Get().First();
-        await _apiKeyRepository.CreateAndSaveAsync(new ApiKey(user.Id, key, expiry));
-        BaseClient.DefaultRequestHeaders.Add(header ?? _header, key);
+        var user = UserRepository.BuildTestUser();
+        await ApiKeyRepository.CreateAndSaveAsync(new ApiKey(user.Id, key, expiry));
+        BaseClient.DefaultRequestHeaders.Add(header ?? HeaderKey, key);
     }
 
     private async Task ExecuteTest(HttpStatusCode expectedResult)

@@ -24,6 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Digital.Lib\Digital.Lib.Net.Authentication\Digital.Lib.Net.Authentication.csproj" />
         <ProjectReference Include="..\Digital.Lib\Digital.Lib.Net.Http\Digital.Lib.Net.Http.csproj" />
         <ProjectReference Include="..\Digital.Lib\Digital.Lib.Net.TestTools\Digital.Lib.Net.TestTools.csproj" />
         <ProjectReference Include="..\Digital.Core.Api\Digital.Core.Api.csproj" />

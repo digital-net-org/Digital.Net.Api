@@ -18,6 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Folder Include="Seeds\" />
         <Folder Include="wwwroot\"/>
     </ItemGroup>
 
