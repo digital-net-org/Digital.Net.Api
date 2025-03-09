@@ -1,5 +1,6 @@
 using System.Net;
-using Digital.Core.Api.Test.Collections;
+using Digital.Core.Api.Test.Api;
+using Digital.Core.Api.Test.Utils;
 using Digital.Lib.Net.Core.Random;
 using Digital.Lib.Net.Entities.Models.ApiKeys;
 using Digital.Lib.Net.TestTools.Integration;

@@ -1,3 +1,4 @@
+using Digital.Core.Api.Test.Utils;
 using Digital.Lib.Net.Entities.Context;
 using Digital.Lib.Net.Entities.Models.ApiKeys;
 using Digital.Lib.Net.Entities.Models.ApiTokens;
@@ -36,5 +37,5 @@ public class AuthenticationTest : IntegrationTest<Program>
     
     protected User GetUser() => UserRepository.BuildTestUser();
     
-    protected User GetInactiveUser() => UserRepository.BuildTestUser(isActive: false);
+    protected User GetInactiveUser() => UserRepository.BuildTestUser(new UserDto { IsActive = false });
 }

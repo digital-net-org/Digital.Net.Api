@@ -4,24 +4,24 @@ using Digital.Lib.Net.Entities.Context;
 using Digital.Lib.Net.Entities.Models.Users;
 using Digital.Lib.Net.Entities.Repositories;
 
-namespace Digital.Core.Api.Test.Integration.Authentication;
+namespace Digital.Core.Api.Test.Utils;
 
-public static class AuthenticationDataFactory
+public static class DataFactory
 {
     public const string TestUserPassword = "Testpassword123!";
 
     public static User BuildTestUser(
         this IRepository<User, DigitalContext> userRepository,
-        bool? isActive = null
+        UserDto? userDto = null
     )
     {
         var user = new User
         {
-            Username = Randomizer.GenerateRandomString(Randomizer.AnyLetter, 20),
-            Login = Randomizer.GenerateRandomString(Randomizer.AnyLetterOrNumber, 12),
+            Username = userDto?.Username ?? Randomizer.GenerateRandomString(Randomizer.AnyLetter, 20),
+            Login = userDto?.Login ?? Randomizer.GenerateRandomString(Randomizer.AnyLetterOrNumber, 12),
             Password = PasswordUtils.HashPassword(TestUserPassword),
-            Email = Randomizer.GenerateRandomEmail(),
-            IsActive = isActive is null || (bool)isActive,
+            Email = userDto?.Email ?? Randomizer.GenerateRandomEmail(),
+            IsActive = userDto?.IsActive is null or true,
         };
         userRepository.Create(user);
         userRepository.Save();

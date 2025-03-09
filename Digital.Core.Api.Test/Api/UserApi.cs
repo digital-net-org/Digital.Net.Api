@@ -3,9 +3,9 @@ using System.Text;
 using Digital.Core.Api.Controllers.UserApi.Dto;
 using Digital.Lib.Net.Core.Extensions.HttpUtilities;
 
-namespace Digital.Core.Api.Test.Collections;
+namespace Digital.Core.Api.Test.Api;
 
-public static class UserCollection
+public static class UserApi
 {
     public const string BaseUrl = "/user";
 
@@ -22,8 +22,12 @@ public static class UserCollection
         return await client.PatchAsync($"{BaseUrl}/{id.ToString()}", body);
     }
 
-    public static async Task<HttpResponseMessage> UpdatePassword(this HttpClient client, Guid id,
-        string currentPassword, string newPassword) =>
+    public static async Task<HttpResponseMessage> UpdatePassword(
+        this HttpClient client,
+        Guid id,
+        string currentPassword,
+        string newPassword
+    ) =>
         await client.PutAsJsonAsync($"{BaseUrl}/{id.ToString()}/password",
             new UserPasswordUpdatePayload { CurrentPassword = currentPassword, NewPassword = newPassword });
 

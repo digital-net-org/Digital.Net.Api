@@ -1,5 +1,5 @@
 using System.Net;
-using Digital.Core.Api.Test.Collections;
+using Digital.Core.Api.Test.Api;
 using Digital.Lib.Net.Authentication.Events;
 using Digital.Lib.Net.Entities.Models.Events;
 using Digital.Lib.Net.Entities.Models.Users;

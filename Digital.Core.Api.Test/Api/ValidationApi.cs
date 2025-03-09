@@ -1,6 +1,6 @@
-namespace Digital.Core.Api.Test.Collections;
+namespace Digital.Core.Api.Test.Api;
 
-public static class ValidationCollection
+public static class ValidationApi
 {
     public const string BaseUrl = "/validation";
 

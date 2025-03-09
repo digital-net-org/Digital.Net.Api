@@ -1,5 +1,5 @@
 using System.Net;
-using Digital.Core.Api.Test.Collections;
+using Digital.Core.Api.Test.Api;
 using Digital.Lib.Net.Core.Extensions.StringUtilities;
 using Digital.Lib.Net.Http.HttpClient.Extensions;
 using Digital.Lib.Net.TestTools.Integration;

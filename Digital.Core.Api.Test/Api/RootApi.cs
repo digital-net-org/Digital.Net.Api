@@ -1,6 +1,6 @@
-namespace Digital.Core.Api.Test.Collections;
+namespace Digital.Core.Api.Test.Api;
 
-public static class RootCollection
+public static class RootApi
 {
     public const string BaseUrl = "/";
 
