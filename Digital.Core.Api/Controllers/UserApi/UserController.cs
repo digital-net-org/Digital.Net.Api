@@ -2,6 +2,7 @@ using System.Text.Json;
 using Digital.Core.Api.Controllers.UserApi.Dto;
 using Digital.Core.Api.Services.Users;
 using Digital.Lib.Net.Authentication.Attributes;
+using Digital.Lib.Net.Authentication.Exceptions;
 using Digital.Lib.Net.Authentication.Services.Authentication;
 using Digital.Lib.Net.Core.Messages;
 using Digital.Lib.Net.Entities.Context;
@@ -42,7 +43,14 @@ public class UserController(
         var user = await GetAuthorizedUser(id);
         if (user is null)
             return Unauthorized();
-        return await userService.UpdatePassword(user, request.CurrentPassword, request.NewPassword);
+
+        var result = await userService.UpdatePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+        if (result.HasError<PasswordMalformedException>())
+            return BadRequest(result);
+        if (result.HasError<InvalidCredentialsException>())
+            return Unauthorized(result);
+
+        return Ok(result);
     }
 
     [HttpPut("{id:guid}/avatar")]

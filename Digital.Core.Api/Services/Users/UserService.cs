@@ -1,3 +1,6 @@
+using Digital.Lib.Net.Authentication.Exceptions;
+using Digital.Lib.Net.Authentication.Options;
+using Digital.Lib.Net.Authentication.Services;
 using Digital.Lib.Net.Authentication.Services.Authentication;
 using Digital.Lib.Net.Core.Messages;
 using Digital.Lib.Net.Entities.Context;
@@ -16,12 +19,24 @@ namespace Digital.Core.Api.Services.Users;
 public class UserService(
     IOptions<DigitalFilesOptions> filesOptions,
     IDocumentService documentService,
-    IAuthenticationService authenticationService,
+    IAuthenticationOptionService authenticationOptionService,
     IRepository<User, DigitalContext> userRepository,
     IRepository<Avatar, DigitalContext> avatarRepository) : IUserService
 {
-    public async Task<Result> UpdatePassword(User user, string currentPassword, string newPassword) =>
-        await authenticationService.UpdatePasswordAsync(user, currentPassword, newPassword);
+    public async Task<Result> UpdatePasswordAsync(User user, string currentPassword, string newPassword)
+    {
+        var result = new Result();
+
+        if (!PasswordUtils.VerifyPassword(user, currentPassword))
+            return result.AddError(new InvalidCredentialsException());
+        if (!authenticationOptionService.PasswordRegex.IsMatch(newPassword))
+            return result.AddError(new PasswordMalformedException());
+
+        user.Password = PasswordUtils.HashPassword(newPassword);
+        userRepository.Update(user);
+        await userRepository.SaveAsync();
+        return result;
+    }
 
     public async Task<Result<Document>> UpdateAvatar(User user, IFormFile form)
     {
