@@ -2,24 +2,17 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "buildapi",
-            "command": "dotnet",
-            "type": "process",
-            "args": ["build", "${workspaceFolder}/SafariDigital.Api/SafariDigital.Api.csproj"],
-            "problemMatcher": "$msCompile"
-        },
-        {
             "label": "build",
             "command": "dotnet",
             "type": "process",
-            "args": ["build", "${workspaceFolder}/SafariDigital.Api/SafariDigital.Api.csproj"],
+            "args": ["build", "${workspaceFolder}/Digital.Core.Api/Digital.Core.Api.csproj"],
             "problemMatcher": "$msCompile"
         },
         {
             "label": "run",
             "command": "dotnet",
             "type": "process",
-            "args": ["run", "${workspaceFolder}/SafariDigital.Api/SafariDigital.Api.csproj"],
+            "args": ["run", "${workspaceFolder}/Digital.Core.Api/Digital.Core.Api.csproj"],
             "problemMatcher": "$msCompile"
         },
         {

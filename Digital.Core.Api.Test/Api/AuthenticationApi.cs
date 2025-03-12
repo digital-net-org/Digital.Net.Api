@@ -1,6 +1,5 @@
 using System.Net.Http.Json;
 using Digital.Core.Api.Controllers.AuthenticationApi.Dto;
-using Digital.Core.Api.Test.Integration.Authentication;
 using Digital.Core.Api.Test.Utils;
 using Digital.Lib.Net.Core.Extensions.HttpUtilities;
 using Digital.Lib.Net.Core.Messages;

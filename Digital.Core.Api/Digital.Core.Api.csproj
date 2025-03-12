@@ -18,7 +18,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Seeds\" />
         <Folder Include="wwwroot\"/>
     </ItemGroup>
 
@@ -33,7 +32,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Digital.Lib\Digital.Lib.Net.Bootstrap\Digital.Lib.Net.Bootstrap.csproj" />
+        <ProjectReference Include="..\Digital.Lib\Digital.Lib.Net.Sdk\Digital.Lib.Net.Sdk.csproj" />
         <ProjectReference Include="..\Digital.Lib\Digital.Lib.Net.Core\Digital.Lib.Net.Core.csproj" />
         <ProjectReference Include="..\Digital.Lib\Digital.Lib.Net.Files\Digital.Lib.Net.Files.csproj" />
         <ProjectReference Include="..\Digital.Lib\Digital.Lib.Net.Entities\Digital.Lib.Net.Entities.csproj"/>

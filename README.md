@@ -18,15 +18,13 @@ You can configurate the application using environment variables and volume while
 ### :whale2: Dockerfile
 
 #### Environment variables
-
-| Variable                 | Type       | Description                                                            |
-|--------------------------|------------|------------------------------------------------------------------------|
-| `ASPNETCORE_ENVIRONMENT` | `string`   | Supports `Development` or `Production`.                                |
-| `DB_CONNECTION_STRING`   | `string`   | The Database connection string.                                        |
-| `ALLOWED_ORIGINS`        | `string[]` | Cors allowed origins.                                                  |
-| `APP_URL`                | `string`   | Url the API is served from.                                            |
-| `AUDIENCE`               | `string[]` | The Database connection string.                                        |
-| `JWT_EXP_BEARER`         | `number`   | The validity duration of the bearer token, expressed in milliseconds.  |
-| `JWT_EXP_REFRESH`        | `number`   | The validity duration of the refresh token, expressed in milliseconds. |
-| `JWT_COOKIE_NAME`        | `string`   | The name of the cookie containing the token.                           |
-| `PASSWORD_REGEX`         | `string`   | Admins password regular expression.                                    |
+| Accessor                           | Default value            | Type       | Example                                                       | Description                                                                                                                                                  |
+|------------------------------------|--------------------------|------------|---------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Domain                             | **Mandatory**            | `string`   | `example.com`                                                 | Describes your application domain. Used to **prefix Cookies**, setup JWT **Audience/Issuer** and all subdomains will be added the allowed **CORS policies**. |
+| CorsAllowedOrigins                 | `[]`                     | `string[]` | `[example.com]`                                               | All entries will be added the allowed **CORS policies** _(be aware that Domain is automatically added to allowed origins)_.                                  |
+| Database:ConnectionString          | **Mandatory**            | `string`   | `"Host=host;Port=5432;Database=db;Username=usr;Password=psw"` | **Postgres** Database connection string.                                                                                                                     |
+| Database:UseSqlite                 | `false`                  | `boolean`  | `true`                                                        | Use an **Sqlite** Database if true. Used for Integration tests.                                                                                              |
+| Defaults:FileSystemPath            | `"/digital_net_storage"` | `string`   | -                                                             | Path to folder where the application will save uploaded files.                                                                                               |
+| Defaults:Auth:JwtRefreshExpiration | `1800000`                | `number`   | -                                                             | Refresh token expiration expressed in milliseconds                                                                                                           |
+| Defaults:Auth:JwtBearerExpiration  | `300000`                 | `number`   | -                                                             | Bearer token expiration expressed in milliseconds                                                                                                            |
+| Defaults:Auth:JwtSecret            | _Random string_          | `string`   | `superLongSecretThatNeedsToBeSuperLongAndSecure`              | Secret for Jwt configuration, must be a least 46 characters long.                                                                                            |

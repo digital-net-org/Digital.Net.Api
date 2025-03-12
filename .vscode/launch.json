@@ -1,52 +1,52 @@
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Digital.Pages.Api Debug",
-      "type": "coreclr",
-      "request": "launch",
-      "preLaunchTask": "buildapi",
-      "program": "${workspaceFolder}/Digital.Pages.Api/bin/Debug/net8.0/Digital.Pages.Api.dll",
-      "args": [],
-      "cwd": "${workspaceFolder}/Digital.Pages.Api",
-      "stopAtEntry": false,
-      "serverReadyAction": {
-        "action": "openExternally",
-        "pattern": "\\bNow listening on:\\s+https://\\S+:([0-9]+)",
-        "uriFormat": "https://localhost:%s/swagger/index.html"
-      },
-      "internalConsoleOptions": "openOnSessionStart",
-      "launchBrowser": {
-        "enabled": false,
-        "args": "${auto-detect-url}",
-        "windows": {
-          "command": "cmd.exe",
-          "args": "/C start ${auto-detect-url}"
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Digital.Core.Api Debug",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/Digital.Core.Api/bin/Debug/net9.0/Digital.Core.Api.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/Digital.Core.Api",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+https://\\S+:([0-9]+)",
+                "uriFormat": "https://localhost:%s/swagger/index.html"
+            },
+            "internalConsoleOptions": "openOnSessionStart",
+            "launchBrowser": {
+                "enabled": false,
+                "args": "${auto-detect-url}",
+                "windows": {
+                    "command": "cmd.exe",
+                    "args": "/C start ${auto-detect-url}"
+                },
+                "osx": {
+                    "command": "open"
+                },
+                "linux": {
+                    "command": "xdg-open"
+                }
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
         },
-        "osx": {
-          "command": "open"
-        },
-        "linux": {
-          "command": "xdg-open"
+        {
+            "name": "Digital.Core.Api Test",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "test",
+            "program": "${workspaceFolder}/Digital.Core.Api/bin/Debug/net9.0/Digital.Core.Api.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/Digital.Core.Api",
+            "stopAtEntry": false,
+            "internalConsoleOptions": "openOnSessionStart",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Test"
+            }
         }
-      },
-      "env": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    {
-      "name": "Digital.Pages.Api Test",
-      "type": "coreclr",
-      "request": "launch",
-      "preLaunchTask": "test",
-      "program": "${workspaceFolder}/Digital.Pages.Api/bin/Debug/net8.0/Digital.Pages.Api.dll",
-      "args": [],
-      "cwd": "${workspaceFolder}/Digital.Pages.Api",
-      "stopAtEntry": false,
-      "internalConsoleOptions": "openOnSessionStart",
-      "env": {
-        "ASPNETCORE_ENVIRONMENT": "Test"
-      }
-    }
-  ]
+    ]
 }

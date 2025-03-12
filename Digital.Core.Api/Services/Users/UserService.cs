@@ -1,7 +1,6 @@
 using Digital.Lib.Net.Authentication.Exceptions;
-using Digital.Lib.Net.Authentication.Options;
 using Digital.Lib.Net.Authentication.Services;
-using Digital.Lib.Net.Authentication.Services.Authentication;
+using Digital.Lib.Net.Core.Extensions.StringUtilities;
 using Digital.Lib.Net.Core.Messages;
 using Digital.Lib.Net.Entities.Context;
 using Digital.Lib.Net.Entities.Models.Avatars;
@@ -10,16 +9,12 @@ using Digital.Lib.Net.Entities.Models.Users;
 using Digital.Lib.Net.Entities.Repositories;
 using Digital.Lib.Net.Files.Exceptions;
 using Digital.Lib.Net.Files.Extensions;
-using Digital.Lib.Net.Files.Options;
 using Digital.Lib.Net.Files.Services;
-using Microsoft.Extensions.Options;
 
 namespace Digital.Core.Api.Services.Users;
 
 public class UserService(
-    IOptions<DigitalFilesOptions> filesOptions,
     IDocumentService documentService,
-    IAuthenticationOptionService authenticationOptionService,
     IRepository<User, DigitalContext> userRepository,
     IRepository<Avatar, DigitalContext> avatarRepository) : IUserService
 {
@@ -29,7 +24,7 @@ public class UserService(
 
         if (!PasswordUtils.VerifyPassword(user, currentPassword))
             return result.AddError(new InvalidCredentialsException());
-        if (!authenticationOptionService.PasswordRegex.IsMatch(newPassword))
+        if (!RegularExpressions.Password.IsMatch(newPassword))
             return result.AddError(new PasswordMalformedException());
 
         user.Password = PasswordUtils.HashPassword(newPassword);
@@ -40,7 +35,7 @@ public class UserService(
 
     public async Task<Result<Document>> UpdateAvatar(User user, IFormFile form)
     {
-        if (form.Length > filesOptions.Value.MaxAvatarSize)
+        if (form.Length > ApplicationDefaults.MaxAvatarSize)
             return new Result<Document>().AddError(new TooHeavyException());
         if (!form.IsImage())
             return new Result<Document>().AddError(new UnsupportedFormatException());

@@ -13,3 +13,4 @@ release/
 .env
 
 Digital.Net.*.dll
+inspectcode.xml

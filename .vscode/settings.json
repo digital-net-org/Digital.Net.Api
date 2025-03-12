@@ -1,13 +1,12 @@
 {
-    "dotnet.defaultSolution": "SafariDigital.sln",
+    "dotnet.defaultSolution": "Digital.Api.sln",
     "editor.formatOnSave": true,
-    "editor.defaultFormatter": "csharpier.csharpier-vscode",
     "editor.codeActionsOnSave": {
         "source.fixAll": "always",
         "source.organizeImports": "always"
     },
     "cmake.configureOnOpen": true,
-    "[ignore]": {
-        "editor.defaultFormatter": "foxundermoon.shell-format"
+    "resharpervscode.inspectcode": {
+        "DotnetCoreSdk": "9.0.104"
     }
 }

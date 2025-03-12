@@ -31,7 +31,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Lib.Net.Events", "D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Core.Api.Test", "Digital.Core.Api.Test\Digital.Core.Api.Test.csproj", "{5715ECC7-10CE-4CC0-A2DF-EE71ECDAF4E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Lib.Net.Bootstrap", "Digital.Lib\Digital.Lib.Net.Bootstrap\Digital.Lib.Net.Bootstrap.csproj", "{167F4915-B65E-4CA6-863D-EA9DD8A28962}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Lib.Net.Sdk", "Digital.Lib\Digital.Lib.Net.Sdk\Digital.Lib.Net.Sdk.csproj", "{167F4915-B65E-4CA6-863D-EA9DD8A28962}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Lib.Net.Files", "Digital.Lib\Digital.Lib.Net.Files\Digital.Lib.Net.Files.csproj", "{F18DD987-2AAE-4038-BCDB-81C96F22B6CE}"
 EndProject
