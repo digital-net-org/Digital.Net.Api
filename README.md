@@ -7,13 +7,17 @@
     <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview?WT.mc_id=dotnet-35129-website"><img src="https://img.shields.io/badge/Dotnet-blue.svg?color=4f2bce"></a>
 </div>
 
-_@digital-net-org/digital-api_
+_@digital-net-org/digital-core-api_
 
-Digital Net Rest API solution.
+Digital Net Rest API solutions.
+
+Digital-core-api container handles Digital API configuration, users, file and authentication.
 
 ## :memo: Configuration
 
 You can configurate the application using environment variables and volume while mounting the docker image.
+
+"Default" prefix means that the value is used to set the default configuration at the first application start. These values are stored in the database and can be modified later using the provided endpoints.
 
 ### :whale2: Dockerfile
 
