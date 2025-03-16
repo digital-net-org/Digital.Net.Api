@@ -1,7 +1,6 @@
 using Digital.Lib.Net.Authentication.Services;
 using Digital.Lib.Net.Entities.Context;
 using Digital.Lib.Net.Entities.Models.ApiKeys;
-using Digital.Lib.Net.Entities.Models.ApplicationOptions;
 using Digital.Lib.Net.Entities.Models.Users;
 using Digital.Lib.Net.Entities.Repositories;
 using Digital.Lib.Net.Entities.Seeds;
