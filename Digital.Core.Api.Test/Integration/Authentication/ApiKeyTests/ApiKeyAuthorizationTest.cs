@@ -1,4 +1,5 @@
 using System.Net;
+using Digital.Core.Api.Controllers.UserApi.Dto;
 using Digital.Core.Api.Test.Api;
 using Digital.Core.Api.Test.Utils;
 using Digital.Lib.Net.Core.Random;
@@ -50,7 +51,7 @@ public class ApiKeyAuthorizationTest(AppFactory<Program> fixture) : Authenticati
 
     private async Task ExecuteTest(HttpStatusCode expectedResult)
     {
-        var response = await BaseClient.GetAppVersion();
+        var response = await BaseClient.GetUsers(new UserQuery());
         Assert.Equal(expectedResult, response.StatusCode);
     }
 }
