@@ -1,6 +1,7 @@
-using Digital.Core.Api.Seeds;
 using Digital.Lib.Net.Core.Environment;
 using Digital.Lib.Net.Entities.Seeds;
+
+namespace Digital.Core.Api.Seeds;
 
 public static class SeedsInjector
 {
@@ -8,6 +9,7 @@ public static class SeedsInjector
     {
         if (AspNetEnv.IsDevelopment)
             builder.Services.AddScoped<ISeed, DevelopmentSeed>();
-        return builder;
+
+        return builder.ApplyDataSeeds();
     }
 }
