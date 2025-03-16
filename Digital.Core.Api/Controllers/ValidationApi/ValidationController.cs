@@ -7,15 +7,15 @@ namespace Digital.Core.Api.Controllers.ValidationApi;
 [ApiController, Route("validation")]
 public class ValidationController : ControllerBase
 {
-    [HttpGet("email/pattern")]
+    [HttpGet("pattern/email")]
     public ActionResult<string> GetEmailPattern() => Ok(RegularExpressions.EmailPattern);
 
-    [HttpGet("username/pattern"), Authorize(AuthorizeType.Any)]
+    [HttpGet("pattern/username"), Authorize(AuthorizeType.Any)]
     public ActionResult<string> GetUsernamePattern() => Ok(RegularExpressions.UsernamePattern);
 
-    [HttpGet("password/pattern"), Authorize(AuthorizeType.Any)]
+    [HttpGet("pattern/password"), Authorize(AuthorizeType.Any)]
     public ActionResult<string> GetPasswordPattern() => Ok(RegularExpressions.PasswordPattern);
 
-    [HttpGet("avatar/size"), Authorize(AuthorizeType.Any)]
+    [HttpGet("size/avatar"), Authorize(AuthorizeType.Any)]
     public ActionResult<long> GetAvatarMaxSize() => Ok(ApplicationDefaults.MaxAvatarSize);
 }
