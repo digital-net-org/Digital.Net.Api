@@ -1,0 +1,33 @@
+name: Push to Github docker registry
+on:
+    release:
+        types: [published]
+
+jobs:
+    build-and-publish:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+              with:
+                  submodules: true
+
+            - name: Login to registry
+              uses: docker/login-action@v2
+              with:
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GH_PAT }}
+
+            - name: Build image
+              run: |
+                docker build --pull -t ghcr.io/${{ github.repository }}:${{ github.event.release.tag_name }} \
+                  --build-arg GIT_VERSION=${{ github.event.release.tag_name }} \
+                  --build-arg GIT_COMMIT_SHA=${{ github.sha }} \
+                  --build-arg GIT_RELEASE="https://github.com/${{ github.repository }}/releases/tag/${{ github.event.release.tag_name }}" \
+                  .
+
+            - name: Push Docker image
+              run: |
+                  docker push ghcr.io/${{ github.repository }}:${{ github.event.release.tag_name }}
