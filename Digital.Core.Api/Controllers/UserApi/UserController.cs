@@ -21,6 +21,12 @@ public class UserController(
     IUserService userService
 ) : CrudController<User, DigitalContext, UserDto, UserDto>(entityService)
 {
+    [HttpGet("self")]
+    public async Task<ActionResult<Result<UserDto>>> GetSelfAsync() =>
+        await authenticationService.GetAuthenticatedUserAsync() is { } user
+            ? Ok(new Result<UserDto>(new UserDto(user)))
+            : Unauthorized();
+
     [HttpPatch("{id}")]
     public override async Task<ActionResult<Result>> Patch(string id, [FromBody] JsonElement patch)
     {
