@@ -22,7 +22,7 @@ public static class AuthenticationApi
     }
 
     public static async Task<HttpResponseMessage> Login(this HttpClient client, User user) =>
-        await Login(client, user.Login, DataFactory.TestUserPassword);
+        await Login(client, user.Login, TestUserFactory.TestUserPassword);
 
     public static async Task<HttpResponseMessage> RefreshTokens(this HttpClient client)
     {

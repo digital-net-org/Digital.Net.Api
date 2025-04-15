@@ -40,7 +40,7 @@ public class UserService(
         if (!form.IsImage())
             return new Result<Document>().AddError(new UnsupportedFormatException());
 
-        var result = await documentService.SaveImageDocumentAsync(form);
+        var result = await documentService.SaveImageDocumentAsync(form, user);
         if (result.HasError() || result.Value is null)
             return result;
         if (user.AvatarId is not null)

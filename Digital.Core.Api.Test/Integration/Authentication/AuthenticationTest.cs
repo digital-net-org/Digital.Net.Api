@@ -1,4 +1,3 @@
-using Digital.Core.Api.Test.Utils;
 using Digital.Lib.Net.Entities.Context;
 using Digital.Lib.Net.Entities.Models.ApiKeys;
 using Digital.Lib.Net.Entities.Models.ApiTokens;
@@ -9,10 +8,12 @@ using Digital.Lib.Net.TestTools.Integration;
 
 namespace Digital.Core.Api.Test.Integration.Authentication;
 
-public class AuthenticationTest : IntegrationTest<Program>
+public abstract class AuthenticationTest : IntegrationTest<Program>
 {
-    protected readonly string CookieName = $"{AppFactorySettings.TestSettings["Domain"] ?? throw new Exception()}_refresh";
-    protected readonly string HeaderKey = $"{AppFactorySettings.TestSettings["Domain"] ?? throw new Exception()}_auth";
+    protected readonly string CookieName =
+        $"{AppFactorySettings.TestSettings["Domain"] ?? throw new Exception()}_refresh";
+    protected readonly string HeaderKey =
+        $"{AppFactorySettings.TestSettings["Domain"] ?? throw new Exception()}_auth";
 
     protected readonly IRepository<User, DigitalContext> UserRepository;
     protected readonly IRepository<Event, DigitalContext> EventRepository;
@@ -35,7 +36,7 @@ public class AuthenticationTest : IntegrationTest<Program>
             .Get(x => x.UserId == user.Id)
             .OrderByDescending(x => x.CreatedAt);
     
-    protected User GetUser() => UserRepository.BuildTestUser();
+    protected User GetUser() => CreateUser();
     
-    protected User GetInactiveUser() => UserRepository.BuildTestUser(new UserDto { IsActive = false });
+    protected User GetInactiveUser() => CreateUser(new UserDto { IsActive = false });
 }

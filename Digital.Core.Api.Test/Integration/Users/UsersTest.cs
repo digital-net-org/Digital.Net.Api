@@ -6,7 +6,7 @@ using Digital.Lib.Net.TestTools.Integration;
 
 namespace Digital.Core.Api.Test.Integration.Users;
 
-public class UsersTest : IntegrationTest<Program>
+public abstract class UsersTest : IntegrationTest<Program>
 {
     protected readonly IRepository<User, DigitalContext> UserRepository;
 

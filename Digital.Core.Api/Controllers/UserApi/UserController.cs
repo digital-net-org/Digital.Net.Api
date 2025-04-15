@@ -18,12 +18,13 @@ namespace Digital.Core.Api.Controllers.UserApi;
 public class UserController(
     IEntityService<User, DigitalContext> entityService,
     IAuthenticationService authenticationService,
-    IUserService userService
+    IUserService userService,
+    IUserContextService userContextService
 ) : CrudController<User, DigitalContext, UserDto, UserDto>(entityService)
 {
     [HttpGet("self")]
-    public async Task<ActionResult<Result<UserDto>>> GetSelfAsync() =>
-        await authenticationService.GetAuthenticatedUserAsync() is { } user
+    public ActionResult<Result<UserDto>> GetSelfAsync() =>
+        userContextService.GetUser() is { } user
             ? Ok(new Result<UserDto>(new UserDto(user)))
             : Unauthorized();
 
@@ -79,7 +80,7 @@ public class UserController(
 
     private async Task<User?> GetAuthorizedUser(Guid id)
     {
-        var user = await authenticationService.GetAuthenticatedUserAsync();
-        return user?.Id != id ? null : user;
+        var user = userContextService.GetUser();
+        return user.Id != id ? null : user;
     }
 }
