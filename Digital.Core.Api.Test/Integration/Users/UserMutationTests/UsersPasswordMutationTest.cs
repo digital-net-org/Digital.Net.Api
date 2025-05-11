@@ -48,12 +48,12 @@ public class UsersPasswordMutationTest : UsersTest
         if (expectSuccess)
         {
             Assert.NotEqual(initialPassword, mutatedPassword);
-            Assert.False(credentialsTest.HasError());
+            Assert.False(credentialsTest.HasError);
         }
         else
         {
             Assert.Equal(initialPassword, mutatedPassword);
-            Assert.True(credentialsTest.HasError<InvalidCredentialsException>());
+            Assert.True(credentialsTest.HasErrorOfType<InvalidCredentialsException>());
         }
     }
 

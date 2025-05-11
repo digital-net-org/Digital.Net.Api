@@ -37,7 +37,7 @@ public class AuthenticationController(
 
         if (result.Errors.Any(e => e.Reference == new TooManyAttemptsException().GetReference()))
             return StatusCode(429);
-        if (result.HasError() || bearerToken is null)
+        if (result.HasError || bearerToken is null)
             return Unauthorized();
 
         SetCookieToken(id, userAgent);
@@ -55,7 +55,7 @@ public class AuthenticationController(
         result.Merge(refreshRes);
         var (id, bearerToken) = refreshRes.Value;
 
-        if (result.HasError() || bearerToken is null)
+        if (result.HasError || bearerToken is null)
             return Unauthorized();
 
         SetCookieToken(id, userAgent);

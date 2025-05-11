@@ -52,9 +52,9 @@ public class UserController(
             return Unauthorized();
 
         var result = await userService.UpdatePasswordAsync(user, request.CurrentPassword, request.NewPassword);
-        if (result.HasError<PasswordMalformedException>())
+        if (result.HasErrorOfType<PasswordMalformedException>())
             return BadRequest(result);
-        if (result.HasError<InvalidCredentialsException>())
+        if (result.HasErrorOfType<InvalidCredentialsException>())
             return Unauthorized(result);
 
         return Ok(result);

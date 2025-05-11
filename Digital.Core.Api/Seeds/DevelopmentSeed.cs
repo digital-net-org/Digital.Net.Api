@@ -22,7 +22,7 @@ public class DevelopmentSeed(
     public override async Task ApplySeed()
     {
         var result = await SeedAsync(Users);
-        if (result.HasError())
+        if (result.HasError)
             throw new Exception(result.Errors.First().Message);
 
         foreach (var apiKey in result.Value!.Select(user => new ApiKey(user.Id, GenerateApiKey(user))))
