@@ -1,0 +1,8 @@
+using Digital.Net.Api.Controllers.Generic.Crud;
+using Digital.Net.Api.Controllers.Test.TestUtilities.Context;
+using Digital.Net.Api.Entities.Services;
+
+namespace Digital.Net.Api.Controllers.Test.TestUtilities.Controllers;
+
+public class CrudControllerWithId(IEntityService<TestIdEntity, MvcTestContext> entityService)
+    : CrudController<TestIdEntity, MvcTestContext, TestIdEntityDto, TestIdEntityPayload>(entityService);

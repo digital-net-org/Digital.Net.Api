@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Using Include="Xunit"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0"/>
+    </ItemGroup>
+    
+    <ItemGroup>
+        <ProjectReference Include="..\Digital.Net.Api.Core\Digital.Net.Api.Core.csproj" />
+        <ProjectReference Include="..\Digital.Net.Api.Rest\Digital.Net.Api.Rest.csproj" />
+        <ProjectReference Include="..\Digital.Net.Api.TestUtilities\Digital.Net.Api.TestUtilities.csproj" />
+    </ItemGroup>
+
+
+</Project>
