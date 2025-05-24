@@ -1,3 +1,4 @@
+using Digital.Net.Api.Controllers.Controllers.UserApi.Dto;
 using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Entities.Repositories;

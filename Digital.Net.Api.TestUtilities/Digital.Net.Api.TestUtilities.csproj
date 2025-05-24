@@ -29,6 +29,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Digital.Net.Api.Controllers\Digital.Net.Api.Controllers.csproj" />
         <ProjectReference Include="..\Digital.Net.Api.Core\Digital.Net.Api.Core.csproj" />
         <ProjectReference Include="..\Digital.Net.Api.Entities\Digital.Net.Api.Entities.csproj" />
         <ProjectReference Include="..\Digital.Net.Api.Services\Digital.Net.Api.Services.csproj" />

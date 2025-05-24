@@ -12,16 +12,19 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Digital.Net.Api.Entities.Migrations
 {
     [DbContext(typeof(DigitalContext))]
-    [Migration("20250316205443_init_context")]
-    partial class init_context
+    [Migration("20250524215005_init_digital_net")]
+    partial class init_digital_net
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("digital_core")
+                .HasDefaultSchema("digital_net")
                 .HasAnnotation("ProductVersion", "9.0.0")
+                .HasAnnotation("Proxies:ChangeTracking", false)
+                .HasAnnotation("Proxies:CheckEquality", false)
+                .HasAnnotation("Proxies:LazyLoading", true)
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -64,7 +67,7 @@ namespace Digital.Net.Api.Entities.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ApiKey", "digital_core");
+                    b.ToTable("ApiKey", "digital_net");
                 });
 
             modelBuilder.Entity("Digital.Net.Api.Entities.Models.ApiTokens.ApiToken", b =>
@@ -108,7 +111,7 @@ namespace Digital.Net.Api.Entities.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ApiToken", "digital_core");
+                    b.ToTable("ApiToken", "digital_net");
                 });
 
             modelBuilder.Entity("Digital.Net.Api.Entities.Models.ApplicationOptions.ApplicationOption", b =>
@@ -137,7 +140,7 @@ namespace Digital.Net.Api.Entities.Migrations
                     b.HasIndex("Id")
                         .IsUnique();
 
-                    b.ToTable("ApplicationOption", "digital_core");
+                    b.ToTable("ApplicationOption", "digital_net");
                 });
 
             modelBuilder.Entity("Digital.Net.Api.Entities.Models.Avatars.Avatar", b =>
@@ -171,7 +174,7 @@ namespace Digital.Net.Api.Entities.Migrations
 
                     b.HasIndex("DocumentId");
 
-                    b.ToTable("Avatar", "digital_core");
+                    b.ToTable("Avatar", "digital_net");
                 });
 
             modelBuilder.Entity("Digital.Net.Api.Entities.Models.Documents.Document", b =>
@@ -216,7 +219,7 @@ namespace Digital.Net.Api.Entities.Migrations
 
                     b.HasIndex("UploaderId");
 
-                    b.ToTable("Document", "digital_core");
+                    b.ToTable("Document", "digital_net");
                 });
 
             modelBuilder.Entity("Digital.Net.Api.Entities.Models.Events.Event", b =>
@@ -280,7 +283,90 @@ namespace Digital.Net.Api.Entities.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Event", "digital_core");
+                    b.ToTable("Event", "digital_net");
+                });
+
+            modelBuilder.Entity("Digital.Net.Api.Entities.Models.Pages.Page", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("Id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("boolean")
+                        .HasColumnName("IsPublished");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("Path");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)")
+                        .HasColumnName("Title");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("UpdatedAt");
+
+                    b.Property<Guid?>("ViewId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("ViewId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Path")
+                        .IsUnique();
+
+                    b.HasIndex("Title")
+                        .IsUnique();
+
+                    b.HasIndex("ViewId");
+
+                    b.ToTable("Page", "digital_net");
+                });
+
+            modelBuilder.Entity("Digital.Net.Api.Entities.Models.PuckConfigs.PuckConfig", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("Id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DocumentId");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("UpdatedAt");
+
+                    b.Property<string>("Version")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)")
+                        .HasColumnName("Version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Version")
+                        .IsUnique();
+
+                    b.ToTable("PuckConfig", "digital_net");
                 });
 
             modelBuilder.Entity("Digital.Net.Api.Entities.Models.Users.User", b =>
@@ -337,7 +423,46 @@ namespace Digital.Net.Api.Entities.Migrations
                     b.HasIndex("Username", "Email")
                         .IsUnique();
 
-                    b.ToTable("User", "digital_core");
+                    b.ToTable("User", "digital_net");
+                });
+
+            modelBuilder.Entity("Digital.Net.Api.Entities.Models.Views.View", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("Id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<string>("Data")
+                        .HasColumnType("text")
+                        .HasColumnName("Data");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)")
+                        .HasColumnName("Name");
+
+                    b.Property<int>("PuckConfigId")
+                        .HasColumnType("integer")
+                        .HasColumnName("PuckConfigId");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("UpdatedAt");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("PuckConfigId");
+
+                    b.ToTable("View", "digital_net");
                 });
 
             modelBuilder.Entity("Digital.Net.Api.Entities.Models.ApiKeys.ApiKey", b =>
@@ -393,6 +518,15 @@ namespace Digital.Net.Api.Entities.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Digital.Net.Api.Entities.Models.Pages.Page", b =>
+                {
+                    b.HasOne("Digital.Net.Api.Entities.Models.Views.View", "View")
+                        .WithMany("Pages")
+                        .HasForeignKey("ViewId");
+
+                    b.Navigation("View");
+                });
+
             modelBuilder.Entity("Digital.Net.Api.Entities.Models.Users.User", b =>
                 {
                     b.HasOne("Digital.Net.Api.Entities.Models.Avatars.Avatar", "Avatar")
@@ -401,6 +535,27 @@ namespace Digital.Net.Api.Entities.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Avatar");
+                });
+
+            modelBuilder.Entity("Digital.Net.Api.Entities.Models.Views.View", b =>
+                {
+                    b.HasOne("Digital.Net.Api.Entities.Models.PuckConfigs.PuckConfig", "PuckConfig")
+                        .WithMany("Views")
+                        .HasForeignKey("PuckConfigId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PuckConfig");
+                });
+
+            modelBuilder.Entity("Digital.Net.Api.Entities.Models.PuckConfigs.PuckConfig", b =>
+                {
+                    b.Navigation("Views");
+                });
+
+            modelBuilder.Entity("Digital.Net.Api.Entities.Models.Views.View", b =>
+                {
+                    b.Navigation("Pages");
                 });
 #pragma warning restore 612, 618
         }

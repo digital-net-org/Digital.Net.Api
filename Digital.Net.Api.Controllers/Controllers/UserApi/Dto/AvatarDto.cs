@@ -1,4 +1,6 @@
-namespace Digital.Net.Api.Entities.Models.Avatars;
+using Digital.Net.Api.Entities.Models.Avatars;
+
+namespace Digital.Net.Api.Controllers.Controllers.UserApi.Dto;
 
 public class AvatarDto
 {

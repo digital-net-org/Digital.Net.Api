@@ -7,7 +7,10 @@ using Digital.Net.Api.Entities.Models.ApplicationOptions;
 using Digital.Net.Api.Entities.Models.Avatars;
 using Digital.Net.Api.Entities.Models.Documents;
 using Digital.Net.Api.Entities.Models.Events;
+using Digital.Net.Api.Entities.Models.Pages;
+using Digital.Net.Api.Entities.Models.PuckConfigs;
 using Digital.Net.Api.Entities.Models.Users;
+using Digital.Net.Api.Entities.Models.Views;
 using Digital.Net.Api.Sdk.Bootstrap;
 using Digital.Net.Api.Sdk.RateLimiter.Limiters;
 using Digital.Net.Api.Sdk.Seeds;
@@ -48,6 +51,9 @@ public static class DigitalSdkInjector
             .AddDigitalEntities<Document>()
             .AddDigitalEntities<Event>()
             .AddDigitalEntities<User>()
+            .AddDigitalEntities<View>()
+            .AddDigitalEntities<PuckConfig>()
+            .AddDigitalEntities<Page>()
             .AddDigitalNetServices();
 
         builder.Services

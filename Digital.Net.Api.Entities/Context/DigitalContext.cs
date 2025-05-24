@@ -4,14 +4,17 @@ using Digital.Net.Api.Entities.Models.ApplicationOptions;
 using Digital.Net.Api.Entities.Models.Avatars;
 using Digital.Net.Api.Entities.Models.Documents;
 using Digital.Net.Api.Entities.Models.Events;
+using Digital.Net.Api.Entities.Models.Pages;
+using Digital.Net.Api.Entities.Models.PuckConfigs;
 using Digital.Net.Api.Entities.Models.Users;
+using Digital.Net.Api.Entities.Models.Views;
 using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Api.Entities.Context;
 
 public class DigitalContext(DbContextOptions<DigitalContext> options) : DbContext(options)
 {
-    public const string Schema = "digital_core";
+    public const string Schema = "digital_net";
 
     public DbSet<ApiKey> ApiKeys { get; init; }
     public DbSet<ApiToken> ApiTokens { get; init; }
@@ -20,6 +23,9 @@ public class DigitalContext(DbContextOptions<DigitalContext> options) : DbContex
     public DbSet<Document> Documents { get; init; }
     public DbSet<Event> Events { get; init; }
     public DbSet<User> Users { get; init; }
+    public DbSet<View> Views { get; init; }
+    public DbSet<Page> Pages { get; init; }
+    public DbSet<PuckConfig> PuckConfigs { get; init; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

@@ -1,6 +1,6 @@
-using Digital.Net.Api.Entities.Models.Avatars;
+using Digital.Net.Api.Entities.Models.Users;
 
-namespace Digital.Net.Api.Entities.Models.Users;
+namespace Digital.Net.Api.Controllers.Controllers.UserApi.Dto;
 
 public class UserDto
 {
