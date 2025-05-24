@@ -7,11 +7,11 @@
     <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview?WT.mc_id=dotnet-35129-website"><img src="https://img.shields.io/badge/Dotnet-blue.svg?color=4f2bce"></a>
 </div>
 
-_@digital-net-org/digital-core-api_
+_@digital-net-org/Digital.Net.Api_
 
-Digital Net Rest API solutions.
+Digital Net Rest API solution.
 
-Digital-core-api container handles Digital API configuration, users, file and authentication.
+Digital.Net.Api container handles Digital API configuration, users, client website, files and authentication.
 
 ## :memo: Configuration
 
