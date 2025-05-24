@@ -1,28 +1,9 @@
-using Digital.Net.Api.Services.Authentication.Options.Config;
-
 namespace Digital.Net.Api.Services.Authentication.Options;
 
 public class AuthenticationOptions
 {
-    public ApiKeyConfig ApiKeyConfig { get; private set; } = new();
-
-    /// <summary>
-    ///     Set Api keys options.
-    /// </summary>
-    public AuthenticationOptions SetApiKeyOptions(ApiKeyConfig apiKeyConfig)
-    {
-        ApiKeyConfig = apiKeyConfig;
-        return this;
-    }
-
-    public JwtTokenConfig JwtTokenConfig { get; private set; } = new();
-
-    /// <summary>
-    ///     Set the JWT token configuration options.
-    /// </summary>
-    public AuthenticationOptions SetJwtTokenOptions(JwtTokenConfig config)
-    {
-        JwtTokenConfig = config;
-        return this;
-    }
+    public string ApiKeyHeaderAccessor { get; set; } = string.Empty;
+    public string Issuer { get; set; } = string.Empty;
+    public string Audience { get; set; } = string.Empty;
+    public string CookieName { get; set; } = string.Empty;
 }

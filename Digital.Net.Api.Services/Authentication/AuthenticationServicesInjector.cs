@@ -1,7 +1,6 @@
 using Digital.Net.Api.Core.Extensions.ConfigurationUtilities;
 using Digital.Net.Api.Core.Settings;
 using Digital.Net.Api.Services.Authentication.Options;
-using Digital.Net.Api.Services.Authentication.Options.Config;
 using Digital.Net.Api.Services.Authentication.Services.Authentication;
 using Digital.Net.Api.Services.Authentication.Services.Authorization;
 using Digital.Net.Api.Services.Events;
@@ -22,16 +21,10 @@ public static class AuthenticationServicesInjector
         
         services.Configure<AuthenticationOptions>(opts =>
         {
-            opts.SetJwtTokenOptions(new JwtTokenConfig
-            {
-                Issuer = $"https://{domain}",
-                Audience = $"https://{domain}",
-                CookieName = $"{domain}_refresh",
-            });
-            opts.SetApiKeyOptions(new ApiKeyConfig
-            {
-                HeaderAccessor = $"{domain}_auth"
-            });
+            opts.Issuer = $"https://{domain}";
+            opts.Audience = $"https://{domain}";
+            opts.CookieName = $"{domain}_refresh";
+            opts.ApiKeyHeaderAccessor = $"{domain}_auth";
         });
         services.TryAddScoped<IEventService, EventService>();
         services

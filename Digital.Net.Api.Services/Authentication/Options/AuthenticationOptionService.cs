@@ -11,8 +11,8 @@ public class AuthenticationOptionService(
     IOptionsService optionsService
 ) : IAuthenticationOptionService
 {
-    public string CookieName => options.Value.JwtTokenConfig.CookieName;
-    public string ApiKeyHeaderAccessor => options.Value.ApiKeyConfig.HeaderAccessor;
+    public string CookieName => options.Value.CookieName;
+    public string ApiKeyHeaderAccessor => options.Value.ApiKeyHeaderAccessor;
 
     public TimeSpan GetMaxLoginAttemptsThreshold() =>
         TimeSpan.FromMilliseconds(DefaultAuthenticationOptions.MaxLoginAttemptsThreshold);
@@ -26,8 +26,8 @@ public class AuthenticationOptionService(
     public TokenValidationParameters GetTokenParameters() => new()
     {
         ValidateIssuerSigningKey = true,
-        ValidIssuer = options.Value.JwtTokenConfig.Issuer,
-        ValidAudience = options.Value.JwtTokenConfig.Audience,
+        ValidIssuer = options.Value.Issuer,
+        ValidAudience = options.Value.Audience,
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.ASCII.GetBytes(optionsService.Get<string>(OptionAccessor.JwtSecret))
         ),
