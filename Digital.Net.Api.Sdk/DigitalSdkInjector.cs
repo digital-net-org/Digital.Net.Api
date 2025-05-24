@@ -26,12 +26,16 @@ public static class DigitalSdkInjector
     ///     AppOptionService and initiate options in database.
     /// </summary>
     /// <param name="builder"></param>
+    /// <param name="applicationName"></param>
     /// <returns></returns>
-    public static WebApplicationBuilder AddDigitalSdk(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder AddDigitalSdk(
+        this WebApplicationBuilder builder, 
+        string? applicationName = null
+    )
     {
         builder.Configuration.AddAppSettings();
         builder
-            .SetApplicationName("Digital.Net.Api.Rest")
+            .SetApplicationName(applicationName ?? "Digital.Net.Api")
             .ValidateApplicationSettings()
             .AddDatabaseContext<DigitalContext>()
             .ApplyMigrations<DigitalContext>();
