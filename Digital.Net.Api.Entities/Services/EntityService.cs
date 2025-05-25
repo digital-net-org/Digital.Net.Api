@@ -1,4 +1,5 @@
-﻿using Digital.Net.Api.Core.Exceptions;
+﻿using System.Linq.Expressions;
+using Digital.Net.Api.Core.Exceptions;
 using Digital.Net.Api.Core.Extensions.StringUtilities;
 using Digital.Net.Api.Core.Messages;
 using Digital.Net.Api.Core.Models;
@@ -16,6 +17,21 @@ public class EntityService<T, TContext>(IRepository<T, TContext> repository) : I
 {
     public List<SchemaProperty<T>> GetSchema() =>
         typeof(T).GetProperties().Select(property => new SchemaProperty<T>(property)).ToList();
+
+    public Result<TModel> GetFirst<TModel>(Expression<Func<T, bool>> expression) where TModel : class
+    {
+        var result = new Result<TModel>();
+        try
+        {
+            var value = repository.Get(expression).FirstOrDefault() ?? throw new ResourceNotFoundException();
+            result.Value = Mapper.TryMap<T, TModel>(value);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            return result.AddError(ex);
+        }
+    }
 
     public Result<TModel> Get<TModel>(Guid? id)
         where TModel : class => Get<TModel>(repository.GetById(id));

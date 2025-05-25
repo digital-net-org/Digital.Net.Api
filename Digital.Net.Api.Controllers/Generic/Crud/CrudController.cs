@@ -1,9 +1,9 @@
 using System.Text.Json;
 using Digital.Net.Api.Core.Formatters;
-using Digital.Net.Api.Entities.Models;
-using Digital.Net.Api.Entities.Services;
 using Digital.Net.Api.Core.Messages;
 using Digital.Net.Api.Core.Models;
+using Digital.Net.Api.Entities.Models;
+using Digital.Net.Api.Entities.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,7 +22,7 @@ public abstract class CrudController<T, TContext, TDto, TPayload>(
     public virtual ActionResult<Result<List<SchemaProperty<T>>>> GetSchema() =>
         Ok(new Result<List<SchemaProperty<T>>>(entityService.GetSchema()));
 
-    [HttpGet("{id:int}")]
+    [HttpGet("{id}")]
     public virtual ActionResult<Result<TDto>> GetById(string id)
     {
         var result = new Result<TDto>();

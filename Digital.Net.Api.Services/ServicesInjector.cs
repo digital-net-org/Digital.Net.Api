@@ -4,8 +4,8 @@ using Digital.Net.Api.Services.Documents;
 using Digital.Net.Api.Services.Events;
 using Digital.Net.Api.Services.HttpContext;
 using Digital.Net.Api.Services.Options;
+using Digital.Net.Api.Services.Pages;
 using Digital.Net.Api.Services.Users;
-using Digital.Net.Api.Services.Views;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -23,7 +23,7 @@ public static class ServicesInjector
             .AddDigitalEventServices()
             .AddDigitalUserServices()
             .AddDigitalDocumentServices()
-            .AddDigitalViewServices();
+            .AddDigitalPageServices();
         return services;
     }
     

@@ -7,7 +7,6 @@ using Digital.Net.Api.TestUtilities;
 using Digital.Net.Api.TestUtilities.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
-using Xunit;
 
 namespace Digital.Net.Api.Controllers.Test.Generic.Pagination;
 

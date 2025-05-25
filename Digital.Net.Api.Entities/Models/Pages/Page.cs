@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Digital.Net.Api.Entities.Models.Views;
+using Digital.Net.Api.Entities.Attributes;
 using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Api.Entities.Models.Pages;
@@ -21,8 +21,11 @@ public class Page : EntityGuid
     [Column("IsPublished"), Required]
     public bool IsPublished { get; set; } = false;
 
-    [Column("ViewId"), ForeignKey("View")]
-    public Guid? ViewId { get; set; }
+    [Column("PuckData"), DataFlag("json")]
+    public string? PuckData { get; set; }
 
-    public virtual View? View { get; set; }
+    [Column("PuckConfigId"), Required, ForeignKey("PuckConfig")]
+    public required int PuckConfigId { get; set; }
+    
+    public virtual PagePuckConfig PuckConfig { get; set; }
 }

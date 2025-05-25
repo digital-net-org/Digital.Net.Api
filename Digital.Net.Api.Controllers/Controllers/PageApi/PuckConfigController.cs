@@ -1,23 +1,26 @@
-using Digital.Net.Api.Controllers.Controllers.ViewApi.Dto;
+using Digital.Net.Api.Controllers.Controllers.PageApi.Dto;
 using Digital.Net.Api.Core.Exceptions;
 using Digital.Net.Api.Core.Messages;
 using Digital.Net.Api.Entities.Context;
-using Digital.Net.Api.Entities.Models.PuckConfigs;
+using Digital.Net.Api.Entities.Models.Pages;
 using Digital.Net.Api.Entities.Repositories;
+using Digital.Net.Api.Entities.Services;
 using Digital.Net.Api.Services.Authentication.Attributes;
 using Digital.Net.Api.Services.Authentication.Services.Authentication;
-using Digital.Net.Api.Services.HttpContext.Extensions;
-using Digital.Net.Api.Services.Views;
-using Digital.Net.Api.Services.Views.Exceptions;
+using Digital.Net.Api.Services.HttpContext;
+using Digital.Net.Api.Services.Pages;
+using Digital.Net.Api.Services.Pages.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Digital.Net.Api.Controllers.Controllers.ViewApi;
+namespace Digital.Net.Api.Controllers.Controllers.PageApi;
 
-[ApiController, Route("view/config"), Authorize(AuthorizeType.Any)]
+[ApiController, Route("page/config"), Authorize(AuthorizeType.Any)]
 public class PuckConfigController(
     IPuckConfigService puckConfigService,
-    IRepository<PuckConfig, DigitalContext> puckConfigRepository,
+    IHttpCacheService httpCacheService,
+    IRepository<PagePuckConfig, DigitalContext> puckConfigRepository,
+    IEntityService<PagePuckConfig, DigitalContext> puckConfigEntityService, 
     IUserContextService userContextService
 ) : ControllerBase
 {
@@ -34,34 +37,22 @@ public class PuckConfigController(
     [HttpGet("version/{version}")]
     public ActionResult GetConfigFile(string version)
     {
-        var result = new Result();
-        var config = result.Try(() => puckConfigService.GetConfig(version));
-        var etag = config?.DocumentId.ToString();
-        
-        if (result.HasError || config is null)
+        var result = httpCacheService.GetCachedDocument(
+            puckConfigRepository.Get(x => x.Version == version).FirstOrDefault()?.Document,
+            "application/javascript"
+        );
+        if (result.HasError)
             return NotFound();
-        if (Request.Headers.TestIfNoneMatch(etag))
+        if (result.Value is null)
             return StatusCode(304);
-
-        var file = result.Try(() => puckConfigService.GetConfigFile(config));
-        if (result.HasError || file is null)
-            return NotFound();
-        
-        Response.Headers.CacheControl = "public, max-age=0, must-revalidate";
-        Response.Headers.ETag = etag;
-        Response.Headers.Remove("Content-Disposition");
-        return file;
+        return result.Value;
     }
     
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<Result<PuckConfigDto>>> GetConfig(int id)
+    public ActionResult<Result<PuckConfigDto>> GetConfig(int id)
     {
-        var result = new Result<PuckConfigDto>();
-        var config = await puckConfigRepository.GetByIdAsync(id);
-        if (config is null)
-            return NotFound(result.AddError(new ResourceNotFoundException()));
-        result.Value = new PuckConfigDto(config);
-        return Ok(result);
+        var result = puckConfigEntityService.Get<PuckConfigDto>(id);
+        return result.HasError ? NotFound(result) : Ok(result);
     }
 
     [HttpPost("upload")]

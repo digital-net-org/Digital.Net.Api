@@ -10,6 +10,7 @@ public static class HttpContextServicesInjector
     {
         services.AddControllers(); // TODO: Should replace with custom Controller attribute
         services.AddScoped<IHttpContextService, HttpContextService>();
+        services.AddScoped<IHttpCacheService, HttpCacheService>();
         services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         return services;
     }

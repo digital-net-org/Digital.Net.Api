@@ -1,5 +1,4 @@
 using Digital.Net.Api.Sdk;
-using Digital.Net.Api.Services.Application;
 
 namespace Digital.Net.Api.Rest;
 

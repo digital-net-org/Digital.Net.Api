@@ -9,4 +9,6 @@ public class PagePayload
 
     [Required]
     public string Path { get; set; }
+    
+    public int PuckConfigId { get; set; }
 }

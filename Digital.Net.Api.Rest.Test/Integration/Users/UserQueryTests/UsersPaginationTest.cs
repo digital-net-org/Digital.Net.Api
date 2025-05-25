@@ -1,7 +1,6 @@
 using System.Net.Http.Json;
 using Digital.Net.Api.Controllers.Controllers.UserApi.Dto;
 using Digital.Net.Api.Controllers.Generic.Pagination;
-using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Rest.Test.Api;
 using Digital.Net.Api.TestUtilities.Integration;
 

@@ -55,6 +55,21 @@ public class Result
             return default;
         }
     }
+
+    public async Task<TReturn?> TryAsync<TReturn>(Func<Task<Result<TReturn>>> action)
+    {
+        try
+        {
+            var result = await action();
+            Merge(result);
+            return result.Value;
+        }
+        catch (Exception ex)
+        {
+            AddError(ex);
+            return default;
+        }
+    }
 }
 
 public class Result<T> : Result

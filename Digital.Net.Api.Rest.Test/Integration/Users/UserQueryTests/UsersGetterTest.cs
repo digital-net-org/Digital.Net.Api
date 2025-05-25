@@ -2,7 +2,6 @@ using System.Net;
 using System.Net.Http.Json;
 using Digital.Net.Api.Controllers.Controllers.UserApi.Dto;
 using Digital.Net.Api.Core.Messages;
-using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Rest.Test.Api;
 using Digital.Net.Api.TestUtilities.Integration;
 

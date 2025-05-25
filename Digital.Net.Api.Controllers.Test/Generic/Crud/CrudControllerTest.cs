@@ -8,7 +8,6 @@ using Digital.Net.Api.TestUtilities;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using Xunit;
 
 namespace Digital.Net.Api.Controllers.Test.Generic.Crud;
 

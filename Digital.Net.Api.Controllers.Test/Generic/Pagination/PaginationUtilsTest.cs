@@ -1,6 +1,5 @@
 ﻿using Digital.Net.Api.Controllers.Generic.Pagination;
 using Digital.Net.Api.TestUtilities;
-using Xunit;
 
 namespace Digital.Net.Api.Controllers.Test.Generic.Pagination;
 

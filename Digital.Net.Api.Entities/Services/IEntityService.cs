@@ -1,4 +1,5 @@
-﻿using Digital.Net.Api.Core.Messages;
+﻿using System.Linq.Expressions;
+using Digital.Net.Api.Core.Messages;
 using Digital.Net.Api.Entities.Models;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,15 @@ public interface IEntityService<T, TContext>
     /// <returns>Schema of the entity</returns>
     List<SchemaProperty<T>> GetSchema();
 
+    /// <summary>
+    ///    Get an entity based on a predicate. Converts the entity to the provided model using constructor.
+    /// </summary>
+    /// <param name="expression">The predicate to filter entities</param>
+    /// <typeparam name="TModel">The model to convert the entities to</typeparam>
+    /// <returns>Result of the model</returns>
+    Result<TModel> GetFirst<TModel>(Expression<Func<T, bool>> expression)
+        where TModel : class;
+    
     /// <summary>
     ///    Get an entity based on its primary key. Converts the entity to the provided model using constructor.
     /// </summary>

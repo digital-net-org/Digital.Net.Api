@@ -9,7 +9,7 @@ namespace Digital.Net.Api.Services.Documents;
 public interface IDocumentService
 {
     string GetDocumentPath(Document document);
-    FileResult? GetDocumentFile(Guid documentId, string? contentType = null);
+    Result<FileResult?> GetDocumentFile(Guid documentId, string? contentType = null);
     Task<Result<Document>> SaveDocumentAsync(IFormFile file, User? uploader);
     Task<Result<Document>> SaveImageDocumentAsync(IFormFile file, User? uploader, int? quality = null);
     Task<Result> RemoveDocumentAsync(Guid id);

@@ -5,9 +5,7 @@ using Digital.Net.Api.Entities.Models.Avatars;
 using Digital.Net.Api.Entities.Models.Documents;
 using Digital.Net.Api.Entities.Models.Events;
 using Digital.Net.Api.Entities.Models.Pages;
-using Digital.Net.Api.Entities.Models.PuckConfigs;
 using Digital.Net.Api.Entities.Models.Users;
-using Digital.Net.Api.Entities.Models.Views;
 using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Api.Entities.Context;
@@ -23,9 +21,9 @@ public class DigitalContext(DbContextOptions<DigitalContext> options) : DbContex
     public DbSet<Document> Documents { get; init; }
     public DbSet<Event> Events { get; init; }
     public DbSet<User> Users { get; init; }
-    public DbSet<View> Views { get; init; }
     public DbSet<Page> Pages { get; init; }
-    public DbSet<PuckConfig> PuckConfigs { get; init; }
+    public DbSet<PageAsset> PageAssets { get; init; }
+    public DbSet<PagePuckConfig> PagePuckConfigs { get; init; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

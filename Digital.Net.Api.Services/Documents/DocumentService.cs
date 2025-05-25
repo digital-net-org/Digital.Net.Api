@@ -1,3 +1,4 @@
+using Digital.Net.Api.Core.Exceptions;
 using Digital.Net.Api.Core.Messages;
 using Digital.Net.Api.Core.Settings;
 using Digital.Net.Api.Entities.Context;
@@ -22,21 +23,26 @@ public class DocumentService(
         document.FileName
     );
 
-    public FileResult? GetDocumentFile(Guid documentId, string? contentType = null)
+    public Result<FileResult?> GetDocumentFile(Guid documentId, string? contentType = null)
     {
+        var result = new Result<FileResult?>();
         var document = documentRepository.GetById(documentId);
         if (document is null)
-            return null;
+            return result.AddError(new ResourceNotFoundException());
         var path = GetDocumentPath(document);
         if (!File.Exists(path))
-            return null;
+            return result.AddError(new ResourceNotFoundException());
 
         var fileBytes = File.ReadAllBytes(path);
-        return new FileContentResult(fileBytes, contentType ?? "application/octet-stream")
+        result.Value = new FileContentResult(fileBytes, contentType ?? "application/octet-stream")
         {
             FileDownloadName = document.FileName,
             LastModified = document.UpdatedAt ?? document.CreatedAt,
         };
+        if (result.Value is null)
+            result.AddError(new ResourceNotFoundException());
+
+        return result;
     }
 
     public async Task<Result<Document>> SaveImageDocumentAsync(IFormFile form, User? uploader, int? quality = null)
