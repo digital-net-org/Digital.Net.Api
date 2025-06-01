@@ -42,9 +42,8 @@ public class PuckConfigService(
             return result;
         try
         {
+            puckConfigRepository.Delete(result.Value!);
             await documentService.RemoveDocumentAsync(result.Value!.DocumentId);
-            puckConfigRepository.Delete(result.Value);
-            await puckConfigRepository.SaveAsync();
         }
         catch (Exception ex)
         {

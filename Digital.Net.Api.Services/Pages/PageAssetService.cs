@@ -42,9 +42,8 @@ public class PageAssetService(
             return result;
         try
         {
+            pageAssetRepository.Delete(result.Value!);
             await documentService.RemoveDocumentAsync(result.Value!.DocumentId);
-            pageAssetRepository.Delete(result.Value);
-            await pageAssetRepository.SaveAsync();
         }
         catch (Exception ex)
         {
