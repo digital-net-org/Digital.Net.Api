@@ -30,18 +30,14 @@ public class AuthorizationJwtService(
         try
         {
             handler.ValidateToken(token, authenticationOptionService.GetTokenParameters(), out _);
-            var content = handler
-                .ReadJwtToken(token)
-                .Claims.First(c => c.Type == DefaultAuthenticationOptions.ContentClaimType)
-                .Value;
-
-            var decoded = JsonSerializer.Deserialize<TokenContent>(content);
-            var user = userRepository.Get(u => decoded != null && u.Id == decoded.Id).FirstOrDefault();
+            var jwt = handler.ReadJwtToken(token);
+            var decoded = jwt.Decode();
+            var user = userRepository.Get(u => u.Id == decoded.Id).FirstOrDefault();
 
             if (user is null)
                 throw new InvalidTokenException();
 
-            result.Authorize(user.Id);
+            result.Authorize(user.Id, jwt.ShouldRenewCookie());
         }
         catch (Exception e)
         {

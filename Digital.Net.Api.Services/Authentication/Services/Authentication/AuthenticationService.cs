@@ -58,14 +58,14 @@ public class AuthenticationService(
         return result;
     }
 
-    public async Task<Result<(Guid, string)>> LoginAsync(
+    public async Task<Result<(string bearer, string refresh)>> LoginAsync(
         string login,
         string password,
         string? userAgent = null,
         string? ipAddress = null
     )
     {
-        var result = new Result<(Guid, string)>((Guid.Empty, string.Empty));
+        var result = new Result<(string, string)>((string.Empty, string.Empty));
         userAgent ??= string.Empty;
         var userResult = await ValidateCredentialsAsync(login, password);
         var state = userResult.HasError ? EventState.Failed : EventState.Success;
@@ -86,24 +86,28 @@ public class AuthenticationService(
             return result;
 
         result.Value = (
-            userResult.Value.Id,
-            authenticationJwtService.GenerateBearerToken(userResult.Value!.Id, userAgent)
+            authenticationJwtService.GenerateBearerToken(userResult.Value!.Id, userAgent),
+            authenticationJwtService.GenerateRefreshToken(userResult.Value.Id, userAgent)
         );
         return result;
     }
 
-    public async Task<Result<(Guid, string)>> RefreshTokensAsync(string? refreshToken, string? userAgent = null)
+    public async Task<Result<(string bearer, string? refresh)>> RefreshTokensAsync(string? refreshToken, string? userAgent = null)
     {
-        var result = new Result<(Guid, string)>((Guid.Empty, string.Empty));
+        var result = new Result<(string, string?)>((string.Empty, null));
         var tokenResult = authorizationJwtService.AuthorizeRefreshToken(refreshToken);
+        
         result.Merge(tokenResult);
         if (result.HasError)
             return result;
-
-        await authenticationJwtService.RevokeTokenAsync(refreshToken!);
+        if (tokenResult.ShouldRenewCookie)
+            await authenticationJwtService.RevokeTokenAsync(refreshToken!);
+        
         result.Value = (
-            tokenResult.UserId,
-            authenticationJwtService.GenerateBearerToken(tokenResult.UserId, userAgent)
+            authenticationJwtService.GenerateBearerToken(tokenResult.UserId, userAgent ?? string.Empty),
+            tokenResult.ShouldRenewCookie 
+                ? authenticationJwtService.GenerateRefreshToken(tokenResult.UserId, userAgent ?? string.Empty)
+                : null
         );
         return result;
     }

@@ -19,6 +19,10 @@ public class AuthenticationController(
     IHttpContextService httpContextService
 ) : ControllerBase
 {
+    /// <summary>
+    ///     Login user with login and password.
+    /// </summary>
+    /// <returns>Returns a JWT Bearer token in response body and a refresh token in a cookie.</returns>
     [HttpPost("login")]
     public async Task<ActionResult<Result<string>>> Login([FromBody] LoginPayload request)
     {
@@ -31,20 +35,23 @@ public class AuthenticationController(
             userAgent,
             ipAddress
         );
-
+        
         result.Merge(loginRes);
-        var (id, bearerToken) = loginRes.Value;
-
         if (result.Errors.Any(e => e.Reference == new TooManyAttemptsException().GetReference()))
             return StatusCode(429);
-        if (result.HasError || bearerToken is null)
+        if (result.HasError || string.IsNullOrEmpty(loginRes.Value.bearer))
             return Unauthorized();
 
-        SetCookieToken(id, userAgent);
-        result.Value = bearerToken;
+        SetCookieToken(loginRes.Value.refresh);
+        result.Value = loginRes.Value.bearer;
         return Ok(result);
     }
 
+    /// <summary>
+    ///     Refreshes both the JWT Bearer token and the refresh token. If the refresh token will expire soon, it will be renewed.
+    ///     Otherwise, only the JWT Bearer token will be refreshed.
+    /// </summary>
+    /// <returns>Returns a JWT Bearer token in response body and a refresh token in a cookie.</returns>
     [HttpPost("refresh")]
     public async Task<ActionResult<Result<string>>> RefreshTokens()
     {
@@ -53,12 +60,13 @@ public class AuthenticationController(
         var refreshRes = await authenticationService.RefreshTokensAsync(GetCookieToken(), userAgent);
 
         result.Merge(refreshRes);
-        var (id, bearerToken) = refreshRes.Value;
+        var (bearerToken, refresh) = refreshRes.Value;
 
-        if (result.HasError || bearerToken is null)
+        if (result.HasError || string.IsNullOrEmpty(bearerToken))
             return Unauthorized();
-
-        SetCookieToken(id, userAgent);
+        if (refresh is not null)
+            SetCookieToken(refresh);
+        
         result.Value = bearerToken;
         return Ok(result);
     }
@@ -96,9 +104,9 @@ public class AuthenticationController(
         httpContextService.Request.Cookies[authenticationOptionService.CookieName];
     private void DeleteCookieToken() =>
         httpContextService.Response.Cookies.Delete(authenticationOptionService.CookieName);
-    private void SetCookieToken(Guid userId, string userAgent) =>
+    private void SetCookieToken(string refreshToken) =>
         httpContextService.SetResponseCookie(
-            authenticationJwtService.GenerateRefreshToken(userId, userAgent),
+            refreshToken,
             authenticationOptionService.CookieName,
             authenticationOptionService.GetRefreshTokenExpirationDate()
         );

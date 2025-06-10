@@ -6,8 +6,8 @@ namespace Digital.Net.Api.Services.Authentication.Services.Authentication;
 public interface IAuthenticationService
 {
     public Task<Result<User>> ValidateCredentialsAsync(string login, string password);
-    public Task<Result<(Guid, string)>> RefreshTokensAsync(string? refreshToken, string? userAgent = null);
-    public Task<Result<(Guid, string)>> LoginAsync(
+    public Task<Result<(string bearer, string? refresh)>> RefreshTokensAsync(string? refreshToken, string? userAgent = null);
+    public Task<Result<(string bearer, string refresh)>> LoginAsync(
         string login,
         string password,
         string? userAgent = null,
