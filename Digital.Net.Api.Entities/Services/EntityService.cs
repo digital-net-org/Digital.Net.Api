@@ -108,9 +108,9 @@ public class EntityService<T, TContext>(IRepository<T, TContext> repository) : I
         return result;
     }
 
-    public async Task<Result> Create(T entity)
+    public async Task<Result<string>> Create(T entity)
     {
-        var result = new Result();
+        var result = new Result<string>();
         try
         {
             foreach (var property in entity.GetType().GetProperties())
@@ -123,6 +123,7 @@ public class EntityService<T, TContext>(IRepository<T, TContext> repository) : I
             await OnCreate(entity);
             await repository.CreateAsync(entity);
             await repository.SaveAsync();
+            result.Value = entity.GetType().GetProperty("Id")?.GetValue(entity)?.ToString();
         }
         catch (Exception e)
         {

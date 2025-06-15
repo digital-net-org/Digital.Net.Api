@@ -80,7 +80,7 @@ public interface IEntityService<T, TContext>
     /// <exception cref="InvalidOperationException">
     ///     If the payload is invalid, throws an exceptions.
     /// </exception>
-    Task<Result> Create(T entity);
+    Task<Result<string>> Create(T entity);
 
     /// <summary>
     ///     Delete an entity based on its primary key.
