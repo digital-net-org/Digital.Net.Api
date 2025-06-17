@@ -9,6 +9,10 @@
 
 _@digital-net-org/Digital.Net.Api_
 
+**🚧 This version is kept as an archive️ 🚧**
+
+The main goal of this POC was to save the compiled puck configuration in the database. This solution is no longer supported as it's too complex to use. 
+
 Digital Net Rest API solution.
 
 Digital.Net.Api container handles Digital API configuration, users, client website, files and authentication.
