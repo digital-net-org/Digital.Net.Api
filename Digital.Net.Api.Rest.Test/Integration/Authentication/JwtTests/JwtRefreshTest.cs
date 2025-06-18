@@ -1,7 +1,5 @@
 using System.Net;
-using Digital.Net.Api.Core.Extensions.StringUtilities;
 using Digital.Net.Api.Rest.Test.Api;
-using Digital.Net.Api.Services.HttpContext.Extensions;
 using Digital.Net.Api.TestUtilities.Integration;
 
 namespace Digital.Net.Api.Rest.Test.Integration.Authentication.JwtTests;

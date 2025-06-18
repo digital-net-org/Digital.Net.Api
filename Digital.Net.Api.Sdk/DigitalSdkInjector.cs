@@ -51,7 +51,7 @@ public static class DigitalSdkInjector
             .AddDigitalEntities<User>()
             .AddDigitalEntities<Page>()
             .AddDigitalEntities<PageAsset>()
-            .AddDigitalEntities<PagePuckConfig>()
+            .AddDigitalEntities<PageMeta>()
             .AddDigitalNetServices();
 
         builder.Services

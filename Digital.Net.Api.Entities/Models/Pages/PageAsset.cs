@@ -8,7 +8,7 @@ namespace Digital.Net.Api.Entities.Models.Pages;
 [Table("PageAsset"), Index(nameof(Path), IsUnique = true)]
 public class PageAsset : EntityId
 {
-    [Column("Path"), Required, MaxLength(128)] // TODO: Unique with pages
+    [Column("Path"), Required, MaxLength(2068)] // TODO: Unique with pages
     public required string Path { get; set; }
     
     [Column("DocumentId"), ForeignKey("Document"), Required]

@@ -1,4 +1,4 @@
-﻿using Digital.Net.Api.Services.Pages.Validation.Generic;
+﻿using Digital.Net.Api.Services.Pages.Validation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Digital.Net.Api.Services.Pages;
@@ -9,9 +9,7 @@ public static class PageServicesInjector
     {
         services
             .AddScoped<IPageAssetValidationService, PageAssetValidationService>()
-            .AddScoped<IPuckConfigValidationService, PuckConfigValidationService>()
-            .AddScoped<IPageAssetService, PageAssetService>()
-            .AddScoped<IPuckConfigService, PuckConfigService>();
+            .AddScoped<IPageAssetService, PageAssetService>();
         return services;
     }
 }

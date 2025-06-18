@@ -4,7 +4,7 @@ using Digital.Net.Api.Entities.Models.Pages;
 using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Entities.Repositories;
 using Digital.Net.Api.Services.Documents;
-using Digital.Net.Api.Services.Pages.Validation.Generic;
+using Digital.Net.Api.Services.Pages.Validation;
 using Microsoft.AspNetCore.Http;
 
 namespace Digital.Net.Api.Services.Pages;

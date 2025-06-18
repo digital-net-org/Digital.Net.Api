@@ -5,7 +5,7 @@ using Digital.Net.Api.Entities.Models.Pages;
 using Digital.Net.Api.Entities.Repositories;
 using Microsoft.AspNetCore.Http;
 
-namespace Digital.Net.Api.Services.Pages.Validation.Generic;
+namespace Digital.Net.Api.Services.Pages.Validation;
 
 public class PageAssetValidationService(
     IRepository<PageAsset, DigitalContext> pageAssetRepository

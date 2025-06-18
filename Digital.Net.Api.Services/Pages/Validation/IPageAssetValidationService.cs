@@ -2,7 +2,7 @@
 using Digital.Net.Api.Entities.Models.Pages;
 using Microsoft.AspNetCore.Http;
 
-namespace Digital.Net.Api.Services.Pages.Validation.Generic;
+namespace Digital.Net.Api.Services.Pages.Validation;
 
 public interface IPageAssetValidationService : IPageDocumentValidator<PageAsset>
 {

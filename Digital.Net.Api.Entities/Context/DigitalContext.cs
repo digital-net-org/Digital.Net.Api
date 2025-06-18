@@ -23,7 +23,7 @@ public class DigitalContext(DbContextOptions<DigitalContext> options) : DbContex
     public DbSet<User> Users { get; init; }
     public DbSet<Page> Pages { get; init; }
     public DbSet<PageAsset> PageAssets { get; init; }
-    public DbSet<PagePuckConfig> PagePuckConfigs { get; init; }
+    public DbSet<PageMeta> PageMetas { get; init; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

@@ -3,6 +3,7 @@ using System;
 using Digital.Net.Api.Entities.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Digital.Net.Api.Entities.Migrations
 {
     [DbContext(typeof(DigitalContext))]
-    partial class DigitalContextModelSnapshot : ModelSnapshot
+    [Migration("20250618210543_RemovedPuckConfig")]
+    partial class RemovedPuckConfig
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -294,24 +297,14 @@ namespace Digital.Net.Api.Entities.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("CreatedAt");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("Description");
-
-                    b.Property<bool>("IsIndexed")
-                        .HasColumnType("boolean")
-                        .HasColumnName("IsIndexed");
-
                     b.Property<bool>("IsPublished")
                         .HasColumnType("boolean")
                         .HasColumnName("IsPublished");
 
                     b.Property<string>("Path")
                         .IsRequired()
-                        .HasMaxLength(2068)
-                        .HasColumnType("character varying(2068)")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
                         .HasColumnName("Path");
 
                     b.Property<string>("PuckData")
@@ -320,8 +313,8 @@ namespace Digital.Net.Api.Entities.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)")
                         .HasColumnName("Title");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -331,6 +324,9 @@ namespace Digital.Net.Api.Entities.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Path")
+                        .IsUnique();
+
+                    b.HasIndex("Title")
                         .IsUnique();
 
                     b.ToTable("Page", "digital_net");
@@ -355,8 +351,8 @@ namespace Digital.Net.Api.Entities.Migrations
 
                     b.Property<string>("Path")
                         .IsRequired()
-                        .HasMaxLength(2068)
-                        .HasColumnType("character varying(2068)")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
                         .HasColumnName("Path");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -371,50 +367,6 @@ namespace Digital.Net.Api.Entities.Migrations
                         .IsUnique();
 
                     b.ToTable("PageAsset", "digital_net");
-                });
-
-            modelBuilder.Entity("Digital.Net.Api.Entities.Models.Pages.PageMeta", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("Id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("Content");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("CreatedAt");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)")
-                        .HasColumnName("Name");
-
-                    b.Property<Guid>("PageId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("PageId");
-
-                    b.Property<string>("Property")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)")
-                        .HasColumnName("Property");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("UpdatedAt");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PageId");
-
-                    b.ToTable("PageMeta", "digital_net");
                 });
 
             modelBuilder.Entity("Digital.Net.Api.Entities.Models.Users.User", b =>
@@ -536,17 +488,6 @@ namespace Digital.Net.Api.Entities.Migrations
                         .IsRequired();
 
                     b.Navigation("Document");
-                });
-
-            modelBuilder.Entity("Digital.Net.Api.Entities.Models.Pages.PageMeta", b =>
-                {
-                    b.HasOne("Digital.Net.Api.Entities.Models.Pages.Page", "Page")
-                        .WithMany()
-                        .HasForeignKey("PageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Page");
                 });
 
             modelBuilder.Entity("Digital.Net.Api.Entities.Models.Users.User", b =>

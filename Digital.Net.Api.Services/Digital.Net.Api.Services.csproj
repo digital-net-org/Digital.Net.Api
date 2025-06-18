@@ -23,8 +23,4 @@
         <ProjectReference Include="..\Digital.Net.Api.Core\Digital.Net.Api.Core.csproj" />
         <ProjectReference Include="..\Digital.Net.Api.Entities\Digital.Net.Api.Entities.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Pages\Validation\"/>
-    </ItemGroup>
 </Project>

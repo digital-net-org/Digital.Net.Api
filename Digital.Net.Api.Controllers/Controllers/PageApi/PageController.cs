@@ -7,15 +7,14 @@ using Digital.Net.Api.Entities.Models.Pages;
 using Digital.Net.Api.Entities.Repositories;
 using Digital.Net.Api.Entities.Services;
 using Digital.Net.Api.Services.Authentication.Attributes;
-using Digital.Net.Api.Services.Pages.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Digital.Net.Api.Controllers.Controllers.PageApi;
 
 [ApiController, Route("page"), Authorize(AuthorizeType.Any)]
 public class PageController(
-    IRepository<PagePuckConfig, DigitalContext> puckConfigRepository,
     IRepository<Page, DigitalContext> pageRepository,
+    IRepository<PageMeta, DigitalContext> pageMetaRepository,
     IEntityService<Page, DigitalContext> pageEntityService
 ) : CrudController<Page, DigitalContext, PageDto, PagePayload>(pageEntityService)
 {
@@ -31,20 +30,19 @@ public class PageController(
         return result is not null ? Ok(result) : NotFound();
     }
     
+    [HttpGet("{id:Guid}/meta")]
+    public ActionResult<List<PageMeta>> GetMetaByPageId(Guid id)
+    {
+        var metas = pageMetaRepository
+            .Get(p => p.Page.Id == id && p.Page.IsPublished)
+            .Select(p => new PageMetaDto(p))
+            .ToList();
+        return Ok(metas);
+    }
+    
     [HttpPost("")]
     public override async Task<ActionResult<Result>> Post([FromBody] PagePayload payload)
     {
-        if (payload.PuckConfigId == 0)
-        {
-            var defaultVersion = puckConfigRepository
-                .Get()
-                .OrderByDescending(x => x.CreatedAt)
-                .FirstOrDefault()?.Id;
-            if (defaultVersion is null)
-                return BadRequest(new Result().AddError(new NoPuckConfigException()));
-            
-            payload.PuckConfigId = (int)defaultVersion;
-        }
         var result = await _pageEntityService.Create(Mapper.Map<PagePayload, Page>(payload));
         return result.HasError ? BadRequest(result) : Ok(result);
     }

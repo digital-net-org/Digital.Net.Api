@@ -3,6 +3,7 @@ using System;
 using Digital.Net.Api.Entities.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Digital.Net.Api.Entities.Migrations
 {
     [DbContext(typeof(DigitalContext))]
-    partial class DigitalContextModelSnapshot : ModelSnapshot
+    [Migration("20250618215703_PageMeta")]
+    partial class PageMeta
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -382,12 +385,6 @@ namespace Digital.Net.Api.Entities.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("Content");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("CreatedAt");
@@ -400,6 +397,12 @@ namespace Digital.Net.Api.Entities.Migrations
                     b.Property<Guid>("PageId")
                         .HasColumnType("uuid")
                         .HasColumnName("PageId");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("Content");
 
                     b.Property<string>("Property")
                         .HasMaxLength(128)

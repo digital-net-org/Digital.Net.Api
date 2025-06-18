@@ -6,9 +6,7 @@ public class PagePayload
 {
     [Required]
     public string Title { get; set; }
-
+    
     [Required]
     public string Path { get; set; }
-    
-    public int PuckConfigId { get; set; }
 }

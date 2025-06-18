@@ -1,5 +1,4 @@
 using System.IdentityModel.Tokens.Jwt;
-using System.Text.Json;
 using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models.ApiTokens;
 using Digital.Net.Api.Entities.Models.Users;
