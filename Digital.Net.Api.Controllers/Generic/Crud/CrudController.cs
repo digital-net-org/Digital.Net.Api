@@ -2,6 +2,7 @@ using System.Text.Json;
 using Digital.Net.Api.Core.Formatters;
 using Digital.Net.Api.Core.Messages;
 using Digital.Net.Api.Core.Models;
+using Digital.Net.Api.Entities.Exceptions;
 using Digital.Net.Api.Entities.Models;
 using Digital.Net.Api.Entities.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -58,7 +59,10 @@ public abstract class CrudController<T, TContext, TDto, TPayload>(
 
         if (result.HasError && result.HasErrorOfType<KeyNotFoundException>())
             return NotFound(result);
-        if (result.HasError && result.HasErrorOfType<InvalidOperationException>())
+        if (result.HasError && (
+                result.HasErrorOfType<InvalidOperationException>() 
+                || result.HasErrorOfType<EntityValidationException>()
+        ))
             return BadRequest(result);
 
         return Ok(result);
