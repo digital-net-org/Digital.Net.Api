@@ -18,6 +18,7 @@ public class CrudControllerTest : UnitTest
     private readonly CrudControllerWithId _crudIdController;
     private readonly Mock<IEntityService<TestGuidEntity, MvcTestContext>> _guidEntityServiceMock = new();
     private readonly Mock<IEntityService<TestIdEntity, MvcTestContext>> _idEntityServiceMock = new();
+    private readonly Mock<IEntityValidator<MvcTestContext>> _entityValidatorMock = new();
 
     public CrudControllerTest()
     {
@@ -31,8 +32,8 @@ public class CrudControllerTest : UnitTest
             .Setup(x => x.Patch(It.IsAny<JsonPatchDocument<TestGuidEntity>>(), It.IsAny<Guid>()))
             .ReturnsAsync(new Result().AddError(new InvalidOperationException()));
 
-        _crudIdController = new CrudControllerWithId(_idEntityServiceMock.Object);
-        _crudGuidController = new CrudControllerWithGuid(_guidEntityServiceMock.Object);
+        _crudIdController = new CrudControllerWithId(_idEntityServiceMock.Object, _entityValidatorMock.Object);
+        _crudGuidController = new CrudControllerWithGuid(_guidEntityServiceMock.Object, _entityValidatorMock.Object);
     }
 
     [Fact]

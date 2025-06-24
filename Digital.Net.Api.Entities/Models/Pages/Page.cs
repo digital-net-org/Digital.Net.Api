@@ -28,4 +28,6 @@ public class Page : EntityGuid
 
     [Column("PuckData"), DataFlag("json")]
     public string? PuckData { get; set; }
+
+    public virtual List<PageMeta> Metas { get; set; } = [];
 }

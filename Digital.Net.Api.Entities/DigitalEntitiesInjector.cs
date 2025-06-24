@@ -3,6 +3,7 @@ using Digital.Net.Api.Entities.Models;
 using Digital.Net.Api.Entities.Repositories;
 using Digital.Net.Api.Entities.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Digital.Net.Api.Entities;
 
@@ -16,8 +17,11 @@ public static class DigitalEntitiesInjector
     /// <typeparam name="T">Entity to register.</typeparam>
     /// <returns></returns>
     public static IServiceCollection AddDigitalEntities<T>(this IServiceCollection services)
-        where T : Entity =>
-        services
+        where T : Entity
+    {
+        services.TryAddScoped<IEntityValidator<DigitalContext>, EntityValidator<DigitalContext>>();
+        return services
             .AddScoped<IRepository<T, DigitalContext>, Repository<T, DigitalContext>>()
             .AddScoped<IEntityService<T, DigitalContext>, EntityService<T, DigitalContext>>();
+    }
 }

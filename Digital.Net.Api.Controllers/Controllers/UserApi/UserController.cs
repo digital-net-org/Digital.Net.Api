@@ -1,11 +1,11 @@
 using System.Text.Json;
+using Digital.Net.Api.Controllers.Controllers.UserApi.Dto;
+using Digital.Net.Api.Controllers.Generic.Crud;
+using Digital.Net.Api.Core.Messages;
 using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models.Documents;
 using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Entities.Services;
-using Digital.Net.Api.Controllers.Controllers.UserApi.Dto;
-using Digital.Net.Api.Controllers.Generic.Crud;
-using Digital.Net.Api.Core.Messages;
 using Digital.Net.Api.Services.Authentication.Attributes;
 using Digital.Net.Api.Services.Authentication.Exceptions;
 using Digital.Net.Api.Services.Authentication.Services.Authentication;
@@ -18,10 +18,10 @@ namespace Digital.Net.Api.Controllers.Controllers.UserApi;
 [ApiController, Route("user"), Authorize(AuthorizeType.Jwt)]
 public class UserController(
     IEntityService<User, DigitalContext> entityService,
-    IAuthenticationService authenticationService,
     IUserService userService,
-    IUserContextService userContextService
-) : CrudController<User, DigitalContext, UserDto, UserDto>(entityService)
+    IUserContextService userContextService,
+    IEntityValidator<DigitalContext> entityValidator
+) : CrudController<User, DigitalContext, UserDto, UserDto>(entityService, entityValidator)
 {
     [HttpGet("self")]
     public ActionResult<Result<UserDto>> GetSelfAsync() =>

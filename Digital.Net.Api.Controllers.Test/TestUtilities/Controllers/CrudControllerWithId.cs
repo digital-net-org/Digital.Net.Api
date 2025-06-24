@@ -4,5 +4,7 @@ using Digital.Net.Api.Entities.Services;
 
 namespace Digital.Net.Api.Controllers.Test.TestUtilities.Controllers;
 
-public class CrudControllerWithId(IEntityService<TestIdEntity, MvcTestContext> entityService)
-    : CrudController<TestIdEntity, MvcTestContext, TestIdEntityDto, TestIdEntityPayload>(entityService);
+public class CrudControllerWithId(
+    IEntityService<TestIdEntity, MvcTestContext> entityService,
+    IEntityValidator<MvcTestContext> entityValidator
+) : CrudController<TestIdEntity, MvcTestContext, TestIdEntityDto, TestIdEntityPayload>(entityService, entityValidator);

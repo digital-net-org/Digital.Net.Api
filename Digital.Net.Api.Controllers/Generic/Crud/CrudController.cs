@@ -12,7 +12,8 @@ namespace Digital.Net.Api.Controllers.Generic.Crud;
 
 [Route("[controller]")]
 public abstract class CrudController<T, TContext, TDto, TPayload>(
-    IEntityService<T, TContext> entityService
+    IEntityService<T, TContext> entityService,
+    IEntityValidator<TContext> entityValidator
 ) : ControllerBase
     where T : Entity
     where TContext : DbContext
@@ -21,7 +22,7 @@ public abstract class CrudController<T, TContext, TDto, TPayload>(
 {
     [HttpGet("schema")]
     public virtual ActionResult<Result<List<SchemaProperty<T>>>> GetSchema() =>
-        Ok(new Result<List<SchemaProperty<T>>>(entityService.GetSchema()));
+        Ok(new Result<List<SchemaProperty<T>>>(entityValidator.GetSchema<T>()));
 
     [HttpGet("{id}")]
     public virtual ActionResult<Result<TDto>> GetById(string id)

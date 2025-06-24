@@ -11,13 +11,6 @@ public interface IEntityService<T, TContext>
     where TContext : DbContext
 {
     /// <summary>
-    ///     Get a schema of the entity describing its properties.
-    /// </summary>
-    /// <typeparam name="T">The model of the entity</typeparam>
-    /// <returns>Schema of the entity</returns>
-    List<SchemaProperty<T>> GetSchema();
-
-    /// <summary>
     ///    Get an entity based on a predicate. Converts the entity to the provided model using constructor.
     /// </summary>
     /// <param name="expression">The predicate to filter entities</param>

@@ -11,8 +11,9 @@ namespace Digital.Net.Api.Controllers.Controllers.PageApi;
 
 [ApiController, Route("page/meta"), Authorize(AuthorizeType.Any)]
 public class PageMetaController(
-    IEntityService<PageMeta, DigitalContext> pageMetaEntityService
-) : CrudController<PageMeta, DigitalContext, PageMetaDto, PageMetaPayload>(pageMetaEntityService)
+    IEntityService<PageMeta, DigitalContext> pageMetaEntityService,
+    IEntityValidator<DigitalContext> entityValidator
+) : CrudController<PageMeta, DigitalContext, PageMetaDto, PageMetaPayload>(pageMetaEntityService, entityValidator)
 {
     [HttpGet("{id}")]
     public override ActionResult<Result<PageMetaDto>> GetById(string id) => NotFound();

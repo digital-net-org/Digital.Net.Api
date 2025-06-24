@@ -107,18 +107,21 @@ public class Repository<T, TContext>(TContext context) : IRepository<T, TContext
         var properties = entity.GetType().GetProperties();
         foreach (var property in properties)
         {
-            if (
-                !property.PropertyType.IsGenericType
-                || property.PropertyType.GetGenericTypeDefinition() != typeof(List<>)
-            )
+            if (!typeof(IEnumerable).IsAssignableFrom(property.PropertyType) || property.PropertyType == typeof(string))
                 continue;
-            var values = property.GetValue(entity);
-
-            if (values is null)
+            if (property.GetValue(entity) is not IEnumerable values)
                 continue;
 
-            foreach (var item in (IEnumerable)values)
-                context.Entry(item).State = EntityState.Modified;
+            foreach (var item in values)
+                if (item is Entity)
+                {
+                    var idProperty = item.GetType().GetProperty("Id") ?? throw new InvalidOperationException();
+                    var id = idProperty.GetValue(item)!;
+                    context.Entry(item).State = (idProperty.PropertyType == typeof(Guid) && (Guid)id == Guid.Empty) ||
+                                                (idProperty.PropertyType == typeof(int) && (int)id == 0)
+                        ? EntityState.Added
+                        : EntityState.Modified;
+                }
         }
     }
 

@@ -3,6 +3,7 @@ using Digital.Net.Api.Core.Exceptions;
 using Digital.Net.Api.Core.Random;
 using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Exceptions;
+using Digital.Net.Api.Entities.Models.Pages;
 using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Entities.Repositories;
 using Digital.Net.Api.Entities.Services;
@@ -23,6 +24,17 @@ public class EntityServiceTest : UnitTest, IDisposable
             Email = Randomizer.GenerateRandomEmail()
     };
 
+    private static Page GetTestPage() => new()
+    {
+        Title = Randomizer.GenerateRandomString(),
+        Description = Randomizer.GenerateRandomString(),
+        Path = Randomizer.GenerateRandomString(),
+        IsIndexed = false,
+        IsPublished = false,
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow
+    };
+
     private static JsonPatchDocument<User> CreateUserPatch<T>(Expression<Func<User, T>> path, T value)
     {
         var patch = new JsonPatchDocument<User>();
@@ -32,22 +44,28 @@ public class EntityServiceTest : UnitTest, IDisposable
 
     private readonly SqliteConnection _connection;
     private readonly Repository<User, DigitalContext> _userRepository;
+    private readonly Repository<Page, DigitalContext> _pageRepository;
     private readonly IEntityService<User, DigitalContext> _userService;
+    private readonly IEntityService<Page, DigitalContext> _pageService;
+    private readonly EntityValidator<DigitalContext> _entityValidator;
 
     public EntityServiceTest()
     {
         _connection = SqliteInMemoryHelper.GetConnection();
         var context = _connection.CreateContext<DigitalContext>();
+        _entityValidator = new EntityValidator<DigitalContext>(context);
         _userRepository = new Repository<User, DigitalContext>(context);
-        _userService = new EntityService<User, DigitalContext>(_userRepository);
+        _pageRepository = new Repository<Page, DigitalContext>(context);
+        _userService = new EntityService<User, DigitalContext>(_userRepository, _entityValidator);
+        _pageService = new EntityService<Page, DigitalContext>(_pageRepository, _entityValidator);
     }
 
     [Fact]
     public void GetSchema_ReturnsCorrectSchema_WhenEntityHasProperties() =>
-        Assert.Equal("Username", _userService.GetSchema()[0].Name);
+        Assert.Equal("Username", _entityValidator.GetSchema<User>()[0].Name);
 
     [Fact]
-    public async Task Patch_ReturnsMappedModel_WhenQueryIsValid()
+    public async Task Patch_UpdatesEntity_WhenQueryIsValid()
     {
         var user = await _userRepository.CreateAndSaveAsync(GetTestUser());
         var patch = CreateUserPatch(u => u.Username, "NewUsername");
@@ -56,6 +74,18 @@ public class EntityServiceTest : UnitTest, IDisposable
         var updatedUser = await _userRepository.GetByIdAsync(user.Id);
         Assert.NotNull(result);
         Assert.Equal("NewUsername", updatedUser?.Username);
+    }
+
+    [Fact]
+    public async Task Patch_UpdatesEntity_WhenNestPatchIsValid()
+    {
+        var page = await _pageRepository.CreateAndSaveAsync(GetTestPage());
+        var patch = new JsonPatchDocument<Page>();
+        patch.Add(p => p.Metas, new PageMeta { Name = "TestMeta", Content = "TestContent" });
+        var result = await _pageService.Patch(patch, page.Id);
+        var updatedPage = await _pageRepository.GetByIdAsync(page.Id);
+        Assert.False(result.HasError);
+        Assert.NotEmpty(updatedPage!.Metas);
     }
 
     [Fact]

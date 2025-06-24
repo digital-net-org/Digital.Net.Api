@@ -15,8 +15,9 @@ namespace Digital.Net.Api.Controllers.Controllers.PageApi;
 public class PageController(
     IRepository<Page, DigitalContext> pageRepository,
     IRepository<PageMeta, DigitalContext> pageMetaRepository,
-    IEntityService<Page, DigitalContext> pageEntityService
-) : CrudController<Page, DigitalContext, PageDto, PagePayload>(pageEntityService)
+    IEntityService<Page, DigitalContext> pageEntityService,
+    IEntityValidator<DigitalContext> entityValidator
+) : CrudController<Page, DigitalContext, PageDto, PagePayload>(pageEntityService, entityValidator)
 {
     private readonly IEntityService<Page, DigitalContext> _pageEntityService = pageEntityService;
 
