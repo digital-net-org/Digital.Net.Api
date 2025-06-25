@@ -54,7 +54,6 @@ public abstract class PaginationController<T, TContext, TDto, TQuery>(
             predicate = predicate.Add(x => x.CreatedAt >= query.CreatedIn.From && x.CreatedAt <= query.CreatedIn.To);
         if (query.UpdatedIn is not null)
             predicate = predicate.Add(x => x.UpdatedAt >= query.UpdatedIn.From && x.UpdatedAt <= query.UpdatedIn.To);
-
         return Filter(predicate, query);
     }
 

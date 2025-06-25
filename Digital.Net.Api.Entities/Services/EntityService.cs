@@ -31,31 +31,20 @@ public class EntityService<T, TContext>(
         }
     }
 
-    public Result<TModel> Get<TModel>(Guid? id)
-        where TModel : class => Get<TModel>(repository.GetById(id));
-
-    public Result<TModel> Get<TModel>(int id)
-        where TModel : class => Get<TModel>(repository.GetById(id));
-
-    private static Result<TModel> Get<TModel>(T? entity)
-        where TModel : class
+    public Result<TModel> Get<TModel>(Guid id) where TModel : class
     {
         var result = new Result<TModel>();
+        var entity = repository.GetById(id);
         if (entity is null)
-            return result.AddError(new KeyNotFoundException("Entity not found."));
+            return result.AddError(new ResourceNotFoundException());
         result.Value = Mapper.MapFromConstructor<T, TModel>(entity);
         return result;
     }
 
-    public async Task<Result> Patch(JsonPatchDocument<T> patch, Guid? id) =>
-        await Patch(patch, await repository.GetByIdAsync(id));
-
-    public async Task<Result> Patch(JsonPatchDocument<T> patch, int id) =>
-        await Patch(patch, await repository.GetByIdAsync(id));
-
-    private async Task<Result> Patch(JsonPatchDocument<T> patch, T? entity)
+    public async Task<Result> Patch(JsonPatchDocument<T> patch, Guid id)
     {
         var result = new Result();
+        var entity = await repository.GetByIdAsync(id);
         if (entity is null)
             return result.AddError(new ResourceNotFoundException());
         try
@@ -63,7 +52,6 @@ public class EntityService<T, TContext>(
             entityValidator.ValidatePatchPayload(patch);
             patch.ApplyTo(entity);
             repository.Update(entity);
-            await OnPatch(entity);
             await repository.SaveAsync();
         }
         catch (Exception e)
@@ -74,18 +62,14 @@ public class EntityService<T, TContext>(
         return result;
     }
 
-    public async Task<Result> Delete(Guid? id) => await Delete(await repository.GetByIdAsync(id));
-
-    public async Task<Result> Delete(int id) => await Delete(await repository.GetByIdAsync(id));
-
-    private async Task<Result> Delete(T? entity)
+    public async Task<Result> Delete(Guid id)
     {
         var result = new Result();
+        var entity = await repository.GetByIdAsync(id);
         if (entity is null)
-            return result.AddError(new KeyNotFoundException("Entity not found."));
+            return result.AddError(new ResourceNotFoundException());
         try
         {
-            await OnDelete(entity);
             repository.Delete(entity);
             await repository.SaveAsync();
         }
@@ -93,32 +77,23 @@ public class EntityService<T, TContext>(
         {
             result.AddError(e);
         }
-
         return result;
     }
 
-    public async Task<Result<string>> Create(T entity)
+    public async Task<Result<Guid>> Create(T entity)
     {
-        var result = new Result<string>();
+        var result = new Result<Guid>();
         try
         {
             entityValidator.ValidateCreatePayload(entity);
-            await OnCreate(entity);
             await repository.CreateAsync(entity);
             await repository.SaveAsync();
-            result.Value = entity.GetType().GetProperty("Id")?.GetValue(entity)?.ToString();
+            result.Value = entity.Id;
         }
         catch (Exception e)
         {
             result.AddError(e);
         }
-
         return result;
     }
-
-    protected virtual Task OnCreate(T entity) => Task.CompletedTask;
-
-    protected virtual Task OnPatch(T entity) => Task.CompletedTask;
-
-    protected virtual Task OnDelete(T entity) => Task.CompletedTask;
 }

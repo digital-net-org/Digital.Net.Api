@@ -7,7 +7,7 @@ using Digital.Net.Api.Entities.Models.Users;
 namespace Digital.Net.Api.Entities.Models.Events;
 
 [Table("Event")]
-public class Event : EntityId
+public class Event : Entity
 {
     public Event() {}
 

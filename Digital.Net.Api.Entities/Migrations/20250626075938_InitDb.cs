@@ -1,13 +1,12 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace Digital.Net.Api.Entities.Migrations
 {
     /// <inheritdoc />
-    public partial class init_digital_net : Migration
+    public partial class InitDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,7 +19,8 @@ namespace Digital.Net.Api.Entities.Migrations
                 schema: "digital_net",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Key = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
                     Value = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -31,68 +31,48 @@ namespace Digital.Net.Api.Entities.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PuckConfig",
-                schema: "digital_net",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    DocumentId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Version = table.Column<string>(type: "character varying(24)", maxLength: 24, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PuckConfig", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "View",
-                schema: "digital_net",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
-                    Data = table.Column<string>(type: "text", nullable: true),
-                    PuckConfigId = table.Column<int>(type: "integer", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_View", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_View_PuckConfig_PuckConfigId",
-                        column: x => x.PuckConfigId,
-                        principalSchema: "digital_net",
-                        principalTable: "PuckConfig",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Page",
                 schema: "digital_net",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Title = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
-                    Path = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    Title = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    Description = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    Path = table.Column<string>(type: "character varying(2068)", maxLength: 2068, nullable: false),
                     IsPublished = table.Column<bool>(type: "boolean", nullable: false),
-                    ViewId = table.Column<Guid>(type: "uuid", nullable: true),
+                    IsIndexed = table.Column<bool>(type: "boolean", nullable: false),
+                    PuckData = table.Column<string>(type: "text", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Page", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PageMeta",
+                schema: "digital_net",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    Property = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    Content = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    PageId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PageMeta", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Page_View_ViewId",
-                        column: x => x.ViewId,
+                        name: "FK_PageMeta_Page_PageId",
+                        column: x => x.PageId,
                         principalSchema: "digital_net",
-                        principalTable: "View",
-                        principalColumn: "Id");
+                        principalTable: "Page",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -100,8 +80,7 @@ namespace Digital.Net.Api.Entities.Migrations
                 schema: "digital_net",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Key = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
                     ExpiredAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
@@ -118,8 +97,7 @@ namespace Digital.Net.Api.Entities.Migrations
                 schema: "digital_net",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Key = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
                     UserAgent = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
                     ExpiredAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -206,8 +184,7 @@ namespace Digital.Net.Api.Entities.Migrations
                 schema: "digital_net",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
                     Payload = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
                     UserAgent = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
@@ -227,6 +204,29 @@ namespace Digital.Net.Api.Entities.Migrations
                         column: x => x.UserId,
                         principalSchema: "digital_net",
                         principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PageAsset",
+                schema: "digital_net",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Path = table.Column<string>(type: "character varying(2068)", maxLength: 2068, nullable: false),
+                    DocumentId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PageAsset", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PageAsset_Document_DocumentId",
+                        column: x => x.DocumentId,
+                        principalSchema: "digital_net",
+                        principalTable: "Document",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -290,24 +290,23 @@ namespace Digital.Net.Api.Entities.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Page_Title",
+                name: "IX_PageAsset_DocumentId",
                 schema: "digital_net",
-                table: "Page",
-                column: "Title",
+                table: "PageAsset",
+                column: "DocumentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PageAsset_Path",
+                schema: "digital_net",
+                table: "PageAsset",
+                column: "Path",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Page_ViewId",
+                name: "IX_PageMeta_PageId",
                 schema: "digital_net",
-                table: "Page",
-                column: "ViewId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PuckConfig_Version",
-                schema: "digital_net",
-                table: "PuckConfig",
-                column: "Version",
-                unique: true);
+                table: "PageMeta",
+                column: "PageId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_User_AvatarId",
@@ -321,19 +320,6 @@ namespace Digital.Net.Api.Entities.Migrations
                 table: "User",
                 columns: new[] { "Username", "Email" },
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_View_Name",
-                schema: "digital_net",
-                table: "View",
-                column: "Name",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_View_PuckConfigId",
-                schema: "digital_net",
-                table: "View",
-                column: "PuckConfigId");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_ApiKey_User_UserId",
@@ -391,15 +377,15 @@ namespace Digital.Net.Api.Entities.Migrations
                 schema: "digital_net");
 
             migrationBuilder.DropTable(
+                name: "PageAsset",
+                schema: "digital_net");
+
+            migrationBuilder.DropTable(
+                name: "PageMeta",
+                schema: "digital_net");
+
+            migrationBuilder.DropTable(
                 name: "Page",
-                schema: "digital_net");
-
-            migrationBuilder.DropTable(
-                name: "View",
-                schema: "digital_net");
-
-            migrationBuilder.DropTable(
-                name: "PuckConfig",
                 schema: "digital_net");
 
             migrationBuilder.DropTable(

@@ -1,8 +1,10 @@
 using System.Text.Json;
+using Digital.Net.Api.Controllers.Controllers.PageApi.Dto;
+using Digital.Net.Api.Controllers.Generic.Crud;
 using Digital.Net.Api.Controllers.Generic.Pagination;
-using Digital.Net.Api.Controllers.Test.TestUtilities.Context;
-using Digital.Net.Api.Controllers.Test.TestUtilities.Controllers;
 using Digital.Net.Api.Core.Messages;
+using Digital.Net.Api.Entities.Context;
+using Digital.Net.Api.Entities.Models.Pages;
 using Digital.Net.Api.Entities.Services;
 using Digital.Net.Api.TestUtilities;
 using Microsoft.AspNetCore.JsonPatch;
@@ -13,50 +15,24 @@ namespace Digital.Net.Api.Controllers.Test.Generic.Crud;
 
 public class CrudControllerTest : UnitTest
 {
-    private readonly CrudControllerWithGuid _crudGuidController;
+    private class TestCrudController(
+        IEntityService<Page, DigitalContext> entityService,
+        IEntityValidator<DigitalContext> entityValidator)
+        : CrudController<Page, DigitalContext, PageDto, PagePayload>(entityService, entityValidator);
 
-    private readonly CrudControllerWithId _crudIdController;
-    private readonly Mock<IEntityService<TestGuidEntity, MvcTestContext>> _guidEntityServiceMock = new();
-    private readonly Mock<IEntityService<TestIdEntity, MvcTestContext>> _idEntityServiceMock = new();
-    private readonly Mock<IEntityValidator<MvcTestContext>> _entityValidatorMock = new();
+    private readonly CrudController<Page, DigitalContext, PageDto, PagePayload> _crudController;
+    private readonly Mock<IEntityService<Page, DigitalContext>> _entityServiceMock = new();
+    private readonly Mock<IEntityValidator<DigitalContext>> _entityValidatorMock = new();
 
     public CrudControllerTest()
     {
-        _idEntityServiceMock
-            .Setup(x => x.Get<TestIdEntityDto>(It.IsAny<int>()))
-            .Returns(new QueryResult<TestIdEntityDto>());
-        _guidEntityServiceMock
-            .Setup(x => x.Get<TestGuidEntityDto>(It.IsAny<Guid>()))
-            .Returns(new QueryResult<TestGuidEntityDto>());
-        _guidEntityServiceMock
-            .Setup(x => x.Patch(It.IsAny<JsonPatchDocument<TestGuidEntity>>(), It.IsAny<Guid>()))
+        _entityServiceMock
+            .Setup(x => x.Get<PageDto>(It.IsAny<Guid>()))
+            .Returns(new QueryResult<PageDto>());
+        _entityServiceMock
+            .Setup(x => x.Patch(It.IsAny<JsonPatchDocument<Page>>(), It.IsAny<Guid>()))
             .ReturnsAsync(new Result().AddError(new InvalidOperationException()));
-
-        _crudIdController = new CrudControllerWithId(_idEntityServiceMock.Object, _entityValidatorMock.Object);
-        _crudGuidController = new CrudControllerWithGuid(_guidEntityServiceMock.Object, _entityValidatorMock.Object);
-    }
-
-    [Fact]
-    public void GetById_AsInt_ShouldCallGetByWitchCorrectSignature()
-    {
-        const int id = 1;
-        _crudIdController.GetById(1.ToString());
-        _idEntityServiceMock.Verify(x => x.Get<TestIdEntityDto>(id), Times.Once);
-    }
-
-    [Fact]
-    public void GetById_AsGuid_ShouldCallGetByWitchCorrectSignature()
-    {
-        var id = Guid.NewGuid();
-        _crudGuidController.GetById(id.ToString());
-        _guidEntityServiceMock.Verify(x => x.Get<TestGuidEntityDto>(id), Times.Once);
-    }
-
-    [Fact]
-    public void GetById_InvalidId_ShouldReturnNotFound()
-    {
-        var result = _crudGuidController.GetById("invalidId");
-        Assert.IsType<NotFoundObjectResult>(result.Result);
+        _crudController = new TestCrudController(_entityServiceMock.Object, _entityValidatorMock.Object);
     }
 
     [Fact]
@@ -66,7 +42,7 @@ public class CrudControllerTest : UnitTest
             .Parse("[{ \"op\": \"replace\", \"path\": \"/name\", \"value\": \"newName\" }]")
             .RootElement;
 
-        var result = await _crudGuidController.Patch(Guid.NewGuid().ToString(), jsonPatch);
+        var result = await _crudController.Patch(Guid.NewGuid(), jsonPatch);
         Assert.IsType<BadRequestObjectResult>(result.Result);
     }
 }

@@ -18,7 +18,7 @@ public class PageMetaDto
         UpdatedAt = pageMeta.UpdatedAt;
     }
 
-    public int Id { get; init; }
+    public Guid Id { get; init; }
     public string? Name { get; init; }
     public string? Property { get; init; }
     public string Content { get; init; }

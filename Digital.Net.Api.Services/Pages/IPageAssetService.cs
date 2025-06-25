@@ -7,5 +7,5 @@ namespace Digital.Net.Api.Services.Pages;
 public interface IPageAssetService
 {
     Task<Result> UploadAsync(IFormFile file, string path, User? uploader);
-    Task<Result> DeleteAsync(int id);
+    Task<Result> DeleteAsync(Guid id);
 }

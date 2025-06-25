@@ -6,7 +6,7 @@ using Digital.Net.Api.Entities.Models.Documents;
 namespace Digital.Net.Api.Entities.Models.Avatars;
 
 [Table("Avatar")]
-public class Avatar : EntityGuid, IPosition
+public class Avatar : Entity, IPosition
 {
     [Column("X")]
     public int X { get; set; }

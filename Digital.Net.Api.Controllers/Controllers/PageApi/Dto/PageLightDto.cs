@@ -18,7 +18,7 @@ public class PageLightDto
         UpdatedAt = page.UpdatedAt;
     }
 
-    public Guid? Id { get; init; }
+    public Guid Id { get; init; }
     public string? Title { get; set; }
     public string? Path { get; set; }
     public bool? IsPublished { get; set; }

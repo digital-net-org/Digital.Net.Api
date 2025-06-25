@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Digital.Net.Api.Entities.Models.Documents;
 
 [Table("Document"), Index(nameof(FileName), IsUnique = true)]
-public class Document : EntityGuid
+public class Document : Entity
 {
     public Document() {}
 
@@ -17,7 +17,7 @@ public class Document : EntityGuid
         FileName = GenerateAnonymousFileName(file.FileName);
         MimeType = file.ContentType;
         FileSize = file.Length;
-        UploaderId = uploader.Id;
+        UploaderId = uploader?.Id;
     }
 
     [Column("FileName"), MaxLength(64), Required, ReadOnly]

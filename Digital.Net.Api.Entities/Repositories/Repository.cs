@@ -77,13 +77,9 @@ public class Repository<T, TContext>(TContext context) : IRepository<T, TContext
     public IQueryable<T> DynamicQuery(string predicate, params object?[] args) =>
         context.Set<T>().Where(predicate, args);
 
-    public T? GetById(int? id) => context.Set<T>().Find(id);
+    public T? GetById(Guid id) => context.Set<T>().Find(id);
 
-    public T? GetById(Guid? id) => context.Set<T>().Find(id);
-
-    public async Task<T?> GetByIdAsync(int? id) => await context.Set<T>().FindAsync(id);
-
-    public async Task<T?> GetByIdAsync(Guid? id) => await context.Set<T>().FindAsync(id);
+    public async Task<T?> GetByIdAsync(Guid id) => await context.Set<T>().FindAsync(id);
 
     public int Count(Expression<Func<T, bool>> expression) => context.Set<T>().Count(expression);
 
@@ -111,17 +107,11 @@ public class Repository<T, TContext>(TContext context) : IRepository<T, TContext
                 continue;
             if (property.GetValue(entity) is not IEnumerable values)
                 continue;
-
             foreach (var item in values)
-                if (item is Entity)
-                {
-                    var idProperty = item.GetType().GetProperty("Id") ?? throw new InvalidOperationException();
-                    var id = idProperty.GetValue(item)!;
-                    context.Entry(item).State = (idProperty.PropertyType == typeof(Guid) && (Guid)id == Guid.Empty) ||
-                                                (idProperty.PropertyType == typeof(int) && (int)id == 0)
-                        ? EntityState.Added
+                if (item is Entity nested)
+                    context.Entry(nested).State = nested.Id == Guid.Empty
+                        ? EntityState.Added 
                         : EntityState.Modified;
-                }
         }
     }
 

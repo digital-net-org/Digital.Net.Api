@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Digital.Net.Api.Entities.Models.Pages;
 
 [Table("PageMeta")]
-public class PageMeta : EntityId
+public class PageMeta : Entity
 {
     [Column("Name"), MaxLength(128)]
     public string? Name { get; set; }

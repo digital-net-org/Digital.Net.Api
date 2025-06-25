@@ -35,7 +35,7 @@ public class PageAssetService(
         return result;
     }
 
-    public async Task<Result> DeleteAsync(int id)
+    public async Task<Result> DeleteAsync(Guid id)
     {
         var result = pageAssetValidationService.ValidateDelete(id);
         if (result.HasError)

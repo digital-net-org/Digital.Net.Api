@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Digital.Net.Api.Entities.Models.Pages;
 
 [Table("PageAsset"), Index(nameof(Path), IsUnique = true)]
-public class PageAsset : EntityId
+public class PageAsset : Entity
 {
     [Column("Path"), Required, MaxLength(2068)] // TODO: Unique with pages
     public required string Path { get; set; }

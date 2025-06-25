@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Digital.Net.Api.Entities.Models.Users;
 
 [Table("User"), Index(nameof(Username), nameof(Email), IsUnique = true)]
-public class User : EntityGuid
+public class User : Entity
 {
     [
         Column("Username"),

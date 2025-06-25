@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Digital.Net.Api.Entities.Models.ApiKeys;
 
 [Table("ApiKey"), Index(nameof(Key), IsUnique = true)]
-public class ApiKey(Guid userId, string? key = null, DateTime? expiredAt = null) : EntityId
+public class ApiKey(Guid userId, string? key = null, DateTime? expiredAt = null) : Entity
 {
     public static string Hash(string apiKey)
     {

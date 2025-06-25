@@ -33,8 +33,8 @@ public class PageAssetController(
         return result.Value;
     }
 
-    [HttpGet("{id:int}")]
-    public ActionResult<Result<PageAssetDto>> GetAsset(int id)
+    [HttpGet("{id:guid}")]
+    public ActionResult<Result<PageAssetDto>> GetAsset(Guid id)
     {
         var result = pageAssetEntityService.Get<PageAssetDto>(id);
         return result.HasError ? NotFound(result) : Ok(result);
@@ -52,8 +52,8 @@ public class PageAssetController(
         return Ok(result);
     }
 
-    [HttpDelete("{id:int}")]
-    public async Task<ActionResult<Result>> DeleteAsset(int id)
+    [HttpDelete("{id:guid}")]
+    public async Task<ActionResult<Result>> DeleteAsset(Guid id)
     {
         var result = await pageAssetService.DeleteAsync(id);
         if (result.HasErrorOfType<ResourceNotFoundException>())

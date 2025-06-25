@@ -29,29 +29,23 @@ public class UserController(
             ? Ok(new Result<UserDto>(new UserDto(user)))
             : Unauthorized();
 
-    [HttpPatch("{id}")]
-    public override async Task<ActionResult<Result>> Patch(string id, [FromBody] JsonElement patch)
-    {
-        var user = await GetAuthorizedUser(Guid.Parse(id));
-        if (user is null)
-            return Unauthorized();
-
-        return await base.Patch(id, patch);
-    }
+    [HttpPatch("{id:guid}")]
+    public override async Task<ActionResult<Result>> Patch(Guid id, [FromBody] JsonElement patch) =>
+        GetAuthorizedUser(id) is null ? Unauthorized() : await base.Patch(id, patch);
 
     [NonAction]
-    public override async Task<ActionResult<Result>> Post([FromBody] UserDto payload) => NotFound();
+    public override Task<ActionResult<Result>> Post([FromBody] UserDto payload) =>
+        Task.FromResult<ActionResult<Result>>(NotFound());
 
     [NonAction]
-    public override async Task<ActionResult<Result>> Delete(string id) => NotFound();
+    public override Task<ActionResult<Result>> Delete(Guid id) =>
+        Task.FromResult<ActionResult<Result>>(NotFound());
 
     [HttpPut("{id:guid}/password")]
     public async Task<ActionResult<Result>> UpdatePassword([FromBody] UserPasswordUpdatePayload request, Guid id)
     {
-        var user = await GetAuthorizedUser(id);
-        if (user is null)
+        if (GetAuthorizedUser(id) is not { } user)
             return Unauthorized();
-
         var result = await userService.UpdatePasswordAsync(user, request.CurrentPassword, request.NewPassword);
         if (result.HasErrorOfType<PasswordMalformedException>())
             return BadRequest(result);
@@ -62,24 +56,14 @@ public class UserController(
     }
 
     [HttpPut("{id:guid}/avatar")]
-    public async Task<ActionResult<Result<Document>>> UpdateAvatar(Guid id, IFormFile avatar)
-    {
-        var user = await GetAuthorizedUser(id);
-        if (user is null)
-            return Unauthorized();
-        return await userService.UpdateAvatar(user, avatar);
-    }
+    public async Task<ActionResult<Result<Document>>> UpdateAvatar(Guid id, IFormFile avatar) =>
+        GetAuthorizedUser(id) is not { } user ? Unauthorized() : await userService.UpdateAvatar(user, avatar);
 
     [HttpDelete("{id:guid}/avatar")]
-    public async Task<ActionResult<Result>> RemoveAvatar(Guid id)
-    {
-        var user = await GetAuthorizedUser(id);
-        if (user is null)
-            return Unauthorized();
-        return await userService.RemoveUserAvatar(user);
-    }
+    public async Task<ActionResult<Result>> RemoveAvatar(Guid id) =>
+        GetAuthorizedUser(id) is not { } user ? Unauthorized() : await userService.RemoveUserAvatar(user);
 
-    private async Task<User?> GetAuthorizedUser(Guid id)
+    private User? GetAuthorizedUser(Guid id)
     {
         var user = userContextService.GetUser();
         return user.Id != id ? null : user;

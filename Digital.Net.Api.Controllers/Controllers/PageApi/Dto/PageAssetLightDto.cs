@@ -17,7 +17,7 @@ public class PageAssetLightDto
         UpdatedAt = pageAsset.UpdatedAt;
     }
 
-    public int Id { get; init; }
+    public Guid Id { get; init; }
     public string Path { get; set; }
     public string MimeType { get; set; }
     public DateTime CreatedAt { get; init; }

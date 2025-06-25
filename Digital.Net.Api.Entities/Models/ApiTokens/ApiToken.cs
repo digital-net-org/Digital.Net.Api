@@ -5,7 +5,7 @@ using Digital.Net.Api.Entities.Models.Users;
 namespace Digital.Net.Api.Entities.Models.ApiTokens;
 
 [Table("ApiToken")]
-public class ApiToken : EntityId
+public class ApiToken : Entity
 {
     public ApiToken(Guid userId, string key)
     {

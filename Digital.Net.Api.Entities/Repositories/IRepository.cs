@@ -119,32 +119,18 @@ public interface IRepository<T, TContext>
     public Task SaveAsync();
 
     /// <summary>
-    ///     Get an entity by its id.
+    ///     Get an entity by its id asynchronously.
     /// </summary>
     /// <param name="id">The primary key of the entity.</param>
     /// <returns>The entity</returns>
-    T? GetById(int? id);
+    T? GetById(Guid id);
 
     /// <summary>
     ///     Get an entity by its id asynchronously.
     /// </summary>
     /// <param name="id">The primary key of the entity.</param>
     /// <returns>The entity</returns>
-    T? GetById(Guid? id);
-
-    /// <summary>
-    ///     Get an entity by its id asynchronously.
-    /// </summary>
-    /// <param name="id">The primary key of the entity.</param>
-    /// <returns>The entity</returns>
-    Task<T?> GetByIdAsync(int? id);
-
-    /// <summary>
-    ///     Get an entity by its id asynchronously.
-    /// </summary>
-    /// <param name="id">The primary key of the entity.</param>
-    /// <returns>The entity</returns>
-    Task<T?> GetByIdAsync(Guid? id);
+    Task<T?> GetByIdAsync(Guid id);
 
     /// <summary>
     ///     Get the count of entities based on a predicate.

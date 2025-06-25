@@ -10,8 +10,8 @@ public class ApplicationOption : Entity
 {
     public ApplicationOption() {}
 
-    [Column("Id"), Key, MaxLength(64), Required, ReadOnly]
-    public string Id { get; set; }
+    [Column("Key"), MaxLength(64), Required, ReadOnly]
+    public string Key { get; set; }
 
     [Column("Value"), MaxLength(64), Required]
     public string Value { get; set; }

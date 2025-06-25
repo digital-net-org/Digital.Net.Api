@@ -15,6 +15,5 @@ public class PageMetaController(
     IEntityValidator<DigitalContext> entityValidator
 ) : CrudController<PageMeta, DigitalContext, PageMetaDto, PageMetaPayload>(pageMetaEntityService, entityValidator)
 {
-    [HttpGet("{id}")]
-    public override ActionResult<Result<PageMetaDto>> GetById(string id) => NotFound();
+    public override ActionResult<Result<PageMetaDto>> GetById(Guid id) => NotFound();
 }

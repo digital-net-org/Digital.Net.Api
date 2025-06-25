@@ -5,11 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Api.Entities.Models.Pages;
 
-[
-    Table("Page"),
-    Index(nameof(Path), IsUnique = true)
-]
-public class Page : EntityGuid
+[Table("Page"), Index(nameof(Path), IsUnique = true)]
+public class Page : Entity
 {
     [Column("Title"), Required, MaxLength(64)]
     public required string Title { get; set; }

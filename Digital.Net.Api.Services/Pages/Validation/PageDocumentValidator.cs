@@ -25,7 +25,7 @@ public abstract class PageDocumentValidator<T>(
         return result;
     }
 
-    public virtual Result<T> ValidateDelete(int id)
+    public virtual Result<T> ValidateDelete(Guid id)
     {
         var result = new Result<T>();
         var config = repository.GetById(id);

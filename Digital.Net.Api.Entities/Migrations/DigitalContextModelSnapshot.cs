@@ -28,12 +28,10 @@ namespace Digital.Net.Api.Entities.Migrations
 
             modelBuilder.Entity("Digital.Net.Api.Entities.Models.ApiKeys.ApiKey", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("Id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -69,12 +67,10 @@ namespace Digital.Net.Api.Entities.Migrations
 
             modelBuilder.Entity("Digital.Net.Api.Entities.Models.ApiTokens.ApiToken", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("Id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -113,14 +109,20 @@ namespace Digital.Net.Api.Entities.Migrations
 
             modelBuilder.Entity("Digital.Net.Api.Entities.Models.ApplicationOptions.ApplicationOption", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
                         .HasColumnName("Id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("CreatedAt");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("Key");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -221,12 +223,10 @@ namespace Digital.Net.Api.Entities.Migrations
 
             modelBuilder.Entity("Digital.Net.Api.Entities.Models.Events.Event", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("Id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -338,12 +338,10 @@ namespace Digital.Net.Api.Entities.Migrations
 
             modelBuilder.Entity("Digital.Net.Api.Entities.Models.Pages.PageAsset", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("Id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -375,12 +373,10 @@ namespace Digital.Net.Api.Entities.Migrations
 
             modelBuilder.Entity("Digital.Net.Api.Entities.Models.Pages.PageMeta", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("Id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -541,7 +537,7 @@ namespace Digital.Net.Api.Entities.Migrations
             modelBuilder.Entity("Digital.Net.Api.Entities.Models.Pages.PageMeta", b =>
                 {
                     b.HasOne("Digital.Net.Api.Entities.Models.Pages.Page", "Page")
-                        .WithMany()
+                        .WithMany("Metas")
                         .HasForeignKey("PageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -557,6 +553,11 @@ namespace Digital.Net.Api.Entities.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Avatar");
+                });
+
+            modelBuilder.Entity("Digital.Net.Api.Entities.Models.Pages.Page", b =>
+                {
+                    b.Navigation("Metas");
                 });
 #pragma warning restore 612, 618
         }

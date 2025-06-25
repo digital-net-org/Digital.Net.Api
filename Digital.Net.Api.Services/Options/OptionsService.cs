@@ -22,7 +22,7 @@ public class OptionsService(
         {
             var optionAccessor = appOptionAccessor.GetDisplayName();
             var stored = appOptionRepository
-                .Get(o => o.Id == optionAccessor)
+                .Get(o => o.Key == optionAccessor)
                 .FirstOrDefault();
 
             if (stored is not null)
@@ -32,7 +32,7 @@ public class OptionsService(
             appOptionRepository.CreateAndSave(
                 new ApplicationOption
                 {
-                    Id = optionAccessor,
+                    Key = optionAccessor,
                     Value = value
                 });
 
@@ -42,7 +42,7 @@ public class OptionsService(
 
     public T Get<T>(OptionAccessor optionAccessor) where T : notnull
     {
-        var stored = appOptionRepository.Get(o => o.Id == optionAccessor.GetDisplayName());
+        var stored = appOptionRepository.Get(o => o.Key == optionAccessor.GetDisplayName());
         if (stored is null)
             throw new InvalidOperationException($"Option {optionAccessor} could not be found");
 

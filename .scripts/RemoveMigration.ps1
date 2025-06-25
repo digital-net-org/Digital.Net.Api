@@ -2,5 +2,5 @@ param (
 [string]$ConnectionString
 )
 
-$Project = "$PSScriptRoot/../Digital.Lib.Net.Entities"
+$Project = "$PSScriptRoot/../Digital.Net.Api.Entities"
 dotnet ef migrations remove --project $Project -- $ConnectionString
