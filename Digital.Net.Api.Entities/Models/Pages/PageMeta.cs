@@ -6,11 +6,11 @@ namespace Digital.Net.Api.Entities.Models.Pages;
 [Table("PageMeta")]
 public class PageMeta : Entity
 {
-    [Column("Name"), MaxLength(128)]
-    public string? Name { get; set; }
+    [Column("Key"), MaxLength(128)]
+    public required string Key { get; set; }
 
-    [Column("Property"), MaxLength(128)]
-    public string? Property { get; set; }
+    [Column("Value"), MaxLength(128)]
+    public required string Value { get; set; }
     
     [Column("Content"), Required, MaxLength(256)]
     public required string Content { get; set; }

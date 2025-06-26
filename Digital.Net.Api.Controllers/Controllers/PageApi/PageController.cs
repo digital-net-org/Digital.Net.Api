@@ -32,13 +32,16 @@ public class PageController(
     }
     
     [HttpGet("{id:Guid}/meta")]
-    public ActionResult<List<PageMeta>> GetMetaByPageId(Guid id)
+    public ActionResult<Result<List<PageMetaDto>>> GetMetaByPageId(Guid id)
     {
-        var metas = pageMetaRepository
-            .Get(p => p.Page.Id == id && p.Page.IsPublished)
-            .Select(p => new PageMetaDto(p))
-            .ToList();
-        return Ok(metas);
+        var result = new Result<List<PageMetaDto>>
+        {
+            Value = pageMetaRepository
+                .Get(p => p.Page.Id == id && p.Page.IsPublished)
+                .Select(p => new PageMetaDto(p))
+                .ToList()
+        };
+        return Ok(result);
     }
     
     [HttpPost("")]

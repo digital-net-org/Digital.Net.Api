@@ -3,6 +3,7 @@ using System;
 using Digital.Net.Api.Entities.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Digital.Net.Api.Entities.Migrations
 {
     [DbContext(typeof(DigitalContext))]
-    partial class DigitalContextModelSnapshot : ModelSnapshot
+    [Migration("20250626142917_PageMetaFieldsUpdate")]
+    partial class PageMetaFieldsUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -389,7 +392,6 @@ namespace Digital.Net.Api.Entities.Migrations
                         .HasColumnName("CreatedAt");
 
                     b.Property<string>("Key")
-                        .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)")
                         .HasColumnName("Key");
@@ -403,7 +405,6 @@ namespace Digital.Net.Api.Entities.Migrations
                         .HasColumnName("UpdatedAt");
 
                     b.Property<string>("Value")
-                        .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)")
                         .HasColumnName("Value");

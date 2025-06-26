@@ -81,7 +81,7 @@ public class EntityServiceTest : UnitTest, IDisposable
     {
         var page = await _pageRepository.CreateAndSaveAsync(GetTestPage());
         var patch = new JsonPatchDocument<Page>();
-        patch.Add(p => p.Metas, new PageMeta { Name = "TestMeta", Content = "TestContent" });
+        patch.Add(p => p.Metas, new PageMeta { Key = "TestMetaKey", Value = "TestMetaValue", Content = "TestContent" });
         var result = await _pageService.Patch(patch, page.Id);
         var updatedPage = await _pageRepository.GetByIdAsync(page.Id);
         Assert.False(result.HasError);

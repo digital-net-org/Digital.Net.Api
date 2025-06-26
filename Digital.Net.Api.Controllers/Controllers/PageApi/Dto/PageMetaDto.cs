@@ -11,16 +11,18 @@ public class PageMetaDto
     public PageMetaDto(PageMeta pageMeta)
     {
         Id = pageMeta.Id;
+        PageId = pageMeta.PageId;
         Content = pageMeta.Content;
-        Name = pageMeta.Name;
-        Property = pageMeta.Property;
+        Key = pageMeta.Key;
+        Value = pageMeta.Value;
         CreatedAt = pageMeta.CreatedAt;
         UpdatedAt = pageMeta.UpdatedAt;
     }
 
     public Guid Id { get; init; }
-    public string? Name { get; init; }
-    public string? Property { get; init; }
+    public Guid PageId { get; init; }
+    public string Key { get; init; }
+    public string Value { get; init; }
     public string Content { get; init; }
     public DateTime CreatedAt { get; init; }
     public DateTime? UpdatedAt { get; init; }
