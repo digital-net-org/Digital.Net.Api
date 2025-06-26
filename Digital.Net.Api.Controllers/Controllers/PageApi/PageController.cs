@@ -37,7 +37,8 @@ public class PageController(
         var result = new Result<List<PageMetaDto>>
         {
             Value = pageMetaRepository
-                .Get(p => p.Page.Id == id && p.Page.IsPublished)
+                .Get(p => p.Page.Id == id)
+                .OrderBy(p => p.CreatedAt)
                 .Select(p => new PageMetaDto(p))
                 .ToList()
         };

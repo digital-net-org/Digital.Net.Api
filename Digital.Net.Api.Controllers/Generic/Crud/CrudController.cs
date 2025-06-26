@@ -50,6 +50,8 @@ public abstract class CrudController<T, TContext, TDto, TPayload>(
                 || result.HasErrorOfType<EntityValidationException>()
         ))
             return BadRequest(result);
+        if (result.HasError)
+            return StatusCode(500, result);
 
         return Ok(result);
     }

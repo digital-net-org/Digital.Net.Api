@@ -1,8 +1,11 @@
+using System.Collections;
+using System.Reflection;
 using Digital.Net.Api.Core.Extensions.StringUtilities;
 using Digital.Net.Api.Entities.Exceptions;
 using Digital.Net.Api.Entities.Models;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 
 namespace Digital.Net.Api.Entities.Services;
 
@@ -24,7 +27,7 @@ public class EntityValidator<TContext>(
         {
             var value = property.GetValue(entity);
             var schemaProp = ((IEnumerable<object>)schema!)
-                .FirstOrDefault(p =>
+                .FirstOrDefault(p => 
                     (string)p.GetType().GetProperty("Name")!.GetValue(p)! == property.Name);
 
             var validateMethod = typeof(EntityValidator<TContext>)
@@ -33,6 +36,28 @@ public class EntityValidator<TContext>(
 
             validateMethod.Invoke(this, [value, property.Name, schemaProp]);
         }
+    }
+
+    private Type? GetNestedType<T>(string path)
+    {
+        var pathParts = path.ExtractFromPath();
+        var nestedKey = pathParts.FirstOrDefault();
+        if (nestedKey == null)
+            return null;
+        var property = typeof(T).GetProperty(
+            nestedKey, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase
+        );
+        if (property == null)
+            return null;
+
+        var type = property.PropertyType;
+        if (type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type))
+            return type.IsGenericType
+                ? type.GetGenericArguments().First()
+                : type.HasElementType
+                    ? type.GetElementType()
+                    : null;
+        return type;
     }
 
     public void ValidateCreatePayload<T>(T entity) where T : Entity
@@ -54,15 +79,12 @@ public class EntityValidator<TContext>(
             if (o.value is null || (o.op != "add" && o.op != "replace"))
                 return;
 
-            if (o.value is IEnumerable<Entity> collection)
+            var propertyType = GetNestedType<T>(o.path);
+            if (typeof(Entity).IsAssignableFrom(propertyType))
             {
-                foreach (var item in collection) ValidateDynamicPayload(item);
-                return;
-            }
-
-            if (o.value is Entity model)
-            {
-                ValidateDynamicPayload(model);
+                var entity = JObject.FromObject(o.value!).ToObject(propertyType) as Entity
+                             ?? throw new EntityValidationException($"{o.path}: Invalid entity type.");
+                ValidateDynamicPayload(entity);
                 return;
             }
 
@@ -89,9 +111,12 @@ public class EntityValidator<TContext>(
             && value.ToString() is "00000000-0000-0000-0000-000000000000" or "0"
         )
             return;
-
+        
         if (path is "CreatedAt" or "UpdatedAt" && (DateTime)value == DateTime.MinValue)
             return;
+
+        if (property.IsIdentity)
+            throw new EntityValidationException($"{path}: This field is read-only.");
 
         if (property.IsRequired && value is null)
             throw new EntityValidationException($"{path}: This field is required and cannot be null.");

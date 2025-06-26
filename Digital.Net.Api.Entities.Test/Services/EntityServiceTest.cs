@@ -77,15 +77,33 @@ public class EntityServiceTest : UnitTest, IDisposable
     }
 
     [Fact]
-    public async Task Patch_UpdatesEntity_WhenNestPatchIsValid()
+    public async Task Patch_UpdatesNestedEntity_WhenAddPatchIsValid()
     {
         var page = await _pageRepository.CreateAndSaveAsync(GetTestPage());
-        var patch = new JsonPatchDocument<Page>();
-        patch.Add(p => p.Metas, new PageMeta { Key = "TestMetaKey", Value = "TestMetaValue", Content = "TestContent" });
-        var result = await _pageService.Patch(patch, page.Id);
+        var result =
+            await _pageService.Patch(
+                new JsonPatchDocument<Page>().Add(p => p.Metas,
+                    new PageMeta { Key = "TestMetaKey", Value = "TestMetaValue", Content = "TestContent" }), page.Id);
         var updatedPage = await _pageRepository.GetByIdAsync(page.Id);
         Assert.False(result.HasError);
         Assert.NotEmpty(updatedPage!.Metas);
+    }
+
+    [Fact]
+    public async Task Patch_UpdatesNestedEntity_WhenDeletePatchIsValid()
+    {
+        var page = await _pageRepository.CreateAndSaveAsync(GetTestPage());
+        await _pageService.Patch(
+            new JsonPatchDocument<Page>()
+                .Add(p => p.Metas,
+                    new PageMeta { Key = "TestMetaKeyToRemove", Value = "TestMetaValue", Content = "TestContent" })
+                .Add(p => p.Metas,
+                    new PageMeta { Key = "TestMetaKey", Value = "TestMetaValue", Content = "TestContent" }),
+            page.Id
+        );
+        await _pageService.Patch(new JsonPatchDocument<Page>().Remove(p => p.Metas[0]), page.Id);
+        var updatedPage = await _pageRepository.GetByIdAsync(page.Id);
+        Assert.DoesNotContain(updatedPage!.Metas, m => m.Key == "TestMetaKeyToRemove");
     }
 
     [Fact]
