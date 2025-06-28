@@ -38,10 +38,15 @@ public class EntityValidator<TContext>(
         }
     }
 
-    private Type? GetNestedType<T>(string path)
+    private bool IsSubPropertyPatch(string path)
     {
-        var pathParts = path.ExtractFromPath();
-        var nestedKey = pathParts.FirstOrDefault();
+        var parts = path.ExtractFromPath();
+        return parts.Count > 2;
+    }
+
+    private Type? GetNestedType<T>(List<string> path)
+    {
+        var nestedKey = path.FirstOrDefault();
         if (nestedKey == null)
             return null;
         var property = typeof(T).GetProperty(
@@ -79,14 +84,19 @@ public class EntityValidator<TContext>(
             if (o.value is null || (o.op != "add" && o.op != "replace"))
                 return;
 
-            var propertyType = GetNestedType<T>(o.path);
-            if (typeof(Entity).IsAssignableFrom(propertyType))
+            var pathParts = o.path.ExtractFromPath();
+            if (pathParts.Count > 2)
+                return;
+
+            var propertyType = GetNestedType<T>(pathParts);
+            if (typeof(Entity).IsAssignableFrom(propertyType) && pathParts.Count == 2)
             {
                 var entity = JObject.FromObject(o.value!).ToObject(propertyType) as Entity
                              ?? throw new EntityValidationException($"{o.path}: Invalid entity type.");
                 ValidateDynamicPayload(entity);
                 return;
             }
+            
 
             var schemaProperty = schema
                 .FirstOrDefault(x =>
