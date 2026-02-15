@@ -9,10 +9,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Content Update="appsettings.Development.json">
-            <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-        </Content>
         <Content Update="appsettings.Test.json">
+          <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+        </Content>
+        <Content Update="appsettings.local.json">
           <CopyToPublishDirectory>Never</CopyToPublishDirectory>
         </Content>
     </ItemGroup>

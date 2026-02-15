@@ -26,6 +26,7 @@ public static class ApplicationSettings
         builder
             .AddJsonFile("appsettings.json", true, true)
             .AddJsonFile($"appsettings.{AspNetEnv.Get}.json", true, true)
+            .AddJsonFile($"appsettings.local.json", true, true)
             .AddEnvironmentVariables();
 
     public static WebApplicationBuilder ValidateApplicationSettings(this WebApplicationBuilder builder)
