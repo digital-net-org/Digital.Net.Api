@@ -61,8 +61,7 @@ public static class DigitalSdkInjector
 
         builder
             .SetForwardedHeaders()
-            .AddDefaultCorsPolicy()
-            .AddSwagger(builder.GetApplicationName(), "v1");
+            .AddDefaultCorsPolicy();
         
         builder.Services.AddRateLimiter(GlobalLimiter.Options);
         builder.AddDataSeeds();
@@ -76,7 +75,6 @@ public static class DigitalSdkInjector
             .UseCors()
             .UseAuthorization()
             .UseRateLimiter()
-            .UseSwaggerPage(app.Configuration.GetApplicationName(), "v1")
             .UseStaticFiles();
         app
             .MapControllers()
