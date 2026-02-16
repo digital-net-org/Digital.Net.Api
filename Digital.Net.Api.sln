@@ -18,15 +18,19 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.Core", "Dig
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.Core.Test", "Digital.Net.Api.Core.Test\Digital.Net.Api.Core.Test.csproj", "{EC34562D-FF8B-4C64-AEAA-D457EEDD9D3E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.Rest", "Digital.Net.Api.Rest\Digital.Net.Api.Rest.csproj", "{3BAA63C6-0191-4F52-9883-D0E305F196FF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.App", "Digital.Net.Api.App\Digital.Net.Api.App.csproj", "{3BAA63C6-0191-4F52-9883-D0E305F196FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.Rest.Test", "Digital.Net.Api.Rest.Test\Digital.Net.Api.Rest.Test.csproj", "{8E8DA228-8012-4910-A610-E6F2F2C772EC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.App.Test", "Digital.Net.Api.App.Test\Digital.Net.Api.App.Test.csproj", "{8E8DA228-8012-4910-A610-E6F2F2C772EC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.Sdk", "Digital.Net.Api.Sdk\Digital.Net.Api.Sdk.csproj", "{45067119-1A7F-4E04-A98C-1432BD100D76}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.Services", "Digital.Net.Api.Services\Digital.Net.Api.Services.csproj", "{6AAE6EA1-1E43-4A1B-8AF5-9797B0992610}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.Services.Test", "Digital.Net.Api.Services.Test\Digital.Net.Api.Services.Test.csproj", "{4BE9E486-EC75-4280-9E3E-0E5A39B9B9F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.Authentication", "Digital.Net.Api.Authentication\Digital.Net.Api.Authentication.csproj", "{B0E8A5C6-473B-439A-9357-DAE49B86542A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.Auditing", "Digital.Net.Api.Auditing\Digital.Net.Api.Auditing.csproj", "{D43860C5-F977-4759-BA96-7EB02447A675}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -153,5 +157,13 @@ Global
 		{4BE9E486-EC75-4280-9E3E-0E5A39B9B9F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4BE9E486-EC75-4280-9E3E-0E5A39B9B9F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4BE9E486-EC75-4280-9E3E-0E5A39B9B9F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0E8A5C6-473B-439A-9357-DAE49B86542A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0E8A5C6-473B-439A-9357-DAE49B86542A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0E8A5C6-473B-439A-9357-DAE49B86542A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0E8A5C6-473B-439A-9357-DAE49B86542A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D43860C5-F977-4759-BA96-7EB02447A675}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D43860C5-F977-4759-BA96-7EB02447A675}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D43860C5-F977-4759-BA96-7EB02447A675}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D43860C5-F977-4759-BA96-7EB02447A675}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

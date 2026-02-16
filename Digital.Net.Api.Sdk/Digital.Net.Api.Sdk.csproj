@@ -21,5 +21,7 @@
         <ProjectReference Include="..\Digital.Net.Api.Core\Digital.Net.Api.Core.csproj" />
         <ProjectReference Include="..\Digital.Net.Api.Entities\Digital.Net.Api.Entities.csproj" />
         <ProjectReference Include="..\Digital.Net.Api.Services\Digital.Net.Api.Services.csproj" />
+        <ProjectReference Include="..\Digital.Net.Api.Authentication\Digital.Net.Api.Authentication.csproj"/>
+        <ProjectReference Include="..\Digital.Net.Api.Auditing\Digital.Net.Api.Auditing.csproj"/>
     </ItemGroup>
 </Project>

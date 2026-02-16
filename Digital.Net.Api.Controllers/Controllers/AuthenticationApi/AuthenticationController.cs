@@ -1,10 +1,10 @@
+using Digital.Net.Api.Authentication.Attributes;
+using Digital.Net.Api.Authentication.Exceptions;
+using Digital.Net.Api.Authentication.Options;
+using Digital.Net.Api.Authentication.Services.Authentication;
 using Digital.Net.Api.Controllers.Controllers.AuthenticationApi.Dto;
 using Digital.Net.Api.Core.Extensions.ExceptionUtilities;
 using Digital.Net.Api.Core.Messages;
-using Digital.Net.Api.Services.Authentication.Attributes;
-using Digital.Net.Api.Services.Authentication.Exceptions;
-using Digital.Net.Api.Services.Authentication.Options;
-using Digital.Net.Api.Services.Authentication.Services.Authentication;
 using Digital.Net.Api.Services.HttpContext;
 using Microsoft.AspNetCore.Mvc;
 

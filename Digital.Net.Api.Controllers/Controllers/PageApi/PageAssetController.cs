@@ -1,11 +1,11 @@
+using Digital.Net.Api.Authentication.Attributes;
+using Digital.Net.Api.Authentication.Services.Authentication;
 using Digital.Net.Api.Controllers.Controllers.PageApi.Dto;
 using Digital.Net.Api.Core.Exceptions;
 using Digital.Net.Api.Core.Messages;
 using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models.Pages;
 using Digital.Net.Api.Entities.Services;
-using Digital.Net.Api.Services.Authentication.Attributes;
-using Digital.Net.Api.Services.Authentication.Services.Authentication;
 using Digital.Net.Api.Services.HttpContext;
 using Digital.Net.Api.Services.Pages;
 using Microsoft.AspNetCore.Http;

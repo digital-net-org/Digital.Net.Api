@@ -14,12 +14,10 @@
     
     <ItemGroup>
         <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
-        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.16.0" />
-        <PackageReference Include="BCrypt.Net-Next" Version="4.0.3"/>
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Digital.Net.Api.Authentication\Digital.Net.Api.Authentication.csproj"/>
         <ProjectReference Include="..\Digital.Net.Api.Core\Digital.Net.Api.Core.csproj" />
         <ProjectReference Include="..\Digital.Net.Api.Entities\Digital.Net.Api.Entities.csproj" />
     </ItemGroup>

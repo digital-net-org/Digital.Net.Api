@@ -15,9 +15,9 @@ public static class AppFactorySettings
 
     public static Dictionary<string, string?> TestSettings => new()
     {
-        { ApplicationSettingsAccessor.Domain, "domain.test" },
-        { ApplicationSettingsAccessor.ConnectionString, $"Data Source={DbPath}" },
-        { ApplicationSettingsAccessor.UseSqlite, "true" }
+        { AppSettings.DomainKey, "domain.test" },
+        { AppSettings.ConnectionStringKey, $"Data Source={DbPath}" },
+        { AppSettings.UseSqliteKey, "true" }
     };
 
     public static IWebHostBuilder UseTestConfiguration(this IWebHostBuilder hostBuilder)

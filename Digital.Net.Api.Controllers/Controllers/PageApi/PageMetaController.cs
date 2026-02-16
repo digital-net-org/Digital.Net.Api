@@ -1,10 +1,10 @@
+using Digital.Net.Api.Authentication.Attributes;
 using Digital.Net.Api.Controllers.Controllers.PageApi.Dto;
 using Digital.Net.Api.Controllers.Generic.Crud;
 using Digital.Net.Api.Core.Messages;
 using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models.Pages;
 using Digital.Net.Api.Entities.Services;
-using Digital.Net.Api.Services.Authentication.Attributes;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Digital.Net.Api.Controllers.Controllers.PageApi;

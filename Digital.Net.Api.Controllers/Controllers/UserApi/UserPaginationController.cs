@@ -1,11 +1,11 @@
 using System.Linq.Expressions;
-using Digital.Net.Api.Entities.Context;
-using Digital.Net.Api.Entities.Models.Users;
-using Digital.Net.Api.Entities.Repositories;
+using Digital.Net.Api.Authentication.Attributes;
 using Digital.Net.Api.Controllers.Controllers.UserApi.Dto;
 using Digital.Net.Api.Controllers.Generic.Pagination;
 using Digital.Net.Api.Core.Predicates;
-using Digital.Net.Api.Services.Authentication.Attributes;
+using Digital.Net.Api.Entities.Context;
+using Digital.Net.Api.Entities.Models.Users;
+using Digital.Net.Api.Entities.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Digital.Net.Api.Controllers.Controllers.UserApi;

@@ -1,10 +1,10 @@
+using Digital.Net.Api.Authentication.Services.Authentication;
 using Digital.Net.Api.Controllers.Controllers.UserApi.Dto;
 using Digital.Net.Api.Core.Extensions.HttpUtilities;
 using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models;
 using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Entities.Repositories;
-using Digital.Net.Api.Services.Authentication.Services.Authentication;
 using Digital.Net.Api.TestUtilities.Data.Factories;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;

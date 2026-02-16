@@ -20,6 +20,9 @@ public static class ConfigurationUtilities
     /// <param name="configuration">Configuration object.</param>
     /// <param name="settingPath">Application setting accessor.</param>
     /// <typeparam name="T"></typeparam>
-    public static T? Get<T>(this IConfiguration configuration, string settingPath) =>
-        configuration.GetSection(settingPath).Get<T>();
+    public static T? Get<T>(this IConfiguration configuration, string settingPath)
+    {
+        var section = configuration.GetSection(settingPath);
+        return !section.Exists() || string.IsNullOrEmpty(section.Value) ? default : section.Get<T>();
+    }
 }

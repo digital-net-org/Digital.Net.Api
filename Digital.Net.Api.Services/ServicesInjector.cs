@@ -1,9 +1,6 @@
 using Digital.Net.Api.Services.Application;
-using Digital.Net.Api.Services.Authentication;
 using Digital.Net.Api.Services.Documents;
-using Digital.Net.Api.Services.Events;
 using Digital.Net.Api.Services.HttpContext;
-using Digital.Net.Api.Services.Options;
 using Digital.Net.Api.Services.Pages;
 using Digital.Net.Api.Services.Users;
 using Microsoft.AspNetCore.Builder;
@@ -17,10 +14,7 @@ public static class ServicesInjector
     {
         services
             .AddDigitalApplicationServices()
-            .AddDigitalOptionsServices()
-            .AddDigitalAuthenticationServices()
             .AddDigitalHttpContextServices()
-            .AddDigitalEventServices()
             .AddDigitalUserServices()
             .AddDigitalDocumentServices()
             .AddDigitalPageServices();

@@ -17,8 +17,6 @@ Digital.Net.Api container handles Digital API configuration, users, client websi
 
 You can configurate the application using environment variables and volume while mounting the docker image.
 
-"Default" prefix means that the value is used to set the default configuration at the first application start. These values are stored in the database and can be modified later using the provided endpoints.
-
 ### :whale2: Dockerfile
 
 #### Environment variables
@@ -28,7 +26,7 @@ You can configurate the application using environment variables and volume while
 | ___CorsAllowedOrigins___                 <br/>All entries will be added the allowed **CORS policies** _(be aware that Domain is automatically added to allowed origins)_                                  | `string[]` | `[]`                     |
 | ___Database:ConnectionString___          <br/>Postgres Database connection string formated like `"Host=host;Port=5432;Database=db;Username=usr;Password=psw"`                                             | `string`   | **Mandatory**            |
 | ___Database:UseSqlite___                 <br/>Use an Sqlite Database if true. Used for Integration tests                                                                                                  | `boolean`  | `false`                  |
-| ___Defaults:FileSystemPath___            <br/>Path to folder where the application will save uploaded files                                                                                               | `string`   | `"/digital_net_storage"` |
-| ___Defaults:Auth:JwtRefreshExpiration___ <br/>Refresh token expiration expressed in milliseconds                                                                                                          | `number`   | `1800000`                |
-| ___Defaults:Auth:JwtBearerExpiration___  <br/>Bearer token expiration expressed in milliseconds                                                                                                           | `number`   | `300000`                 |
-| ___Defaults:Auth:JwtSecret___            <br/>Secret for Jwt configuration, must be a least 46 characters long                                                                                            | `string`   | _Random string_          |
+| ___FileSystemPath___            <br/>Path to folder where the application will save uploaded files                                                                                               | `string`   | `"/digital_net_storage"` |
+| ___Auth:JwtRefreshExpiration___ <br/>Refresh token expiration expressed in milliseconds                                                                                                          | `number`   | `1800000`                |
+| ___Auth:JwtBearerExpiration___  <br/>Bearer token expiration expressed in milliseconds                                                                                                           | `number`   | `300000`                 |
+| ___Auth:JwtSecret___            <br/>Secret for Jwt configuration, must be a least 46 characters long                                                                                            | `string`   | _Random string_          |

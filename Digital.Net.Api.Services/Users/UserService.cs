@@ -1,3 +1,5 @@
+using Digital.Net.Api.Authentication.Exceptions;
+using Digital.Net.Api.Authentication.Services;
 using Digital.Net.Api.Core.Extensions.StringUtilities;
 using Digital.Net.Api.Core.Messages;
 using Digital.Net.Api.Core.Settings;
@@ -6,8 +8,6 @@ using Digital.Net.Api.Entities.Models.Avatars;
 using Digital.Net.Api.Entities.Models.Documents;
 using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Entities.Repositories;
-using Digital.Net.Api.Services.Authentication.Exceptions;
-using Digital.Net.Api.Services.Authentication.Services;
 using Digital.Net.Api.Services.Documents;
 using Digital.Net.Api.Services.Documents.Exceptions;
 using Digital.Net.Api.Services.Documents.Extensions;
@@ -37,7 +37,7 @@ public class UserService(
 
     public async Task<Result<Document>> UpdateAvatar(User user, IFormFile form)
     {
-        if (form.Length > ApplicationDefaults.MaxAvatarSize)
+        if (form.Length > AppSettings.DefaultMaxAvatarSize)
             return new Result<Document>().AddError(new TooHeavyException());
         if (!form.IsImage())
             return new Result<Document>().AddError(new UnsupportedFormatException());

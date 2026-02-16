@@ -1,4 +1,5 @@
 using Digital.Net.Api.Core.Exceptions;
+using Digital.Net.Api.Core.Extensions.ConfigurationUtilities;
 using Digital.Net.Api.Core.Messages;
 using Digital.Net.Api.Core.Settings;
 using Digital.Net.Api.Entities.Context;
@@ -7,19 +8,19 @@ using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Entities.Repositories;
 using Digital.Net.Api.Services.Documents.Exceptions;
 using Digital.Net.Api.Services.Documents.Extensions;
-using Digital.Net.Api.Services.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace Digital.Net.Api.Services.Documents;
 
 public class DocumentService(
-    IOptionsService optionsService,
-    IRepository<Document, DigitalContext> documentRepository
+    IRepository<Document, DigitalContext> documentRepository,
+    IConfiguration configuration
 ) : IDocumentService
 {
     public string GetDocumentPath(Document document) => Path.Combine(
-        optionsService.Get<string>(OptionAccessor.FileSystemPath),
+        configuration.Get<string>(AppSettings.FileSystemPathKey) ?? AppSettings.DefaultFileSystemPath, 
         document.FileName
     );
 

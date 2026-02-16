@@ -1,6 +1,6 @@
+using Digital.Net.Api.Authentication.Attributes;
 using Digital.Net.Api.Core.Extensions.StringUtilities;
 using Digital.Net.Api.Core.Settings;
-using Digital.Net.Api.Services.Authentication.Attributes;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Digital.Net.Api.Controllers.Controllers.ValidationApi;
@@ -18,5 +18,5 @@ public class ValidationController : ControllerBase
     public ActionResult<string> GetPasswordPattern() => Ok(RegularExpressions.PasswordPattern);
 
     [HttpGet("size/avatar"), Authorize(AuthorizeType.Any)]
-    public ActionResult<long> GetAvatarMaxSize() => Ok(ApplicationDefaults.MaxAvatarSize);
+    public ActionResult<long> GetAvatarMaxSize() => Ok(AppSettings.DefaultMaxAvatarSize);
 }

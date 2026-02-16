@@ -1,3 +1,4 @@
+using Digital.Net.Api.Authentication;
 using Digital.Net.Api.Core.Settings;
 using Digital.Net.Api.Entities;
 using Digital.Net.Api.Entities.Context;
@@ -14,9 +15,8 @@ using Digital.Net.Api.Sdk.RateLimiter.Limiters;
 using Digital.Net.Api.Sdk.Seeds;
 using Digital.Net.Api.Services;
 using Digital.Net.Api.Services.Application;
-using Digital.Net.Api.Services.Options;
+using Digital.Net.Api.Auditing;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Digital.Net.Api.Sdk;
 
@@ -52,12 +52,9 @@ public static class DigitalSdkInjector
             .AddDigitalEntities<Page>()
             .AddDigitalEntities<PageAsset>()
             .AddDigitalEntities<PageMeta>()
+            .AddDigitalAuthenticationServices()
+            .AddDigitalAuditingServices()
             .AddDigitalNetServices();
-
-        builder.Services
-            .BuildServiceProvider()
-            .GetService<IOptionsService>()?
-            .SettingsInit();
 
         builder
             .SetForwardedHeaders()

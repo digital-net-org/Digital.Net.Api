@@ -1,4 +1,7 @@
 using System.Text.Json;
+using Digital.Net.Api.Authentication.Attributes;
+using Digital.Net.Api.Authentication.Exceptions;
+using Digital.Net.Api.Authentication.Services.Authentication;
 using Digital.Net.Api.Controllers.Controllers.UserApi.Dto;
 using Digital.Net.Api.Controllers.Generic.Crud;
 using Digital.Net.Api.Core.Messages;
@@ -6,9 +9,6 @@ using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models.Documents;
 using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Entities.Services;
-using Digital.Net.Api.Services.Authentication.Attributes;
-using Digital.Net.Api.Services.Authentication.Exceptions;
-using Digital.Net.Api.Services.Authentication.Services.Authentication;
 using Digital.Net.Api.Services.Users;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

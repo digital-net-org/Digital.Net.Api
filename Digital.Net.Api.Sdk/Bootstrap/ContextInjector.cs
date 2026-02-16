@@ -12,8 +12,8 @@ public static class ContextInjector
     public static WebApplicationBuilder AddDatabaseContext<T>(this WebApplicationBuilder builder)
         where T : DbContext
     {
-        var connectionString = builder.Configuration.GetOrThrow<string>($"{ApplicationSettingsAccessor.ConnectionString}");
-        var useSqlite = builder.Configuration.Get<bool>(ApplicationSettingsAccessor.UseSqlite);
+        var connectionString = builder.Configuration.GetOrThrow<string>($"{AppSettings.ConnectionStringKey}");
+        var useSqlite = builder.Configuration.Get<bool>(AppSettings.UseSqliteKey);
 
         builder.Services.AddDbContext<T>(options =>
         {
@@ -35,7 +35,7 @@ public static class ContextInjector
     public static WebApplicationBuilder ApplyMigrations<T>(this WebApplicationBuilder builder)
         where T : DbContext
     {
-        if (builder.Configuration.Get<bool>(ApplicationSettingsAccessor.UseSqlite))
+        if (builder.Configuration.Get<bool>(AppSettings.UseSqliteKey))
             return builder;
 
         var context = builder.Services.BuildServiceProvider().GetRequiredService<T>();

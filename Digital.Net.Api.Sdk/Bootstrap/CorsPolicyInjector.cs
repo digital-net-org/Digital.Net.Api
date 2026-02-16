@@ -15,7 +15,7 @@ public static class CorsPolicyInjector
     /// <returns></returns>
     public static WebApplicationBuilder AddDefaultCorsPolicy(this WebApplicationBuilder builder)
     {
-        var domain = builder.Configuration.GetOrThrow<string>(ApplicationSettingsAccessor.Domain);
+        var domain = builder.Configuration.GetOrThrow<string>(AppSettings.DomainKey);
         var allowedOrigins = new List<string>
         {
             $"https://{domain}",
@@ -23,7 +23,7 @@ public static class CorsPolicyInjector
         };
 
         allowedOrigins.AddRange(
-            builder.Configuration.Get<string[]>(ApplicationSettingsAccessor.CorsAllowedOrigins)
+            builder.Configuration.Get<string[]>(AppSettings.CorsAllowedOriginsKey)
             ?? []
         );
 
