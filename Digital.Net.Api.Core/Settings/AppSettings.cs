@@ -38,12 +38,18 @@ public static class AppSettings
     /// </summary>
     /// <param name="builder">The configuration builder.</param>
     /// <returns>The updated configuration builder.</returns>
-    public static IConfigurationBuilder AddAppSettings(this IConfigurationBuilder builder) =>
-        builder
-            .AddJsonFile("appsettings.json", true, true)
-            .AddJsonFile($"appsettings.{AspNetEnv.Get}.json", true, true)
-            .AddJsonFile("appsettings.local.json", true, true)
-            .AddEnvironmentVariables();
+    public static IConfigurationBuilder AddAppSettings(this IConfigurationBuilder builder)
+    {
+        builder.AddJsonFile("appsettings.json", true, true);
+        if (!AspNetEnv.IsTest)
+        {
+            builder.AddJsonFile($"appsettings.{AspNetEnv.Get}.json", true, true);
+            builder.AddJsonFile("appsettings.local.json", true, true);
+        }
+
+        builder.AddEnvironmentVariables();
+        return builder;
+    }
 
     /// <summary>
     ///     Validates the presence of mandatory application configuration settings. Throws an exception if any
