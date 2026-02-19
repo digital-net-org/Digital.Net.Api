@@ -27,7 +27,7 @@ public static class TokenUtils
     
     public static TokenContent Decode(this JwtSecurityToken jwt)
     {
-        var content = jwt.Claims.First(c => c.Type == DefaultAuthenticationOptions.ContentClaimType).Value;
+        var content = jwt.Claims.First(c => c.Type == AuthenticationStaticOptions.ContentClaimType).Value;
         return JsonSerializer.Deserialize<TokenContent>(content) ?? throw new InvalidTokenException();
     }
 }

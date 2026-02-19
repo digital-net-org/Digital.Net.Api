@@ -62,7 +62,8 @@ public class AuthenticationJwtService(
 
     private string SignToken(TokenContent obj, DateTime expires)
     {
-        var claims = new List<Claim> { new(DefaultAuthenticationOptions.ContentClaimType, JsonSerializer.Serialize(obj)) };
+        var claims = new List<Claim>
+            { new(AuthenticationStaticOptions.ContentClaimType, JsonSerializer.Serialize(obj)) };
         var parameters = authenticationOptionService.GetTokenParameters();
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.CreateToken(
@@ -80,7 +81,7 @@ public class AuthenticationJwtService(
 
     private void HandleMaxConcurrentSessions(Guid userId)
     {
-        var maxTokenAllowed = DefaultAuthenticationOptions.MaxConcurrentSessions;
+        var maxTokenAllowed = AuthenticationStaticOptions.MaxConcurrentSessions;
         var userTokens = apiTokenRepository
             .Get(t => t.UserId == userId && t.ExpiredAt > DateTime.UtcNow)
             .ToList();

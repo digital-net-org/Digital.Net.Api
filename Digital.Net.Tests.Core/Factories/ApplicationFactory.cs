@@ -68,8 +68,24 @@ public class ApplicationFactory : WebApplicationFactory<DigitalProgram>
             }
     }
 
+    /// <summary>
+    ///     Retrieves a configuration value from the application's service configuration.
+    /// </summary>
+    public T? GetConfiguration<T>(string key)
+    {
+        var configuration = Services.GetService<IConfiguration>();
+        return configuration is null ? default : configuration.GetValue<T>(key);
+    }
+
+    /// <summary>
+    ///     Resolves and retrieves an instance of the specified service from the application's dependency injection container.
+    /// </summary>
     public TService GetService<TService>() where TService : notnull => Services.GetRequiredService<TService>();
 
+    /// <summary>
+    ///     Retrieves an instance of a repository for the specified entity type, using the application's service
+    ///     configuration.
+    /// </summary>
     public IRepository<TEntity, DigitalContext> GetRepository<TEntity>() where TEntity : Entity
     {
         var context = Services.GetRequiredService<DigitalContext>();
@@ -77,13 +93,26 @@ public class ApplicationFactory : WebApplicationFactory<DigitalProgram>
         return result;
     }
 
+    /// <summary>
+    ///     Creates a test user.
+    /// </summary>
     public User CreateUser(TestUserPayload? userDto = null) => GetRepository<User>().BuildTestUser(userDto);
 
+    /// <summary>
+    ///     Authenticates a user and configures the provided HTTP client with a Bearer token
+    ///     using the user's credentials.
+    /// </summary>
     public void AsLogged(HttpClient client, User user) =>
         client.AddAuthorization(GetService<IAuthenticationJwtService>().GenerateBearerToken(user.Id, string.Empty));
 
+    /// <summary>
+    ///     Creates and configures an HttpClient instance to interact with the application's services.
+    /// </summary>
     public new HttpClient CreateClient() => base.CreateClient();
 
+    /// <summary>
+    ///     Creates multiple HttpClient instances.
+    /// </summary>
     public List<HttpClient> CreateClient(int amount)
     {
         var result = new List<HttpClient>();

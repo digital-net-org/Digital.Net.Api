@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Digital.Net.Api.Authentication.Filters;
 using Digital.Net.Api.Authentication.Models;
 using Digital.Net.Api.Authentication.Options;
 using Digital.Net.Api.Authentication.Services.AuthContext;
@@ -41,7 +42,7 @@ public class AuthorizeAttribute(AuthorizeType type) : Attribute, IAuthorizationF
             return;
         }
 
-        context.HttpContext.Items[DefaultAuthenticationOptions.ApiContextAuthorizationKey] =
+        context.HttpContext.Items[AuthenticationStaticOptions.ApiContextAuthorizationKey] =
             JsonSerializer.Serialize(result);
     }
 

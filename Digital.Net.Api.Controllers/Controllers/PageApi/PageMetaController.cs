@@ -1,4 +1,5 @@
 using Digital.Net.Api.Authentication.Attributes;
+using Digital.Net.Api.Authentication.Filters;
 using Digital.Net.Api.Controllers.Controllers.PageApi.Dto;
 using Digital.Net.Api.Controllers.Generic.Crud;
 using Digital.Net.Api.Core.Messages;

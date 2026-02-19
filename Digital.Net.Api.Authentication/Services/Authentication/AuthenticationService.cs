@@ -1,4 +1,5 @@
 using System.Security.Authentication;
+using Digital.Net.Api.Auditing.Services;
 using Digital.Net.Api.Authentication.Events;
 using Digital.Net.Api.Authentication.Exceptions;
 using Digital.Net.Api.Authentication.Options;
@@ -9,7 +10,6 @@ using Digital.Net.Api.Entities.Models.ApiTokens;
 using Digital.Net.Api.Entities.Models.Events;
 using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Entities.Repositories;
-using Digital.Net.Api.Auditing.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Api.Authentication.Services.Authentication;
@@ -47,7 +47,7 @@ public class AuthenticationService(
             Value = await userRepository.Get(u => u.Login == login).FirstOrDefaultAsync()
         };
 
-        if (await GetLoginAttemptCountAsync(result.Value) >= DefaultAuthenticationOptions.MaxLoginAttempts)
+        if (await GetLoginAttemptCountAsync(result.Value) >= AuthenticationStaticOptions.MaxLoginAttempts)
             result.AddError(new TooManyAttemptsException());
         else if (result.Value is null)
             result.AddError(new InvalidCredentialsException());

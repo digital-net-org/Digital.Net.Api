@@ -1,8 +1,11 @@
+using System;
+using System.Net.Http;
 using System.Net.Http.Json;
+using System.Threading.Tasks;
 using Digital.Net.Api.Controllers.Controllers.UserApi.Dto;
 using Digital.Net.Api.Core.Extensions.HttpUtilities;
 
-namespace Digital.Net.Api.App.Test.Api;
+namespace Digital.Net.Tests.Core.Sdk;
 
 public static class UserApi
 {

@@ -1,0 +1,100 @@
+using System.Net;
+using Digital.Net.Api.Authentication.Events;
+using Digital.Net.Api.Authentication.Options;
+using Digital.Net.Api.Core.Extensions.StringUtilities;
+using Digital.Net.Api.Entities.Models.Events;
+using Digital.Net.Api.Entities.Models.Users;
+using Digital.Net.Api.Services.HttpContext.Extensions;
+using Digital.Net.Tests.Core.Sdk;
+
+namespace Digital.Net.Api.Authentication.Tests.Endpoints;
+
+public class JwtLoginTest : AuthenticationTest
+{
+    [Test]
+    public async Task Login_OnSuccess_ShouldReturnTokensAndGenerateEvents()
+    {
+        var client = Application.CreateClient();
+        var user = Application.CreateUser();
+        await ExecuteTestAsync(
+            user,
+            await client.Login(user),
+            EventState.Success,
+            HttpStatusCode.OK
+        );
+    }
+
+    [Test]
+    public async Task Login_OnWrongPassword_ShouldReturnUnauthorized()
+    {
+        var client = Application.CreateClient();
+        var user = Application.CreateUser();
+        await ExecuteTestAsync(
+            user,
+            await client.Login(user.Login, "wrong password"),
+            EventState.Failed,
+            HttpStatusCode.Unauthorized
+        );
+    }
+
+
+    [Test]
+    public async Task Login_OnInactiveUser_ShouldReturnUnauthorized()
+    {
+        var client = Application.CreateClient();
+        var user = GetInactiveUser();
+        await ExecuteTestAsync(
+            user,
+            await client.Login(user),
+            EventState.Failed,
+            HttpStatusCode.Unauthorized
+        );
+    }
+
+    [Test]
+    public async Task Login_OnMaxAttempts_ShouldReturnTooManyRequests()
+    {
+        var client = Application.CreateClient();
+        var user = Application.CreateUser();
+        for (var i = 0; i < AuthenticationStaticOptions.MaxLoginAttempts; i++)
+            await client.Login(user.Login, "wrongPassword");
+
+        await ExecuteTestAsync(
+            user,
+            await client.Login(user.Login, "wrongPassword"),
+            EventState.Failed,
+            HttpStatusCode.TooManyRequests
+        );
+    }
+
+    private async Task ExecuteTestAsync(
+        User user,
+        HttpResponseMessage result,
+        EventState expectedState,
+        HttpStatusCode expectedStatus
+    )
+    {
+        var loginEvent = GetUserEvents(user).First();
+        var storedToken = GetUserTokens(user).FirstOrDefault();
+        var tokens = new List<string?>
+        {
+            result.Headers.TryGetCookie(CookieName),
+            await result.Content.ReadAsStringAsync()
+        };
+
+        await Assert.That(result.StatusCode).EqualTo(expectedStatus);
+        await Assert.That(loginEvent.Name == AuthenticationEvents.Login).IsTrue();
+        await Assert.That(loginEvent.State == expectedState).IsTrue();
+
+        foreach (var token in tokens)
+            await Assert.That(expectedState == EventState.Success
+                ? (token ?? string.Empty).IsJsonWebToken()
+                : !(token ?? string.Empty).IsJsonWebToken()
+            ).IsTrue();
+
+        if (expectedState == EventState.Success)
+            await Assert.That(storedToken).IsNotNull();
+        else
+            await Assert.That(storedToken).IsNull();
+    }
+}

@@ -22,5 +22,9 @@
         <ProjectReference Include="..\Digital.Net.Api.TestUtilities\Digital.Net.Api.TestUtilities.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <Folder Include="Api\"/>
+    </ItemGroup>
+
 
 </Project>

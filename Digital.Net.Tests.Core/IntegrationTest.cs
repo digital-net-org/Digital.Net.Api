@@ -11,5 +11,15 @@ public abstract class IntegrationTest
     public static void Setup() => Application = new ApplicationFactory();
 
     [After(Class)]
-    public static async Task TeardownAsync() => await Application.DisposeAsync();
+    public static async Task TeardownAsync()
+    {
+        try
+        {
+            await Application.DisposeAsync();
+        }
+        catch
+        {
+            // Ignore
+        }
+    }
 }

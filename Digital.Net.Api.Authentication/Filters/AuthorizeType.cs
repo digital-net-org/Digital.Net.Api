@@ -1,4 +1,4 @@
-namespace Digital.Net.Api.Authentication.Attributes;
+namespace Digital.Net.Api.Authentication.Filters;
 
 [Flags]
 public enum AuthorizeType

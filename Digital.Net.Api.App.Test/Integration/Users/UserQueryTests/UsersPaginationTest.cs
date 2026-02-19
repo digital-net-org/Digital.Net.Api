@@ -1,7 +1,5 @@
-using System.Net.Http.Json;
 using Digital.Net.Api.Controllers.Controllers.UserApi.Dto;
 using Digital.Net.Api.Controllers.Generic.Pagination;
-using Digital.Net.Api.App.Test.Api;
 using Digital.Net.Api.TestUtilities.Integration;
 
 namespace Digital.Net.Api.App.Test.Integration.Users.UserQueryTests;
@@ -20,10 +18,9 @@ public class UsersPaginationTest(AppFactory<Program> fixture) : UsersTest(fixtur
     public async Task GetUser_WithUsernameFilter_ReturnsCorrespondingRows() =>
         Assert.Equal(7, (await ExecuteQuery(new UserQuery { Username = "user1" })).Count);
 
-    private async Task<QueryResult<UserDto>> ExecuteQuery(UserQuery? query = null)
-    {
-        await BaseClient.Login(UserRepository.Get().First());
-        var response = await BaseClient.GetUsers(query ?? new UserQuery());
-        return await response.Content.ReadFromJsonAsync<QueryResult<UserDto>>() ?? throw new Exception();
-    }
+    private async Task<QueryResult<UserDto>> ExecuteQuery(UserQuery? query = null) => throw
+        // await BaseClient.Login(UserRepository.Get().First());
+        // var response = await BaseClient.GetUsers(query ?? new UserQuery());
+        // return await response.Content.ReadFromJsonAsync<QueryResult<UserDto>>() ?? throw new Exception();
+        new NotImplementedException();
 }

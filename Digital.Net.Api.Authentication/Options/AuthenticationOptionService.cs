@@ -16,7 +16,7 @@ public class AuthenticationOptionService(
     public string ApiKeyHeaderAccessor => options.Value.ApiKeyHeaderAccessor;
 
     public TimeSpan GetMaxLoginAttemptsThreshold() =>
-        TimeSpan.FromMilliseconds(DefaultAuthenticationOptions.MaxLoginAttemptsThreshold);
+        TimeSpan.FromMilliseconds(AuthenticationStaticOptions.MaxLoginAttemptsThreshold);
 
     public DateTime GetRefreshTokenExpirationDate(DateTime? from = null) =>
         (from ?? DateTime.UtcNow).AddMilliseconds(

@@ -17,7 +17,7 @@ public class UserContextService(
     {
         var context = httpContextAccessor.GetHttpContext();
         var result =
-            context.Items.TryGetValue(DefaultAuthenticationOptions.ApiContextAuthorizationKey, out var value) &&
+            context.Items.TryGetValue(AuthenticationStaticOptions.ApiContextAuthorizationKey, out var value) &&
             value is AuthorizationResult typedValue
                 ? typedValue
                 : null;

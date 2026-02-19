@@ -1,6 +1,6 @@
 namespace Digital.Net.Api.Authentication.Options;
 
-public static class DefaultAuthenticationOptions
+public static class AuthenticationStaticOptions
 {
     public const string ContentClaimType = "Content";
     public const string ApiContextAuthorizationKey = "AuthorizationResult";

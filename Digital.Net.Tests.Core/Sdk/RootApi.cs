@@ -1,4 +1,7 @@
-namespace Digital.Net.Api.App.Test.Api;
+using System.Net.Http;
+using System.Threading.Tasks;
+
+namespace Digital.Net.Tests.Core.Sdk;
 
 public static class RootApi
 {

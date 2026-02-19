@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using Digital.Net.Api.Authentication.Attributes;
+using Digital.Net.Api.Authentication.Filters;
 using Digital.Net.Api.Controllers.Controllers.UserApi.Dto;
 using Digital.Net.Api.Controllers.Generic.Pagination;
 using Digital.Net.Api.Core.Predicates;

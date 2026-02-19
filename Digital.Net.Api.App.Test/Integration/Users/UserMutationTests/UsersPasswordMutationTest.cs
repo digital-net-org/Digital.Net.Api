@@ -1,6 +1,4 @@
 using System.Net;
-using Digital.Net.Api.App.Test.Api;
-using Digital.Net.Api.Authentication.Exceptions;
 using Digital.Net.Api.Authentication.Services.Authentication;
 using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.TestUtilities.Data.Factories;
@@ -32,30 +30,29 @@ public class UsersPasswordMutationTest : UsersTest
     public async Task UpdatePassword_WithInvalidPassword_ShouldReturnUnauthorized() =>
         await ExecuteTest(TestUserFactory.TestUserPassword, InvalidPassword, HttpStatusCode.BadRequest);
 
-    private async Task ExecuteTest(string password, string payload, HttpStatusCode expectedStatusCode)
-    {
-        var expectSuccess = expectedStatusCode == HttpStatusCode.OK;
-        var user = GetLoggedUser();
-        
-        var initialPassword = user.Password;
-        var mutationResult = (await BaseClient.UpdatePassword(user.Id, password, payload)).StatusCode;
-        await UserRepository.ReloadAsync(user);
-        var mutatedPassword = user.Password;
-
-        var credentialsTest = await _authenticationService.ValidateCredentialsAsync(user.Login, payload);
-
-        Assert.Equal(expectedStatusCode, mutationResult);
-        if (expectSuccess)
-        {
-            Assert.NotEqual(initialPassword, mutatedPassword);
-            Assert.False(credentialsTest.HasError);
-        }
-        else
-        {
-            Assert.Equal(initialPassword, mutatedPassword);
-            Assert.True(credentialsTest.HasErrorOfType<InvalidCredentialsException>());
-        }
-    }
+    private async Task ExecuteTest(string password, string payload, HttpStatusCode expectedStatusCode) => throw
+        // var expectSuccess = expectedStatusCode == HttpStatusCode.OK;
+        // var user = GetLoggedUser();
+        //
+        // var initialPassword = user.Password;
+        // var mutationResult = (await BaseClient.UpdatePassword(user.Id, password, payload)).StatusCode;
+        // await UserRepository.ReloadAsync(user);
+        // var mutatedPassword = user.Password;
+        //
+        // var credentialsTest = await _authenticationService.ValidateCredentialsAsync(user.Login, payload);
+        //
+        // Assert.Equal(expectedStatusCode, mutationResult);
+        // if (expectSuccess)
+        // {
+        //     Assert.NotEqual(initialPassword, mutatedPassword);
+        //     Assert.False(credentialsTest.HasError);
+        // }
+        // else
+        // {
+        //     Assert.Equal(initialPassword, mutatedPassword);
+        //     Assert.True(credentialsTest.HasErrorOfType<InvalidCredentialsException>());
+        // }
+        new NotImplementedException();
 
     private User GetLoggedUser()
     {

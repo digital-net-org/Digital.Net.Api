@@ -10,7 +10,7 @@ public static class PasswordUtils
     
     public static string HashPassword(string password)
     {
-        var salt = BCrypt.Net.BCrypt.GenerateSalt(DefaultAuthenticationOptions.SaltSize);
+        var salt = BCrypt.Net.BCrypt.GenerateSalt(AuthenticationStaticOptions.SaltSize);
         return BCrypt.Net.BCrypt.HashPassword(password, salt);
     }
 }

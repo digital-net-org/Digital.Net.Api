@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Digital.Net.Api.Authentication.Attributes;
 using Digital.Net.Api.Authentication.Exceptions;
+using Digital.Net.Api.Authentication.Filters;
 using Digital.Net.Api.Authentication.Services.Authentication;
 using Digital.Net.Api.Controllers.Controllers.UserApi.Dto;
 using Digital.Net.Api.Controllers.Generic.Crud;

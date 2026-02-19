@@ -1,12 +1,15 @@
+using System;
+using System.Net.Http;
 using System.Net.Http.Json;
-using Digital.Net.Api.Controllers.Controllers.AuthenticationApi.Dto;
+using System.Threading.Tasks;
+using Digital.Net.Api.Authentication.Controllers.Dto;
 using Digital.Net.Api.Core.Extensions.HttpUtilities;
 using Digital.Net.Api.Core.Messages;
 using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Services.HttpContext.Extensions;
-using Digital.Net.Api.TestUtilities.Data.Factories;
+using Digital.Net.Tests.Core.Factories.Data;
 
-namespace Digital.Net.Api.App.Test.Api;
+namespace Digital.Net.Tests.Core.Sdk;
 
 public static class AuthenticationApi
 {
@@ -15,7 +18,7 @@ public static class AuthenticationApi
     {
         var response = await client.PostAsJsonAsync(
             $"{BaseUrl}/login",
-            new LoginPayload { Login = login, Password = password }
+            new LoginPayload(login, password)
         );
         await client.SetAuthorizations(response);
         return response;

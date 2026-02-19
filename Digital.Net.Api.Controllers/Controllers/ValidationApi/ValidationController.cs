@@ -1,4 +1,5 @@
 using Digital.Net.Api.Authentication.Attributes;
+using Digital.Net.Api.Authentication.Filters;
 using Digital.Net.Api.Core.Extensions.StringUtilities;
 using Digital.Net.Api.Core.Settings;
 using Microsoft.AspNetCore.Mvc;
