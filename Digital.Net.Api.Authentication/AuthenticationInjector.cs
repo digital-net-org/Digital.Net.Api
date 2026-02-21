@@ -32,7 +32,6 @@ public static class AuthenticationInjector
             opts.Issuer = $"https://{domain}";
             opts.Audience = $"https://{domain}";
             opts.CookieName = $"{domain}_refresh";
-            opts.ApiKeyHeaderAccessor = $"{domain}_auth";
         });
         services
             .AddScoped<IUserContextService, UserContextService>()

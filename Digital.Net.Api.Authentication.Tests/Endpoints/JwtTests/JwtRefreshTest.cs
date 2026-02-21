@@ -1,10 +1,15 @@
 using System.Net;
+using Digital.Net.Api.Entities.Models.ApiTokens;
+using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Sdk;
 
-namespace Digital.Net.Api.Authentication.Tests.Endpoints;
+namespace Digital.Net.Api.Authentication.Tests.Endpoints.JwtTests;
 
-public class JwtRefreshTest : AuthenticationTest
+public class JwtRefreshTest
 {
+    [ClassDataSource<TestApplication>]
+    public required TestApplication Application { get; init; }
+    
     [Test]
     public async Task RefreshTokens_WithValidRefreshToken_ShouldReturnToken()
     {
@@ -12,7 +17,7 @@ public class JwtRefreshTest : AuthenticationTest
         var user = Application.CreateUser();
         await client.Login(user);
         var response = await client.RefreshTokens();
-        var userTokens = GetUserTokens(user).ToList();
+        var userTokens = Application.GetRepository<ApiToken>().Get(x => x.UserId == user.Id).ToList();
         // var cookieToken = response.Headers.TryGetCookie(CookieName);
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);

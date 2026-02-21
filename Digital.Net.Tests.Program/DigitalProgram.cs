@@ -12,8 +12,10 @@ public sealed class DigitalProgram
             .AddDigitalSdk()
             .Build();
 
-        await app
+        app
             .UseDigitalSdk()
-            .RunAsync();
+            .MapTestEndpoints();
+
+        await app.RunAsync();
     }
 }

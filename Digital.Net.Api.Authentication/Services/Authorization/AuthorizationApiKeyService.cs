@@ -13,12 +13,11 @@ namespace Digital.Net.Api.Authentication.Services.Authorization;
 public class AuthorizationApiKeyService(
     IRepository<ApiKey, DigitalContext> apiKeyRepository,
     IRepository<User, DigitalContext> userRepository,
-    IHttpContextAccessor httpContextAccessor,
-    IAuthenticationOptionService optionService
+    IHttpContextAccessor httpContextAccessor
 ) : IAuthorizationApiKeyService
 {
     public string? GetRequestKey() =>
-        httpContextAccessor.GetRequest().Headers[optionService.ApiKeyHeaderAccessor].FirstOrDefault();
+        httpContextAccessor.GetRequest().Headers[AuthenticationStaticOptions.ApiKeyHeaderAccessor].FirstOrDefault();
 
     public AuthorizationResult AuthorizeUser(string? key)
     {

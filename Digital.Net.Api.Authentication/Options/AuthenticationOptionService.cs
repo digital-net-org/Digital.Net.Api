@@ -13,7 +13,6 @@ public class AuthenticationOptionService(
 ) : IAuthenticationOptionService
 {
     public string CookieName => options.Value.CookieName;
-    public string ApiKeyHeaderAccessor => options.Value.ApiKeyHeaderAccessor;
 
     public TimeSpan GetMaxLoginAttemptsThreshold() =>
         TimeSpan.FromMilliseconds(AuthenticationStaticOptions.MaxLoginAttemptsThreshold);

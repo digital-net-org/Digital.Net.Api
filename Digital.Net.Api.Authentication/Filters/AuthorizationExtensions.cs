@@ -1,7 +1,5 @@
-using System.Text.Json;
 using Digital.Net.Api.Authentication.Models;
 using Digital.Net.Api.Authentication.Options;
-using Digital.Net.Api.Authentication.Services.AuthContext;
 using Digital.Net.Api.Authentication.Services.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -36,17 +34,15 @@ public static class AuthorizationExtensions
     public static RouteHandlerBuilder RequireAuthentication(this RouteHandlerBuilder builder, AuthorizeType type) =>
         builder.AddEndpointFilter(async (context, next) =>
         {
-            var authContext = context.HttpContext.RequestServices.GetRequiredService<IAuthContextService>();
             var apiKeyService = context.HttpContext.RequestServices.GetRequiredService<IAuthorizationApiKeyService>();
             var jwtService = context.HttpContext.RequestServices.GetRequiredService<IAuthorizationJwtService>();
 
             var result = new AuthorizationResult();
-            var token = authContext.BearerToken;
 
             if (type.HasFlag(AuthorizeType.ApiKey))
-                result.Merge(apiKeyService.AuthorizeUser(token));
+                result.Merge(apiKeyService.AuthorizeUser(apiKeyService.GetRequestKey()));
             if (type.HasFlag(AuthorizeType.Jwt) && !result.IsAuthorized)
-                result.Merge(jwtService.AuthorizeUser(token));
+                result.Merge(jwtService.AuthorizeUser(jwtService.GetRequestKey()));
             if (!result.IsAuthorized)
                 return Results.Unauthorized();
 
@@ -55,8 +51,7 @@ public static class AuthorizationExtensions
             if (result.IsForbidden)
                 return Results.Forbid();
 
-            context.HttpContext.Items[AuthenticationStaticOptions.ApiContextAuthorizationKey] =
-                JsonSerializer.Serialize(result);
+            context.HttpContext.Items[AuthenticationStaticOptions.ApiContextAuthorizationKey] = result;
 
             return await next(context);
         });

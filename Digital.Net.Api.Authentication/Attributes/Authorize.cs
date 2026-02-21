@@ -2,7 +2,6 @@ using System.Text.Json;
 using Digital.Net.Api.Authentication.Filters;
 using Digital.Net.Api.Authentication.Models;
 using Digital.Net.Api.Authentication.Options;
-using Digital.Net.Api.Authentication.Services.AuthContext;
 using Digital.Net.Api.Authentication.Services.Authorization;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,14 +50,14 @@ public class AuthorizeAttribute(AuthorizeType type) : Attribute, IAuthorizationF
     private AuthorizationResult AuthorizeApiKey(AuthorizationFilterContext context)
     {
         var service = context.HttpContext.RequestServices.GetRequiredService<IAuthorizationApiKeyService>();
-        var apiKey = context.HttpContext.RequestServices.GetRequiredService<IAuthContextService>().BearerToken;
+        var apiKey = service.GetRequestKey();
         return service.AuthorizeUser(apiKey);
     }
 
     private AuthorizationResult AuthorizeJwt(AuthorizationFilterContext context)
     {
         var service = context.HttpContext.RequestServices.GetRequiredService<IAuthorizationJwtService>();
-        var token = context.HttpContext.RequestServices.GetRequiredService<IAuthContextService>().BearerToken;
+        var token = service.GetRequestKey();
         return service.AuthorizeUser(token);
     }
 }

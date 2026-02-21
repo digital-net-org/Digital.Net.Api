@@ -2,12 +2,16 @@ using System.Net;
 using Digital.Net.Api.Authentication.Events;
 using Digital.Net.Api.Authentication.Options;
 using Digital.Net.Api.Entities.Models.Events;
+using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Sdk;
 
-namespace Digital.Net.Api.Authentication.Tests.Endpoints;
+namespace Digital.Net.Api.Authentication.Tests.Endpoints.JwtTests;
 
-public class JwtSessionsTest : AuthenticationTest
+public class JwtSessionsTest
 {
+    [ClassDataSource<TestApplication>]
+    public required TestApplication Application { get; init; }
+    
     [Test]
     public async Task Login_OnMaxCurrentSessions_ShouldInvalidateOldestSession()
     {

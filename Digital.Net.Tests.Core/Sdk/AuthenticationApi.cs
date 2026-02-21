@@ -48,6 +48,15 @@ public static class AuthenticationApi
         return response;
     }
 
+    public static async Task<HttpResponseMessage> TestJwtAuthorization(this HttpClient client) =>
+        await client.GetAsync("test/authentication/jwt");
+
+    public static async Task<HttpResponseMessage> TestApiKeyAuthorization(this HttpClient client) =>
+        await client.GetAsync("test/authentication/api-key");
+
+    public static async Task<HttpResponseMessage> TestAnyAuthorization(this HttpClient client) =>
+        await client.GetAsync("test/authentication/any");
+
     public static async Task SetAuthorizations(
         this HttpClient client,
         HttpResponseMessage loginResponse
