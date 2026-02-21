@@ -21,6 +21,7 @@
         <ProjectReference Include="..\Digital.Net.Api.Controllers\Digital.Net.Api.Controllers.csproj" />
         <ProjectReference Include="..\Digital.Net.Api.Services\Digital.Net.Api.Services.csproj" />
         <ProjectReference Include="..\Digital.Net.Api.TestUtilities\Digital.Net.Api.TestUtilities.csproj" />
+        <ProjectReference Include="..\Digital.Net.Tests.Core\Digital.Net.Tests.Core.csproj" />
     </ItemGroup>
 
 </Project>

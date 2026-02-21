@@ -4,10 +4,10 @@ using Digital.Net.Api.Core.Interval;
 using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models.Pages;
 using Digital.Net.Api.Entities.Repositories;
-using Digital.Net.Api.TestUtilities;
-using Digital.Net.Api.TestUtilities.Data;
+using Digital.Net.Tests.Core;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
+using UnitTest = Digital.Net.Api.TestUtilities.UnitTest;
 
 namespace Digital.Net.Api.Controllers.Test.Generic.Pagination;
 

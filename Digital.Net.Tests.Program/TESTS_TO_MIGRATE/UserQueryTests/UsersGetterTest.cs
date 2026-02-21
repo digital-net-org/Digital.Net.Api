@@ -1,10 +1,10 @@
-using Digital.Net.Api.TestUtilities.Integration;
+using System;
+using System.Threading.Tasks;
 
-namespace Digital.Net.Api.App.Test.Integration.Users.UserQueryTests;
+namespace Digital.Net.Tests.Program.TESTS_TO_MIGRATE.UserQueryTests;
 
-public class UsersGetterTest(AppFactory<Program> fixture) : UsersTest(fixture)
+public class UsersGetterTest : UsersTest
 {
-    [Fact]
     public async Task GetUserById_ReturnsUser() => throw
         // await BaseClient.Login(UserRepository.Get().First());
         // var payload = UserPool.Skip(5).First().Id;

@@ -18,10 +18,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.Core", "Dig
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.Core.Test", "Digital.Net.Api.Core.Test\Digital.Net.Api.Core.Test.csproj", "{EC34562D-FF8B-4C64-AEAA-D457EEDD9D3E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.App", "Digital.Net.Api.App\Digital.Net.Api.App.csproj", "{3BAA63C6-0191-4F52-9883-D0E305F196FF}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.App.Test", "Digital.Net.Api.App.Test\Digital.Net.Api.App.Test.csproj", "{8E8DA228-8012-4910-A610-E6F2F2C772EC}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.Sdk", "Digital.Net.Api.Sdk\Digital.Net.Api.Sdk.csproj", "{45067119-1A7F-4E04-A98C-1432BD100D76}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.Services", "Digital.Net.Api.Services\Digital.Net.Api.Services.csproj", "{6AAE6EA1-1E43-4A1B-8AF5-9797B0992610}"
@@ -143,14 +139,6 @@ Global
 		{EC34562D-FF8B-4C64-AEAA-D457EEDD9D3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC34562D-FF8B-4C64-AEAA-D457EEDD9D3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EC34562D-FF8B-4C64-AEAA-D457EEDD9D3E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3BAA63C6-0191-4F52-9883-D0E305F196FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3BAA63C6-0191-4F52-9883-D0E305F196FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3BAA63C6-0191-4F52-9883-D0E305F196FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3BAA63C6-0191-4F52-9883-D0E305F196FF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8E8DA228-8012-4910-A610-E6F2F2C772EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8E8DA228-8012-4910-A610-E6F2F2C772EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8E8DA228-8012-4910-A610-E6F2F2C772EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8E8DA228-8012-4910-A610-E6F2F2C772EC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{45067119-1A7F-4E04-A98C-1432BD100D76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{45067119-1A7F-4E04-A98C-1432BD100D76}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{45067119-1A7F-4E04-A98C-1432BD100D76}.Release|Any CPU.ActiveCfg = Release|Any CPU

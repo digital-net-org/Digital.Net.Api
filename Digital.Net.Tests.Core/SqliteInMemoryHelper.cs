@@ -1,7 +1,8 @@
+using System;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
-namespace Digital.Net.Api.TestUtilities.Data;
+namespace Digital.Net.Tests.Core;
 
 public static class SqliteInMemoryHelper
 {

@@ -1,23 +1,45 @@
-<h1>
-    <img width="300" src="https://raw.githubusercontent.com/digital-net-org/.github/refs/heads/master/assets/logo_v2025.svg">
+<h1 align="center">
+    <img width="256" src="logo.png">
 </h1>
-<div justify="center">
+<p align="center">
+    Digital Net Rest API solution.
+</p>
+<p align="center">
     <a href="https://www.docker.com/"><img src="https://img.shields.io/badge/Docker-blue.svg?color=1d63ed"></a>
         <a href="https://dotnet.microsoft.com/en-us/languages/csharp"><img src="https://img.shields.io/badge/C%23-blue.svg?color=622075"></a>
     <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview?WT.mc_id=dotnet-35129-website"><img src="https://img.shields.io/badge/Dotnet-blue.svg?color=4f2bce"></a>
-</div>
+</p>
 
-_@digital-net-org/Digital.Net.Api_
+## 📦 Installation
+Install the nuget package in your project and call the `AddDigitalSdk()` and `UseDigitalSdk()` methods.
 
-Digital Net Rest API solution.
+```csharp
+public sealed class Program
+{
+    private static async Task Main(string[] args)
+    {
+        var app = WebApplication.CreateBuilder(args)
+            .AddDigitalSdk()
+            .Build();
 
-Digital.Net.Api container handles Digital API configuration, users, client website, files and authentication.
+        await app
+            .UseDigitalSdk()
+            .RunAsync();
+    }
+}
+```
+## 📝 Configuration
 
-## :memo: Configuration
+You can configurate the application using environment variables.
 
-You can configurate the application using environment variables and volume while mounting the docker image.
+The application SDK will automatically load environment variables from the `appsettings.*.json` file located in the root 
+of the project and override the values set in environment variables.
 
-### :whale2: Dockerfile
+The loadings order is:
+1. `appsettings.json`
+2. `appsettings.{Environment}.json`
+3. `appsettings.local.json`
+4. Environment variables
 
 #### Environment variables
 | Accessor                                                                                                                                                                                                  | Type       | Default value            |
