@@ -1,7 +1,6 @@
 using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Entities.Repositories;
-using Digital.Net.Api.TestUtilities.Data;
 using Digital.Net.Tests.Core;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;

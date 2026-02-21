@@ -7,7 +7,6 @@ using Digital.Net.Api.Entities.Repositories;
 using Digital.Net.Tests.Core;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
-using UnitTest = Digital.Net.Api.TestUtilities.UnitTest;
 
 namespace Digital.Net.Api.Controllers.Test.Generic.Pagination;
 
@@ -34,8 +33,8 @@ public class PaginationControllerTest : UnitTest, IDisposable
         return actionResult?.Value as QueryResult<PageLightDto> ?? new QueryResult<PageLightDto>();
     }
 
-    [Fact]
-    public void Get_ReturnsMappedModelWithCorrectPagination_WhenQueryIsValid()
+    [Test]
+    public async Task Get_ReturnsMappedModelWithCorrectPagination_WhenQueryIsValid()
     {
         const int total = 10;
         const int index = 1;
@@ -43,14 +42,14 @@ public class PaginationControllerTest : UnitTest, IDisposable
         CreateDataPool(total);
         var result = Test(new PageQuery { Index = index, Size = size });
 
-        Assert.Equal(total, result.Total);
-        Assert.Equal(size, result.Size);
-        Assert.Equal(index, result.Index);
-        Assert.Equal(size, result.Count);
+        await Assert.That(result.Total).IsEqualTo(total);
+        await Assert.That(result.Size).IsEqualTo(size);
+        await Assert.That(result.Index).IsEqualTo(index);
+        await Assert.That(result.Count).IsEqualTo(size);
     }
 
-    [Fact]
-    public void Get_ReturnsCorrectItems_WhenFilteredWithMutationDates()
+    [Test]
+    public async Task Get_ReturnsCorrectItems_WhenFilteredWithMutationDates()
     {
         for (var i = 1; i < 3; i++)
             _testEntityRepository.CreateAndSave(new Page
@@ -62,11 +61,11 @@ public class PaginationControllerTest : UnitTest, IDisposable
             });
 
         var result = Test(new PageQuery { CreatedAt = DateTime.UtcNow.AddDays(-1) });
-        Assert.Equal(2, result.Count);
+        await Assert.That(result.Count).IsEqualTo(2);
     }
 
-    [Fact]
-    public void Get_ReturnsCorrectItems_WhenFilteredWithMutationDateRanges()
+    [Test]
+    public async Task Get_ReturnsCorrectItems_WhenFilteredWithMutationDateRanges()
     {
         var now = DateTime.UtcNow;
         var users = CreateDataPool(5);
@@ -78,11 +77,11 @@ public class PaginationControllerTest : UnitTest, IDisposable
         }
 
         var result = Test(new PageQuery { CreatedIn = new DateRange { From = now, To = now.AddDays(2) } });
-        Assert.Equal(3, result.Count);
+        await Assert.That(result.Count).IsEqualTo(3);
     }
 
-    [Fact]
-    public void Get_ReturnsCorrectItems_WhenIndexInSecondPage()
+    [Test]
+    public async Task Get_ReturnsCorrectItems_WhenIndexInSecondPage()
     {
         const int total = 10;
         const int index = 2;
@@ -96,16 +95,16 @@ public class PaginationControllerTest : UnitTest, IDisposable
         }
 
         var result = Test(new PageQuery { Index = index, Size = size, OrderBy = "CreatedAt" });
-        Assert.Equal("Page 6", result.Value.First().Title);
+        await Assert.That(result.Value.First().Title).IsEqualTo("Page 6");
     }
 
-    [Fact]
-    public void Get_ReturnsError_WhenInvalidOrder()
+    [Test]
+    public async Task Get_ReturnsError_WhenInvalidOrder()
     {
         CreateDataPool(10);
         var result = Test(new PageQuery { OrderBy = "Lol" });
-        Assert.True(result.HasError);
-        Assert.NotEmpty(result.Errors);
+        await Assert.That(result.HasError).IsTrue();
+        await Assert.That(result.Errors).IsNotEmpty();
     }
 
     private List<Page> CreateDataPool(int count)

@@ -1,23 +1,23 @@
 ﻿using Digital.Net.Api.Controllers.Generic.Pagination;
-using Digital.Net.Api.TestUtilities;
+using Digital.Net.Tests.Core;
 
 namespace Digital.Net.Api.Controllers.Test.Generic.Pagination;
 
 public class PaginationUtilsTest : UnitTest
 {
-    [Fact]
-    public void ValidateParameters_SetsDefaultIndex_WhenIndexIsLessThanOne()
+    [Test]
+    public async Task ValidateParameters_SetsDefaultIndex_WhenIndexIsLessThanOne()
     {
         var query = new Query { Index = -1, Size = 1 };
         query.ValidateParameters();
-        Assert.Equal(PaginationUtils.DefaultIndex, query.Index);
+        await Assert.That(query.Index).IsEqualTo(PaginationUtils.DefaultIndex);
     }
 
-    [Fact]
-    public void ValidateParameters_SetsDefaultSize_WhenSizeIsLessThanOne()
+    [Test]
+    public async Task ValidateParameters_SetsDefaultSize_WhenSizeIsLessThanOne()
     {
         var query = new Query { Index = 1, Size = -1 };
         query.ValidateParameters();
-        Assert.Equal(PaginationUtils.DefaultSize, query.Size);
+        await Assert.That(query.Size).IsEqualTo(PaginationUtils.DefaultSize);
     }
 }

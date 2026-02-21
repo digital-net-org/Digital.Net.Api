@@ -6,7 +6,7 @@ using Digital.Net.Api.Core.Messages;
 using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models.Pages;
 using Digital.Net.Api.Entities.Services;
-using Digital.Net.Api.TestUtilities;
+using Digital.Net.Tests.Core;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -35,7 +35,7 @@ public class CrudControllerTest : UnitTest
         _crudController = new TestCrudController(_entityServiceMock.Object, _entityValidatorMock.Object);
     }
 
-    [Fact]
+    [Test]
     public async Task Patch_InvalidPayload_ShouldReturnBadRequest()
     {
         var jsonPatch = JsonDocument
@@ -43,6 +43,6 @@ public class CrudControllerTest : UnitTest
             .RootElement;
 
         var result = await _crudController.Patch(Guid.NewGuid(), jsonPatch);
-        Assert.IsType<BadRequestObjectResult>(result.Result);
+        await Assert.That(result.Result).IsTypeOf<BadRequestObjectResult>();
     }
 }

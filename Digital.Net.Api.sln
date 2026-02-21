@@ -8,8 +8,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.Entities", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.Entities.Test", "Digital.Net.Api.Entities.Test\Digital.Net.Api.Entities.Test.csproj", "{12DF357F-4A47-4B71-ADF5-EBD715C43F69}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.TestUtilities", "Digital.Net.Api.TestUtilities\Digital.Net.Api.TestUtilities.csproj", "{68B29F1F-2F83-4746-A22B-EDD00402682E}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.Controllers", "Digital.Net.Api.Controllers\Digital.Net.Api.Controllers.csproj", "{B8759FE3-5254-4A6B-B8D4-A4B8E4E89FCC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.Controllers.Test", "Digital.Net.Api.Controllers.Test\Digital.Net.Api.Controllers.Test.csproj", "{19724455-28AC-476F-8F57-DAC6F34B31CE}"
@@ -119,10 +117,6 @@ Global
 		{12DF357F-4A47-4B71-ADF5-EBD715C43F69}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12DF357F-4A47-4B71-ADF5-EBD715C43F69}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12DF357F-4A47-4B71-ADF5-EBD715C43F69}.Release|Any CPU.Build.0 = Release|Any CPU
-		{68B29F1F-2F83-4746-A22B-EDD00402682E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{68B29F1F-2F83-4746-A22B-EDD00402682E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{68B29F1F-2F83-4746-A22B-EDD00402682E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{68B29F1F-2F83-4746-A22B-EDD00402682E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B8759FE3-5254-4A6B-B8D4-A4B8E4E89FCC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B8759FE3-5254-4A6B-B8D4-A4B8E4E89FCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8759FE3-5254-4A6B-B8D4-A4B8E4E89FCC}.Release|Any CPU.ActiveCfg = Release|Any CPU

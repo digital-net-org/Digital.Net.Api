@@ -1,13 +1,12 @@
 using Digital.Net.Api.Services.HttpContext.Factories;
 using Digital.Net.Api.Services.HttpContext.Factories.models;
-using Xunit;
 
 namespace Digital.Net.Api.Services.Test.HttpContext.Factories;
 
 public class BodyFactoryTest
 {
-    [Fact]
-    public void BuildPatchRowsTest()
+    [Test]
+    public async Task BuildPatchRowsTest()
     {
         var payload = new { Name = "John", Age = 30 };
         var expected =
@@ -19,9 +18,9 @@ public class BodyFactoryTest
         var actual = BodyFactory.BuildPatchRows(payload);
         foreach (var (actualItem, expectedItem) in actual.Zip(expected))
         {
-            Assert.Equal(expectedItem.Op, actualItem.Op);
-            Assert.Equal(expectedItem.Path, actualItem.Path);
-            Assert.Equal(expectedItem.Value, actualItem.Value);
+            await Assert.That(actualItem.Op).EqualTo(expectedItem.Op);
+            await Assert.That(actualItem.Path).EqualTo(expectedItem.Path);
+            await Assert.That(actualItem.Value).EqualTo(expectedItem.Value);
         }
     }
 }
