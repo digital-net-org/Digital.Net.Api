@@ -1,25 +1,25 @@
 ﻿using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using Digital.Net.Api.Core.Messages;
-using Digital.Net.Api.TestUtilities;
+using Digital.Net.Tests.Core;
 
 namespace Digital.Net.Api.Core.Test.Messages;
 
 public class ResultTest : UnitTest
 {
-    [Fact]
-    public void AddError_ReturnsResult_WhenException()
+    [Test]
+    public async Task AddError_ReturnsResult_WhenException()
     {
         var model = new Result();
         model.AddError(new Exception("Test exception"));
         var error = model.Errors[0];
-        Assert.Single((IEnumerable)model.Errors);
-        Assert.True(model.HasError);
-        Assert.Equal("Test exception", error.Message);
+        await Assert.That((IEnumerable)model.Errors).HasSingleItem();
+        await Assert.That(model.HasError).IsTrue();
+        await Assert.That(error.Message).IsEqualTo("Test exception");
     }
 
-    [Fact]
-    public void Merge_ReturnsResultWithNewErrors()
+    [Test]
+    public async Task Merge_ReturnsResultWithNewErrors()
     {
         var model1 = new Result<string>("Test");
         var model2 = new Result<string>("Toast");
@@ -28,17 +28,14 @@ public class ResultTest : UnitTest
         model2.AddError(new Exception("Error 2"));
         var test = model1.Merge(model2);
 
-        Assert.Equal(2, model1.Errors.Count);
-        Assert.Equal("Test", model1.Value);
-        Assert.Collection(
-            model1.Errors,
-            error => Assert.Equal("Error 1", error.Message),
-            error => Assert.Equal("Error 2", error.Message)
-        );
+        await Assert.That(model1.Errors.Count).IsEqualTo(2);
+        await Assert.That(model1.Value).IsEqualTo("Test");
+        await Assert.That(model1.Errors[0].Message).IsEqualTo("Error 1");
+        await Assert.That(model1.Errors[1].Message).IsEqualTo("Error 2");
     }
 
-    [Fact]
-    public void Try_ReturnsResultWithError_WhenExceptionThrown()
+    [Test]
+    public async Task Try_ReturnsResultWithError_WhenExceptionThrown()
     {
         var model = new Result();
         model.Try(() =>
@@ -47,22 +44,22 @@ public class ResultTest : UnitTest
             return new Result<string>();
         });
         var error = model.Errors[0];
-        Assert.Single(model.Errors);
-        Assert.True(model.HasError);
-        Assert.Equal("Test exception", error.Message);
+        await Assert.That(model.Errors).HasSingleItem();
+        await Assert.That(model.HasError).IsTrue();
+        await Assert.That(error.Message).IsEqualTo("Test exception");
     }
 
-    [Fact]
-    public void Try_ReturnsResultWithoutError_WhenNoExceptionThrown()
+    [Test]
+    public async Task Try_ReturnsResultWithoutError_WhenNoExceptionThrown()
     {
         var model = new Result();
         model.Try(() => new Result<string>());
-        Assert.Empty(model.Errors);
-        Assert.False(model.HasError);
+        await Assert.That(model.Errors).IsEmpty();
+        await Assert.That(model.HasError).IsFalse();
     }
 
-    [Fact]
-    public void TryGeneric_ReturnsResultWithError_WhenExceptionThrown()
+    [Test]
+    public async Task TryGeneric_ReturnsResultWithError_WhenExceptionThrown()
     {
         var model = new Result<string>();
         model.Try(() =>
@@ -71,36 +68,36 @@ public class ResultTest : UnitTest
             return new Result<string>();
         });
         var error = model.Errors[0];
-        Assert.Single(model.Errors);
-        Assert.True(model.HasError);
-        Assert.Equal("Test exception", error.Message);
+        await Assert.That(model.Errors).HasSingleItem();
+        await Assert.That(model.HasError).IsTrue();
+        await Assert.That(error.Message).IsEqualTo("Test exception");
     }
 
-    [Fact]
-    public void TryGeneric_ReturnsResultWithoutError_WhenNoExceptionThrown()
+    [Test]
+    public async Task TryGeneric_ReturnsResultWithoutError_WhenNoExceptionThrown()
     {
         var model = new Result<string>();
         model.Try(() => new Result<string>());
-        Assert.Empty(model.Errors);
-        Assert.False(model.HasError);
+        await Assert.That(model.Errors).IsEmpty();
+        await Assert.That(model.HasError).IsFalse();
     }
 
-    [Fact]
-    public void HasError_ReturnsTrue_WhenErrorsExist()
+    [Test]
+    public async Task HasError_ReturnsTrue_WhenErrorsExist()
     {
         var model = new Result();
         model.AddError(new Exception("Test exception"));
-        Assert.True(model.HasError);
+        await Assert.That(model.HasError).IsTrue();
     }
 
-    [Fact]
-    public void HasError_WithExceptionParameter_ReturnsTrue_WhenErrorIsFound()
+    [Test]
+    public async Task HasError_WithExceptionParameter_ReturnsTrue_WhenErrorIsFound()
     {
         var model = new Result();
         model.AddError(new AggregateException("Test exception"));
         var result = model.HasErrorOfType<AggregateException>();
-        Assert.True(result);
-        Assert.False(model.HasErrorOfType<NotImplementedException>());
+        await Assert.That(result).IsTrue();
+        await Assert.That(model.HasErrorOfType<NotImplementedException>()).IsFalse();
     }
 
     private enum TestEnum

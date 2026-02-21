@@ -1,28 +1,28 @@
 using System.Linq.Expressions;
 using Digital.Net.Api.Core.Predicates;
-using Digital.Net.Api.TestUtilities;
+using Digital.Net.Tests.Core;
 
 namespace Digital.Net.Api.Core.Test.Predicates;
 
 public class PredicateBuilderTest : UnitTest
 {
-    [Fact]
-    public void New_ReturnsCorrectExpression()
+    [Test]
+    public async Task New_ReturnsCorrectExpression()
     {
         var expression = PredicateBuilder.New<int>();
         var compiledExpression = expression.Compile();
-        Assert.True(compiledExpression(0));
+        await Assert.That(compiledExpression(0)).IsTrue();
     }
 
-    [Fact]
-    public void And_ReturnsCombinedExpression()
+    [Test]
+    public async Task And_ReturnsCombinedExpression()
     {
         Expression<Func<int, bool>> expr1 = x => x > 5;
         Expression<Func<int, bool>> expr2 = x => x < 10;
         var combinedExpression = expr1.Add(expr2);
         var compiledExpression = combinedExpression.Compile();
-        Assert.True(compiledExpression(7));
-        Assert.False(compiledExpression(4));
-        Assert.False(compiledExpression(11));
+        await Assert.That(compiledExpression(7)).IsTrue();
+        await Assert.That(compiledExpression(4)).IsFalse();
+        await Assert.That(compiledExpression(11)).IsFalse();
     }
 }

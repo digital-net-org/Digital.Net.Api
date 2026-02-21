@@ -1,23 +1,23 @@
 ﻿using Digital.Net.Api.Core.Extensions.ExceptionUtilities;
-using Digital.Net.Api.TestUtilities;
+using Digital.Net.Tests.Core;
 
 namespace Digital.Net.Api.Core.Test.Extensions.ExceptionUtilities;
 
 public class ExceptionDisplayTest : UnitTest
 {
-    [Fact]
-    public void GetReferenceTest()
+    [Test]
+    public async Task GetReferenceTest()
     {
         var ex = new Exception();
         var result = ex.GetReference();
-        Assert.Equal("SYSTEM_EXCEPTION", result);
+        await Assert.That(result).IsEqualTo("SYSTEM_EXCEPTION");
     }
 
-    [Fact]
-    public void GetFormattedErrorCodeTest() =>
-        Assert.Equal("0x80131500", new Exception().GetFormattedErrorCode());
+    [Test]
+    public async Task GetFormattedErrorCodeTest() =>
+        await Assert.That(new Exception().GetFormattedErrorCode()).IsEqualTo("0x80131500");
 
-    [Fact]
-    public void GetFormattedErrorCodeTest_WithCustomErrorCode() =>
-        Assert.Equal("0x80070057", new ArgumentException("Something went wrong").GetFormattedErrorCode());
+    [Test]
+    public async Task GetFormattedErrorCodeTest_WithCustomErrorCode() =>
+        await Assert.That(new ArgumentException("Something went wrong").GetFormattedErrorCode()).IsEqualTo("0x80070057");
 }

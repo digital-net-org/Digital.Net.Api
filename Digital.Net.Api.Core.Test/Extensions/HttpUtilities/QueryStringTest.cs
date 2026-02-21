@@ -1,15 +1,15 @@
 using Digital.Net.Api.Core.Extensions.HttpUtilities;
-using Digital.Net.Api.TestUtilities;
+using Digital.Net.Tests.Core;
 
 namespace Digital.Net.Api.Core.Test.Extensions.HttpUtilities;
 
 public class QueryStringTests : UnitTest
 {
-    [Fact]
-    public void ToQueryString_ReturnsQueryString_WhenQueryObjectIsNotNull()
+    [Test]
+    public async Task ToQueryString_ReturnsQueryString_WhenQueryObjectIsNotNull()
     {
         var query = new { TestProperty = "TestValue" };
         var result = query.ToQueryString();
-        Assert.Equal("?TestProperty=TestValue", result);
+        await Assert.That(result).IsEqualTo("?TestProperty=TestValue");
     }
 }

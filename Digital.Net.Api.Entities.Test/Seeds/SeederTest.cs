@@ -1,8 +1,8 @@
 using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Entities.Repositories;
-using Digital.Net.Api.TestUtilities;
 using Digital.Net.Api.TestUtilities.Data;
+using Digital.Net.Tests.Core;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -26,27 +26,27 @@ public class SeederTest : UnitTest, IDisposable
         );
     }
 
-    [Fact]
+    [Test]
     public async Task SeedAsync_AddEntitiesToDatabase()
     {
         var result = await _userSeeder.SeedAsync(SeederTestSeed.Users);
         var users = _userRepository.Get(x => true);
-        Assert.False(result.HasError);
-        Assert.Equal(2, users.Count());
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(users.Count()).IsEqualTo(2);
     }
 
-    [Fact]
+    [Test]
     public async Task SeedAsync_SkipExistingEntities()
     {
         await _userRepository.CreateAsync(SeederTestSeed.Users[0]);
         await _userRepository.SaveAsync();
 
         var result = await _userSeeder.SeedAsync([SeederTestSeed.Users[0]]);
-        Assert.False(result.HasError);
-        Assert.Single(_userRepository.Get(u => u.Username == SeederTestSeed.Users[0].Username));
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(_userRepository.Get(u => u.Username == SeederTestSeed.Users[0].Username)).HasSingleItem();
     }
 
-    [Fact]
+    [Test]
     public async Task SeedAsync_ReturnsSeededEntities()
     {
         await _userRepository.CreateAsync(SeederTestSeed.Users[0]);
@@ -54,9 +54,9 @@ public class SeederTest : UnitTest, IDisposable
 
         var result = await _userSeeder.SeedAsync(SeederTestSeed.Users);
         var user = result.Value!.Find(u => u.Username == SeederTestSeed.Users[1].Username);
-        Assert.False(result.HasError);
-        Assert.Single(result.Value!);
-        Assert.True(user is not null && user.Id != Guid.Empty);
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(result.Value!).HasSingleItem();
+        await Assert.That(user is not null && user.Id != Guid.Empty).IsTrue();
     }
 
     public void Dispose() => _connection.Dispose();

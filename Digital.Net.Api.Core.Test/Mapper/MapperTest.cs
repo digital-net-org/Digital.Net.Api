@@ -1,31 +1,31 @@
-using Digital.Net.Api.TestUtilities;
+using Digital.Net.Tests.Core;
 
 namespace Digital.Net.Api.Core.Test.Mapper;
 
 public class MapperTests : UnitTest
 {
-    [Fact]
-    public void Map_ReturnsInstanceOfTargetType_WhenMatchingPropertiesFound()
+    [Test]
+    public async Task Map_ReturnsInstanceOfTargetType_WhenMatchingPropertiesFound()
     {
         var source = new Source { Value = 42 };
         var result = Models.Mapper.Map<Source, Target>(source);
-        Assert.NotNull(result);
-        Assert.IsAssignableFrom<Target>(result);
-        Assert.Equal(42, result.Value);
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result).IsAssignableTo<Target>();
+        await Assert.That(result.Value).IsEqualTo(42);
     }
 
-    [Fact]
-    public void Map_ReturnsInstanceOfTargetType_WhenMatchingPropertiesNotFound()
+    [Test]
+    public async Task Map_ReturnsInstanceOfTargetType_WhenMatchingPropertiesNotFound()
     {
         var source = new Source { Value = 42 };
         var result = Models.Mapper.Map<Source, TargetFail>(source);
-        Assert.NotNull(result);
-        Assert.IsAssignableFrom<TargetFail>(result);
-        Assert.Equal(string.Empty, result.NotANumber);
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result).IsAssignableTo<TargetFail>();
+        await Assert.That(result.NotANumber).IsEqualTo(string.Empty);
     }
 
-    [Fact]
-    public void Map_ReturnsListOfTargetType_WhenMatchingPropertiesFound()
+    [Test]
+    public async Task Map_ReturnsListOfTargetType_WhenMatchingPropertiesFound()
     {
         var source = new List<Source>
         {
@@ -34,34 +34,34 @@ public class MapperTests : UnitTest
             new() { Value = 44 }
         };
         var result = Models.Mapper.Map<Source, Target>(source);
-        Assert.NotNull(result);
-        Assert.IsAssignableFrom<List<Target>>(result);
-        Assert.Equal(3, result.Count);
-        Assert.Equal(42, result[0].Value);
-        Assert.Equal(43, result[1].Value);
-        Assert.Equal(44, result[2].Value);
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result).IsAssignableTo<List<Target>>();
+        await Assert.That(result.Count).IsEqualTo(3);
+        await Assert.That(result[0].Value).IsEqualTo(42);
+        await Assert.That(result[1].Value).IsEqualTo(43);
+        await Assert.That(result[2].Value).IsEqualTo(44);
     }
 
-    [Fact]
-    public void MapFromConstructor_ReturnsInstanceOfTargetType_WhenSuitableConstructorFound()
+    [Test]
+    public async Task MapFromConstructor_ReturnsInstanceOfTargetType_WhenSuitableConstructorFound()
     {
         var source = new FromConstructorSource { Value = 42 };
         var result = Models.Mapper.MapFromConstructor<FromConstructorSource, FromConstructorTarget>(source);
-        Assert.NotNull(result);
-        Assert.IsAssignableFrom<FromConstructorTarget>(result);
-        Assert.Equal(42, result.Value);
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result).IsAssignableTo<FromConstructorTarget>();
+        await Assert.That(result.Value).IsEqualTo(42);
     }
 
-    [Fact]
-    public void MapFromConstructor_ThrowsInvalidOperationException_WhenNoSuitableConstructorFound()
+    [Test]
+    public async Task MapFromConstructor_ThrowsInvalidOperationException_WhenNoSuitableConstructorFound()
     {
         var source = new FromConstructorSource { Value = 42 };
-        Assert.Throws<InvalidOperationException>(
-            () => Models.Mapper.MapFromConstructor<FromConstructorSource, TestNoSuitableConstructorClass>(source));
+        await Assert.That(() => Models.Mapper.MapFromConstructor<FromConstructorSource, TestNoSuitableConstructorClass>(source))
+            .ThrowsExactly<InvalidOperationException>();
     }
 
-    [Fact]
-    public void MapFromConstructor_ReturnsListOfTargetType_WhenSuitableConstructorFound()
+    [Test]
+    public async Task MapFromConstructor_ReturnsListOfTargetType_WhenSuitableConstructorFound()
     {
         var source = new List<FromConstructorSource>
         {
@@ -70,12 +70,12 @@ public class MapperTests : UnitTest
             new() { Value = 44 }
         };
         var result = Models.Mapper.MapFromConstructor<FromConstructorSource, FromConstructorTarget>(source);
-        Assert.NotNull(result);
-        Assert.IsAssignableFrom<List<FromConstructorTarget>>(result);
-        Assert.Equal(3, result.Count);
-        Assert.Equal(42, result[0].Value);
-        Assert.Equal(43, result[1].Value);
-        Assert.Equal(44, result[2].Value);
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result).IsAssignableTo<List<FromConstructorTarget>>();
+        await Assert.That(result.Count).IsEqualTo(3);
+        await Assert.That(result[0].Value).IsEqualTo(42);
+        await Assert.That(result[1].Value).IsEqualTo(43);
+        await Assert.That(result[2].Value).IsEqualTo(44);
     }
 
     private class Source

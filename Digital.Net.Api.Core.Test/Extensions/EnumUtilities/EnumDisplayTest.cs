@@ -1,31 +1,32 @@
 using System.ComponentModel.DataAnnotations;
 using Digital.Net.Api.Core.Extensions.EnumUtilities;
-using Digital.Net.Api.TestUtilities;
+using Digital.Net.Tests.Core;
 
 namespace Digital.Net.Api.Core.Test.Extensions.EnumUtilities;
 
 public class EnumDisplayTest : UnitTest
 {
-    [Fact]
-    public void GetDisplayName_ReturnsEnumDisplayName_WhenAttributeIsSet() =>
-        Assert.Equal("Test of very simple case", ETest.TestEnumValue.GetDisplayName());
+    [Test]
+    public async Task GetDisplayName_ReturnsEnumDisplayName_WhenAttributeIsSet() =>
+        await Assert.That(ETest.TestEnumValue.GetDisplayName()).IsEqualTo("Test of very simple case");
 
-    [Fact]
-    public void GetDisplayName_ReturnsEmptyString_WhenAttributeIsNotSet() =>
-        Assert.Equal(string.Empty, ETest.TestEnumValue2.GetDisplayName());
+    [Test]
+    public async Task GetDisplayName_ReturnsEmptyString_WhenAttributeIsNotSet() =>
+        await Assert.That(ETest.TestEnumValue2.GetDisplayName()).IsEqualTo(string.Empty);
 
 
+    [Test]
+    public async Task GetEnumDisplayNames_ReturnsEnumDisplayNames()
+    {
+        var test = EnumDisplay.GetEnumDisplayNames<ETest>().ToArray();
+        await Assert.That(test.Length).IsEqualTo(2);
+        await Assert.That(test[0]).IsEqualTo("Test of very simple case");
+        await Assert.That(test[1]).IsEqualTo(string.Empty);
+    }
 
-    [Fact]
-    public void GetEnumDisplayNames_ReturnsEnumDisplayNames() =>
-        Assert.Equal(
-            ["Test of very simple case", string.Empty],
-            EnumDisplay.GetEnumDisplayNames<ETest>()
-        );
-
-    [Fact]
-    public void ToReferenceString_ReturnsCorrectString() =>
-        Assert.Equal("TEST_ENUM_VALUE", ETest.TestEnumValue.ToReferenceString());
+    [Test]
+    public async Task ToReferenceString_ReturnsCorrectString() =>
+        await Assert.That(ETest.TestEnumValue.ToReferenceString()).IsEqualTo("TEST_ENUM_VALUE");
 
     private enum ETest
     {

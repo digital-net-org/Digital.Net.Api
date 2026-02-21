@@ -3,8 +3,8 @@ using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models.Avatars;
 using Digital.Net.Api.Entities.Models.Documents;
 using Digital.Net.Api.Entities.Repositories;
-using Digital.Net.Api.TestUtilities;
 using Digital.Net.Api.TestUtilities.Data;
+using Digital.Net.Tests.Core;
 using Microsoft.Data.Sqlite;
 
 namespace Digital.Net.Api.Entities.Test.Repositories;
@@ -30,7 +30,7 @@ public class RepositoryTest : UnitTest, IDisposable
         _avatarRepository = new Repository<Avatar, DigitalContext>(context);
     }
 
-    [Fact]
+    [Test]
     public async Task UpdateNestedEntities_ShouldUpdateNestedEntity()
     {
         const string payload = "test";
@@ -40,18 +40,18 @@ public class RepositoryTest : UnitTest, IDisposable
         await _documentRepository.UpdateAndSaveAsync(document);
 
         var result = _documentRepository.Get().First();
-        Assert.Equal(payload, result.FileName);
+        await Assert.That(result.FileName).IsEqualTo(payload);
     }
 
-    [Fact]
+    [Test]
     public async Task AddTimestamps_ShouldSetNow_OnCreatedAtAndUpdatedAt()
     {
         var document = await _documentRepository.CreateAndSaveAsync(GetTestDocument());
-        Assert.True(document.CreatedAt > DateTime.UtcNow.AddSeconds(-60));
-        Assert.True(document.UpdatedAt is null);
+        await Assert.That(document.CreatedAt > DateTime.UtcNow.AddSeconds(-60)).IsTrue();
+        await Assert.That(document.UpdatedAt is null).IsTrue();
 
         document = await _documentRepository.UpdateAndSaveAsync(document);
-        Assert.True(document.UpdatedAt > DateTime.UtcNow.AddSeconds(-60));
+        await Assert.That(document.UpdatedAt > DateTime.UtcNow.AddSeconds(-60)).IsTrue();
     }
 
     public void Dispose() => _connection.Dispose();

@@ -7,8 +7,8 @@ using Digital.Net.Api.Entities.Models.Pages;
 using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Entities.Repositories;
 using Digital.Net.Api.Entities.Services;
-using Digital.Net.Api.TestUtilities;
 using Digital.Net.Api.TestUtilities.Data;
+using Digital.Net.Tests.Core;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.Data.Sqlite;
 
@@ -60,11 +60,11 @@ public class EntityServiceTest : UnitTest, IDisposable
         _pageService = new EntityService<Page, DigitalContext>(_pageRepository, _entityValidator);
     }
 
-    [Fact]
-    public void GetSchema_ReturnsCorrectSchema_WhenEntityHasProperties() =>
-        Assert.Equal("Username", _entityValidator.GetSchema<User>()[0].Name);
+    [Test]
+    public async Task GetSchema_ReturnsCorrectSchema_WhenEntityHasProperties() =>
+        await Assert.That(_entityValidator.GetSchema<User>()[0].Name).IsEqualTo("Username");
 
-    [Fact]
+    [Test]
     public async Task Patch_UpdatesEntity_WhenQueryIsValid()
     {
         var user = await _userRepository.CreateAndSaveAsync(GetTestUser());
@@ -72,11 +72,11 @@ public class EntityServiceTest : UnitTest, IDisposable
 
         var result = await _userService.Patch(patch, user.Id);
         var updatedUser = await _userRepository.GetByIdAsync(user.Id);
-        Assert.NotNull(result);
-        Assert.Equal("NewUsername", updatedUser?.Username);
+        await Assert.That(result).IsNotNull();
+        await Assert.That(updatedUser?.Username).IsEqualTo("NewUsername");
     }
 
-    [Fact]
+    [Test]
     public async Task Patch_UpdatesNestedEntity_WhenAddPatchIsValid()
     {
         var page = await _pageRepository.CreateAndSaveAsync(GetTestPage());
@@ -85,11 +85,11 @@ public class EntityServiceTest : UnitTest, IDisposable
                 new JsonPatchDocument<Page>().Add(p => p.Metas,
                     new PageMeta { Key = "TestMetaKey", Value = "TestMetaValue", Content = "TestContent" }), page.Id);
         var updatedPage = await _pageRepository.GetByIdAsync(page.Id);
-        Assert.False(result.HasError);
-        Assert.NotEmpty(updatedPage!.Metas);
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(updatedPage!.Metas).IsNotEmpty();
     }
 
-    [Fact]
+    [Test]
     public async Task Patch_UpdatesNestedEntity_WhenDeletePatchIsValid()
     {
         var page = await _pageRepository.CreateAndSaveAsync(GetTestPage());
@@ -103,31 +103,31 @@ public class EntityServiceTest : UnitTest, IDisposable
         );
         await _pageService.Patch(new JsonPatchDocument<Page>().Remove(p => p.Metas[0]), page.Id);
         var updatedPage = await _pageRepository.GetByIdAsync(page.Id);
-        Assert.DoesNotContain(updatedPage!.Metas, m => m.Key == "TestMetaKeyToRemove");
+        await Assert.That(updatedPage!.Metas.Any(m => m.Key == "TestMetaKeyToRemove")).IsFalse();
     }
 
-    [Fact]
+    [Test]
     public async Task Patch_ReturnsError_WhenEntityNotFound()
     {
         var result = await _userService.Patch(
             CreateUserPatch(u => u.Username, "NewUsername"),
             Guid.NewGuid()
         );
-        Assert.True(result.HasErrorOfType<ResourceNotFoundException>());
+        await Assert.That(result.HasErrorOfType<ResourceNotFoundException>()).IsTrue();
     }
 
-    [Fact]
+    [Test]
     public async Task Patch_ReturnsError_WhenInvalidRegex()
     {
         var user = await _userRepository.CreateAndSaveAsync(GetTestUser());
         var patch = CreateUserPatch(u => u.Username, "to");
         var result = await _userService.Patch(patch, user.Id);
         var updatedUser = await _userRepository.GetByIdAsync(user.Id);
-        Assert.True(result.HasErrorOfType<EntityValidationException>());
-        Assert.NotEqual("", updatedUser?.Username);
+        await Assert.That(result.HasErrorOfType<EntityValidationException>()).IsTrue();
+        await Assert.That(updatedUser?.Username).IsNotEqualTo("");
     }
-    
-    [Fact]
+
+    [Test]
     public async Task Patch_ReturnsError_WhenUniqueConstraint()
     {
         var user = await _userRepository.CreateAndSaveAsync(GetTestUser());
@@ -135,44 +135,44 @@ public class EntityServiceTest : UnitTest, IDisposable
         var patch = CreateUserPatch(u => u.Username, user2.Username);
         var result = await _userService.Patch(patch, user.Id);
         var updatedUser = await _userRepository.GetByIdAsync(user.Id);
-        Assert.True(result.HasError);
-        Assert.NotEqual(user2.Username, updatedUser?.Username);
+        await Assert.That(result.HasError).IsTrue();
+        await Assert.That(updatedUser?.Username).IsNotEqualTo(user2.Username);
     }
-    
-    [Fact]
+
+    [Test]
     public async Task Patch_ReturnsError_WhenPatchingReadOnlyField()
     {
         var user = await _userRepository.CreateAndSaveAsync(GetTestUser());
         var patch = CreateUserPatch(u => u.Password, "testValue");
         var result = await _userService.Patch(patch, user.Id);
-        Assert.True(result.HasError);
+        await Assert.That(result.HasError).IsTrue();
     }
 
-    [Fact]
+    [Test]
     public async Task Create_ReturnsSuccess_WhenEntityIsValid()
     {
         // var user = await _userRepository.CreateAndSaveAsync(GetTestUser());
         // var createdUser = await _userRepository.GetByIdAsync(user.Id);
-        // Assert.False(result.HasError());
-        // Assert.NotNull(createdUser);
-        // Assert.Equal("NewUser", createdUser.Username);
+        // await Assert.That(result.HasError()).IsFalse();
+        // await Assert.That(createdUser).IsNotNull();
+        // await Assert.That(createdUser.Username).IsEqualTo("NewUser");
     }
 
-    [Fact]
+    [Test]
     public async Task Delete_ReturnsSuccess_WhenEntityExists()
     {
         var user = await _userRepository.CreateAndSaveAsync(GetTestUser());
         var result = await _userService.Delete(user.Id);
         var deletedUser = await _userRepository.GetByIdAsync(user.Id);
-        Assert.False(result.HasError);
-        Assert.Null(deletedUser);
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(deletedUser).IsNull();
     }
 
-    [Fact]
+    [Test]
     public async Task Delete_ReturnsError_WhenEntityDoesNotExist()
     {
         var result = await _userService.Delete(Guid.NewGuid());
-        Assert.True(result.HasError);
+        await Assert.That(result.HasError).IsTrue();
     }
 
     public void Dispose() => _connection.Dispose();

@@ -1,5 +1,5 @@
 using Digital.Net.Api.Core.Extensions.EnumUtilities;
-using Digital.Net.Api.TestUtilities;
+using Digital.Net.Tests.Core;
 
 namespace Digital.Net.Api.Core.Test.Extensions.EnumUtilities;
 
@@ -11,7 +11,12 @@ public class EnumValuesTest : UnitTest
         Test2
     }
 
-    [Fact]
-    public void GetEnumValues_ReturnsEnumValues() =>
-        Assert.Equal([ETest.Test, ETest.Test2], EnumDisplay.GetEnumValues<ETest>());
+    [Test]
+    public async Task GetEnumValues_ReturnsEnumValues()
+    {
+        var test = EnumDisplay.GetEnumValues<ETest>().ToArray();
+        await Assert.That(test.Length).IsEqualTo(2);
+        await Assert.That(test[0]).IsEqualTo(ETest.Test);
+        await Assert.That(test[1]).IsEqualTo(ETest.Test2);
+    }
 }

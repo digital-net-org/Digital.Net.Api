@@ -1,37 +1,37 @@
 using Digital.Net.Api.Core.Extensions.StringUtilities;
-using Digital.Net.Api.TestUtilities;
+using Digital.Net.Tests.Core;
 
 namespace Digital.Net.Api.Core.Test.Extensions.StringUtilities;
 
 public class StringExtractorTest : UnitTest
 {
-    [Fact]
-    public void ExtractFromPath_ReturnsParts_WhenPathIsFormatted()
+    [Test]
+    public async Task ExtractFromPath_ReturnsParts_WhenPathIsFormatted()
     {
         const string path = "/Something/like/this";
         var result = path.ExtractFromPath();
-        Assert.Equal(3, result.Count);
-        Assert.Equal("Something", result[0]);
-        Assert.Equal("like", result[1]);
-        Assert.Equal("this", result[2]);
+        await Assert.That(result.Count).IsEqualTo(3);
+        await Assert.That(result[0]).IsEqualTo("Something");
+        await Assert.That(result[1]).IsEqualTo("like");
+        await Assert.That(result[2]).IsEqualTo("this");
     }
 
-    [Fact]
-    public void ExtractFromPath_ReturnsParts_WhenOnlyOneFolder()
+    [Test]
+    public async Task ExtractFromPath_ReturnsParts_WhenOnlyOneFolder()
     {
         const string path = "/Something";
         var result = path.ExtractFromPath();
-        Assert.Single(result);
-        Assert.Equal("Something", result[0]);
+        await Assert.That(result).HasSingleItem();
+        await Assert.That(result[0]).IsEqualTo("Something");
     }
 
-    [Fact]
-    public void ExtractFromPath_ReturnsParts_WhenPathIsFormattedWithBackslashes()
+    [Test]
+    public async Task ExtractFromPath_ReturnsParts_WhenPathIsFormattedWithBackslashes()
     {
         const string path = "Like\\That";
         var result = path.ExtractFromPath();
-        Assert.Equal(2, result.Count);
-        Assert.Equal("Like", result[0]);
-        Assert.Equal("That", result[1]);
+        await Assert.That(result.Count).IsEqualTo(2);
+        await Assert.That(result[0]).IsEqualTo("Like");
+        await Assert.That(result[1]).IsEqualTo("That");
     }
 }
