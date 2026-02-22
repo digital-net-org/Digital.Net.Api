@@ -44,13 +44,4 @@ public static class AuthenticationInjector
         
         return services;
     }
-
-    /// <summary>
-    ///     Configures the application to use authentication services and maps authentication-related endpoints.
-    /// </summary>
-    public static WebApplication UseDigitalAuthentication(this WebApplication app)
-    {
-        app.MapAuthenticationEndpoints();
-        return app;
-    }
 }

@@ -5,7 +5,9 @@ using Digital.Net.Api.Authentication.Services.Authentication;
 using Digital.Net.Api.Controllers.Dto;
 using Digital.Net.Api.Core.Formatters;
 using Digital.Net.Api.Core.Messages;
+using Digital.Net.Api.Core.OpenApi;
 using Digital.Net.Api.Entities.Crud;
+using Digital.Net.Api.Entities.Crud.Controllers;
 using Digital.Net.Api.Entities.Exceptions;
 using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Services.Users;
@@ -25,11 +27,48 @@ public static class UserEndpoints
             .WithTags("User")
             .RequireAuthentication(AuthorizeType.Any);
 
-        group.MapGet("/self", GetSelf);
-        group.MapPatch("/self", PatchSelf);
-        group.MapPut("/self/password", UpdatePassword);
-        group.MapPut("/self/avatar", UpdateAvatar);
-        group.MapDelete("/self/avatar", RemoveAvatar);
+        group.MapCrudSchema<User>("");
+
+        group
+            .MapGet("/self", GetSelf)
+            .WithDoc(d =>
+            {
+                d.Summary = "GetSelf";
+                d.Description = "Retrieves the authenticated user's information.";
+            });
+
+        group
+            .MapPatch("/self", PatchSelf)
+            .WithDoc(d =>
+            {
+                d.Summary = "PatchSelf";
+                d.Description =
+                    "Updates the authenticated user's information using a JSON patch. Use the *User Schema* to get the available fields.";
+            });
+
+        group
+            .MapPut("/self/password", UpdatePassword)
+            .WithDoc(d =>
+            {
+                d.Summary = "UpdatePassword";
+                d.Description = "Updates the authenticated user's password.";
+            });
+
+        group
+            .MapPut("/self/avatar", UpdateAvatar)
+            .WithDoc(d =>
+            {
+                d.Summary = "UpdateAvatar";
+                d.Description = "Updates the authenticated user's avatar.";
+            });
+
+        group
+            .MapDelete("/self/avatar", RemoveAvatar)
+            .WithDoc(d =>
+            {
+                d.Summary = "RemoveAvatar";
+                d.Description = "Removes the authenticated user's avatar.";
+            });
 
         return app;
     }

@@ -1,3 +1,4 @@
+using Digital.Net.Api.Authentication.Controllers;
 using Digital.Net.Api.Controllers.Controllers;
 using Microsoft.AspNetCore.Builder;
 
@@ -9,8 +10,9 @@ public static class ControllersMapper
     {
         app
             .MapRootEndpoints()
-            .MapAdministrationEndpoints()
+            .MapAuthenticationEndpoints()
             .MapUserEndpoints()
+            .MapAdministrationEndpoints()
             .MapValidationEndpoints();
         return app;
     }

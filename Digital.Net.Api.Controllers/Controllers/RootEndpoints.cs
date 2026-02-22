@@ -1,4 +1,5 @@
 using Digital.Net.Api.Controllers.Dto;
+using Digital.Net.Api.Core.OpenApi;
 using Digital.Net.Api.Core.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -17,10 +18,10 @@ public static class RootEndpoints
 
         controller
             .MapGet("/", GetApplicationVersion)
-            .AddOpenApiOperationTransformer((operation, _, _) =>
+            .WithDoc(d =>
             {
-                operation.Summary = "Get the application version.";
-                return Task.CompletedTask;
+                d.Summary = "GetApplicationVersion";
+                d.Description = "Get the application version information.";
             });
 
         return app;

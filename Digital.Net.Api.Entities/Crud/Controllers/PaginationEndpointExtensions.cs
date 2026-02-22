@@ -1,6 +1,7 @@
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using Digital.Net.Api.Core.Models;
+using Digital.Net.Api.Core.OpenApi;
 using Digital.Net.Api.Core.Predicates;
 using Digital.Net.Api.Entities.Models;
 using Digital.Net.Api.Entities.Repositories;
@@ -34,37 +35,44 @@ public static class PaginationEndpointExtensions
         where T : Entity
         where TDto : class
         where TQuery : Query =>
-        app.MapGet($"{route}", (
-            [AsParameters]
-            TQuery query,
-            IRepository<T> repository
-        ) =>
-        {
-            query.ValidateParameters();
-            var result = new QueryResult<TDto>();
-
-            try
+        app
+            .MapGet($"{route}", (
+                [AsParameters]
+                TQuery query,
+                IRepository<T> repository
+            ) =>
             {
-                var predicate = BuildFilter(query, filter);
-                var items = repository.Get(predicate);
-                var rowCount = items.Count();
+                query.ValidateParameters();
+                var result = new QueryResult<TDto>();
 
-                items = items.AsNoTracking();
-                items = items.Skip((query.Index - 1) * query.Size).Take(query.Size);
-                items = items.OrderBy(query.OrderBy ?? "CreatedAt");
+                try
+                {
+                    var predicate = BuildFilter(query, filter);
+                    var items = repository.Get(predicate);
+                    var rowCount = items.Count();
 
-                result.Value = Mapper.TryMap<T, TDto>(items.ToList());
-                result.Total = rowCount;
-                result.Index = query.Index;
-                result.Size = query.Size;
-            }
-            catch (Exception e)
+                    items = items.AsNoTracking();
+                    items = items.Skip((query.Index - 1) * query.Size).Take(query.Size);
+                    items = items.OrderBy(query.OrderBy ?? "CreatedAt");
+
+                    result.Value = Mapper.TryMap<T, TDto>(items.ToList());
+                    result.Total = rowCount;
+                    result.Index = query.Index;
+                    result.Size = query.Size;
+                }
+                catch (Exception e)
+                {
+                    result.AddError(e);
+                }
+
+                return Results.Ok(result);
+            })
+            .WithDoc(d =>
             {
-                result.AddError(e);
-            }
-
-            return Results.Ok(result);
-        });
+                d.Summary = "GetPaginated";
+                d.Description =
+                    "Retrieves a paginated list of entities based on the provided query parameters. Returns a QueryResult containing the paginated entities and metadata.";
+            });
 
     /// <summary>
     ///     Builds the filter expression for the query, combining base filters with custom filters.

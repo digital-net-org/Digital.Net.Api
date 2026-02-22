@@ -17,6 +17,8 @@ using Digital.Net.Api.Sdk.RateLimiter.Limiters;
 using Digital.Net.Api.Sdk.Seeds;
 using Digital.Net.Api.Services;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Scalar.AspNetCore;
 
 namespace Digital.Net.Api.Sdk;
 
@@ -55,9 +57,11 @@ public static class DigitalSdkInjector
         builder
             .SetForwardedHeaders()
             .AddDefaultCorsPolicy();
-        
+
         builder.Services.AddRateLimiter(GlobalLimiter.Options);
         builder.AddDataSeeds();
+
+        builder.Services.AddOpenApi();
 
         return builder;
     }
@@ -70,13 +74,15 @@ public static class DigitalSdkInjector
             .UseStaticFiles();
 
         app
-            .UseDigitalAuthentication()
             .UseDigitalEndpoints();
-        
+
         app
             .MapControllers()
             .RequireRateLimiting(GlobalLimiter.Policy);
-        
+
+        app.MapOpenApi();
+        app.MapScalarApiReference();
+
         return app;
     }
 }

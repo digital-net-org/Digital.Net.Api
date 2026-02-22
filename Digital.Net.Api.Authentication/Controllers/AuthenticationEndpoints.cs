@@ -6,6 +6,7 @@ using Digital.Net.Api.Authentication.Services.Authentication;
 using Digital.Net.Api.Core.Exceptions;
 using Digital.Net.Api.Core.Http;
 using Digital.Net.Api.Core.Messages;
+using Digital.Net.Api.Core.OpenApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,27 +24,37 @@ public static class AuthenticationEndpoints
 
         controller
             .MapPost("login", Login)
-            .AddOpenApiOperationTransformer((operation, _, _) =>
+            .WithDoc(d =>
             {
-                operation.Summary = "Login user with login and password.";
-                return Task.CompletedTask;
-            });
-
-        controller
-            .MapPost("refresh", RefreshTokens)
-            .AddOpenApiOperationTransformer((operation, _, _) =>
-            {
-                operation.Summary = "Refreshes JWT and refresh token.";
-                return Task.CompletedTask;
+                d.Summary = "Login";
+                d.Description = "Login user with login and password.";
             });
 
         controller
             .MapPost("logout", Logout)
-            .RequireAuthentication(AuthorizeType.Jwt);
+            .RequireAuthentication(AuthorizeType.Jwt)
+            .WithDoc(d =>
+            {
+                d.Summary = "Logout";
+                d.Description = "Logout user's current session.";
+            });
 
         controller
             .MapPost("logout-all", LogoutAll)
-            .RequireAuthentication(AuthorizeType.Any);
+            .RequireAuthentication(AuthorizeType.Any)
+            .WithDoc(d =>
+            {
+                d.Summary = "LogoutAll";
+                d.Description = "Logout all user sessions on all devices.";
+            });
+        
+        controller
+            .MapPost("refresh", RefreshTokens)
+            .WithDoc(d =>
+            {
+                d.Summary = "RefreshTokens";
+                d.Description = "Refreshes JWT and refresh token.";
+            });
 
         return app;
     }

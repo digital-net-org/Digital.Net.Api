@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using Digital.Net.Api.Authentication.Filters;
 using Digital.Net.Api.Controllers.Dto;
+using Digital.Net.Api.Core.OpenApi;
 using Digital.Net.Api.Core.Predicates;
 using Digital.Net.Api.Entities.Crud.Controllers;
 using Digital.Net.Api.Entities.Models.Users;
@@ -19,11 +20,25 @@ public static class AdministrationEndpoints
             .WithTags("Administration")
             .RequireAuthentication(AuthorizeType.Any);
 
-        controller.MapCrudGet<User, UserDto>("user");
-        controller.MapPaginationGet<User, UserDto, UserQuery>("user", PaginationFilter);
-        controller.MapCrudPatch<User>("user");
-        controller.MapCrudPost<User, UserDto>("user");
-        controller.MapCrudDelete<User>("user");
+        controller
+            .MapCrudGet<User, UserDto>("user")
+            .WithDoc(d => { d.Summary = "GetUserById"; });
+
+        controller
+            .MapPaginationGet<User, UserDto, UserQuery>("user", PaginationFilter)
+            .WithDoc(d => { d.Summary = "GetPaginatedUsers"; });
+
+        controller
+            .MapCrudPatch<User>("user")
+            .WithDoc(d => { d.Summary = "PatchUser"; });
+
+        controller
+            .MapCrudPost<User, UserDto>("user")
+            .WithDoc(d => { d.Summary = "CreateUser"; });
+
+        controller
+            .MapCrudDelete<User>("user")
+            .WithDoc(d => { d.Summary = "DeleteUser"; });
 
         return app;
     }
