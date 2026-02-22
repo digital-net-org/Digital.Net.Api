@@ -2,7 +2,6 @@ using System.Linq.Expressions;
 using Digital.Net.Api.Authentication.Filters;
 using Digital.Net.Api.Controllers.Dto;
 using Digital.Net.Api.Core.Predicates;
-using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Crud.Controllers;
 using Digital.Net.Api.Entities.Models.Users;
 using Microsoft.AspNetCore.Builder;
@@ -20,11 +19,11 @@ public static class AdministrationEndpoints
             .WithTags("Administration")
             .RequireAuthentication(AuthorizeType.Any);
 
-        controller.MapCrudGet<User, DigitalContext, UserDto>("user");
-        controller.MapPaginationGet<User, DigitalContext, UserDto, UserQuery>("user", PaginationFilter);
-        controller.MapCrudPatch<User, DigitalContext>("user");
-        controller.MapCrudPost<User, DigitalContext, UserDto>("user");
-        controller.MapCrudDelete<User, DigitalContext>("user");
+        controller.MapCrudGet<User, UserDto>("user");
+        controller.MapPaginationGet<User, UserDto, UserQuery>("user", PaginationFilter);
+        controller.MapCrudPatch<User>("user");
+        controller.MapCrudPost<User, UserDto>("user");
+        controller.MapCrudDelete<User>("user");
 
         return app;
     }

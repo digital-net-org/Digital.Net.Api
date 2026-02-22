@@ -5,7 +5,6 @@ using Digital.Net.Api.Authentication.Services.Authentication;
 using Digital.Net.Api.Controllers.Dto;
 using Digital.Net.Api.Core.Formatters;
 using Digital.Net.Api.Core.Messages;
-using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Crud;
 using Digital.Net.Api.Entities.Exceptions;
 using Digital.Net.Api.Entities.Models.Users;
@@ -46,7 +45,7 @@ public static class UserEndpoints
     private static async Task<IResult> PatchSelf(
         [FromBody]
         JsonElement patch,
-        ICrudService<User, DigitalContext> crudService,
+        ICrudService<User> crudService,
         IUserContextService userContextService
     )
     {

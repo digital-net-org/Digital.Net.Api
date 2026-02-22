@@ -11,8 +11,8 @@ using Digital.Net.Api.Entities.Repositories;
 namespace Digital.Net.Api.Authentication.Services.Authorization;
 
 public class AuthorizationJwtService(
-    IRepository<User, DigitalContext> userRepository,
-    IRepository<ApiToken, DigitalContext> apiTokenRepository,
+    IRepository<User> userRepository,
+    IRepository<ApiToken> apiTokenRepository,
     IAuthContextService authContextService,
     IAuthenticationOptionService authenticationOptionService
 ) : IAuthorizationJwtService

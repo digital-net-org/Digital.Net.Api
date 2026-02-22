@@ -54,10 +54,10 @@ public class TestApplication : IAsyncInitializer, IAsyncDisposable
     ///     Retrieves an instance of a repository for the specified entity type, using the application's service
     ///     configuration.
     /// </summary>
-    public IRepository<TEntity, DigitalContext> GetRepository<TEntity>() where TEntity : Entity
+    public IRepository<TEntity> GetRepository<TEntity>() where TEntity : Entity
     {
         var context = Factory.Services.GetRequiredService<DigitalContext>();
-        var result = new Repository<TEntity, DigitalContext>(context);
+        var result = new Repository<TEntity>(context);
         return result;
     }
 

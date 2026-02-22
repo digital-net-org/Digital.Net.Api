@@ -21,26 +21,24 @@ public static class PaginationEndpointExtensions
     ///     Maps a GET endpoint to retrieve a paginated list of entities with optional filtering.
     /// </summary>
     /// <typeparam name="T">The entity type</typeparam>
-    /// <typeparam name="TContext">The DbContext type</typeparam>
     /// <typeparam name="TDto">The DTO type to return</typeparam>
     /// <typeparam name="TQuery">The query type containing pagination and filter parameters</typeparam>
     /// <param name="app">The endpoint route builder</param>
     /// <param name="route">The base route for the pagination endpoint</param>
     /// <param name="filter">Optional function to add custom filters to the query predicate</param>
     /// <returns>A RouteHandlerBuilder for further configuration</returns>
-    public static RouteHandlerBuilder MapPaginationGet<T, TContext, TDto, TQuery>(
+    public static RouteHandlerBuilder MapPaginationGet<T, TDto, TQuery>(
         this IEndpointRouteBuilder app,
         string route,
         Func<Expression<Func<T, bool>>, TQuery, Expression<Func<T, bool>>>? filter = null
     )
         where T : Entity
-        where TContext : DbContext
         where TDto : class
         where TQuery : Query =>
         app.MapGet($"{route}", (
             [FromQuery]
             TQuery query,
-            IRepository<T, TContext> repository
+            IRepository<T> repository
         ) =>
         {
             query.ValidateParameters();

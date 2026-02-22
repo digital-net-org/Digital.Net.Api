@@ -2,13 +2,11 @@
 using Digital.Net.Api.Core.Messages;
 using Digital.Net.Api.Entities.Models;
 using Microsoft.AspNetCore.JsonPatch;
-using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Api.Entities.Crud;
 
-public interface ICrudService<T, TContext>
+public interface ICrudService<T>
     where T : Entity
-    where TContext : DbContext
 {
     /// <summary>
     ///    Get an entity based on a predicate. Converts the entity to the provided model using constructor.

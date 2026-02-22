@@ -1,11 +1,10 @@
 using Digital.Net.Api.Core.Messages;
-using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models.Events;
 using Digital.Net.Api.Entities.Repositories;
 
 namespace Digital.Net.Api.Auditing.Services;
 
-public class AuditService(IRepository<Event, DigitalContext> eventRepository) : IAuditService
+public class AuditService(IRepository<Event> eventRepository) : IAuditService
 {
     public async Task RegisterEventAsync(
         string name,

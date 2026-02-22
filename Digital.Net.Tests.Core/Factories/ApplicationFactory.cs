@@ -17,7 +17,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace Digital.Net.Tests.Core.Factories;
 
@@ -73,10 +72,10 @@ public class ApplicationFactory : WebApplicationFactory<DigitalProgram>
     ///     Retrieves an instance of a repository for the specified entity type, using the application's service
     ///     configuration.
     /// </summary>
-    public IRepository<TEntity, DigitalContext> GetRepository<TEntity>() where TEntity : Entity
+    public IRepository<TEntity> GetRepository<TEntity>() where TEntity : Entity
     {
         var context = Services.GetRequiredService<DigitalContext>();
-        var result = new Repository<TEntity, DigitalContext>(context);
+        var result = new Repository<TEntity>(context);
         return result;
     }
 

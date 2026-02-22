@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Reflection;
 using Digital.Net.Api.Core.String;
+using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Exceptions;
 using Digital.Net.Api.Entities.Models;
 using Microsoft.AspNetCore.JsonPatch;
@@ -9,16 +10,16 @@ using Newtonsoft.Json.Linq;
 
 namespace Digital.Net.Api.Entities.Crud;
 
-public class CrudValidationService<TContext>(
-    TContext context
-) : ICrudValidationService<TContext> where TContext : DbContext
+public class CrudValidationService(
+    DigitalContext context
+) : ICrudValidationService
 {
     public List<SchemaProperty<T>> GetSchema<T>() where T : Entity =>
         typeof(T).GetProperties().Select(property => new SchemaProperty<T>(property)).ToList();
 
     private void ValidateDynamicPayload(Entity entity)
     {
-        var schema = typeof(CrudValidationService<TContext>)
+        var schema = typeof(CrudValidationService)
             .GetMethod("GetSchema")!
             .MakeGenericMethod(entity.GetType())
             .Invoke(this, null);
@@ -30,7 +31,7 @@ public class CrudValidationService<TContext>(
                 .FirstOrDefault(p => 
                     (string)p.GetType().GetProperty("Name")!.GetValue(p)! == property.Name);
 
-            var validateMethod = typeof(CrudValidationService<TContext>)
+            var validateMethod = typeof(CrudValidationService)
                 .GetMethod("ValidateProperty")!
                 .MakeGenericMethod(entity.GetType());
 

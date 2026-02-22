@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Api.Entities.Crud.Controllers;
 
@@ -23,18 +22,16 @@ public static class CrudEndpointExtensions
     ///     Maps a GET endpoint to retrieve the entity schema.
     /// </summary>
     /// <typeparam name="T">The entity type</typeparam>
-    /// <typeparam name="TContext">The DbContext type</typeparam>
     /// <param name="app">The endpoint route builder</param>
     /// <param name="route">The base route for the CRUD operations</param>
     /// <returns>A RouteHandlerBuilder for further configuration</returns>
-    public static RouteHandlerBuilder MapCrudSchema<T, TContext>(
+    public static RouteHandlerBuilder MapCrudSchema<T>(
         this IEndpointRouteBuilder app,
         string route
     )
-        where T : Entity
-        where TContext : DbContext =>
+        where T : Entity =>
         app.MapGet($"{route}/schema", (
-            ICrudValidationService<TContext> crudValidationService
+            ICrudValidationService crudValidationService
         ) =>
         {
             var result = new Result<List<SchemaProperty<T>>>(crudValidationService.GetSchema<T>());
@@ -45,21 +42,19 @@ public static class CrudEndpointExtensions
     ///     Maps a GET endpoint to retrieve an entity by its ID.
     /// </summary>
     /// <typeparam name="T">The entity type</typeparam>
-    /// <typeparam name="TContext">The DbContext type</typeparam>
     /// <typeparam name="TDto">The DTO type to return</typeparam>
     /// <param name="app">The endpoint route builder</param>
     /// <param name="route">The base route for the CRUD operations</param>
     /// <returns>A RouteHandlerBuilder for further configuration</returns>
-    public static RouteHandlerBuilder MapCrudGet<T, TContext, TDto>(
+    public static RouteHandlerBuilder MapCrudGet<T, TDto>(
         this IEndpointRouteBuilder app,
         string route
     )
         where T : Entity
-        where TContext : DbContext
         where TDto : class =>
         app.MapGet($"{route}/{{id:guid}}", (
             Guid id,
-            ICrudService<T, TContext> crudService
+            ICrudService<T> crudService
         ) =>
         {
             var result = crudService.Get<TDto>(id);
@@ -70,22 +65,20 @@ public static class CrudEndpointExtensions
     ///     Maps a POST endpoint to create a new entity.
     /// </summary>
     /// <typeparam name="T">The entity type</typeparam>
-    /// <typeparam name="TContext">The DbContext type</typeparam>
     /// <typeparam name="TPayload">The payload type for creation</typeparam>
     /// <param name="app">The endpoint route builder</param>
     /// <param name="route">The base route for the CRUD operations</param>
     /// <returns>A RouteHandlerBuilder for further configuration</returns>
-    public static RouteHandlerBuilder MapCrudPost<T, TContext, TPayload>(
+    public static RouteHandlerBuilder MapCrudPost<T, TPayload>(
         this IEndpointRouteBuilder app,
         string route
     )
         where T : Entity
-        where TContext : DbContext
         where TPayload : class =>
         app.MapPost($"{route}", async (
             [FromBody]
             TPayload payload,
-            ICrudService<T, TContext> crudService
+            ICrudService<T> crudService
         ) =>
         {
             var result = await crudService.Create(Mapper.Map<TPayload, T>(payload));
@@ -96,21 +89,19 @@ public static class CrudEndpointExtensions
     ///     Maps a PATCH endpoint to partially update an entity.
     /// </summary>
     /// <typeparam name="T">The entity type</typeparam>
-    /// <typeparam name="TContext">The DbContext type</typeparam>
     /// <param name="app">The endpoint route builder</param>
     /// <param name="route">The base route for the CRUD operations</param>
     /// <returns>A RouteHandlerBuilder for further configuration</returns>
-    public static RouteHandlerBuilder MapCrudPatch<T, TContext>(
+    public static RouteHandlerBuilder MapCrudPatch<T>(
         this IEndpointRouteBuilder app,
         string route
     )
-        where T : Entity
-        where TContext : DbContext =>
+        where T : Entity =>
         app.MapPatch($"{route}/{{id:guid}}", async (
             Guid id,
             [FromBody]
             JsonElement patch,
-            ICrudService<T, TContext> crudService
+            ICrudService<T> crudService
         ) =>
         {
             var result = await crudService.Patch(JsonFormatter.GetPatchDocument<T>(patch), id);
@@ -134,19 +125,17 @@ public static class CrudEndpointExtensions
     ///     Maps a DELETE endpoint to remove an entity.
     /// </summary>
     /// <typeparam name="T">The entity type</typeparam>
-    /// <typeparam name="TContext">The DbContext type</typeparam>
     /// <param name="app">The endpoint route builder</param>
     /// <param name="route">The base route for the CRUD operations</param>
     /// <returns>A RouteHandlerBuilder for further configuration</returns>
-    public static RouteHandlerBuilder MapCrudDelete<T, TContext>(
+    public static RouteHandlerBuilder MapCrudDelete<T>(
         this IEndpointRouteBuilder app,
         string route
     )
-        where T : Entity
-        where TContext : DbContext =>
+        where T : Entity =>
         app.MapDelete($"{route}/{{id:guid}}", async (
             Guid id,
-            ICrudService<T, TContext> crudService
+            ICrudService<T> crudService
         ) =>
         {
             var result = await crudService.Delete(id);

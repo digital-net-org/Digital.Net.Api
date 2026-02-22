@@ -11,8 +11,8 @@ using Microsoft.AspNetCore.Http;
 namespace Digital.Net.Api.Authentication.Services.Authorization;
 
 public class AuthorizationApiKeyService(
-    IRepository<ApiKey, DigitalContext> apiKeyRepository,
-    IRepository<User, DigitalContext> userRepository,
+    IRepository<ApiKey> apiKeyRepository,
+    IRepository<User> userRepository,
     IHttpContextAccessor httpContextAccessor
 ) : IAuthorizationApiKeyService
 {

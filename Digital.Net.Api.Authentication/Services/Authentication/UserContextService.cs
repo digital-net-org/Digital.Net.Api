@@ -1,7 +1,6 @@
 using Digital.Net.Api.Authentication.Models;
 using Digital.Net.Api.Authentication.Options;
 using Digital.Net.Api.Core.Http;
-using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Entities.Repositories;
 using Microsoft.AspNetCore.Http;
@@ -9,7 +8,7 @@ using Microsoft.AspNetCore.Http;
 namespace Digital.Net.Api.Authentication.Services.Authentication;
 
 public class UserContextService(
-    IRepository<User, DigitalContext> userRepository,
+    IRepository<User> userRepository,
     IHttpContextAccessor httpContextAccessor
 ) : IUserContextService
 {

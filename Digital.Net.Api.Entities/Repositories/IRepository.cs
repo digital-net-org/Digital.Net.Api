@@ -1,6 +1,5 @@
 ﻿using System.Linq.Expressions;
 using Digital.Net.Api.Entities.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Api.Entities.Repositories;
 
@@ -8,10 +7,8 @@ namespace Digital.Net.Api.Entities.Repositories;
 ///     Entity Repository. Use this class for database interactions.
 /// </summary>
 /// <typeparam name="T">The entity type. (Must inherit from EntityBase)</typeparam>
-/// <typeparam name="TContext">The entity DbContext.</typeparam>
-public interface IRepository<T, TContext>
+public interface IRepository<T>
     where T : Entity
-    where TContext : DbContext
 {
     /// <summary>
     ///     Reload the entity.

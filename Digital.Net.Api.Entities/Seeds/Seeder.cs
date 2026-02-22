@@ -2,17 +2,15 @@ using System.Reflection;
 using Digital.Net.Api.Core.Messages;
 using Digital.Net.Api.Entities.Models;
 using Digital.Net.Api.Entities.Repositories;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Digital.Net.Api.Entities.Seeds;
 
-public abstract class Seeder<T, TContext>(
-    ILogger<Seeder<T, TContext>> logger,
-    IRepository<T, TContext> repository
+public abstract class Seeder<T>(
+    ILogger<Seeder<T>> logger,
+    IRepository<T> repository
 ) : ISeed
     where T : Entity
-    where TContext : DbContext
 {
     public abstract Task ApplySeed();
 

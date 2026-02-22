@@ -1,14 +1,14 @@
 using System.Collections;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
+using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Api.Entities.Repositories;
 
-public class Repository<T, TContext>(TContext context) : IRepository<T, TContext>
+public class Repository<T>(DigitalContext context) : IRepository<T>
     where T : Entity
-    where TContext : DbContext
 {
     public void Reload(T entity) => context.Entry(entity).Reload();
 

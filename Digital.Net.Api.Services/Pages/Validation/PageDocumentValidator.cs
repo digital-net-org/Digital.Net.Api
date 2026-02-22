@@ -1,6 +1,5 @@
 ﻿using Digital.Net.Api.Core.Exceptions.types;
 using Digital.Net.Api.Core.Messages;
-using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models;
 using Digital.Net.Api.Entities.Repositories;
 using Microsoft.AspNetCore.Http;
@@ -8,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 namespace Digital.Net.Api.Services.Pages.Validation;
 
 public abstract class PageDocumentValidator<T>(
-    IRepository<T, DigitalContext> repository
+    IRepository<T> repository
 ) : IPageDocumentValidator<T> where T : Entity
 {
     public abstract List<string> GetAllowedMimeTypes();

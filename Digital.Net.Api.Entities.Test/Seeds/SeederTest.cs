@@ -12,13 +12,13 @@ public class SeederTest : UnitTest, IDisposable
 {
     private readonly SqliteConnection _connection;
     private readonly SeederTestSeed _userSeeder;
-    private readonly Repository<User, DigitalContext> _userRepository;
+    private readonly Repository<User> _userRepository;
 
     public SeederTest()
     {
         _connection = SqliteInMemoryHelper.GetConnection();
         var context = _connection.CreateContext<DigitalContext>();
-        _userRepository = new Repository<User, DigitalContext>(context);
+        _userRepository = new Repository<User>(context);
         _userSeeder = new SeederTestSeed(
             new Mock<ILogger<SeederTestSeed>>().Object,
             _userRepository

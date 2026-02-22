@@ -1,4 +1,3 @@
-using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Crud;
 using Digital.Net.Api.Entities.Models;
 using Digital.Net.Api.Entities.Repositories;
@@ -19,9 +18,9 @@ public static class DigitalEntitiesInjector
     public static IServiceCollection AddDigitalEntities<T>(this IServiceCollection services)
         where T : Entity
     {
-        services.TryAddScoped<ICrudValidationService<DigitalContext>, CrudValidationService<DigitalContext>>();
+        services.TryAddScoped<ICrudValidationService, CrudValidationService>();
         return services
-            .AddScoped<IRepository<T, DigitalContext>, Repository<T, DigitalContext>>()
-            .AddScoped<ICrudService<T, DigitalContext>, CrudService<T, DigitalContext>>();
+            .AddScoped<IRepository<T>, Repository<T>>()
+            .AddScoped<ICrudService<T>, CrudService<T>>();
     }
 }

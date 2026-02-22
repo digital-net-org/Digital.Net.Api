@@ -1,6 +1,5 @@
 using Digital.Net.Api.Authentication.Services;
 using Digital.Net.Api.Core.Random;
-using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Entities.Repositories;
 using Digital.Net.Tests.Core.Factories.Data.Records;
@@ -12,7 +11,7 @@ public static class TestUserFactory
     public const string TestUserPassword = "Testpassword123!";
 
     public static User BuildTestUser(
-        this IRepository<User, DigitalContext> userRepository,
+        this IRepository<User> userRepository,
         TestUserPayload? userDto = null
     )
     {

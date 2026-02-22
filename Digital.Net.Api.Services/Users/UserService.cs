@@ -3,7 +3,6 @@ using Digital.Net.Api.Authentication.Services;
 using Digital.Net.Api.Core.Messages;
 using Digital.Net.Api.Core.Settings;
 using Digital.Net.Api.Core.String;
-using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models.Avatars;
 using Digital.Net.Api.Entities.Models.Documents;
 using Digital.Net.Api.Entities.Models.Users;
@@ -17,8 +16,8 @@ namespace Digital.Net.Api.Services.Users;
 
 public class UserService(
     IDocumentService documentService,
-    IRepository<User, DigitalContext> userRepository,
-    IRepository<Avatar, DigitalContext> avatarRepository) : IUserService
+    IRepository<User> userRepository,
+    IRepository<Avatar> avatarRepository) : IUserService
 {
     public async Task<Result> UpdatePasswordAsync(User user, string currentPassword, string newPassword)
     {

@@ -18,15 +18,15 @@ public class RepositoryTest : UnitTest, IDisposable
     };
 
     private readonly SqliteConnection _connection;
-    private readonly Repository<Document, DigitalContext> _documentRepository;
-    private readonly Repository<Avatar, DigitalContext> _avatarRepository;
+    private readonly Repository<Document> _documentRepository;
+    private readonly Repository<Avatar> _avatarRepository;
 
     public RepositoryTest()
     {
         _connection = SqliteInMemoryHelper.GetConnection();
         var context = _connection.CreateContext<DigitalContext>();
-        _documentRepository = new Repository<Document, DigitalContext>(context);
-        _avatarRepository = new Repository<Avatar, DigitalContext>(context);
+        _documentRepository = new Repository<Document>(context);
+        _avatarRepository = new Repository<Avatar>(context);
     }
 
     [Test]

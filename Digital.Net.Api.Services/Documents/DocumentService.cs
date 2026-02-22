@@ -2,7 +2,6 @@ using Digital.Net.Api.Core.Configuration;
 using Digital.Net.Api.Core.Exceptions.types;
 using Digital.Net.Api.Core.Messages;
 using Digital.Net.Api.Core.Settings;
-using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models.Documents;
 using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Entities.Repositories;
@@ -15,7 +14,7 @@ using Microsoft.Extensions.Configuration;
 namespace Digital.Net.Api.Services.Documents;
 
 public class DocumentService(
-    IRepository<Document, DigitalContext> documentRepository,
+    IRepository<Document> documentRepository,
     IConfiguration configuration
 ) : IDocumentService
 {

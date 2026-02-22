@@ -42,21 +42,21 @@ public class CrudServiceTest : UnitTest, IDisposable
     }
 
     private readonly SqliteConnection _connection;
-    private readonly Repository<User, DigitalContext> _userRepository;
-    private readonly Repository<Page, DigitalContext> _pageRepository;
-    private readonly ICrudService<User, DigitalContext> _userService;
-    private readonly ICrudService<Page, DigitalContext> _pageService;
-    private readonly CrudValidationService<DigitalContext> _crudValidationService;
+    private readonly Repository<User> _userRepository;
+    private readonly Repository<Page> _pageRepository;
+    private readonly ICrudService<User> _userService;
+    private readonly ICrudService<Page> _pageService;
+    private readonly CrudValidationService _crudValidationService;
 
     public CrudServiceTest()
     {
         _connection = SqliteInMemoryHelper.GetConnection();
         var context = _connection.CreateContext<DigitalContext>();
-        _crudValidationService = new CrudValidationService<DigitalContext>(context);
-        _userRepository = new Repository<User, DigitalContext>(context);
-        _pageRepository = new Repository<Page, DigitalContext>(context);
-        _userService = new CrudService<User, DigitalContext>(_userRepository, _crudValidationService);
-        _pageService = new CrudService<Page, DigitalContext>(_pageRepository, _crudValidationService);
+        _crudValidationService = new CrudValidationService(context);
+        _userRepository = new Repository<User>(context);
+        _pageRepository = new Repository<Page>(context);
+        _userService = new CrudService<User>(_userRepository, _crudValidationService);
+        _pageService = new CrudService<Page>(_pageRepository, _crudValidationService);
     }
 
     [Test]

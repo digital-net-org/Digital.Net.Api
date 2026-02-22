@@ -1,5 +1,4 @@
 using Digital.Net.Api.Authentication.Services;
-using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models.ApiKeys;
 using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Entities.Repositories;
@@ -10,9 +9,9 @@ namespace Digital.Net.Api.Sdk.Seeds;
 
 public class DevelopmentSeed(
     ILogger<DevelopmentSeed> logger,
-    IRepository<ApiKey, DigitalContext> apiKeyRepository,
-    IRepository<User, DigitalContext> userRepository
-) : Seeder<User, DigitalContext>(logger, userRepository), ISeed
+    IRepository<ApiKey> apiKeyRepository,
+    IRepository<User> userRepository
+) : Seeder<User>(logger, userRepository), ISeed
 {
     public const string DefaultPassword = "Devpassword123!";
 

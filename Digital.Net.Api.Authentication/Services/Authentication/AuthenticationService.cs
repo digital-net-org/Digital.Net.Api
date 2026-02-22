@@ -5,7 +5,6 @@ using Digital.Net.Api.Authentication.Exceptions;
 using Digital.Net.Api.Authentication.Options;
 using Digital.Net.Api.Authentication.Services.Authorization;
 using Digital.Net.Api.Core.Messages;
-using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models.ApiTokens;
 using Digital.Net.Api.Entities.Models.Events;
 using Digital.Net.Api.Entities.Models.Users;
@@ -19,9 +18,9 @@ public class AuthenticationService(
     IAuthenticationJwtService authenticationJwtService,
     IAuthorizationJwtService authorizationJwtService,
     IAuditService auditService,
-    IRepository<User, DigitalContext> userRepository,
-    IRepository<ApiToken, DigitalContext> tokenRepository,
-    IRepository<Event, DigitalContext> eventRepository
+    IRepository<User> userRepository,
+    IRepository<ApiToken> tokenRepository,
+    IRepository<Event> eventRepository
 ) : IAuthenticationService
 {
     private async Task<int> GetLoginAttemptCountAsync(User? user = null, string? ipAddress = null)

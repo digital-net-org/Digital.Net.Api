@@ -1,4 +1,3 @@
-using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Entities.Repositories;
 using Digital.Net.Api.Entities.Seeds;
@@ -8,8 +7,8 @@ namespace Digital.Net.Api.Entities.Test.Seeds;
 
 public class SeederTestSeed(
     ILogger<SeederTestSeed> logger,
-    IRepository<User, DigitalContext> userRepository
-) : Seeder<User, DigitalContext>(logger, userRepository), ISeed
+    IRepository<User> userRepository
+) : Seeder<User>(logger, userRepository), ISeed
 {
     public static readonly List<User> Users =
     [

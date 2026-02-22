@@ -5,16 +5,14 @@ using Digital.Net.Api.Core.Models;
 using Digital.Net.Api.Entities.Models;
 using Digital.Net.Api.Entities.Repositories;
 using Microsoft.AspNetCore.JsonPatch;
-using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Api.Entities.Crud;
 
-public class CrudService<T, TContext>(
-    IRepository<T, TContext> repository,
-    ICrudValidationService<TContext> crudValidationService
-) : ICrudService<T, TContext>
+public class CrudService<T>(
+    IRepository<T> repository,
+    ICrudValidationService crudValidationService
+) : ICrudService<T>
     where T : Entity
-    where TContext : DbContext
 {
     public Result<TModel> GetFirst<TModel>(Expression<Func<T, bool>> expression) where TModel : class
     {

@@ -1,5 +1,4 @@
 ﻿using Digital.Net.Api.Core.Messages;
-using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models.Pages;
 using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Entities.Repositories;
@@ -12,7 +11,7 @@ namespace Digital.Net.Api.Services.Pages;
 public class PageAssetService(
     IDocumentService documentService,
     IPageAssetValidationService pageAssetValidationService,
-    IRepository<PageAsset, DigitalContext> pageAssetRepository
+    IRepository<PageAsset> pageAssetRepository
 ) : IPageAssetService
 {
     public async Task<Result> UploadAsync(IFormFile file, string path, User? uploader)

@@ -3,7 +3,6 @@ using System.Security.Claims;
 using System.Text.Json;
 using Digital.Net.Api.Authentication.Options;
 using Digital.Net.Api.Authentication.Services.Authorization;
-using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models.ApiTokens;
 using Digital.Net.Api.Entities.Repositories;
 using Microsoft.IdentityModel.Tokens;
@@ -12,7 +11,7 @@ namespace Digital.Net.Api.Authentication.Services.Authentication;
 
 public class AuthenticationJwtService(
     IAuthenticationOptionService authenticationOptionService,
-    IRepository<ApiToken, DigitalContext> apiTokenRepository
+    IRepository<ApiToken> apiTokenRepository
 ) : IAuthenticationJwtService
 {
     public async Task RevokeTokenAsync(string token)
