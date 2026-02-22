@@ -21,6 +21,9 @@ public static class AppSettings
     public const string JwtRefreshExpirationKey = "Auth:JwtRefreshExpiration";
     public const string JwtBearerExpirationKey = "Auth:JwtBearerExpiration";
     public const string JwtSecretKey = "Auth:JwtSecret";
+    public const string GitOrigin = "Git:Origin";
+    public const string GitCommitSha = "Git:CommitSha";
+    public const string GitRelease = "Git:Release";
 
     /// <summary>
     ///     Add the following to the configuration builder:

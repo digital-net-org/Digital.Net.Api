@@ -1,6 +1,5 @@
 using Digital.Net.Api.Auditing;
 using Digital.Net.Api.Authentication;
-using Digital.Net.Api.Authentication.Controllers;
 using Digital.Net.Api.Core.Settings;
 using Digital.Net.Api.Entities;
 using Digital.Net.Api.Entities.Context;
@@ -16,7 +15,6 @@ using Digital.Net.Api.Sdk.Bootstrap;
 using Digital.Net.Api.Sdk.RateLimiter.Limiters;
 using Digital.Net.Api.Sdk.Seeds;
 using Digital.Net.Api.Services;
-using Digital.Net.Api.Services.Application;
 using Microsoft.AspNetCore.Builder;
 
 namespace Digital.Net.Api.Sdk;
@@ -30,14 +28,10 @@ public static class DigitalSdkInjector
     /// <param name="builder"></param>
     /// <param name="applicationName"></param>
     /// <returns></returns>
-    public static WebApplicationBuilder AddDigitalSdk(
-        this WebApplicationBuilder builder, 
-        string? applicationName = null
-    )
+    public static WebApplicationBuilder AddDigitalSdk(this WebApplicationBuilder builder)
     {
         builder.Configuration.AddAppSettings();
         builder
-            .SetApplicationName(applicationName ?? "Digital.Net.Api")
             .ValidateApplicationSettings()
             .AddDatabaseContext<DigitalContext>()
             .ApplyMigrations<DigitalContext>();
@@ -71,12 +65,12 @@ public static class DigitalSdkInjector
     {
         app
             .UseCors()
-            .UseAuthorization()
             .UseRateLimiter()
             .UseStaticFiles();
 
         app
-            .MapAuthenticationEndpoints();
+            .UseDigitalAuthentication()
+            .UseDigitalNetServices();
         
         app
             .MapControllers()

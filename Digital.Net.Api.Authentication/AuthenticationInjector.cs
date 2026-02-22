@@ -1,25 +1,25 @@
+using Digital.Net.Api.Authentication.Controllers;
 using Digital.Net.Api.Authentication.Options;
 using Digital.Net.Api.Authentication.Services.AuthContext;
 using Digital.Net.Api.Authentication.Services.Authentication;
 using Digital.Net.Api.Authentication.Services.Authorization;
 using Digital.Net.Api.Core.Extensions.ConfigurationUtilities;
 using Digital.Net.Api.Core.Settings;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Digital.Net.Api.Authentication;
 
-/// <summary>
-///     Adds authentication and authorization services to the application.
-/// </summary>
-/// <remarks>
-///     This class is used to configure and register all necessary services into the provided
-///     <see cref="IServiceCollection" /> to enable authentication and authorization capabilities. The
-///     authentication system is based on JWT tokens and API Keys. The JWT configuration values are resolved from the
-///     application's configuration (see the application README.md).
-/// </remarks>
 public static class AuthenticationInjector
 {
+    /// <summary>
+    ///     Adds authentication and authorization services to the application.
+    /// </summary>
+    /// <remarks>
+    ///     The authentication system is based on JWT tokens and API Keys. The JWT configuration values are resolved
+    ///     from the application's configuration (see the application README.md).
+    /// </remarks>
     public static IServiceCollection AddDigitalAuthenticationServices(this IServiceCollection services)
     {
         var domain = services
@@ -43,5 +43,14 @@ public static class AuthenticationInjector
             .AddScoped<IAuthenticationJwtService, AuthenticationJwtService>();
         
         return services;
+    }
+
+    /// <summary>
+    ///     Configures the application to use authentication services and maps authentication-related endpoints.
+    /// </summary>
+    public static WebApplication UseDigitalAuthentication(this WebApplication app)
+    {
+        app.MapAuthenticationEndpoints();
+        return app;
     }
 }

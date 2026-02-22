@@ -15,7 +15,7 @@ namespace Digital.Net.Api.Authentication.Controllers;
 
 public static class AuthenticationEndpoints
 {
-    public static void MapAuthenticationEndpoints(this IEndpointRouteBuilder app)
+    public static IEndpointRouteBuilder MapAuthenticationEndpoints(this IEndpointRouteBuilder app)
     {
         var controller = app
             .MapGroup("authentication/user")
@@ -44,6 +44,8 @@ public static class AuthenticationEndpoints
         controller
             .MapPost("logout-all", LogoutAll)
             .RequireAuthentication(AuthorizeType.Any);
+
+        return app;
     }
 
     private static async Task<IResult> Login(
