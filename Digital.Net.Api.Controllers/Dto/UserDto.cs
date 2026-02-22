@@ -1,16 +1,14 @@
-using System;
-using Digital.Net.Api.Controllers.Dto;
 using Digital.Net.Api.Entities.Models.Users;
 
-namespace Digital.Net.Tests.Core.Factories.Data.Records;
+namespace Digital.Net.Api.Controllers.Dto;
 
-public class TestUserPayload
+public class UserDto
 {
-    public TestUserPayload()
+    public UserDto()
     {
     }
 
-    public TestUserPayload(User userModel)
+    public UserDto(User userModel)
     {
         Id = userModel.Id;
         Username = userModel.Username;

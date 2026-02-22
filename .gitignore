@@ -8,7 +8,6 @@
 out/
 release/
 
-*/**/appsettings.json
 */**/appsettings.local.json
 */**/.env
 .env

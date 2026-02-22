@@ -5,7 +5,7 @@ namespace Digital.Net.Api.Auditing;
 
 public static class EventServicesInjector
 {
-    public static IServiceCollection AddDigitalAuditingServices(this IServiceCollection services)
+    public static IServiceCollection AddDigitalAuditServices(this IServiceCollection services)
     {
         services.AddScoped<IAuditService, AuditService>();
         return services;

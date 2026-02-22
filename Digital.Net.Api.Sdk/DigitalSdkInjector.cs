@@ -1,5 +1,6 @@
 using Digital.Net.Api.Auditing;
 using Digital.Net.Api.Authentication;
+using Digital.Net.Api.Controllers;
 using Digital.Net.Api.Core.Settings;
 using Digital.Net.Api.Entities;
 using Digital.Net.Api.Entities.Context;
@@ -48,8 +49,8 @@ public static class DigitalSdkInjector
             .AddDigitalEntities<PageAsset>()
             .AddDigitalEntities<PageMeta>()
             .AddDigitalAuthenticationServices()
-            .AddDigitalAuditingServices()
-            .AddDigitalNetServices();
+            .AddDigitalAuditServices()
+            .AddDigitalServices();
 
         builder
             .SetForwardedHeaders()
@@ -70,11 +71,12 @@ public static class DigitalSdkInjector
 
         app
             .UseDigitalAuthentication()
-            .UseDigitalNetServices();
+            .UseDigitalEndpoints();
         
         app
             .MapControllers()
             .RequireRateLimiting(GlobalLimiter.Policy);
+        
         return app;
     }
 }
