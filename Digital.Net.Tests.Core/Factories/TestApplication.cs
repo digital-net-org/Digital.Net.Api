@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Digital.Net.Api.Authentication.Services.Authentication;
-using Digital.Net.Api.Core.Extensions.HttpUtilities;
+using Digital.Net.Api.Core.Http;
 using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models;
 using Digital.Net.Api.Entities.Models.Users;

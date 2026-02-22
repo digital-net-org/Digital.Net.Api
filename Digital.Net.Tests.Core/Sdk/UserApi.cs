@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Digital.Net.Api.Controllers.Dto;
-using Digital.Net.Api.Core.Extensions.HttpUtilities;
+using Digital.Net.Api.Core.Http;
 
 namespace Digital.Net.Tests.Core.Sdk;
 

@@ -1,4 +1,4 @@
-﻿using Digital.Net.Api.Core.Extensions.ExceptionUtilities;
+﻿using Digital.Net.Api.Core.Exceptions;
 
 namespace Digital.Net.Api.Core.Messages;
 

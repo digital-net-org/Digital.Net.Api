@@ -1,5 +1,5 @@
-using Digital.Net.Api.Core.Exceptions;
-using Digital.Net.Api.Core.Extensions.ConfigurationUtilities;
+using Digital.Net.Api.Core.Configuration;
+using Digital.Net.Api.Core.Exceptions.types;
 using Digital.Net.Api.Core.Messages;
 using Digital.Net.Api.Core.Settings;
 using Digital.Net.Api.Entities.Context;

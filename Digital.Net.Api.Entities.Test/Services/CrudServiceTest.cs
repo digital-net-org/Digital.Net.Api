@@ -1,5 +1,5 @@
 ﻿using System.Linq.Expressions;
-using Digital.Net.Api.Core.Exceptions;
+using Digital.Net.Api.Core.Exceptions.types;
 using Digital.Net.Api.Core.Random;
 using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Crud;

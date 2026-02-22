@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Digital.Net.Api.Core.Extensions.StringUtilities;
+using Digital.Net.Api.Core.String;
 using Digital.Net.Api.Entities.Attributes;
 using Digital.Net.Api.Entities.Models.Avatars;
 using Microsoft.EntityFrameworkCore;

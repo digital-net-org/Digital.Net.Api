@@ -1,4 +1,4 @@
-using Digital.Net.Api.Core.Exceptions;
+using Digital.Net.Api.Core.Exceptions.types;
 using Digital.Net.Api.Core.Messages;
 using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models.Pages;

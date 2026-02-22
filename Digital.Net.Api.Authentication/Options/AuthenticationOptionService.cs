@@ -1,5 +1,5 @@
 using System.Text;
-using Digital.Net.Api.Core.Extensions.ConfigurationUtilities;
+using Digital.Net.Api.Core.Configuration;
 using Digital.Net.Api.Core.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;

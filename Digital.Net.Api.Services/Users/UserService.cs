@@ -1,8 +1,8 @@
 using Digital.Net.Api.Authentication.Exceptions;
 using Digital.Net.Api.Authentication.Services;
-using Digital.Net.Api.Core.Extensions.StringUtilities;
 using Digital.Net.Api.Core.Messages;
 using Digital.Net.Api.Core.Settings;
+using Digital.Net.Api.Core.String;
 using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models.Avatars;
 using Digital.Net.Api.Entities.Models.Documents;

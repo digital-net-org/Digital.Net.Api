@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Reflection;
-using Digital.Net.Api.Core.Extensions.StringUtilities;
+using Digital.Net.Api.Core.String;
 using Digital.Net.Api.Entities.Exceptions;
 using Digital.Net.Api.Entities.Models;
 using Microsoft.AspNetCore.JsonPatch;

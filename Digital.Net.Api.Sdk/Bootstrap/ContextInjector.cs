@@ -1,4 +1,4 @@
-using Digital.Net.Api.Core.Extensions.ConfigurationUtilities;
+using Digital.Net.Api.Core.Configuration;
 using Digital.Net.Api.Core.Settings;
 using Digital.Net.Api.Entities.Context;
 using Microsoft.AspNetCore.Builder;

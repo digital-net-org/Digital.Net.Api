@@ -1,8 +1,8 @@
 using System.Net;
 using Digital.Net.Api.Authentication.Events;
 using Digital.Net.Api.Authentication.Options;
-using Digital.Net.Api.Core.Extensions.StringUtilities;
 using Digital.Net.Api.Core.Settings;
+using Digital.Net.Api.Core.String;
 using Digital.Net.Api.Entities.Models.ApiTokens;
 using Digital.Net.Api.Entities.Models.Events;
 using Digital.Net.Api.Entities.Models.Users;

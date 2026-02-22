@@ -3,7 +3,7 @@ using Digital.Net.Api.Authentication.Options;
 using Digital.Net.Api.Authentication.Services.AuthContext;
 using Digital.Net.Api.Authentication.Services.Authentication;
 using Digital.Net.Api.Authentication.Services.Authorization;
-using Digital.Net.Api.Core.Extensions.ConfigurationUtilities;
+using Digital.Net.Api.Core.Configuration;
 using Digital.Net.Api.Core.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;

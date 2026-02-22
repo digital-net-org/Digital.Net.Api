@@ -1,9 +1,20 @@
-using Digital.Net.Api.Core.Errors;
-
 namespace Digital.Net.Api.Core.Models;
 
 public static class Mapper
 {
+    private static T? TryAll<T>(params Func<T>[] cases) where T : class =>
+        cases.Select(func =>
+        {
+            try
+            {
+                return func();
+            }
+            catch
+            {
+                return null;
+            }
+        }).OfType<T>().FirstOrDefault();
+    
     /// <summary>
     ///     Maps an instance of type T to an instance of type TM using both values and properties.
     /// </summary>
@@ -12,7 +23,7 @@ public static class Mapper
     /// <typeparam name="TM">The type to map to.</typeparam>
     /// <returns>The mapped instance.</returns>
     public static TM TryMap<T, TM>(T item) where T : class where TM : class =>
-        TryCatchUtilities.TryAll(
+        TryAll(
             () => MapFromConstructor<T, TM>(item),
             () => Map<T, TM>(item)
         ) ?? throw new Exception("Mapping failed. Could not map item to DTO.");
@@ -26,7 +37,7 @@ public static class Mapper
     /// <typeparam name="TM">The type to map to.</typeparam>
     /// <returns>The mapped List of instances.</returns>
     public static IEnumerable<TM> TryMap<T, TM>(List<T> items) where T : class where TM : class =>
-        TryCatchUtilities.TryAll(
+        TryAll(
             () => MapFromConstructor<T, TM>(items),
             () => Map<T, TM>(items)
         ) ?? throw new Exception("Mapping failed. Could not map items to DTOs.");

@@ -3,7 +3,7 @@ using System.IO;
 using System.Net.Http;
 using Digital.Net.Api.Authentication.Services.Authentication;
 using Digital.Net.Api.Core.Environment;
-using Digital.Net.Api.Core.Extensions.HttpUtilities;
+using Digital.Net.Api.Core.Http;
 using Digital.Net.Api.Core.Random;
 using Digital.Net.Api.Core.Settings;
 using Digital.Net.Api.Entities.Context;

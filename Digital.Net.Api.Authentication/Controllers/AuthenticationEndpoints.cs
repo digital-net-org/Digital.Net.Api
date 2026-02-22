@@ -3,7 +3,7 @@ using Digital.Net.Api.Authentication.Exceptions;
 using Digital.Net.Api.Authentication.Filters;
 using Digital.Net.Api.Authentication.Options;
 using Digital.Net.Api.Authentication.Services.Authentication;
-using Digital.Net.Api.Core.Extensions.ExceptionUtilities;
+using Digital.Net.Api.Core.Exceptions;
 using Digital.Net.Api.Core.Http;
 using Digital.Net.Api.Core.Messages;
 using Microsoft.AspNetCore.Builder;

@@ -1,6 +1,6 @@
 using Digital.Net.Api.Authentication.Filters;
-using Digital.Net.Api.Core.Extensions.StringUtilities;
 using Digital.Net.Api.Core.Settings;
+using Digital.Net.Api.Core.String;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
