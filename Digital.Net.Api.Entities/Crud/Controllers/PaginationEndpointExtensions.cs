@@ -6,7 +6,6 @@ using Digital.Net.Api.Entities.Models;
 using Digital.Net.Api.Entities.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,7 +35,7 @@ public static class PaginationEndpointExtensions
         where TDto : class
         where TQuery : Query =>
         app.MapGet($"{route}", (
-            [FromQuery]
+            [AsParameters]
             TQuery query,
             IRepository<T> repository
         ) =>
@@ -79,14 +78,14 @@ public static class PaginationEndpointExtensions
     {
         var predicate = PredicateBuilder.New<T>();
 
-        if (query.CreatedAt.HasValue)
-            predicate = predicate.Add(x => x.CreatedAt >= query.CreatedAt);
-        if (query.UpdatedAt.HasValue)
-            predicate = predicate.Add(x => x.UpdatedAt >= query.UpdatedAt);
-        if (query.CreatedIn is not null)
-            predicate = predicate.Add(x => x.CreatedAt >= query.CreatedIn.From && x.CreatedAt <= query.CreatedIn.To);
-        if (query.UpdatedIn is not null)
-            predicate = predicate.Add(x => x.UpdatedAt >= query.UpdatedIn.From && x.UpdatedAt <= query.UpdatedIn.To);
+        if (query.CreatedFrom.HasValue)
+            predicate = predicate.Add(x => x.CreatedAt >= query.CreatedFrom);
+        if (query.UpdatedFrom.HasValue)
+            predicate = predicate.Add(x => x.UpdatedAt >= query.UpdatedFrom);
+        if (query.CreatedTo is not null)
+            predicate = predicate.Add(x => x.CreatedAt <= query.CreatedTo);
+        if (query.UpdatedTo is not null)
+            predicate = predicate.Add(x => x.UpdatedAt <= query.UpdatedTo);
 
         if (filter is not null)
             predicate = filter(predicate, query);

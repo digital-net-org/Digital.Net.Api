@@ -1,6 +1,4 @@
-﻿using Digital.Net.Api.Core.Interval;
-
-namespace Digital.Net.Api.Entities.Crud.Controllers;
+﻿namespace Digital.Net.Api.Entities.Crud.Controllers;
 
 public class Query
 {
@@ -10,11 +8,10 @@ public class Query
     public int Index { get; set; } = DefaultIndex;
     public int Size { get; set; } = DefaultSize;
     public string? OrderBy { get; set; }
-
-    public DateRange? CreatedIn { get; set; }
-    public DateRange? UpdatedIn { get; set; }
-    public DateTime? CreatedAt { get; set; }
-    public DateTime? UpdatedAt { get; set; }
+    public DateTime? CreatedFrom { get; set; }
+    public DateTime? CreatedTo { get; set; }
+    public DateTime? UpdatedFrom { get; set; }
+    public DateTime? UpdatedTo { get; set; }
 
     public void ValidateParameters()
     {
