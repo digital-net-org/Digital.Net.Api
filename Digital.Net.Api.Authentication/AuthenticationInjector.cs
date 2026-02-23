@@ -1,11 +1,9 @@
-using Digital.Net.Api.Authentication.Controllers;
 using Digital.Net.Api.Authentication.Options;
 using Digital.Net.Api.Authentication.Services.AuthContext;
 using Digital.Net.Api.Authentication.Services.Authentication;
 using Digital.Net.Api.Authentication.Services.Authorization;
 using Digital.Net.Api.Core.Configuration;
 using Digital.Net.Api.Core.Settings;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -26,7 +24,7 @@ public static class AuthenticationInjector
             .BuildServiceProvider()
             .GetRequiredService<IConfiguration>()
             .GetOrThrow<string>(AppSettings.DomainKey);
-        
+
         services.Configure<AuthenticationOptions>(opts =>
         {
             opts.Issuer = $"https://{domain}";
@@ -41,7 +39,7 @@ public static class AuthenticationInjector
             .AddScoped<IAuthorizationApiKeyService, AuthorizationApiKeyService>()
             .AddScoped<IAuthenticationService, AuthenticationService>()
             .AddScoped<IAuthenticationJwtService, AuthenticationJwtService>();
-        
+
         return services;
     }
 }

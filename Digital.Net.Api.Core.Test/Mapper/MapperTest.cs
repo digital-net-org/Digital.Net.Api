@@ -56,7 +56,8 @@ public class MapperTests : UnitTest
     public async Task MapFromConstructor_ThrowsInvalidOperationException_WhenNoSuitableConstructorFound()
     {
         var source = new FromConstructorSource { Value = 42 };
-        await Assert.That(() => Models.Mapper.MapFromConstructor<FromConstructorSource, TestNoSuitableConstructorClass>(source))
+        await Assert.That(() =>
+                Models.Mapper.MapFromConstructor<FromConstructorSource, TestNoSuitableConstructorClass>(source))
             .ThrowsExactly<InvalidOperationException>();
     }
 
@@ -78,6 +79,60 @@ public class MapperTests : UnitTest
         await Assert.That(result[2].Value).IsEqualTo(44);
     }
 
+    [Test]
+    public async Task TryMap_UsesConstructorMapping_WhenAvailable()
+    {
+        var source = new Source { Value = 10, Name = "Test" };
+        var result = Models.Mapper.TryMap<Source, TargetWithConstructor>(source);
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result.Value).IsEqualTo(10);
+        await Assert.That(result.Name).IsEqualTo("Test");
+    }
+
+    [Test]
+    public async Task TryMap_UsesPropertyMapping_WhenConstructorMappingFails()
+    {
+        var source = new Source { Value = 20, Name = "Test 2" };
+        var result = Models.Mapper.TryMap<Source, TargetWithProperties>(source);
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result.Value).IsEqualTo(20);
+        await Assert.That(result.Name).IsEqualTo("Test 2");
+    }
+
+    [Test]
+    public async Task TryMap_UsesConstructorMapping_ForList_WhenAvailable()
+    {
+        var source = new List<Source>
+        {
+            new() { Value = 1, Name = "A" },
+            new() { Value = 2, Name = "B" }
+        };
+        var result = Models.Mapper.TryMap<Source, TargetWithConstructor>(source).ToList();
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result.Count).IsEqualTo(2);
+        await Assert.That(result[0].Value).IsEqualTo(1);
+        await Assert.That(result[0].Name).IsEqualTo("A");
+        await Assert.That(result[1].Value).IsEqualTo(2);
+        await Assert.That(result[1].Name).IsEqualTo("B");
+    }
+
+    [Test]
+    public async Task TryMap_UsesPropertyMapping_ForList_WhenConstructorMappingFails()
+    {
+        var source = new List<Source>
+        {
+            new() { Value = 3, Name = "C" },
+            new() { Value = 4, Name = "D" }
+        };
+        var result = Models.Mapper.TryMap<Source, TargetWithProperties>(source).ToList();
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result.Count).IsEqualTo(2);
+        await Assert.That(result[0].Value).IsEqualTo(3);
+        await Assert.That(result[0].Name).IsEqualTo("C");
+        await Assert.That(result[1].Value).IsEqualTo(4);
+        await Assert.That(result[1].Name).IsEqualTo("D");
+    }
+    
     private class Source
     {
         public int Value { get; set; }
@@ -101,11 +156,29 @@ public class MapperTests : UnitTest
 
     private class FromConstructorTarget(FromConstructorSource fromConstructorSource)
     {
-        public int Value { get; } = fromConstructorSource.Value;
+        public int Value { get; set; } = fromConstructorSource.Value;
+    }
+
+    private class TargetWithConstructor
+    {
+        public int Value { get; set; }
+        public string Name { get; set; }
+
+        public TargetWithConstructor(Source source)
+        {
+            Value = source.Value;
+            Name = source.Name;
+        }
+    }
+
+    private class TargetWithProperties
+    {
+        public int Value { get; set; }
+        public string Name { get; set; } = string.Empty;
     }
 
     private class TestNoSuitableConstructorClass(int value)
     {
-        public int Value { get; } = value;
+        public int Value { get; set; } = value;  
     }
 }

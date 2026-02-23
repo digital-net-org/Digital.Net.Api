@@ -21,7 +21,6 @@ public class HttpCacheService(
             return result.AddError(new DocumentNotFoundException());
         if (httpContextService.Request.Headers.TestIfNoneMatch(etag))
             return result;
-
         
         var file = result.Try(() => documentService.GetDocumentFile(document.Id, contentType));
         if (result.HasError || file is null)

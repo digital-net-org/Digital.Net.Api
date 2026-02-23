@@ -60,6 +60,7 @@ public static class Mapper
                 p =>
                     p.Name == instanceProperty.Name
                     && p.PropertyType == instanceProperty.PropertyType
+                    && p.CanWrite
             );
             match?.SetValue(target, instanceProperty.GetValue(instance));
         }

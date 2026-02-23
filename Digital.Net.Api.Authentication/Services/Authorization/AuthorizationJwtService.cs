@@ -3,7 +3,6 @@ using Digital.Net.Api.Authentication.Exceptions;
 using Digital.Net.Api.Authentication.Models;
 using Digital.Net.Api.Authentication.Options;
 using Digital.Net.Api.Authentication.Services.AuthContext;
-using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models.ApiTokens;
 using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Entities.Repositories;
