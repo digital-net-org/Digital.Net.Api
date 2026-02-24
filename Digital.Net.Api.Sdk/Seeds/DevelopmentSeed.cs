@@ -33,11 +33,21 @@ public class DevelopmentSeed(
     [
         new()
         {
+            Username = "Administrator",
+            Login = "BenoitSafari",
+            Password = PasswordUtils.HashPassword(DefaultPassword),
+            Email = "benoitsafari@fake.com",
+            IsActive = true,
+            IsAdmin = true
+        },
+        new()
+        {
             Username = "user",
             Login = "user",
             Password = PasswordUtils.HashPassword(DefaultPassword),
             Email = "fake-user@fake.com",
-            IsActive = true
+            IsActive = true,
+            IsAdmin = false
         }
     ];
 }

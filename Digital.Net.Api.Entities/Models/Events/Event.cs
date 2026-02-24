@@ -19,19 +19,27 @@ public class Event : Entity
         return this;
     }
 
-    [Column("Name"), Required, MaxLength(64)]
+    [Column("Name")]
+    [Required]
+    [MaxLength(64)]
     public string Name { get; init; } = string.Empty;
 
-    [Column("Payload"), MaxLength(64)]
+    [Column("Payload")]
+    [MaxLength(64)]
     public string? Payload { get; init; } = string.Empty;
 
-    [Column("UserAgent"), Required, MaxLength(1024)]
+    [Column("UserAgent")]
+    [Required]
+    [MaxLength(1024)]
     public string UserAgent { get; init; } = string.Empty;
 
-    [Column("IpAddress"), Required, MaxLength(45)]
+    [Column("IpAddress")]
+    [Required]
+    [MaxLength(45)]
     public string IpAddress { get; init; } = string.Empty;
 
-    [Column("UserId"), ForeignKey("User")]
+    [Column("UserId")]
+    [ForeignKey("User")]
     public Guid? UserId { get; init; }
 
     public virtual User? User { get; init; }
@@ -39,9 +47,11 @@ public class Event : Entity
     [Column("State")]
     public EventState? State { get; init; }
 
-    [Column("HasError"), Required]
+    [Column("HasError")]
+    [Required]
     public bool HasError { get; private set; }
 
-    [Column("ErrorTrace"), MaxLength(4096)]
+    [Column("ErrorTrace")]
+    [MaxLength(4096)]
     public string? ErrorTrace { get; private set; }
 }

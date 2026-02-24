@@ -1,5 +1,6 @@
 using Digital.Net.Api.Authentication.Models;
 using Digital.Net.Api.Authentication.Options;
+using Digital.Net.Api.Authentication.Services.Authentication;
 using Digital.Net.Api.Authentication.Services.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -28,7 +29,7 @@ public static class AuthorizationExtensions
     /// </code>
     /// </example>
     public static RouteHandlerBuilder RequireAuthentication(this RouteHandlerBuilder builder, AuthorizeType type) =>
-        builder.AddEndpointFilter((context, next) => CreateAuthorizationFilter(context, next, type));
+        builder.AddEndpointFilter((context, next) => CreateAuthenticationFilter(context, next, type));
 
     /// <summary>
     ///     Handles custom authorization for route groups based on provided AuthorizeType.
@@ -49,10 +50,42 @@ public static class AuthorizationExtensions
     /// </code>
     /// </example>
     public static RouteGroupBuilder RequireAuthentication(this RouteGroupBuilder builder, AuthorizeType type) =>
-        builder.AddEndpointFilter((context, next) => CreateAuthorizationFilter(context, next, type));
+        builder.AddEndpointFilter((context, next) => CreateAuthenticationFilter(context, next, type));
 
-    private static async ValueTask<object?> CreateAuthorizationFilter(EndpointFilterInvocationContext context,
-        EndpointFilterDelegate next, AuthorizeType type)
+    /// <summary>
+    ///     Enforces admin authorization for routes within a route group.
+    /// </summary>
+    /// <param name="builder">
+    ///     <see cref="RouteGroupBuilder" />
+    /// </param>
+    public static RouteGroupBuilder RequireAdmin(this RouteGroupBuilder builder) =>
+        builder.AddEndpointFilter(CreateAdminAuthorizationFilter);
+
+    /// <summary>
+    ///     Enforces admin authorization for routes for a route.
+    /// </summary>
+    /// <param name="builder">
+    ///     <see cref="RouteHandlerBuilder" />
+    /// </param>
+    /// <returns></returns>
+    public static RouteHandlerBuilder RequireAdmin(this RouteHandlerBuilder builder) =>
+        builder.AddEndpointFilter(CreateAdminAuthorizationFilter);
+
+    private static async ValueTask<object?> CreateAdminAuthorizationFilter(
+        EndpointFilterInvocationContext context,
+        EndpointFilterDelegate next
+    )
+    {
+        var contextService = context.HttpContext.RequestServices.GetRequiredService<IUserContextService>();
+        var user = contextService.GetUser();
+        return user.IsAdmin ? await next(context) : Results.StatusCode(403);
+    }
+
+    private static async ValueTask<object?> CreateAuthenticationFilter(
+        EndpointFilterInvocationContext context,
+        EndpointFilterDelegate next,
+        AuthorizeType type
+    )
     {
         var apiKeyService = context.HttpContext.RequestServices.GetRequiredService<IAuthorizationApiKeyService>();
         var jwtService = context.HttpContext.RequestServices.GetRequiredService<IAuthorizationJwtService>();
@@ -64,23 +97,12 @@ public static class AuthorizationExtensions
         if (type.HasFlag(AuthorizeType.Jwt) && !result.IsAuthorized)
             result.Merge(jwtService.AuthorizeUser(jwtService.GetRequestKey()));
         if (!result.IsAuthorized)
-            return Results.Unauthorized();
-
-        result.Merge(AuthorizeRole(result));
-
+            return Results.StatusCode(401);
         if (result.IsForbidden)
-            return Results.Forbid();
+            return Results.StatusCode(403);
 
         context.HttpContext.Items[AuthenticationStaticOptions.ApiContextAuthorizationKey] = result;
 
         return await next(context);
     }
-
-    /// <summary>
-    ///     Authorize the user based on the role. TODO: Not implemented yet.
-    /// </summary>
-    /// <returns>
-    ///     <see cref="AuthorizationResult" />
-    /// </returns>
-    private static AuthorizationResult AuthorizeRole(AuthorizationResult result) => result;
 }

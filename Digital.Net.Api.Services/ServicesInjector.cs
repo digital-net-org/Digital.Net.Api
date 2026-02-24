@@ -1,6 +1,5 @@
 using Digital.Net.Api.Services.Documents;
 using Digital.Net.Api.Services.HttpContext;
-using Digital.Net.Api.Services.Pages;
 using Digital.Net.Api.Services.Users;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,8 +16,7 @@ public static class ServicesInjector
         services
             .AddDigitalHttpContextServices()
             .AddDigitalUserServices()
-            .AddDigitalDocumentServices()
-            .AddDigitalPageServices();
+            .AddDigitalDocumentServices();
         return services;
     }
 

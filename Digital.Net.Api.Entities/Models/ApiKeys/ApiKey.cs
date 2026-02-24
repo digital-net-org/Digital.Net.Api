@@ -9,7 +9,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Api.Entities.Models.ApiKeys;
 
-[Table("ApiKey"), Index(nameof(Key), IsUnique = true)]
+[Table("ApiKey")]
+[Index(nameof(Key), IsUnique = true)]
 public class ApiKey(Guid userId, string? key = null, DateTime? expiredAt = null) : Entity
 {
     public static string Hash(string apiKey)
@@ -18,14 +19,19 @@ public class ApiKey(Guid userId, string? key = null, DateTime? expiredAt = null)
         return Convert.ToBase64String(hashBytes);
     }
 
-    [Column("Key"), MaxLength(64), Required, ReadOnly]
+    [Column("Key")]
+    [MaxLength(64)]
+    [Required]
+    [ReadOnly]
     public string Key { get; set; } =
         Hash(key ?? Randomizer.GenerateRandomString(Randomizer.AnyLetterOrNumber, 128));
 
     [Column("ExpiredAt")]
     public DateTime? ExpiredAt { get; set; } = expiredAt;
 
-    [Column("UserId"), ForeignKey("User"), Required]
+    [Column("UserId")]
+    [ForeignKey("User")]
+    [Required]
     public Guid UserId { get; set; } = userId;
 
     public virtual User User { get; set; }

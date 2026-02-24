@@ -10,6 +10,7 @@ using Digital.Net.Api.Entities.Context;
 using Digital.Net.Api.Entities.Models;
 using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Entities.Repositories;
+using Digital.Net.Api.Entities.Seeds;
 using Digital.Net.Tests.Core.Factories.Data;
 using Digital.Net.Tests.Core.Factories.Data.Records;
 using Digital.Net.Tests.Program;
@@ -45,13 +46,13 @@ public class ApplicationFactory : WebApplicationFactory<DigitalProgram>
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment(AspNetEnv.Test);
-
         var configuration = new ConfigurationBuilder()
             .AddAppSettings()
             .AddInMemoryCollection(_testSettings)
             .Build();
 
         builder.UseConfiguration(configuration);
+        builder.ConfigureServices(s => { s.AddScoped<ISeed, TestSeed>(); });
     }
 
     /// <summary>

@@ -14,7 +14,9 @@ public class Avatar : Entity, IPosition
     [Column("Y")]
     public int Y { get; set; }
 
-    [Column("DocumentId"), ForeignKey("Document"), Required]
+    [Column("DocumentId")]
+    [ForeignKey("Document")]
+    [Required]
     public Guid DocumentId { get; set; }
 
     public virtual Document? Document { get; set; }

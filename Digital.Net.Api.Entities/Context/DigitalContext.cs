@@ -1,6 +1,5 @@
 using Digital.Net.Api.Entities.Models.ApiKeys;
 using Digital.Net.Api.Entities.Models.ApiTokens;
-using Digital.Net.Api.Entities.Models.ApplicationOptions;
 using Digital.Net.Api.Entities.Models.Avatars;
 using Digital.Net.Api.Entities.Models.Documents;
 using Digital.Net.Api.Entities.Models.Events;
@@ -16,14 +15,12 @@ public class DigitalContext(DbContextOptions<DigitalContext> options) : DbContex
 
     public DbSet<ApiKey> ApiKeys { get; init; }
     public DbSet<ApiToken> ApiTokens { get; init; }
-    public DbSet<ApplicationOption> ApplicationOptions { get; init; }
     public DbSet<Avatar> Avatars { get; init; }
     public DbSet<Document> Documents { get; init; }
     public DbSet<Event> Events { get; init; }
     public DbSet<User> Users { get; init; }
     public DbSet<Page> Pages { get; init; }
-    public DbSet<PageAsset> PageAssets { get; init; }
-    public DbSet<PageMeta> PageMetas { get; init; }
+    public DbSet<PageOpenGraph> PageMetas { get; init; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

@@ -1,9 +1,7 @@
-using System;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Digital.Net.Api.Controllers.Dto;
-using Digital.Net.Api.Core.Http;
 
 namespace Digital.Net.Tests.Core.Sdk;
 
@@ -11,18 +9,17 @@ public static class UserApi
 {
     public const string BaseUrl = "/user";
 
-    public static async Task<HttpResponseMessage> GetUsers(this HttpClient client, UserQuery query) =>
-        await client.GetAsync($"{BaseUrl}{query.ToQueryString()}");
+    public static async Task<HttpResponseMessage> GetSelf(this HttpClient client) =>
+        await client.GetAsync($"{BaseUrl}/self");
 
-    public static async Task<HttpResponseMessage> GetUser(this HttpClient client, Guid id) =>
-        await client.GetAsync($"{BaseUrl}/{id.ToString()}");
+    public static async Task<HttpResponseMessage> PatchSelf(this HttpClient client, object patch) =>
+        await client.PatchAsJsonAsync($"{BaseUrl}/self", patch);
 
     public static async Task<HttpResponseMessage> UpdatePassword(
         this HttpClient client,
-        Guid id,
         string currentPassword,
         string newPassword
     ) =>
-        await client.PutAsJsonAsync($"{BaseUrl}/{id.ToString()}/password",
+        await client.PutAsJsonAsync($"{BaseUrl}/self/password",
             new UserPasswordUpdatePayload { CurrentPassword = currentPassword, NewPassword = newPassword });
 }

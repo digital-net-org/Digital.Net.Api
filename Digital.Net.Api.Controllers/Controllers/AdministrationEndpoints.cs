@@ -18,7 +18,8 @@ public static class AdministrationEndpoints
         var controller = app
             .MapGroup("admin")
             .WithTags("Administration")
-            .RequireAuthentication(AuthorizeType.Any);
+            .RequireAuthentication(AuthorizeType.Any)
+            .RequireAdmin();
 
         controller
             .MapCrudGet<User, UserDto>("user")
@@ -29,16 +30,8 @@ public static class AdministrationEndpoints
             .WithDoc(d => { d.Summary = "GetPaginatedUsers"; });
 
         controller
-            .MapCrudPatch<User>("user")
-            .WithDoc(d => { d.Summary = "PatchUser"; });
-
-        controller
-            .MapCrudPost<User, UserDto>("user")
+            .MapCrudPost<User, UserPayload>("user")
             .WithDoc(d => { d.Summary = "CreateUser"; });
-
-        controller
-            .MapCrudDelete<User>("user")
-            .WithDoc(d => { d.Summary = "DeleteUser"; });
 
         return app;
     }

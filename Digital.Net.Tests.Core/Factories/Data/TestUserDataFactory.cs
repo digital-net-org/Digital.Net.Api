@@ -21,7 +21,8 @@ public static class TestUserFactory
             Login = userDto?.Login ?? Randomizer.GenerateRandomString(Randomizer.AnyLetterOrNumber, 12),
             Password = PasswordUtils.HashPassword(TestUserPassword),
             Email = userDto?.Email ?? Randomizer.GenerateRandomEmail(),
-            IsActive = userDto?.IsActive is null or true
+            IsActive = userDto?.IsActive ?? true,
+            IsAdmin = userDto?.IsAdmin ?? false
         };
         userRepository.Create(user);
         userRepository.Save();

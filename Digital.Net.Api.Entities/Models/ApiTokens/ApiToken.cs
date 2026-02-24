@@ -21,16 +21,23 @@ public class ApiToken : Entity
         ExpiredAt = expiresAt;
     }
 
-    [Column("Key"), Required, MaxLength(1024)]
+    [Column("Key")]
+    [Required]
+    [MaxLength(1024)]
     public string Key { get; init; }
 
-    [Column("UserAgent"), Required, MaxLength(1024)]
+    [Column("UserAgent")]
+    [Required]
+    [MaxLength(1024)]
     public string UserAgent { get; init; } = string.Empty;
 
-    [Column("ExpiredAt"), Required]
+    [Column("ExpiredAt")]
+    [Required]
     public DateTime? ExpiredAt { get; set; }
 
-    [Column("UserId"), ForeignKey("User"), Required]
+    [Column("UserId")]
+    [ForeignKey("User")]
+    [Required]
     public Guid UserId { get; set; }
 
     public virtual User User { get; set; }

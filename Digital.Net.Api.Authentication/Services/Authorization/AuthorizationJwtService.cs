@@ -30,7 +30,7 @@ public class AuthorizationJwtService(
             handler.ValidateToken(token, authenticationOptionService.GetTokenParameters(), out _);
             var jwt = handler.ReadJwtToken(token);
             var decoded = jwt.Decode();
-            var user = userRepository.Get(u => u.Id == decoded.Id).FirstOrDefault();
+            var user = userRepository.Get(u => u.Id == decoded.Id && u.IsActive).FirstOrDefault();
 
             if (user is null)
                 throw new InvalidTokenException();

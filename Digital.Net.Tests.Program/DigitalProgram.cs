@@ -40,6 +40,11 @@ public sealed class DigitalProgram
             .MapGet("/any", () => Results.Ok())
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
+        controller
+            .MapGet("/admin", () => Results.Ok())
+            .RequireAuthentication(AuthorizeType.Any)
+            .RequireAdmin();
+
         return app;
     }
 }

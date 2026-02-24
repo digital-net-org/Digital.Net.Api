@@ -104,7 +104,6 @@ public static class UserEndpoints
     }
 
     private static async Task<IResult> UpdatePassword(
-        Guid id,
         [FromBody]
         UserPasswordUpdatePayload request,
         IUserService userService,
@@ -123,7 +122,6 @@ public static class UserEndpoints
     }
 
     private static async Task<IResult> UpdateAvatar(
-        Guid id,
         IFormFile avatar,
         IUserService userService,
         IUserContextService userContextService
@@ -135,7 +133,6 @@ public static class UserEndpoints
     }
 
     private static async Task<IResult> RemoveAvatar(
-        Guid id,
         IUserService userService,
         IUserContextService userContextService
     )

@@ -31,7 +31,7 @@ public class AuthorizationApiKeyService(
         if (authorization.ExpiredAt is not null && authorization.ExpiredAt < DateTime.UtcNow)
             return result.AddError(new ExpiredTokenException());
 
-        var user = userRepository.Get(u => u.Id == authorization.UserId).FirstOrDefault();
+        var user = userRepository.Get(u => u.Id == authorization.UserId && u.IsActive).FirstOrDefault();
         if (user is null)
             return result.AddError(new InvalidTokenException());
 

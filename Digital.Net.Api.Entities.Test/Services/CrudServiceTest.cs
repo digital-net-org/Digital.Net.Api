@@ -82,7 +82,8 @@ public class CrudServiceTest : UnitTest, IDisposable
         var result =
             await _pageService.Patch(
                 new JsonPatchDocument<Page>().Add(p => p.Metas,
-                    new PageMeta { Key = "TestMetaKey", Value = "TestMetaValue", Content = "TestContent" }), page.Id);
+                    new PageOpenGraph { Property = "TestMetaKey", Content = "TestMetaValue" }),
+                page.Id);
         var updatedPage = await _pageRepository.GetByIdAsync(page.Id);
         await Assert.That(result.HasError).IsFalse();
         await Assert.That(updatedPage!.Metas).IsNotEmpty();
@@ -95,14 +96,14 @@ public class CrudServiceTest : UnitTest, IDisposable
         await _pageService.Patch(
             new JsonPatchDocument<Page>()
                 .Add(p => p.Metas,
-                    new PageMeta { Key = "TestMetaKeyToRemove", Value = "TestMetaValue", Content = "TestContent" })
+                    new PageOpenGraph { Property = "TestMetaKeyToRemove", Content = "TestMetaValue"  })
                 .Add(p => p.Metas,
-                    new PageMeta { Key = "TestMetaKey", Value = "TestMetaValue", Content = "TestContent" }),
+                    new PageOpenGraph { Property = "TestMetaKey", Content = "TestMetaValue" }),
             page.Id
         );
         await _pageService.Patch(new JsonPatchDocument<Page>().Remove(p => p.Metas[0]), page.Id);
         var updatedPage = await _pageRepository.GetByIdAsync(page.Id);
-        await Assert.That(updatedPage!.Metas.Any(m => m.Key == "TestMetaKeyToRemove")).IsFalse();
+        await Assert.That(updatedPage!.Metas.Any(m => m.Property == "TestMetaKeyToRemove")).IsFalse();
     }
 
     [Test]

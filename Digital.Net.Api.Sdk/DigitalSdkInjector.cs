@@ -4,14 +4,6 @@ using Digital.Net.Api.Controllers;
 using Digital.Net.Api.Core.Settings;
 using Digital.Net.Api.Entities;
 using Digital.Net.Api.Entities.Context;
-using Digital.Net.Api.Entities.Models.ApiKeys;
-using Digital.Net.Api.Entities.Models.ApiTokens;
-using Digital.Net.Api.Entities.Models.ApplicationOptions;
-using Digital.Net.Api.Entities.Models.Avatars;
-using Digital.Net.Api.Entities.Models.Documents;
-using Digital.Net.Api.Entities.Models.Events;
-using Digital.Net.Api.Entities.Models.Pages;
-using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Sdk.Bootstrap;
 using Digital.Net.Api.Sdk.RateLimiter.Limiters;
 using Digital.Net.Api.Sdk.Seeds;
@@ -40,16 +32,7 @@ public static class DigitalSdkInjector
             .ApplyMigrations<DigitalContext>();
 
         builder.Services
-            .AddDigitalEntities<ApiKey>()
-            .AddDigitalEntities<ApiToken>()
-            .AddDigitalEntities<ApplicationOption>()
-            .AddDigitalEntities<Avatar>()
-            .AddDigitalEntities<Document>()
-            .AddDigitalEntities<Event>()
-            .AddDigitalEntities<User>()
-            .AddDigitalEntities<Page>()
-            .AddDigitalEntities<PageAsset>()
-            .AddDigitalEntities<PageMeta>()
+            .AddDigitalEntities()
             .AddDigitalAuthenticationServices()
             .AddDigitalAuditServices()
             .AddDigitalServices();

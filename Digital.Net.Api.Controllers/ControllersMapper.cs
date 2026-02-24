@@ -13,6 +13,7 @@ public static class ControllersMapper
             .MapAuthenticationEndpoints()
             .MapUserEndpoints()
             .MapAdministrationEndpoints()
+            .MapPageEndpoints()
             .MapValidationEndpoints();
         return app;
     }

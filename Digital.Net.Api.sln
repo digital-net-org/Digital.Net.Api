@@ -30,6 +30,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Tests.Program",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.Authentication.Tests", "Digital.Net.Api.Authentication.Tests\Digital.Net.Api.Authentication.Tests.csproj", "{00E4A0E9-F538-47E7-AFF3-487F89293DF5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.Controllers.Tests", "Digital.Net.Api.Controllers.Tests\Digital.Net.Api.Controllers.Tests.csproj", "{F8551054-48D3-4964-8B1A-F11E1E812CC6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -159,5 +161,9 @@ Global
 		{00E4A0E9-F538-47E7-AFF3-487F89293DF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00E4A0E9-F538-47E7-AFF3-487F89293DF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00E4A0E9-F538-47E7-AFF3-487F89293DF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8551054-48D3-4964-8B1A-F11E1E812CC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8551054-48D3-4964-8B1A-F11E1E812CC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8551054-48D3-4964-8B1A-F11E1E812CC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8551054-48D3-4964-8B1A-F11E1E812CC6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
