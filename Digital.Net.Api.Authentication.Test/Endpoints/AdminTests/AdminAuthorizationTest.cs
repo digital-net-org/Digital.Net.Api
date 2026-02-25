@@ -3,7 +3,7 @@ using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data.Records;
 using Digital.Net.Tests.Core.Sdk;
 
-namespace Digital.Net.Api.Authentication.Tests.Endpoints.AdminTests;
+namespace Digital.Net.Api.Authentication.Test.Endpoints.AdminTests;
 
 public class AdminAuthorizationTest
 {

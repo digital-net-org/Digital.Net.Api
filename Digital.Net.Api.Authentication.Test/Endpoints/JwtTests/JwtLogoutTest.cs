@@ -6,7 +6,7 @@ using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Sdk;
 
-namespace Digital.Net.Api.Authentication.Tests.Endpoints.JwtTests;
+namespace Digital.Net.Api.Authentication.Test.Endpoints.JwtTests;
 
 public class JwtLogoutTest
 {

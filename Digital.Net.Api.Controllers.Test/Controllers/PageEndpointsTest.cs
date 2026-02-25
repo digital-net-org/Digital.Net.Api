@@ -9,7 +9,7 @@ using Digital.Net.Tests.Core.Factories.Data;
 using Digital.Net.Tests.Core.Factories.Data.Records;
 using Digital.Net.Tests.Core.Sdk;
 
-namespace Digital.Net.Api.Controllers.Tests.Controllers;
+namespace Digital.Net.Api.Controllers.Test.Controllers;
 
 public class PageEndpointsTest
 {

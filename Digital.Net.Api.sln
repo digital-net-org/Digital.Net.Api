@@ -28,9 +28,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Tests.Core", "D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Tests.Program", "Digital.Net.Tests.Program\Digital.Net.Tests.Program.csproj", "{38C3916B-3C28-4D32-9368-58846BC33755}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.Authentication.Tests", "Digital.Net.Api.Authentication.Tests\Digital.Net.Api.Authentication.Tests.csproj", "{00E4A0E9-F538-47E7-AFF3-487F89293DF5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.Authentication.Test", "Digital.Net.Api.Authentication.Test\Digital.Net.Api.Authentication.Test.csproj", "{00E4A0E9-F538-47E7-AFF3-487F89293DF5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.Controllers.Tests", "Digital.Net.Api.Controllers.Tests\Digital.Net.Api.Controllers.Tests.csproj", "{F8551054-48D3-4964-8B1A-F11E1E812CC6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.Controllers.Test", "Digital.Net.Api.Controllers.Test\Digital.Net.Api.Controllers.Test.csproj", "{F8551054-48D3-4964-8B1A-F11E1E812CC6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
