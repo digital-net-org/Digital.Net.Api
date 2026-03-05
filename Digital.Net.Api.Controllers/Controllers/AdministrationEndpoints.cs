@@ -1,7 +1,6 @@
 using System.Linq.Expressions;
 using Digital.Net.Api.Authentication.Filters;
 using Digital.Net.Api.Controllers.Dto;
-using Digital.Net.Api.Core.OpenApi;
 using Digital.Net.Api.Core.Predicates;
 using Digital.Net.Api.Entities.Crud.Controllers;
 using Digital.Net.Api.Entities.Models.Users;
@@ -23,15 +22,18 @@ public static class AdministrationEndpoints
 
         controller
             .MapCrudGet<User, UserDto>("user")
-            .WithDoc(d => { d.Summary = "GetUserById"; });
+            .WithSummary("GetUserById")
+            .WithDescription("Retrieves a user by their unique identifier.");
 
         controller
             .MapPaginationGet<User, UserDto, UserQuery>("user", PaginationFilter)
-            .WithDoc(d => { d.Summary = "GetPaginatedUsers"; });
+            .WithSummary("GetPaginatedUsers")
+            .WithDescription("Retrieves a paginated list of users with filtering and sorting options.");
 
         controller
             .MapCrudPost<User, UserPayload>("user")
-            .WithDoc(d => { d.Summary = "CreateUser"; });
+            .WithSummary("CreateUser")
+            .WithDescription("Creates a new user with the provided information.");
 
         return app;
     }

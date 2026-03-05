@@ -1,8 +1,8 @@
 using Digital.Net.Api.Controllers.Dto;
-using Digital.Net.Api.Core.OpenApi;
 using Digital.Net.Api.Core.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 
@@ -18,19 +18,17 @@ public static class RootEndpoints
 
         controller
             .MapGet("/", GetApplicationVersion)
-            .WithDoc(d =>
-            {
-                d.Summary = "GetApplicationVersion";
-                d.Description = "Get the application version information.";
-            });
+            .WithSummary("Gets application version")
+            .WithDescription("Get the application version information.");
 
         return app;
     }
 
-    private static ApplicationVersion GetApplicationVersion(IConfiguration configuration) => new(
-        "Digital.Net.Api",
-        configuration[AppSettings.GitOrigin] ?? string.Empty,
-        configuration[AppSettings.GitCommitSha] ?? string.Empty,
-        configuration[AppSettings.GitRelease] ?? string.Empty
-    );
+    private static Ok<ApplicationVersion> GetApplicationVersion(IConfiguration configuration) => TypedResults.Ok(
+        new ApplicationVersion(
+            "Digital.Net.Api",
+            configuration[AppSettings.GitOrigin] ?? string.Empty,
+            configuration[AppSettings.GitCommitSha] ?? string.Empty,
+            configuration[AppSettings.GitRelease] ?? string.Empty
+        ));
 }

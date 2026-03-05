@@ -5,7 +5,6 @@ using Digital.Net.Api.Authentication.Services.Authentication;
 using Digital.Net.Api.Controllers.Dto;
 using Digital.Net.Api.Core.Formatters;
 using Digital.Net.Api.Core.Messages;
-using Digital.Net.Api.Core.OpenApi;
 using Digital.Net.Api.Entities.Crud;
 using Digital.Net.Api.Entities.Crud.Controllers;
 using Digital.Net.Api.Entities.Exceptions;
@@ -13,6 +12,7 @@ using Digital.Net.Api.Entities.Models.Users;
 using Digital.Net.Api.Services.Users;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
@@ -31,57 +31,41 @@ public static class UserEndpoints
 
         group
             .MapGet("/self", GetSelf)
-            .WithDoc(d =>
-            {
-                d.Summary = "GetSelf";
-                d.Description = "Retrieves the authenticated user's information.";
-            });
+            .WithSummary("GetSelf")
+            .WithDescription("Retrieves the authenticated user's information.");
 
         group
             .MapPatch("/self", PatchSelf)
-            .WithDoc(d =>
-            {
-                d.Summary = "PatchSelf";
-                d.Description =
-                    "Updates the authenticated user's information using a JSON patch. Use the *User Schema* to get the available fields.";
-            });
+            .WithSummary("PatchSelf")
+            .WithDescription("Updates the authenticated user's information using a JSON patch. Use the *User Schema* to get the available fields.");
 
         group
             .MapPut("/self/password", UpdatePassword)
-            .WithDoc(d =>
-            {
-                d.Summary = "UpdatePassword";
-                d.Description = "Updates the authenticated user's password.";
-            });
+            .WithSummary("UpdatePassword")
+            .WithDescription("Updates the authenticated user's password.");
 
         group
             .MapPut("/self/avatar", UpdateAvatar)
-            .WithDoc(d =>
-            {
-                d.Summary = "UpdateAvatar";
-                d.Description = "Updates the authenticated user's avatar.";
-            });
+            .WithSummary("UpdateAvatar")
+            .WithDescription("Updates the authenticated user's avatar.");
 
         group
             .MapDelete("/self/avatar", RemoveAvatar)
-            .WithDoc(d =>
-            {
-                d.Summary = "RemoveAvatar";
-                d.Description = "Removes the authenticated user's avatar.";
-            });
+            .WithSummary("RemoveAvatar")
+            .WithDescription("Removes the authenticated user's avatar.");
 
         return app;
     }
 
-    private static IResult GetSelf(IUserContextService userContextService)
+    private static Results<Ok<Result<UserDto>>, UnauthorizedHttpResult> GetSelf(IUserContextService userContextService)
     {
         if (userContextService.GetUser() is not { } user)
-            return Results.Unauthorized();
+            return TypedResults.Unauthorized();
 
-        return Results.Ok(new Result<UserDto>(new UserDto(user)));
+        return TypedResults.Ok(new Result<UserDto>(new UserDto(user)));
     }
 
-    private static async Task<IResult> PatchSelf(
+    private static async Task<Results<Ok<Result>, BadRequest<Result>, InternalServerError<Result>>> PatchSelf(
         [FromBody]
         JsonElement patch,
         ICrudService<User> crudService,
@@ -95,15 +79,15 @@ public static class UserEndpoints
                 result.HasErrorOfType<InvalidOperationException>()
                 || result.HasErrorOfType<EntityValidationException>()
             ))
-            return Results.BadRequest(result);
+            return TypedResults.BadRequest(result);
 
         if (result.HasError)
-            return Results.InternalServerError(result);
+            return TypedResults.InternalServerError(result);
 
-        return Results.Ok(result);
+        return TypedResults.Ok(result);
     }
 
-    private static async Task<IResult> UpdatePassword(
+    private static async Task<Results<Ok<Result>, BadRequest<Result>, UnauthorizedHttpResult>> UpdatePassword(
         [FromBody]
         UserPasswordUpdatePayload request,
         IUserService userService,
@@ -114,14 +98,14 @@ public static class UserEndpoints
         var result = await userService.UpdatePasswordAsync(user, request.CurrentPassword, request.NewPassword);
 
         if (result.HasErrorOfType<PasswordMalformedException>())
-            return Results.BadRequest(result);
+            return TypedResults.BadRequest(result);
         if (result.HasErrorOfType<InvalidCredentialsException>())
-            return Results.Unauthorized();
+            return TypedResults.Unauthorized();
 
-        return Results.Ok(result);
+        return TypedResults.Ok(result);
     }
 
-    private static async Task<IResult> UpdateAvatar(
+    private static async Task<Ok<Result<Digital.Net.Api.Entities.Models.Documents.Document>>> UpdateAvatar(
         IFormFile avatar,
         IUserService userService,
         IUserContextService userContextService
@@ -129,16 +113,16 @@ public static class UserEndpoints
     {
         var user = userContextService.GetUser();
         var result = await userService.UpdateAvatar(user, avatar);
-        return Results.Ok(result);
+        return TypedResults.Ok(result);
     }
 
-    private static async Task<IResult> RemoveAvatar(
+    private static async Task<Ok<Result>> RemoveAvatar(
         IUserService userService,
         IUserContextService userContextService
     )
     {
         var user = userContextService.GetUser();
         var result = await userService.RemoveUserAvatar(user);
-        return Results.Ok(result);
+        return TypedResults.Ok(result);
     }
 }

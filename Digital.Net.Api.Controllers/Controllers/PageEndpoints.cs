@@ -1,13 +1,13 @@
 using System.Linq.Expressions;
 using Digital.Net.Api.Authentication.Filters;
 using Digital.Net.Api.Controllers.Dto;
-using Digital.Net.Api.Core.OpenApi;
 using Digital.Net.Api.Core.Predicates;
 using Digital.Net.Api.Entities.Crud.Controllers;
 using Digital.Net.Api.Entities.Models.Pages;
 using Digital.Net.Api.Entities.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 
 namespace Digital.Net.Api.Controllers.Controllers;
@@ -22,11 +22,8 @@ public static class PageEndpoints
 
         controller
             .MapGet("/path/{*path}", GetPageByPath)
-            .WithDoc(d =>
-            {
-                d.Summary = "GetByPath";
-                d.Description = "Retrieves a page meta and config by its path.";
-            });
+            .WithSummary("GetByPath")
+            .WithDescription("Retrieves a page meta and config by its path.");
 
         controller
             .MapCrudGet<Page, PageDto>("")
@@ -51,7 +48,7 @@ public static class PageEndpoints
         return app;
     }
 
-    private static IResult GetPageByPath(
+    private static Results<Ok<PageDto>, NotFound> GetPageByPath(
         string path,
         IRepository<Page> pageRepository
     )
@@ -60,10 +57,10 @@ public static class PageEndpoints
             .Get(p => p.Path == path && p.IsPublished)
             .FirstOrDefault();
         if (page is null)
-            return Results.NotFound();
+            return TypedResults.NotFound();
 
         var result = new PageDto(page);
-        return Results.Ok(result);
+        return TypedResults.Ok(result);
     }
 
     private static Expression<Func<Page, bool>> PaginationFilter(

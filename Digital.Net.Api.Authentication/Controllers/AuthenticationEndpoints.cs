@@ -6,9 +6,9 @@ using Digital.Net.Api.Authentication.Services.Authentication;
 using Digital.Net.Api.Core.Exceptions;
 using Digital.Net.Api.Core.Http;
 using Digital.Net.Api.Core.Messages;
-using Digital.Net.Api.Core.OpenApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
@@ -24,42 +24,30 @@ public static class AuthenticationEndpoints
 
         controller
             .MapPost("login", Login)
-            .WithDoc(d =>
-            {
-                d.Summary = "Login";
-                d.Description = "Login user with login and password.";
-            });
+            .WithSummary("Login")
+            .WithDescription("Login user with login and password.");
 
         controller
             .MapPost("logout", Logout)
             .RequireAuthentication(AuthorizeType.Jwt)
-            .WithDoc(d =>
-            {
-                d.Summary = "Logout";
-                d.Description = "Logout user's current session.";
-            });
+            .WithSummary("Logout")
+            .WithDescription("Logout user's current session.");
 
         controller
             .MapPost("logout-all", LogoutAll)
             .RequireAuthentication(AuthorizeType.Any)
-            .WithDoc(d =>
-            {
-                d.Summary = "LogoutAll";
-                d.Description = "Logout all user sessions on all devices.";
-            });
-        
+            .WithSummary("LogoutAll")
+            .WithDescription("Logout all user sessions on all devices.");
+
         controller
             .MapPost("refresh", RefreshTokens)
-            .WithDoc(d =>
-            {
-                d.Summary = "RefreshTokens";
-                d.Description = "Refreshes JWT and refresh token.";
-            });
+            .WithSummary("RefreshTokens")
+            .WithDescription("Refreshes JWT and refresh token.");
 
         return app;
     }
 
-    private static async Task<IResult> Login(
+    private static async Task<Results<Ok<Result<string>>, UnauthorizedHttpResult, StatusCodeHttpResult>> Login(
         [FromBody]
         LoginPayload request,
         IAuthenticationService service,
@@ -75,16 +63,16 @@ public static class AuthenticationEndpoints
         result.Merge(loginRes);
 
         if (result.Errors.Any(e => e.Reference == new TooManyAttemptsException().GetReference()))
-            return Results.StatusCode(429);
+            return TypedResults.StatusCode(429);
         if (result.HasError || string.IsNullOrEmpty(loginRes.Value.bearer))
-            return Results.Unauthorized();
+            return TypedResults.Unauthorized();
 
         ctx.SetResponseCookie(loginRes.Value.refresh, opts.CookieName, opts.GetRefreshTokenExpirationDate());
         result.Value = loginRes.Value.bearer;
-        return Results.Ok(result);
+        return TypedResults.Ok(result);
     }
 
-    private static async Task<IResult> RefreshTokens(
+    private static async Task<Results<Ok<Result<string>>, UnauthorizedHttpResult>> RefreshTokens(
         IAuthenticationService service,
         IAuthenticationOptionService opts,
         IHttpContextAccessor ctx
@@ -95,7 +83,7 @@ public static class AuthenticationEndpoints
         var cookie = ctx.GetRequestCookie(opts.CookieName);
 
         if (string.IsNullOrEmpty(cookie))
-            return Results.Unauthorized();
+            return TypedResults.Unauthorized();
 
         var refreshRes = await service.RefreshTokensAsync(cookie, userAgent);
 
@@ -103,16 +91,16 @@ public static class AuthenticationEndpoints
         var (bearerToken, refresh) = refreshRes.Value;
 
         if (result.HasError || string.IsNullOrEmpty(bearerToken))
-            return Results.Unauthorized();
+            return TypedResults.Unauthorized();
 
         if (refresh is not null)
             ctx.SetResponseCookie(refresh, opts.CookieName, opts.GetRefreshTokenExpirationDate());
 
         result.Value = bearerToken;
-        return Results.Ok(result);
+        return TypedResults.Ok(result);
     }
 
-    private static async Task<IResult> Logout(
+    private static async Task<Results<NoContent, UnauthorizedHttpResult>> Logout(
         IAuthenticationService service,
         IAuthenticationOptionService opts,
         IUserContextService userCtx,
@@ -124,14 +112,14 @@ public static class AuthenticationEndpoints
         var cookie = ctx.GetRequestCookie(opts.CookieName);
 
         if (string.IsNullOrEmpty(cookie))
-            return Results.Unauthorized();
+            return TypedResults.Unauthorized();
 
         await service.LogoutAsync(cookie, userCtx.GetUserId(), userAgent, ipAddress);
         ctx.DeleteCookie(opts.CookieName);
-        return Results.NoContent();
+        return TypedResults.NoContent();
     }
 
-    private static async Task<IResult> LogoutAll(
+    private static async Task<Results<NoContent, UnauthorizedHttpResult>> LogoutAll(
         IAuthenticationService service,
         IAuthenticationOptionService opts,
         IHttpContextAccessor ctx
@@ -142,10 +130,10 @@ public static class AuthenticationEndpoints
         var cookie = ctx.GetRequestCookie(opts.CookieName);
 
         if (string.IsNullOrEmpty(cookie))
-            return Results.Unauthorized();
+            return TypedResults.Unauthorized();
 
         await service.LogoutAllAsync(cookie, userAgent, ipAddress);
         ctx.DeleteCookie(opts.CookieName);
-        return Results.NoContent();
+        return TypedResults.NoContent();
     }
 }

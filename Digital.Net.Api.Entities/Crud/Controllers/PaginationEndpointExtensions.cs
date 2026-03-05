@@ -1,7 +1,6 @@
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using Digital.Net.Api.Core.Models;
-using Digital.Net.Api.Core.OpenApi;
 using Digital.Net.Api.Core.Predicates;
 using Digital.Net.Api.Entities.Models;
 using Digital.Net.Api.Entities.Repositories;
@@ -65,14 +64,11 @@ public static class PaginationEndpointExtensions
                     result.AddError(e);
                 }
 
-                return Results.Ok(result);
+                return TypedResults.Ok(result);
             })
-            .WithDoc(d =>
-            {
-                d.Summary = "GetPaginated";
-                d.Description =
-                    "Retrieves a paginated list of entities based on the provided query parameters. Returns a QueryResult containing the paginated entities and metadata.";
-            });
+            .WithSummary("GetPaginated")
+            .WithDescription(
+                "Retrieves a paginated list of entities based on the provided query parameters. Returns a QueryResult containing the paginated entities and metadata.");
 
     /// <summary>
     ///     Builds the filter expression for the query, combining base filters with custom filters.

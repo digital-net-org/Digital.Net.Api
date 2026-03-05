@@ -1,5 +1,4 @@
 using Digital.Net.Api.Authentication.Filters;
-using Digital.Net.Api.Core.OpenApi;
 using Digital.Net.Api.Core.Settings;
 using Digital.Net.Api.Core.String;
 using Microsoft.AspNetCore.Builder;
@@ -17,39 +16,27 @@ public static class ValidationEndpoints
             .WithTags("Validation");
 
         controller
-            .MapGet("/pattern/email", () => Results.Ok(RegularExpressions.EmailPattern))
-            .WithDoc(d =>
-            {
-                d.Summary = "GetEmailPattern";
-                d.Description = "Get the email pattern as a string. This is designed to validate email addresses.";
-            });
+            .MapGet("/pattern/email", () => TypedResults.Ok(RegularExpressions.EmailPattern))
+            .WithSummary("GetEmailPattern")
+            .WithDescription("Get the email pattern as a string. This is designed to validate email addresses.");
 
         controller
-            .MapGet("/pattern/username", () => Results.Ok(RegularExpressions.UsernamePattern))
+            .MapGet("/pattern/username", () => TypedResults.Ok(RegularExpressions.UsernamePattern))
             .RequireAuthentication(AuthorizeType.Any)
-            .WithDoc(d =>
-            {
-                d.Summary = "GetUsernamePattern";
-                d.Description = "Get the username pattern as a string. This is designed to validate usernames.";
-            });
+            .WithSummary("GetUsernamePattern")
+            .WithDescription("Get the username pattern as a string. This is designed to validate usernames.");
 
         controller
-            .MapGet("/pattern/password", () => Results.Ok(RegularExpressions.PasswordPattern))
+            .MapGet("/pattern/password", () => TypedResults.Ok(RegularExpressions.PasswordPattern))
             .RequireAuthentication(AuthorizeType.Any)
-            .WithDoc(d =>
-            {
-                d.Summary = "GetPasswordPattern";
-                d.Description = "Get the password pattern as a string. This is designed to validate passwords.";
-            });
+            .WithSummary("GetPasswordPattern")
+            .WithDescription("Get the password pattern as a string. This is designed to validate passwords.");
 
         controller
-            .MapGet("/size/avatar", () => Results.Ok(AppSettings.DefaultMaxAvatarSize))
+            .MapGet("/size/avatar", () => TypedResults.Ok(AppSettings.DefaultMaxAvatarSize))
             .RequireAuthentication(AuthorizeType.Any)
-            .WithDoc(d =>
-            {
-                d.Summary = "GetAvatarSizeLimit";
-                d.Description = "Get the maximum allowed size for avatar images in bytes.";
-            });
+            .WithSummary("GetAvatarSizeLimit")
+            .WithDescription("Get the maximum allowed size for avatar images in bytes.");
 
         return app;
     }

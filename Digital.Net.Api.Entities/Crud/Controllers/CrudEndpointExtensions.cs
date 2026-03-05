@@ -3,11 +3,11 @@ using Digital.Net.Api.Core.Exceptions.types;
 using Digital.Net.Api.Core.Formatters;
 using Digital.Net.Api.Core.Messages;
 using Digital.Net.Api.Core.Models;
-using Digital.Net.Api.Core.OpenApi;
 using Digital.Net.Api.Entities.Exceptions;
 using Digital.Net.Api.Entities.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
@@ -37,14 +37,10 @@ public static class CrudEndpointExtensions
             ) =>
             {
                 var result = new Result<List<SchemaProperty<T>>>(crudValidationService.GetSchema<T>());
-                return Results.Ok(result);
+                return TypedResults.Ok(result);
             })
-            .WithDoc(d =>
-            {
-                d.Summary = "GetSchema";
-                d.Description =
-                    "Get the schema for the entity. The schema includes all properties, their types, accessibility, and validation rules.";
-            });
+            .WithSummary("GetSchema")
+            .WithDescription("Get the schema for the entity. The schema includes all properties, their types, accessibility, and validation rules.");
 
     /// <summary>
     ///     Maps a GET endpoint to retrieve an entity by its ID.
@@ -67,14 +63,12 @@ public static class CrudEndpointExtensions
             ) =>
             {
                 var result = crudService.Get<TDto>(id);
-                return result.HasError ? Results.NotFound(result) : Results.Ok(result);
+                return result.HasError
+                    ? (Results<Ok<Result<TDto>>, NotFound<Result<TDto>>>)TypedResults.NotFound(result)
+                    : (Results<Ok<Result<TDto>>, NotFound<Result<TDto>>>)TypedResults.Ok(result);
             })
-            .WithDoc(d =>
-            {
-                d.Summary = "GetById";
-                d.Description =
-                    "Retrieves a single entity by its ID. Returns the entity as the specified DTO type.";
-            });
+            .WithSummary("GetById")
+            .WithDescription("Retrieves a single entity by its ID. Returns the entity as the specified DTO type.");
 
     /// <summary>
     ///     Maps a POST endpoint to create a new entity.
@@ -98,13 +92,12 @@ public static class CrudEndpointExtensions
             ) =>
             {
                 var result = await crudService.Create(Mapper.Map<TPayload, T>(payload));
-                return result.HasError ? Results.BadRequest(result) : Results.Ok(result);
-            }).WithDoc(d =>
-            {
-                d.Summary = "Create";
-                d.Description =
-                    "Creates a new entity with the provided payload. Returns the created entity as the specified DTO type.";
-            });
+                return result.HasError
+                    ? (Results<Ok<Result<Guid>>, BadRequest<Result<Guid>>>)TypedResults.BadRequest(result)
+                    : (Results<Ok<Result<Guid>>, BadRequest<Result<Guid>>>)TypedResults.Ok(result);
+            })
+            .WithSummary("Create")
+            .WithDescription("Creates a new entity with the provided payload. Returns the created entity as the specified DTO type.");
 
     /// <summary>
     ///     Maps a PATCH endpoint to partially update an entity.
@@ -129,25 +122,25 @@ public static class CrudEndpointExtensions
                 var result = await crudService.Patch(JsonFormatter.GetPatchDocument<T>(patch), id);
 
                 if (result.HasError && result.HasErrorOfType<ResourceNotFoundException>())
-                    return Results.NotFound(result);
+                    return (Results<Ok<Result>, NotFound<Result>, BadRequest<Result>, InternalServerError<Result>>)
+                        TypedResults.NotFound(result);
 
                 if (result.HasError && (
                         result.HasErrorOfType<InvalidOperationException>()
                         || result.HasErrorOfType<EntityValidationException>()
                     ))
-                    return Results.BadRequest(result);
+                    return (Results<Ok<Result>, NotFound<Result>, BadRequest<Result>, InternalServerError<Result>>)
+                        TypedResults.BadRequest(result);
 
                 if (result.HasError)
-                    return Results.InternalServerError(result);
+                    return (Results<Ok<Result>, NotFound<Result>, BadRequest<Result>, InternalServerError<Result>>)
+                        TypedResults.InternalServerError(result);
 
-                return Results.Ok(result);
+                return (Results<Ok<Result>, NotFound<Result>, BadRequest<Result>, InternalServerError<Result>>)
+                    TypedResults.Ok(result);
             })
-            .WithDoc(d =>
-            {
-                d.Summary = "Patch";
-                d.Description =
-                    "Applies a JSON Patch to an entity identified by its ID. Returns the patched entity as the specified DTO type. Use the *Schema* endpoint to get the available fields.";
-            });
+            .WithSummary("Patch")
+            .WithDescription("Applies a JSON Patch to an entity identified by its ID. Returns the patched entity as the specified DTO type. Use the *Schema* endpoint to get the available fields.");
 
     /// <summary>
     ///     Maps a DELETE endpoint to remove an entity.
@@ -168,12 +161,10 @@ public static class CrudEndpointExtensions
             ) =>
             {
                 var result = await crudService.Delete(id);
-                return result.HasError ? Results.NotFound(result) : Results.Ok(result);
+                return result.HasError
+                    ? (Results<Ok<Result>, NotFound<Result>>)TypedResults.NotFound(result)
+                    : (Results<Ok<Result>, NotFound<Result>>)TypedResults.Ok(result);
             })
-            .WithDoc(d =>
-            {
-                d.Summary = "Delete";
-                d.Description =
-                    "Removes an entity identified by its ID. Returns the deleted entity as the specified DTO type.";
-            });
+            .WithSummary("Delete")
+            .WithDescription("Removes an entity identified by its ID. Returns the deleted entity as the specified DTO type.");
 }
