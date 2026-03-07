@@ -32,15 +32,10 @@ public class Repository<T>(DigitalContext context) : IRepository<T>
         return entity;
     }
 
-    public void Update(T entity)
-    {
-        UpdateNestedEntities(entity);
-        context.Set<T>().Update(entity);
-    }
+    public void Update(T entity) => context.Set<T>().Update(entity);
 
     public T UpdateAndSave(T entity)
     {
-        UpdateNestedEntities(entity);
         context.Set<T>().Update(entity);
         Save();
         return entity;
@@ -48,19 +43,12 @@ public class Repository<T>(DigitalContext context) : IRepository<T>
 
     public async Task<T> UpdateAndSaveAsync(T entity)
     {
-        UpdateNestedEntities(entity);
         context.Set<T>().Update(entity);
         await SaveAsync();
         return entity;
     }
 
-    public void UpdateRange(IEnumerable<T> entities)
-    {
-        var enumerable = entities as T[] ?? entities.ToArray();
-        foreach (var entity in enumerable)
-            UpdateNestedEntities(entity);
-        context.Set<T>().UpdateRange(enumerable);
-    }
+    public void UpdateRange(IEnumerable<T> entities) => context.Set<T>().UpdateRange(entities);
 
     public void Delete(T entity) => context.Set<T>().Remove(entity);
 
@@ -86,45 +74,7 @@ public class Repository<T>(DigitalContext context) : IRepository<T>
     public Task<int> CountAsync(Expression<Func<T, bool>> expression) =>
         context.Set<T>().CountAsync(expression);
 
-    public async Task SaveAsync()
-    {
-        AddTimestamps();
-        await context.SaveChangesAsync();
-    }
+    public async Task SaveAsync() => await context.SaveChangesAsync();
 
-    public void Save()
-    {
-        AddTimestamps();
-        context.SaveChanges();
-    }
-
-    private void UpdateNestedEntities(T entity)
-    {
-        var properties = entity.GetType().GetProperties();
-        foreach (var property in properties)
-        {
-            if (!typeof(IEnumerable).IsAssignableFrom(property.PropertyType) || property.PropertyType == typeof(string))
-                continue;
-            if (property.GetValue(entity) is not IEnumerable values)
-                continue;
-            foreach (var item in values)
-                if (item is Entity nested)
-                    context.Entry(nested).State = nested.Id == Guid.Empty
-                        ? EntityState.Added 
-                        : EntityState.Modified;
-        }
-    }
-
-    private void AddTimestamps()
-    {
-        var now = DateTime.UtcNow;
-        var entities = context
-            .ChangeTracker.Entries()
-            .Where(x => x is { Entity: Entity, State: EntityState.Added or EntityState.Modified });
-        foreach (var entity in entities)
-        {
-            var property = entity.State is EntityState.Added ? "CreatedAt" : "UpdatedAt";
-            entity.Property(property).CurrentValue = now;
-        }
-    }
+    public void Save() => context.SaveChanges();
 }

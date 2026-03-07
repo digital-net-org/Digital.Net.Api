@@ -1,3 +1,4 @@
+using Digital.Net.Entities.Interceptors;
 using Digital.Net.Entities.Models.ApiKeys;
 using Digital.Net.Entities.Models.ApiTokens;
 using Digital.Net.Entities.Models.Avatars;
@@ -21,6 +22,11 @@ public class DigitalContext(DbContextOptions<DigitalContext> options) : DbContex
     public DbSet<User> Users { get; init; }
     public DbSet<Page> Pages { get; init; }
     public DbSet<PageOpenGraph> PageMetas { get; init; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => 
+        optionsBuilder.AddInterceptors(
+            new TimestampInterceptor()
+        );
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

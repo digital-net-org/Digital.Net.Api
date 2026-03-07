@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using Digital.Net.Core.Exceptions.types;
 using Digital.Net.Core.Messages;
 using Digital.Net.Core.Models;
