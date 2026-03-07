@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
-using Digital.Net.Api.Authentication.Filters;
-using Digital.Net.Api.Sdk;
+using Digital.Net.Authentication.Filters;
+using Digital.Net.Sdk;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;

@@ -1,6 +1,6 @@
-using Digital.Net.Api.Core.Random;
-using Digital.Net.Api.Entities.Models.Pages;
-using Digital.Net.Api.Entities.Repositories;
+using Digital.Net.Core.Random;
+using Digital.Net.Entities.Models.Pages;
+using Digital.Net.Entities.Repositories;
 
 namespace Digital.Net.Tests.Core.Factories.Data;
 

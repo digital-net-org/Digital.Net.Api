@@ -1,7 +1,7 @@
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using Digital.Net.Api.Controllers.Dto;
+using Digital.Net.Controllers.Dto;
 
 namespace Digital.Net.Tests.Core.Sdk;
 

@@ -1,0 +1,23 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Digital.Net.Core.Geometry.Models;
+using Digital.Net.Entities.Models.Documents;
+
+namespace Digital.Net.Entities.Models.Avatars;
+
+[Table("Avatar")]
+public class Avatar : Entity, IPosition
+{
+    [Column("X")]
+    public int X { get; set; }
+
+    [Column("Y")]
+    public int Y { get; set; }
+
+    [Column("DocumentId")]
+    [ForeignKey("Document")]
+    [Required]
+    public Guid DocumentId { get; set; }
+
+    public virtual Document? Document { get; set; }
+}

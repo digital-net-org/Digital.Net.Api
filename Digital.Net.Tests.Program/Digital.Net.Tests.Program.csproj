@@ -10,6 +10,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Digital.Net.Api.Sdk\Digital.Net.Api.Sdk.csproj"/>
+        <ProjectReference Include="..\Digital.Net.Sdk\Digital.Net.Sdk.csproj"/>
     </ItemGroup>
 </Project>

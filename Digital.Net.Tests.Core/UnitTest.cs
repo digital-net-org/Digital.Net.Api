@@ -1,4 +1,4 @@
-using Digital.Net.Api.Core.Environment;
+using Digital.Net.Core.Environment;
 
 namespace Digital.Net.Tests.Core;
 

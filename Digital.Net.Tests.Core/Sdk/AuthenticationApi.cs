@@ -2,11 +2,11 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using Digital.Net.Api.Authentication.Controllers.Dto;
-using Digital.Net.Api.Core.Http;
-using Digital.Net.Api.Core.Messages;
-using Digital.Net.Api.Entities.Models.Users;
-using Digital.Net.Api.Services.HttpContext.Extensions;
+using Digital.Net.Authentication.Controllers.Dto;
+using Digital.Net.Core.Http;
+using Digital.Net.Core.Messages;
+using Digital.Net.Core.Services.HttpContext.Extensions;
+using Digital.Net.Entities.Models.Users;
 using Digital.Net.Tests.Core.Factories.Data;
 
 namespace Digital.Net.Tests.Core.Sdk;

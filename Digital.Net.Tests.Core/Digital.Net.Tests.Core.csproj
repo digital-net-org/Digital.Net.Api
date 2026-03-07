@@ -24,10 +24,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Digital.Net.Api.Authentication\Digital.Net.Api.Authentication.csproj" />
-        <ProjectReference Include="..\Digital.Net.Api.Core\Digital.Net.Api.Core.csproj" />
-        <ProjectReference Include="..\Digital.Net.Api.Entities\Digital.Net.Api.Entities.csproj" />
-        <ProjectReference Include="..\Digital.Net.Api.Sdk\Digital.Net.Api.Sdk.csproj" />
+        <ProjectReference Include="..\Digital.Net.Authentication\Digital.Net.Authentication.csproj"/>
+        <ProjectReference Include="..\Digital.Net.Core\Digital.Net.Core.csproj"/>
+        <ProjectReference Include="..\Digital.Net.Entities\Digital.Net.Entities.csproj"/>
+        <ProjectReference Include="..\Digital.Net.Sdk\Digital.Net.Sdk.csproj"/>
         <ProjectReference Include="..\Digital.Net.Tests.Program\Digital.Net.Tests.Program.csproj" />
     </ItemGroup>
 
