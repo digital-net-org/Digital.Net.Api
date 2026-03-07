@@ -7,7 +7,6 @@ using Digital.Net.Core.Http;
 using Digital.Net.Entities.Context;
 using Digital.Net.Entities.Models;
 using Digital.Net.Entities.Models.Users;
-using Digital.Net.Entities.Repositories;
 using Digital.Net.Tests.Core.Factories.Data;
 using Digital.Net.Tests.Core.Factories.Data.Records;
 using Microsoft.Extensions.Configuration;
@@ -51,15 +50,10 @@ public class TestApplication : IAsyncInitializer, IAsyncDisposable
     public TService GetService<TService>() where TService : notnull => Factory.Services.GetRequiredService<TService>();
 
     /// <summary>
-    ///     Retrieves an instance of a repository for the specified entity type, using the application's service
+    ///     Retrieves an instance of the DigitalContext using the application's service
     ///     configuration.
     /// </summary>
-    public IRepository<TEntity> GetRepository<TEntity>() where TEntity : Entity
-    {
-        var context = Factory.Services.GetRequiredService<DigitalContext>();
-        var result = new Repository<TEntity>(context);
-        return result;
-    }
+    public DigitalContext GetContext() => Factory.Services.GetRequiredService<DigitalContext>();
 
     /// <summary>
     ///     Creates and configures an HttpClient instance to interact with the application's services.
@@ -80,7 +74,7 @@ public class TestApplication : IAsyncInitializer, IAsyncDisposable
     /// <summary>
     ///     Creates a test user.
     /// </summary>
-    public User CreateUser(TestUserPayload? userDto = null) => GetRepository<User>().BuildTestUser(userDto);
+    public User CreateUser(TestUserPayload? userDto = null) => GetContext().BuildTestUser(userDto);
 
     /// <summary>
     ///     Authenticates a user and configures the provided HTTP client with a Bearer token

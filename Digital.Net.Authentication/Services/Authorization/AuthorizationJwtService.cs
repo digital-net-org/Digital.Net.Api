@@ -3,15 +3,13 @@ using Digital.Net.Authentication.Exceptions;
 using Digital.Net.Authentication.Models;
 using Digital.Net.Authentication.Options;
 using Digital.Net.Authentication.Services.AuthContext;
-using Digital.Net.Entities.Models.ApiTokens;
 using Digital.Net.Entities.Models.Users;
-using Digital.Net.Entities.Repositories;
+using Digital.Net.Entities.Context;
 
 namespace Digital.Net.Authentication.Services.Authorization;
 
 public class AuthorizationJwtService(
-    IRepository<User> userRepository,
-    IRepository<ApiToken> apiTokenRepository,
+    DigitalContext context,
     IAuthContextService authContextService,
     IAuthenticationOptionService authenticationOptionService
 ) : IAuthorizationJwtService
@@ -30,7 +28,7 @@ public class AuthorizationJwtService(
             handler.ValidateToken(token, authenticationOptionService.GetTokenParameters(), out _);
             var jwt = handler.ReadJwtToken(token);
             var decoded = jwt.Decode();
-            var user = userRepository.Get(u => u.Id == decoded.Id && u.IsActive).FirstOrDefault();
+            var user = context.Users.FirstOrDefault(u => u.Id == decoded.Id && u.IsActive);
 
             if (user is null)
                 throw new InvalidTokenException();
@@ -47,9 +45,7 @@ public class AuthorizationJwtService(
 
     public AuthorizationResult AuthorizeRefreshToken(string? token)
     {
-        var record = apiTokenRepository
-            .Get(a => a.Key == (token ?? string.Empty))
-            .FirstOrDefault();
+        var record = context.ApiTokens.FirstOrDefault(a => a.Key == (token ?? string.Empty));
         return record is null
             ? new AuthorizationResult().AddError(new InvalidTokenException())
             : AuthorizeUser(record.Key);

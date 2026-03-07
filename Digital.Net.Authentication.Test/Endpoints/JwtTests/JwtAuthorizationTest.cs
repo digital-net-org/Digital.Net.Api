@@ -32,9 +32,8 @@ public class JwtAuthorizationTest
         var user = Application.CreateUser(new TestUserPayload { IsActive = false });
         var response = await client.Login(user);
         var loginEvent = await Application
-            .GetRepository<Event>()
-            .Get()
-            .OrderByDescending(x => x.CreatedAt)
+            .GetContext().Events
+            .Where(x => x.UserId == user.Id).OrderByDescending(x => x.CreatedAt)
             .FirstAsync();
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Unauthorized);
@@ -49,10 +48,12 @@ public class JwtAuthorizationTest
         var user = Application.CreateUser(new TestUserPayload { IsActive = true });
         await client.Login(user);
 
-        var userInDb = await Application.GetRepository<User>().GetByIdAsync(user.Id);
+        var context = Application.GetContext();
+        var userInDb = await context.Users.FindAsync(user.Id);
         userInDb!.IsActive = false;
-        await Application.GetRepository<User>().UpdateAndSaveAsync(userInDb);
-
+        context.Users.Update(userInDb);
+        await context.SaveChangesAsync();
+        
         var response = await client.TestJwtAuthorization();
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Unauthorized);
     }

@@ -3,40 +3,36 @@ using System.Security.Claims;
 using System.Text.Json;
 using Digital.Net.Authentication.Options;
 using Digital.Net.Authentication.Services.Authorization;
+using Digital.Net.Entities.Context;
 using Digital.Net.Entities.Models.ApiTokens;
-using Digital.Net.Entities.Repositories;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Digital.Net.Authentication.Services.Authentication;
 
 public class AuthenticationJwtService(
     IAuthenticationOptionService authenticationOptionService,
-    IRepository<ApiToken> apiTokenRepository
+    DigitalContext context
 ) : IAuthenticationJwtService
 {
     public async Task RevokeTokenAsync(string token)
     {
-        var record = apiTokenRepository
-            .Get(t => t.Key == token)
-            .FirstOrDefault();
+        var record = context.ApiTokens.FirstOrDefault(t => t.Key == token);
 
         if (record is null)
             return;
 
-        apiTokenRepository.Delete(record);
-        await apiTokenRepository.SaveAsync();
+        context.ApiTokens.Remove(record);
+        await context.SaveChangesAsync();
     }
 
     public async Task RevokeAllTokensAsync(Guid userId)
     {
-        var records = apiTokenRepository
-            .Get(t => t.UserId == userId)
-            .ToList();
+        var records = context.ApiTokens.Where(t => t.UserId == userId).ToList();
 
         foreach (var record in records)
         {
-            apiTokenRepository.Delete(record);
-            await apiTokenRepository.SaveAsync();
+            context.ApiTokens.Remove(record);
+            await context.SaveChangesAsync();
         }
     }
 
@@ -53,8 +49,8 @@ public class AuthenticationJwtService(
         var token = SignToken(content, tokenExpiration);
 
         HandleMaxConcurrentSessions(userId);
-        apiTokenRepository.Create(new ApiToken(userId, token, userAgent, tokenExpiration));
-        apiTokenRepository.Save();
+        context.ApiTokens.Add(new ApiToken(userId, token, userAgent, tokenExpiration));
+        context.SaveChanges();
 
         return token;
     }
@@ -81,8 +77,8 @@ public class AuthenticationJwtService(
     private void HandleMaxConcurrentSessions(Guid userId)
     {
         var maxTokenAllowed = AuthenticationStaticOptions.MaxConcurrentSessions;
-        var userTokens = apiTokenRepository
-            .Get(t => t.UserId == userId && t.ExpiredAt > DateTime.UtcNow)
+        var userTokens = context.ApiTokens
+            .Where(t => t.UserId == userId && t.ExpiredAt > DateTime.UtcNow)
             .ToList();
 
         if (userTokens.Count < maxTokenAllowed)
@@ -94,8 +90,8 @@ public class AuthenticationJwtService(
 
         foreach (var token in tokens)
         {
-            apiTokenRepository.Delete(token);
-            apiTokenRepository.Save();
+            context.ApiTokens.Remove(token);
+            context.SaveChanges();
         }
     }
 }

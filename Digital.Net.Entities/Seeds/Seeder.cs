@@ -1,14 +1,15 @@
 using System.Reflection;
+using System.Linq.Dynamic.Core;
 using Digital.Net.Core.Messages;
 using Digital.Net.Entities.Models;
-using Digital.Net.Entities.Repositories;
+using Digital.Net.Entities.Context;
 using Microsoft.Extensions.Logging;
 
 namespace Digital.Net.Entities.Seeds;
 
 public abstract class Seeder<T>(
     ILogger<Seeder<T>> logger,
-    IRepository<T> repository
+    DigitalContext context
 ) : ISeed
     where T : Entity
 {
@@ -43,14 +44,14 @@ public abstract class Seeder<T>(
                     .Where(PropertyExclusionPredicate())
                     .ToList();
 
-                if (repository.DynamicQuery(BuildQuery(properties, entity)).Any())
+                if (context.Set<T>().Where(BuildQuery(properties, entity)).Any())
                 {
                     skip++;
                     continue;
                 }
 
-                await repository.CreateAsync(entity);
-                await repository.SaveAsync();
+                await context.Set<T>().AddAsync(entity);
+                await context.SaveChangesAsync();
                 result.Value!.Add(entity);
             }
             catch (Exception e)

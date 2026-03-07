@@ -1,5 +1,4 @@
 using Digital.Net.Entities.Crud;
-using Digital.Net.Entities.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -14,7 +13,6 @@ public static class DigitalEntitiesInjector
     public static IServiceCollection AddDigitalEntities(this IServiceCollection services)
     {
         services.TryAddScoped<ICrudValidationService, CrudValidationService>();
-        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped(typeof(ICrudService<>), typeof(CrudService<>));
         return services;
     }

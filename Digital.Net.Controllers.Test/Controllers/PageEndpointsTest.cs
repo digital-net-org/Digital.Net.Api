@@ -25,7 +25,7 @@ public class PageEndpointsTest
     }
 
     private Page CreateTestPage(string? title = null, string? path = null, bool isPublished = false) =>
-        Application.GetRepository<Page>().BuildTestPage(title, path, isPublished);
+        Application.GetContext().BuildTestPage(title, path, isPublished);
 
     [Test]
     public async Task CreatePage_ShouldCreatePage()

@@ -8,7 +8,7 @@ using Digital.Net.Core.Messages;
 using Digital.Net.Entities.Models.ApiTokens;
 using Digital.Net.Entities.Models.Events;
 using Digital.Net.Entities.Models.Users;
-using Digital.Net.Entities.Repositories;
+using Digital.Net.Entities.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Authentication.Services.Authentication;
@@ -18,9 +18,7 @@ public class AuthenticationService(
     IAuthenticationJwtService authenticationJwtService,
     IAuthorizationJwtService authorizationJwtService,
     IAuditService auditService,
-    IRepository<User> userRepository,
-    IRepository<ApiToken> tokenRepository,
-    IRepository<Event> eventRepository
+    DigitalContext context
 ) : IAuthenticationService
 {
     private async Task<int> GetLoginAttemptCountAsync(User? user = null, string? ipAddress = null)
@@ -29,7 +27,7 @@ public class AuthenticationService(
             return 0;
         ipAddress ??= string.Empty;
         var threshold = DateTime.UtcNow.Subtract(authenticationOptionService.GetMaxLoginAttemptsThreshold());
-        return await eventRepository.CountAsync(
+        return await context.Events.CountAsync(
             e =>
                 e.CreatedAt > threshold
                 && e.Name == AuthenticationEvents.Login
@@ -43,7 +41,7 @@ public class AuthenticationService(
     {
         var result = new Result<User>
         {
-            Value = await userRepository.Get(u => u.Login == login).FirstOrDefaultAsync()
+            Value = await context.Users.FirstOrDefaultAsync(u => u.Login == login)
         };
 
         if (await GetLoginAttemptCountAsync(result.Value) >= AuthenticationStaticOptions.MaxLoginAttempts)
@@ -142,7 +140,7 @@ public class AuthenticationService(
     )
     {
         var result = new Result();
-        var userId = tokenRepository.Get(u => u.Key == refreshToken).FirstOrDefault()?.UserId;
+        var userId = context.ApiTokens.FirstOrDefault(u => u.Key == refreshToken)?.UserId;
         if (userId is null)
             return result.AddError(new AuthenticationException());
 

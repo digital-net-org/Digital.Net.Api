@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using Digital.Net.Core.Exceptions.types;
 using Digital.Net.Core.Random;
 using Digital.Net.Entities.Context;
@@ -6,7 +6,6 @@ using Digital.Net.Entities.Crud;
 using Digital.Net.Entities.Exceptions;
 using Digital.Net.Entities.Models.Pages;
 using Digital.Net.Entities.Models.Users;
-using Digital.Net.Entities.Repositories;
 using Digital.Net.Tests.Core;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.Data.Sqlite;
@@ -42,8 +41,7 @@ public class CrudServiceTest : UnitTest, IDisposable
     }
 
     private readonly SqliteConnection _connection;
-    private readonly Repository<User> _userRepository;
-    private readonly Repository<Page> _pageRepository;
+    private readonly DigitalContext _context;
     private readonly ICrudService<User> _userService;
     private readonly ICrudService<Page> _pageService;
     private readonly CrudValidationService _crudValidationService;
@@ -51,12 +49,10 @@ public class CrudServiceTest : UnitTest, IDisposable
     public CrudServiceTest()
     {
         _connection = SqliteInMemoryHelper.GetConnection();
-        var context = _connection.CreateContext<DigitalContext>();
-        _crudValidationService = new CrudValidationService(context);
-        _userRepository = new Repository<User>(context);
-        _pageRepository = new Repository<Page>(context);
-        _userService = new CrudService<User>(_userRepository, _crudValidationService);
-        _pageService = new CrudService<Page>(_pageRepository, _crudValidationService);
+        _context = _connection.CreateContext<DigitalContext>();
+        _crudValidationService = new CrudValidationService(_context);
+        _userService = new CrudService<User>(_context, _crudValidationService);
+        _pageService = new CrudService<Page>(_context, _crudValidationService);
     }
 
     [Test]
@@ -66,11 +62,14 @@ public class CrudServiceTest : UnitTest, IDisposable
     [Test]
     public async Task Patch_UpdatesEntity_WhenQueryIsValid()
     {
-        var user = await _userRepository.CreateAndSaveAsync(GetTestUser());
+        var user = GetTestUser();
+        await _context.Users.AddAsync(user);
+        await _context.SaveChangesAsync();
+        
         var patch = CreateUserPatch(u => u.Username, "NewUsername");
 
         var result = await _userService.Patch(patch, user.Id);
-        var updatedUser = await _userRepository.GetByIdAsync(user.Id);
+        var updatedUser = await _context.Users.FindAsync(user.Id);
         await Assert.That(result).IsNotNull();
         await Assert.That(updatedUser?.Username).IsEqualTo("NewUsername");
     }
@@ -78,13 +77,19 @@ public class CrudServiceTest : UnitTest, IDisposable
     [Test]
     public async Task Patch_UpdatesNestedEntity_WhenAddPatchIsValid()
     {
-        var page = await _pageRepository.CreateAndSaveAsync(GetTestPage());
+        var page = GetTestPage();
+        await _context.Pages.AddAsync(page);
+        await _context.SaveChangesAsync();
+        
         var result =
             await _pageService.Patch(
                 new JsonPatchDocument<Page>().Add(p => p.Metas,
                     new PageOpenGraph { Property = "TestMetaKey", Content = "TestMetaValue" }),
                 page.Id);
-        var updatedPage = await _pageRepository.GetByIdAsync(page.Id);
+        var updatedPage = await _context.Pages.FindAsync(page.Id);
+        
+        await _context.Entry(updatedPage!).Collection(p => p.Metas).LoadAsync();
+        
         await Assert.That(result.HasError).IsFalse();
         await Assert.That(updatedPage!.Metas).IsNotEmpty();
     }
@@ -92,7 +97,10 @@ public class CrudServiceTest : UnitTest, IDisposable
     [Test]
     public async Task Patch_UpdatesNestedEntity_WhenDeletePatchIsValid()
     {
-        var page = await _pageRepository.CreateAndSaveAsync(GetTestPage());
+        var page = GetTestPage();
+        await _context.Pages.AddAsync(page);
+        await _context.SaveChangesAsync();
+        
         await _pageService.Patch(
             new JsonPatchDocument<Page>()
                 .Add(p => p.Metas,
@@ -102,7 +110,7 @@ public class CrudServiceTest : UnitTest, IDisposable
             page.Id
         );
         await _pageService.Patch(new JsonPatchDocument<Page>().Remove(p => p.Metas[0]), page.Id);
-        var updatedPage = await _pageRepository.GetByIdAsync(page.Id);
+        var updatedPage = await _context.Pages.FindAsync(page.Id);
         await Assert.That(updatedPage!.Metas.Any(m => m.Property == "TestMetaKeyToRemove")).IsFalse();
     }
 
@@ -119,10 +127,14 @@ public class CrudServiceTest : UnitTest, IDisposable
     [Test]
     public async Task Patch_ReturnsError_WhenInvalidRegex()
     {
-        var user = await _userRepository.CreateAndSaveAsync(GetTestUser());
+        var user = GetTestUser();
+        await _context.Users.AddAsync(user);
+        await _context.SaveChangesAsync();
+        
         var patch = CreateUserPatch(u => u.Username, "to");
         var result = await _userService.Patch(patch, user.Id);
-        var updatedUser = await _userRepository.GetByIdAsync(user.Id);
+        var updatedUser = await _context.Users.FindAsync(user.Id);
+        
         await Assert.That(result.HasErrorOfType<EntityValidationException>()).IsTrue();
         await Assert.That(updatedUser?.Username).IsNotEqualTo("");
     }
@@ -130,11 +142,16 @@ public class CrudServiceTest : UnitTest, IDisposable
     [Test]
     public async Task Patch_ReturnsError_WhenUniqueConstraint()
     {
-        var user = await _userRepository.CreateAndSaveAsync(GetTestUser());
-        var user2 = await _userRepository.CreateAndSaveAsync(GetTestUser());
+        var user = GetTestUser();
+        var user2 = GetTestUser();
+        await _context.Users.AddAsync(user);
+        await _context.Users.AddAsync(user2);
+        await _context.SaveChangesAsync();
+        
         var patch = CreateUserPatch(u => u.Username, user2.Username);
         var result = await _userService.Patch(patch, user.Id);
-        var updatedUser = await _userRepository.GetByIdAsync(user.Id);
+        var updatedUser = await _context.Users.FindAsync(user.Id);
+        
         await Assert.That(result.HasError).IsTrue();
         await Assert.That(updatedUser?.Username).IsNotEqualTo(user2.Username);
     }
@@ -142,7 +159,10 @@ public class CrudServiceTest : UnitTest, IDisposable
     [Test]
     public async Task Patch_ReturnsError_WhenPatchingReadOnlyField()
     {
-        var user = await _userRepository.CreateAndSaveAsync(GetTestUser());
+        var user = GetTestUser();
+        await _context.Users.AddAsync(user);
+        await _context.SaveChangesAsync();
+
         var patch = CreateUserPatch(u => u.Password, "testValue");
         var result = await _userService.Patch(patch, user.Id);
         await Assert.That(result.HasError).IsTrue();
@@ -161,9 +181,12 @@ public class CrudServiceTest : UnitTest, IDisposable
     [Test]
     public async Task Delete_ReturnsSuccess_WhenEntityExists()
     {
-        var user = await _userRepository.CreateAndSaveAsync(GetTestUser());
+        var user = GetTestUser();
+        await _context.Users.AddAsync(user);
+        await _context.SaveChangesAsync();
+
         var result = await _userService.Delete(user.Id);
-        var deletedUser = await _userRepository.GetByIdAsync(user.Id);
+        var deletedUser = await _context.Users.FindAsync(user.Id);
         await Assert.That(result.HasError).IsFalse();
         await Assert.That(deletedUser).IsNull();
     }

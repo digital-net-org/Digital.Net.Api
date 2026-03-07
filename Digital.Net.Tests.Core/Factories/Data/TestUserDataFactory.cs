@@ -1,7 +1,7 @@
 using Digital.Net.Authentication.Services;
 using Digital.Net.Core.Random;
 using Digital.Net.Entities.Models.Users;
-using Digital.Net.Entities.Repositories;
+using Digital.Net.Entities.Context;
 using Digital.Net.Tests.Core.Factories.Data.Records;
 
 namespace Digital.Net.Tests.Core.Factories.Data;
@@ -11,7 +11,7 @@ public static class TestUserFactory
     public const string TestUserPassword = "Testpassword123!";
 
     public static User BuildTestUser(
-        this IRepository<User> userRepository,
+        this DigitalContext context,
         TestUserPayload? userDto = null
     )
     {
@@ -24,8 +24,8 @@ public static class TestUserFactory
             IsActive = userDto?.IsActive ?? true,
             IsAdmin = userDto?.IsAdmin ?? false
         };
-        userRepository.Create(user);
-        userRepository.Save();
+        context.Users.Add(user);
+        context.SaveChanges();
         return user;
     }
 }

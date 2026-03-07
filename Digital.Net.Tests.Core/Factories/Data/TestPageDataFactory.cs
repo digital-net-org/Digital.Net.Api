@@ -1,13 +1,13 @@
 using Digital.Net.Core.Random;
 using Digital.Net.Entities.Models.Pages;
-using Digital.Net.Entities.Repositories;
+using Digital.Net.Entities.Context;
 
 namespace Digital.Net.Tests.Core.Factories.Data;
 
 public static class TestPageFactory
 {
     public static Page BuildTestPage(
-        this IRepository<Page> pageRepository,
+        this DigitalContext context,
         string? title = null,
         string? path = null,
         bool isPublished = false
@@ -20,8 +20,8 @@ public static class TestPageFactory
             Description = "Test page description",
             IsPublished = isPublished
         };
-        pageRepository.Create(page);
-        pageRepository.Save();
+        context.Pages.Add(page);
+        context.SaveChanges();
         return page;
     }
 }

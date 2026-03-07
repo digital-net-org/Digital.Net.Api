@@ -3,13 +3,13 @@ using Digital.Net.Core.Exceptions.types;
 using Digital.Net.Core.Messages;
 using Digital.Net.Core.Models;
 using Digital.Net.Entities.Models;
-using Digital.Net.Entities.Repositories;
 using Microsoft.AspNetCore.JsonPatch;
+using Digital.Net.Entities.Context;
 
 namespace Digital.Net.Entities.Crud;
 
 public class CrudService<T>(
-    IRepository<T> repository,
+    DigitalContext context,
     ICrudValidationService crudValidationService
 ) : ICrudService<T>
     where T : Entity
@@ -19,7 +19,7 @@ public class CrudService<T>(
         var result = new Result<TModel>();
         try
         {
-            var value = repository.Get(expression).FirstOrDefault() ?? throw new ResourceNotFoundException();
+            var value = context.Set<T>().FirstOrDefault(expression) ?? throw new ResourceNotFoundException();
             result.Value = Mapper.TryMap<T, TModel>(value);
             return result;
         }
@@ -32,7 +32,7 @@ public class CrudService<T>(
     public Result<TModel> Get<TModel>(Guid id) where TModel : class
     {
         var result = new Result<TModel>();
-        var entity = repository.GetById(id);
+        var entity = context.Set<T>().Find(id);
         if (entity is null)
             return result.AddError(new ResourceNotFoundException());
         result.Value = Mapper.MapFromConstructor<T, TModel>(entity);
@@ -42,15 +42,15 @@ public class CrudService<T>(
     public async Task<Result> Patch(JsonPatchDocument<T> patch, Guid id)
     {
         var result = new Result();
-        var entity = await repository.GetByIdAsync(id);
+        var entity = await context.Set<T>().FindAsync(id);
         if (entity is null)
             return result.AddError(new ResourceNotFoundException());
         try
         {
             crudValidationService.ValidatePatchPayload(patch);
             patch.ApplyTo(entity);
-            repository.Update(entity);
-            await repository.SaveAsync();
+            context.Set<T>().Update(entity);
+            await context.SaveChangesAsync();
         }
         catch (Exception e)
         {
@@ -63,13 +63,13 @@ public class CrudService<T>(
     public async Task<Result> Delete(Guid id)
     {
         var result = new Result();
-        var entity = await repository.GetByIdAsync(id);
+        var entity = await context.Set<T>().FindAsync(id);
         if (entity is null)
             return result.AddError(new ResourceNotFoundException());
         try
         {
-            repository.Delete(entity);
-            await repository.SaveAsync();
+            context.Set<T>().Remove(entity);
+            await context.SaveChangesAsync();
         }
         catch (Exception e)
         {
@@ -84,8 +84,8 @@ public class CrudService<T>(
         try
         {
             crudValidationService.ValidateCreatePayload(entity);
-            await repository.CreateAsync(entity);
-            await repository.SaveAsync();
+            await context.Set<T>().AddAsync(entity);
+            await context.SaveChangesAsync();
             result.Value = entity.Id;
         }
         catch (Exception e)

@@ -4,7 +4,7 @@ using Digital.Net.Controllers.Dto;
 using Digital.Net.Core.Predicates;
 using Digital.Net.Entities.Crud.Controllers;
 using Digital.Net.Entities.Models.Pages;
-using Digital.Net.Entities.Repositories;
+using Digital.Net.Entities.Context;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -50,11 +50,11 @@ public static class PageEndpoints
 
     private static Results<Ok<PageDto>, NotFound> GetPageByPath(
         string path,
-        IRepository<Page> pageRepository
+        DigitalContext context
     )
     {
-        var page = pageRepository
-            .Get(p => p.Path == path && p.IsPublished)
+        var page = context.Pages
+            .Where(p => p.Path == path && p.IsPublished)
             .FirstOrDefault();
         if (page is null)
             return TypedResults.NotFound();

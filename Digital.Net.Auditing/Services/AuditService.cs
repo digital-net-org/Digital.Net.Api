@@ -1,10 +1,10 @@
 using Digital.Net.Core.Messages;
 using Digital.Net.Entities.Models.Events;
-using Digital.Net.Entities.Repositories;
+using Digital.Net.Entities.Context;
 
 namespace Digital.Net.Auditing.Services;
 
-public class AuditService(IRepository<Event> eventRepository) : IAuditService
+public class AuditService(DigitalContext context) : IAuditService
 {
     public async Task RegisterEventAsync(
         string name,
@@ -29,6 +29,7 @@ public class AuditService(IRepository<Event> eventRepository) : IAuditService
         if (result is not null && result.HasError)
             appEvent.SetError(result);
         
-        await eventRepository.CreateAndSaveAsync(appEvent);
+        await context.Events.AddAsync(appEvent);
+        await context.SaveChangesAsync();
     }
 }

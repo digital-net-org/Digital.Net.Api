@@ -44,13 +44,14 @@ public class JwtLogoutTest
     )
     {
         var logoutEvent = Application
-            .GetRepository<Event>()
-            .Get(x => x.UserId == user.Id)
+            .GetContext().Events
+            .Where(x => x.UserId == user.Id)
             .OrderByDescending(x => x.CreatedAt)
             .First();
         var userTokens = Application
-            .GetRepository<ApiToken>()
-            .Get(x => x.UserId == user.Id);
+            .GetContext().ApiTokens
+            .Where(x => x.UserId == user.Id)
+            .ToList();
         
         await Assert.That(result.StatusCode).EqualTo(HttpStatusCode.NoContent);
         await Assert.That(logoutEvent.Name).EqualTo(eventType);

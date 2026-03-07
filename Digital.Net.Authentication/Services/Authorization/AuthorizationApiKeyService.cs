@@ -4,14 +4,13 @@ using Digital.Net.Authentication.Options;
 using Digital.Net.Core.Http;
 using Digital.Net.Entities.Models.ApiKeys;
 using Digital.Net.Entities.Models.Users;
-using Digital.Net.Entities.Repositories;
+using Digital.Net.Entities.Context;
 using Microsoft.AspNetCore.Http;
 
 namespace Digital.Net.Authentication.Services.Authorization;
 
 public class AuthorizationApiKeyService(
-    IRepository<ApiKey> apiKeyRepository,
-    IRepository<User> userRepository,
+    DigitalContext context,
     IHttpContextAccessor httpContextAccessor
 ) : IAuthorizationApiKeyService
 {
@@ -24,14 +23,14 @@ public class AuthorizationApiKeyService(
         if (string.IsNullOrWhiteSpace(key))
             return result.AddError(new TokenNotFoundException());
 
-        var authorization = apiKeyRepository.Get(k => k.Key == ApiKey.Hash(key)).FirstOrDefault();
+        var authorization = context.ApiKeys.FirstOrDefault(k => k.Key == ApiKey.Hash(key));
         if (authorization is null)
             return result.AddError(new InvalidTokenException());
 
         if (authorization.ExpiredAt is not null && authorization.ExpiredAt < DateTime.UtcNow)
             return result.AddError(new ExpiredTokenException());
 
-        var user = userRepository.Get(u => u.Id == authorization.UserId && u.IsActive).FirstOrDefault();
+        var user = context.Users.FirstOrDefault(u => u.Id == authorization.UserId && u.IsActive);
         if (user is null)
             return result.AddError(new InvalidTokenException());
 

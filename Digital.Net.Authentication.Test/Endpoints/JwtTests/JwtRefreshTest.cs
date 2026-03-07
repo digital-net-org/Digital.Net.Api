@@ -17,7 +17,7 @@ public class JwtRefreshTest
         var user = Application.CreateUser();
         await client.Login(user);
         var response = await client.RefreshTokens();
-        var userTokens = Application.GetRepository<ApiToken>().Get(x => x.UserId == user.Id).ToList();
+        var userTokens = Application.GetContext().ApiTokens.Where(x => x.UserId == user.Id).ToList();
         // var cookieToken = response.Headers.TryGetCookie(CookieName);
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);

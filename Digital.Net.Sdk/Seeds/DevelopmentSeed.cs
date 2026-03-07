@@ -1,7 +1,7 @@
 using Digital.Net.Authentication.Services;
 using Digital.Net.Entities.Models.ApiKeys;
 using Digital.Net.Entities.Models.Users;
-using Digital.Net.Entities.Repositories;
+using Digital.Net.Entities.Context;
 using Digital.Net.Entities.Seeds;
 using Microsoft.Extensions.Logging;
 
@@ -9,9 +9,8 @@ namespace Digital.Net.Sdk.Seeds;
 
 public class DevelopmentSeed(
     ILogger<DevelopmentSeed> logger,
-    IRepository<ApiKey> apiKeyRepository,
-    IRepository<User> userRepository
-) : Seeder<User>(logger, userRepository), ISeed
+    DigitalContext context
+) : Seeder<User>(logger, context), ISeed
 {
     public const string DefaultPassword = "Devpassword123!";
 
@@ -26,7 +25,8 @@ public class DevelopmentSeed(
             throw new Exception(result.Errors.First().Message);
 
         foreach (var apiKey in result.Value!.Select(user => new ApiKey(user.Id, GenerateApiKey(user))))
-            await apiKeyRepository.CreateAndSaveAsync(apiKey);
+            await context.ApiKeys.AddAsync(apiKey);
+        await context.SaveChangesAsync();
     }
 
     private static List<User> Users =>

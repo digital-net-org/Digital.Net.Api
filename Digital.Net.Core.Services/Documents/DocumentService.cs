@@ -6,7 +6,7 @@ using Digital.Net.Core.Services.Documents.Extensions;
 using Digital.Net.Core.Settings;
 using Digital.Net.Entities.Models.Documents;
 using Digital.Net.Entities.Models.Users;
-using Digital.Net.Entities.Repositories;
+using Digital.Net.Entities.Context;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -14,7 +14,7 @@ using Microsoft.Extensions.Configuration;
 namespace Digital.Net.Core.Services.Documents;
 
 public class DocumentService(
-    IRepository<Document> documentRepository,
+    DigitalContext context,
     IConfiguration configuration
 ) : IDocumentService
 {
@@ -26,7 +26,7 @@ public class DocumentService(
     public Result<FileResult?> GetDocumentFile(Guid documentId, string? contentType = null)
     {
         var result = new Result<FileResult?>();
-        var document = documentRepository.GetById(documentId);
+        var document = context.Documents.Find(documentId);
         if (document is null)
             return result.AddError(new ResourceNotFoundException());
         var path = GetDocumentPath(document);
@@ -58,7 +58,7 @@ public class DocumentService(
 
     public async Task<Result> RemoveDocumentAsync(Guid id)
     {
-        var document = await documentRepository.GetByIdAsync(id);
+        var document = await context.Documents.FindAsync(id);
         var result = new Result();
         if (document is null)
             return result.AddError(new DocumentNotFoundException());
@@ -67,8 +67,8 @@ public class DocumentService(
         if (File.Exists(path))
             File.Delete(path);
 
-        documentRepository.Delete(document);
-        await documentRepository.SaveAsync();
+        context.Documents.Remove(document);
+        await context.SaveChangesAsync();
         return result;
     }
 
@@ -79,12 +79,12 @@ public class DocumentService(
             return result.AddError(new NoUploaderException());
 
         result.Value = new Document(uploader, file);
-        await documentRepository.CreateAsync(result.Value);
+        await context.Documents.AddAsync(result.Value);
 
         await using var stream = new FileStream(GetDocumentPath(result.Value), FileMode.Create);
         await file.CopyToAsync(stream);
 
-        await documentRepository.SaveAsync();
+        await context.SaveChangesAsync();
         return result;
     }
 }

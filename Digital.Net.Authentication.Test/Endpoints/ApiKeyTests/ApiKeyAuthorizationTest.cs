@@ -47,11 +47,12 @@ public class ApiKeyAuthorizationTest
     public async Task Authorize_ShouldReturnUnauthorized_OnInactiveUser()
     {
         var (user, client) = await Setup(Randomizer.GenerateRandomString(Randomizer.AnyLetter, 128));
-        var repository = Application.GetRepository<User>();
+        var context = Application.GetContext();
 
-        var userInDb = await repository.GetByIdAsync(user.Id);
+        var userInDb = await context.Users.FindAsync(user.Id);
         userInDb!.IsActive = false;
-        await repository.UpdateAndSaveAsync(userInDb);
+        context.Users.Update(userInDb);
+        await context.SaveChangesAsync();
         await ExecuteTestAsync(client, HttpStatusCode.Unauthorized);
     }
 
@@ -63,9 +64,10 @@ public class ApiKeyAuthorizationTest
     {
         var client = Application.CreateClient();
         var user = Application.CreateUser();
-        await Application
-            .GetRepository<ApiKey>()
-            .CreateAndSaveAsync(new ApiKey(user.Id, key, expiry));
+        
+        var context = Application.GetContext();
+        await context.ApiKeys.AddAsync(new ApiKey(user.Id, key, expiry));
+        await context.SaveChangesAsync();
 
         client.DefaultRequestHeaders.Add(header ?? AuthenticationStaticOptions.ApiKeyHeaderAccessor, key);
         return (user, client);

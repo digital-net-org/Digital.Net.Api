@@ -9,9 +9,13 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <ProjectReference Include="..\Digital.Net.Controllers\Digital.Net.Controllers.csproj"/>
-        <ProjectReference Include="..\Digital.Net.Core.Services\Digital.Net.Core.Services.csproj"/>
-        <ProjectReference Include="..\Digital.Net.Tests.Core\Digital.Net.Tests.Core.csproj"/>
+        <ProjectReference Include="..\Digital.Net.Controllers\Digital.Net.Controllers.csproj" />
+        <ProjectReference Include="..\Digital.Net.Core.Services\Digital.Net.Core.Services.csproj" />
+        <ProjectReference Include="..\Digital.Net.Tests.Core\Digital.Net.Tests.Core.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.3" />
     </ItemGroup>
     
 </Project>

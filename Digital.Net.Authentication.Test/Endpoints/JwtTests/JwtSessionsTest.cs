@@ -2,8 +2,10 @@ using System.Net;
 using Digital.Net.Authentication.Events;
 using Digital.Net.Authentication.Options;
 using Digital.Net.Entities.Models.Events;
+using Digital.Net.Entities.Models.Users;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Sdk;
+using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Authentication.Test.Endpoints.JwtTests;
 
@@ -27,7 +29,7 @@ public class JwtSessionsTest
         }
 
         var successCount = await Application
-            .GetRepository<Event>()
+            .GetContext().Events
             .CountAsync(e => e.UserId == user.Id
                              && e.Name == AuthenticationEvents.Login
                              && e.State == EventState.Success

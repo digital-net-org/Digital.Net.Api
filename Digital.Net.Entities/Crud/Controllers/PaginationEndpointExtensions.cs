@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 using Digital.Net.Core.Models;
 using Digital.Net.Core.Predicates;
 using Digital.Net.Entities.Models;
-using Digital.Net.Entities.Repositories;
+using Digital.Net.Entities.Context;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -38,7 +38,7 @@ public static class PaginationEndpointExtensions
             .MapGet($"{route}", (
                 [AsParameters]
                 TQuery query,
-                IRepository<T> repository
+                DigitalContext context
             ) =>
             {
                 query.ValidateParameters();
@@ -47,7 +47,7 @@ public static class PaginationEndpointExtensions
                 try
                 {
                     var predicate = BuildFilter(query, filter);
-                    var items = repository.Get(predicate);
+                    var items = context.Set<T>().Where(predicate);
                     var rowCount = items.Count();
 
                     items = items.AsNoTracking();

@@ -85,13 +85,13 @@ public class JwtLoginTest
     )
     {
         var loginEvent = Application
-            .GetRepository<Event>()
-            .Get(x => x.UserId == user.Id)
+            .GetContext().Events
+            .Where(x => x.UserId == user.Id)
             .OrderByDescending(x => x.CreatedAt)
             .First();
         var storedToken = Application
-            .GetRepository<ApiToken>()
-            .Get(x => x.UserId == user.Id)
+            .GetContext().ApiTokens
+            .Where(x => x.UserId == user.Id)
             .FirstOrDefault();
         
         var tokens = new List<string?>

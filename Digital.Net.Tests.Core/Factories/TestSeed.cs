@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Digital.Net.Authentication.Services;
 using Digital.Net.Entities.Models.ApiKeys;
 using Digital.Net.Entities.Models.Users;
-using Digital.Net.Entities.Repositories;
+using Digital.Net.Entities.Context;
 using Digital.Net.Entities.Seeds;
 using Microsoft.Extensions.Logging;
 
@@ -12,9 +12,8 @@ namespace Digital.Net.Tests.Core.Factories;
 
 public class TestSeed(
     ILogger<TestSeed> logger,
-    IRepository<ApiKey> apiKeyRepository,
-    IRepository<User> userRepository
-) : Seeder<User>(logger, userRepository), ISeed
+    DigitalContext context
+) : Seeder<User>(logger, context), ISeed
 {
     public const string TestAdminLogin = "Admin";
     public const string TestAdminPassword = "Devpassword123!";
@@ -37,7 +36,8 @@ public class TestSeed(
             ]
         );
 
-        await apiKeyRepository.CreateAndSaveAsync(new ApiKey(result.Value!.First().Id, TestAdminApiKey));
+        await context.ApiKeys.AddAsync(new ApiKey(result.Value!.First().Id, TestAdminApiKey));
+        await context.SaveChangesAsync();
     }
 
     private static List<User> Users =>

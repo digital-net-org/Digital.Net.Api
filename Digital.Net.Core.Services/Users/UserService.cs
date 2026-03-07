@@ -9,15 +9,14 @@ using Digital.Net.Core.String;
 using Digital.Net.Entities.Models.Avatars;
 using Digital.Net.Entities.Models.Documents;
 using Digital.Net.Entities.Models.Users;
-using Digital.Net.Entities.Repositories;
+using Digital.Net.Entities.Context;
 using Microsoft.AspNetCore.Http;
 
 namespace Digital.Net.Core.Services.Users;
 
 public class UserService(
     IDocumentService documentService,
-    IRepository<User> userRepository,
-    IRepository<Avatar> avatarRepository) : IUserService
+    DigitalContext context) : IUserService
 {
     public async Task<Result> UpdatePasswordAsync(User user, string currentPassword, string newPassword)
     {
@@ -29,8 +28,8 @@ public class UserService(
             return result.AddError(new PasswordMalformedException());
 
         user.Password = PasswordUtils.HashPassword(newPassword);
-        userRepository.Update(user);
-        await userRepository.SaveAsync();
+        context.Users.Update(user);
+        await context.SaveChangesAsync();
         return result;
     }
 
@@ -54,9 +53,8 @@ public class UserService(
     {
         var documentId = user.Avatar!.DocumentId;
         user.AvatarId = null;
-        avatarRepository.Delete(user.Avatar!);
-        await userRepository.SaveAsync();
-        await avatarRepository.SaveAsync();
+        context.Avatars.Remove(user.Avatar!);
+        await context.SaveChangesAsync();
         return await documentService.RemoveDocumentAsync(documentId);
     }
 
@@ -65,11 +63,11 @@ public class UserService(
         try
         {
             var avatar = new Avatar { DocumentId = result.Value!.Id };
-            await avatarRepository.CreateAsync(avatar);
-            await avatarRepository.SaveAsync();
+            await context.Avatars.AddAsync(avatar);
+            await context.SaveChangesAsync();
 
             user.AvatarId = avatar.Id;
-            await userRepository.SaveAsync();
+            await context.SaveChangesAsync();
         }
         catch (Exception ex)
         {
