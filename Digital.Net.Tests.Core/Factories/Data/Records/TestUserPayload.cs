@@ -1,5 +1,5 @@
 using System;
-using Digital.Net.Controllers.Dto;
+using Digital.Net.Api.Endpoints.Dto;
 using Digital.Net.Entities.Models.Users;
 
 namespace Digital.Net.Tests.Core.Factories.Data.Records;

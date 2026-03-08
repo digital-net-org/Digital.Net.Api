@@ -30,10 +30,10 @@ public static class ClientHeaders
     /// <summary>
     ///     Try to get a cookie from the response headers.
     /// </summary>
-    /// <param name="headers">The response message to get the cookie from.</param>
+    /// <param name="response">The response message to get the cookie from.</param>
     /// <returns>The cookie if it exists, otherwise null.</returns>
-    public static string? TryGetCookie(this HttpResponseMessage headers) =>
-        headers.TryGetHeaderValue(SetCookieHeader);
+    public static string? TryGetCookie(this HttpResponseMessage response) =>
+        response.TryGetHeaderValue(SetCookieHeader);
 
     /// <summary>
     ///     Add a cookie to the Client headers.
@@ -58,10 +58,9 @@ public static class ClientHeaders
     /// <returns>
     ///     The value of the User-Agent header as a string, or null if the header is not present or empty.
     /// </returns>
-    public static string? GetUserAgent(this IHttpContextAccessor context)
+    public static string? GetUserAgent(this HttpContext context)
     {
-        var request = context.GetRequest();
-        var result = request.Headers.UserAgent.ToString();
+        var result = context.Request.Headers.UserAgent.ToString();
         return string.IsNullOrEmpty(result) ? null : result;
     }
 
@@ -70,16 +69,22 @@ public static class ClientHeaders
     /// </summary>
     /// <param name="context">The <see cref="IHttpContextAccessor" /> instance to access the HTTP context.</param>
     /// <returns>
-    ///     The client IP address as a string, or null if it cannot be determined.
-    ///     This method first checks the X-Forwarded-For header for the client IP and falls back to the RemoteIpAddress
     ///     property if the header is not present.
     /// </returns>
-    public static string? GetRemoteIpAddress(this IHttpContextAccessor context)
+    public static string? GetRemoteIpAddress(this HttpContext context)
     {
-        var request = context.GetRequest();
-        request.Headers.TryGetValue("X-Forwarded-For", out var forwardedFor);
+        context.Request.Headers.TryGetValue("X-Forwarded-For", out var forwardedFor);
         return
             forwardedFor.FirstOrDefault()
-            ?? request.HttpContext.Connection.RemoteIpAddress?.ToString();
+            ?? context.Connection.RemoteIpAddress?.ToString();
     }
+
+    /// <summary>
+    ///     Test if "If-None-Match" header is equal to provided etag.
+    /// </summary>
+    /// <param name="headers"></param>
+    /// <param name="etag"></param>
+    /// <returns>True if strict equality, false otherwise</returns>
+    public static bool TestIfNoneMatch(this IHeaderDictionary headers, string? etag) =>
+        headers.TryGetValue("If-None-Match", out var v) && v.ToString() == etag;
 }

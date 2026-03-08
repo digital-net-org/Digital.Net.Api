@@ -1,5 +1,4 @@
 using Digital.Net.Entities.Context;
-using Digital.Net.Entities.Models.Users;
 using Digital.Net.Tests.Core;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;

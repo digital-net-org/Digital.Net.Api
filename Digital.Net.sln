@@ -8,31 +8,19 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Entities", "Dig
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Entities.Test", "Digital.Net.Entities.Test\Digital.Net.Entities.Test.csproj", "{12DF357F-4A47-4B71-ADF5-EBD715C43F69}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Controllers", "Digital.Net.Controllers\Digital.Net.Controllers.csproj", "{B8759FE3-5254-4A6B-B8D4-A4B8E4E89FCC}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Core", "Digital.Net.Core\Digital.Net.Core.csproj", "{41928C26-F84B-4085-BA99-96A3DD9BA7AA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Core.Test", "Digital.Net.Core.Test\Digital.Net.Core.Test.csproj", "{EC34562D-FF8B-4C64-AEAA-D457EEDD9D3E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Sdk", "Digital.Net.Sdk\Digital.Net.Sdk.csproj", "{45067119-1A7F-4E04-A98C-1432BD100D76}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api", "Digital.Net.Api\Digital.Net.Api.csproj", "{6AAE6EA1-1E43-4A1B-8AF5-9797B0992610}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Core.Services", "Digital.Net.Core.Services\Digital.Net.Core.Services.csproj", "{6AAE6EA1-1E43-4A1B-8AF5-9797B0992610}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Core.Services.Test", "Digital.Net.Core.Services.Test\Digital.Net.Core.Services.Test.csproj", "{4BE9E486-EC75-4280-9E3E-0E5A39B9B9F7}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Authentication", "Digital.Net.Authentication\Digital.Net.Authentication.csproj", "{B0E8A5C6-473B-439A-9357-DAE49B86542A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Auditing", "Digital.Net.Auditing\Digital.Net.Auditing.csproj", "{D43860C5-F977-4759-BA96-7EB02447A675}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Api.Test", "Digital.Net.Api.Test\Digital.Net.Api.Test.csproj", "{4BE9E486-EC75-4280-9E3E-0E5A39B9B9F7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Tests.Core", "Digital.Net.Tests.Core\Digital.Net.Tests.Core.csproj", "{17B8C00D-340F-480B-9A9F-6C84BCA8EC54}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Tests.Program", "Digital.Net.Tests.Program\Digital.Net.Tests.Program.csproj", "{38C3916B-3C28-4D32-9368-58846BC33755}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Authentication.Test", "Digital.Net.Authentication.Test\Digital.Net.Authentication.Test.csproj", "{00E4A0E9-F538-47E7-AFF3-487F89293DF5}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Controllers.Test", "Digital.Net.Controllers.Test\Digital.Net.Controllers.Test.csproj", "{F8551054-48D3-4964-8B1A-F11E1E812CC6}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Modules.ContentManager", "Digital.Net.Modules.ContentManager\Digital.Net.Modules.ContentManager.csproj", "{52B8CDCF-B214-48F7-9092-756F35AEF2AA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital.Net.Cms", "Digital.Net.Cms\Digital.Net.Cms.csproj", "{52B8CDCF-B214-48F7-9092-756F35AEF2AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -119,10 +107,6 @@ Global
 		{12DF357F-4A47-4B71-ADF5-EBD715C43F69}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12DF357F-4A47-4B71-ADF5-EBD715C43F69}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12DF357F-4A47-4B71-ADF5-EBD715C43F69}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B8759FE3-5254-4A6B-B8D4-A4B8E4E89FCC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B8759FE3-5254-4A6B-B8D4-A4B8E4E89FCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B8759FE3-5254-4A6B-B8D4-A4B8E4E89FCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B8759FE3-5254-4A6B-B8D4-A4B8E4E89FCC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{41928C26-F84B-4085-BA99-96A3DD9BA7AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{41928C26-F84B-4085-BA99-96A3DD9BA7AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{41928C26-F84B-4085-BA99-96A3DD9BA7AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -131,10 +115,6 @@ Global
 		{EC34562D-FF8B-4C64-AEAA-D457EEDD9D3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC34562D-FF8B-4C64-AEAA-D457EEDD9D3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EC34562D-FF8B-4C64-AEAA-D457EEDD9D3E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{45067119-1A7F-4E04-A98C-1432BD100D76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{45067119-1A7F-4E04-A98C-1432BD100D76}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{45067119-1A7F-4E04-A98C-1432BD100D76}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{45067119-1A7F-4E04-A98C-1432BD100D76}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6AAE6EA1-1E43-4A1B-8AF5-9797B0992610}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6AAE6EA1-1E43-4A1B-8AF5-9797B0992610}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6AAE6EA1-1E43-4A1B-8AF5-9797B0992610}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -143,14 +123,6 @@ Global
 		{4BE9E486-EC75-4280-9E3E-0E5A39B9B9F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4BE9E486-EC75-4280-9E3E-0E5A39B9B9F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4BE9E486-EC75-4280-9E3E-0E5A39B9B9F7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B0E8A5C6-473B-439A-9357-DAE49B86542A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B0E8A5C6-473B-439A-9357-DAE49B86542A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B0E8A5C6-473B-439A-9357-DAE49B86542A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B0E8A5C6-473B-439A-9357-DAE49B86542A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D43860C5-F977-4759-BA96-7EB02447A675}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D43860C5-F977-4759-BA96-7EB02447A675}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D43860C5-F977-4759-BA96-7EB02447A675}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D43860C5-F977-4759-BA96-7EB02447A675}.Release|Any CPU.Build.0 = Release|Any CPU
 		{17B8C00D-340F-480B-9A9F-6C84BCA8EC54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{17B8C00D-340F-480B-9A9F-6C84BCA8EC54}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{17B8C00D-340F-480B-9A9F-6C84BCA8EC54}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -159,14 +131,6 @@ Global
 		{38C3916B-3C28-4D32-9368-58846BC33755}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38C3916B-3C28-4D32-9368-58846BC33755}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38C3916B-3C28-4D32-9368-58846BC33755}.Release|Any CPU.Build.0 = Release|Any CPU
-		{00E4A0E9-F538-47E7-AFF3-487F89293DF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{00E4A0E9-F538-47E7-AFF3-487F89293DF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{00E4A0E9-F538-47E7-AFF3-487F89293DF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{00E4A0E9-F538-47E7-AFF3-487F89293DF5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F8551054-48D3-4964-8B1A-F11E1E812CC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F8551054-48D3-4964-8B1A-F11E1E812CC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F8551054-48D3-4964-8B1A-F11E1E812CC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F8551054-48D3-4964-8B1A-F11E1E812CC6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{52B8CDCF-B214-48F7-9092-756F35AEF2AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{52B8CDCF-B214-48F7-9092-756F35AEF2AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{52B8CDCF-B214-48F7-9092-756F35AEF2AA}.Release|Any CPU.ActiveCfg = Release|Any CPU

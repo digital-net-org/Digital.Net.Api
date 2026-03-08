@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Digital.Net.Authentication.Services;
+using Digital.Net.Api.Services.Authentication.Utils;
+using Digital.Net.Entities.Context;
 using Digital.Net.Entities.Models.ApiKeys;
 using Digital.Net.Entities.Models.Users;
-using Digital.Net.Entities.Context;
 using Digital.Net.Entities.Seeds;
 using Microsoft.Extensions.Logging;
 

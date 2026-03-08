@@ -2,12 +2,12 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using Digital.Net.Authentication.Controllers.Dto;
+using Digital.Net.Api.Endpoints.Dto;
 using Digital.Net.Core.Http;
 using Digital.Net.Core.Messages;
-using Digital.Net.Core.Services.HttpContext.Extensions;
 using Digital.Net.Entities.Models.Users;
 using Digital.Net.Tests.Core.Factories.Data;
+using Digital.Net.Tests.Core.Http;
 
 namespace Digital.Net.Tests.Core.Sdk;
 
@@ -68,6 +68,7 @@ public static class AuthenticationApi
         try
         {
             var token = await loginResponse.Content.ReadContentAsync<Result<string>>();
+            
             var refreshToken = loginResponse.TryGetCookie();
 
             if (refreshToken is not null)

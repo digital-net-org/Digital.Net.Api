@@ -21,7 +21,7 @@ public class JsonFormatterTest : UnitTest
                 ""value"": ""NewName""
             }
         ]");
-        var patchDocument = JsonFormatter.GetPatchDocument<TestModel>(jsonDoc.RootElement);
+        var patchDocument = jsonDoc.RootElement.GetPatchDocument<TestModel>();
         await Assert.That(patchDocument).IsNotNull();
         await Assert.That(patchDocument.Operations.Count).IsEqualTo(1);
 
@@ -36,7 +36,7 @@ public class JsonFormatterTest : UnitTest
     {
         var patchJson = @"[]";
         using var jsonDoc = JsonDocument.Parse(patchJson);
-        var patchDocument = JsonFormatter.GetPatchDocument<TestModel>(jsonDoc.RootElement);
+        var patchDocument = jsonDoc.RootElement.GetPatchDocument<TestModel>();
 
         await Assert.That(patchDocument).IsNotNull();
         await Assert.That(patchDocument.Operations.Count).IsEqualTo(0);

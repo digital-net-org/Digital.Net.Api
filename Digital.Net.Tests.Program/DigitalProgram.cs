@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
-using Digital.Net.Authentication.Filters;
-using Digital.Net.Sdk;
+using Digital.Net.Api;
+using Digital.Net.Api.Services.Authentication.Filters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -12,17 +12,17 @@ public sealed class DigitalProgram
     private static async Task Main(string[] args)
     {
         var app = WebApplication.CreateBuilder(args)
-            .AddDigitalSdk()
+            .AddDigitalNet()
             .Build();
 
-        app.UseDigitalSdk();
+        app.UseDigitalNet();
         MapTestEndpoints(app);
 
 
         await app.RunAsync();
     }
 
-    public static IEndpointRouteBuilder MapTestEndpoints(IEndpointRouteBuilder app)
+    private static IEndpointRouteBuilder MapTestEndpoints(IEndpointRouteBuilder app)
     {
         var controller = app
             .MapGroup("/test/authentication")

@@ -24,10 +24,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Digital.Net.Authentication\Digital.Net.Authentication.csproj"/>
+        <ProjectReference Include="..\Digital.Net.Api\Digital.Net.Api.csproj"/>
         <ProjectReference Include="..\Digital.Net.Core\Digital.Net.Core.csproj"/>
         <ProjectReference Include="..\Digital.Net.Entities\Digital.Net.Entities.csproj"/>
-        <ProjectReference Include="..\Digital.Net.Sdk\Digital.Net.Sdk.csproj"/>
         <ProjectReference Include="..\Digital.Net.Tests.Program\Digital.Net.Tests.Program.csproj" />
     </ItemGroup>
 
