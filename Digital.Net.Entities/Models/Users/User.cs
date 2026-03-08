@@ -40,6 +40,7 @@ public class User : Entity
     [MaxLength(24)]
     [Required]
     [ReadOnly]
+    [RegexValidation(RegularExpressions.UsernamePattern)]
     public required string Login { get; set; }
 
     [Column("IsActive")]
