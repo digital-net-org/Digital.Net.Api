@@ -7,6 +7,7 @@ public static class DocumentServicesInjector
     public static IServiceCollection AddDigitalDocumentServices(this IServiceCollection services)
     {
         services.AddScoped<IDocumentService, DocumentService>();
+        services.AddScoped<IDocumentCacheService, DocumentCacheService>();
         return services;
     }
 }

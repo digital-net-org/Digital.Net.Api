@@ -4,6 +4,7 @@ using Digital.Net.Api.RateLimiter.Limiters;
 using Digital.Net.Api.Services.Authentication;
 using Digital.Net.Api.Services.Authentication.Exceptions;
 using Digital.Net.Api.Services.Authentication.Filters;
+using Digital.Net.Api.Services.Documents;
 using Digital.Net.Api.Services.Documents.Exceptions;
 using Digital.Net.Api.Services.Users;
 using Digital.Net.Core.Formatters;
@@ -40,7 +41,8 @@ public static class UserEndpoints
         group
             .MapPatch("/self", PatchSelf)
             .WithSummary("PatchSelf")
-            .WithDescription("Updates the authenticated user's information using a JSON patch. Use the *User Schema* to get the available fields.");
+            .WithDescription(
+                "Updates the authenticated user's information using a JSON patch. Use the *User Schema* to get the available fields.");
 
         group
             .MapPut("/self/password", UpdatePassword)
@@ -57,6 +59,11 @@ public static class UserEndpoints
             .MapDelete("/self/avatar", RemoveAvatar)
             .WithSummary("RemoveAvatar")
             .WithDescription("Removes the authenticated user's avatar.");
+
+        group
+            .MapGet("/{id:guid}/avatar", GetUserAvatar)
+            .WithSummary("GetUserAvatar")
+            .WithDescription("Retrieves the avatar image file for a given user.");
 
         return app;
     }
@@ -138,5 +145,32 @@ public static class UserEndpoints
             return TypedResults.InternalServerError(result);
 
         return TypedResults.Ok();
+    }
+
+    private static async Task<Results<FileContentHttpResult, NotFound, InternalServerError, StatusCodeHttpResult>>
+        GetUserAvatar(
+            Guid id,
+            IUserService userService,
+            IDocumentCacheService documentCacheService
+        )
+    {
+        var result = await userService.GetUserAvatarDocumentAsync(id);
+
+        if (result.HasError || result.Value is null)
+            return TypedResults.NotFound();
+
+        var cacheResult = documentCacheService.GetCachedDocumentFile(result.Value);
+
+        if (cacheResult.HasErrorOfType<DocumentNotFoundException>())
+            return TypedResults.NotFound();
+        if (cacheResult.HasError)
+            return TypedResults.InternalServerError();
+        if (cacheResult.Value is not FileContentResult fileContentResult)
+            return TypedResults.StatusCode(304);
+
+        return TypedResults.File(
+            fileContentResult.FileContents,
+            fileContentResult.ContentType
+        );
     }
 }

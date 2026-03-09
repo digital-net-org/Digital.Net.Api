@@ -38,6 +38,7 @@ public class UserEndpointsTest
         await Assert.That(result!.Value!.Id).EqualTo(user.Id);
         await Assert.That(result.Value!.Username).EqualTo(user.Username);
         await Assert.That(result.Value!.Email).EqualTo(user.Email);
+        await Assert.That(result.Value!.IsActive).EqualTo(user.IsActive);
     }
 
     [Test]
@@ -117,7 +118,7 @@ public class UserEndpointsTest
 
         var loginClient = Application.CreateClient();
         var loginResponse = await loginClient.Login(user.Login, newPassword);
-        
+
         await Assert.That(loginResponse.StatusCode).EqualTo(HttpStatusCode.OK);
     }
 
@@ -215,5 +216,94 @@ public class UserEndpointsTest
 
         var removeResponse = await client.RemoveAvatar();
         await Assert.That((int)removeResponse.StatusCode).IsEqualTo((int)HttpStatusCode.OK);
+    }
+
+    [Test]
+    public async Task GetUserAvatar_WithoutToken_ShouldReturnUnauthorized()
+    {
+        var (user, client) = await CreateAuthenticatedUserAsync();
+        using var content = CreateValidAvatarPayload();
+        await client.UpdateAvatar(content);
+
+        var visitorClient = Application.CreateClient();
+        var response = await visitorClient.GetUserAvatar(user.Id);
+        await Assert.That((int)response.StatusCode).IsEqualTo((int)HttpStatusCode.Unauthorized);
+    }
+
+    [Test]
+    public async Task GetUserAvatar_Should_ReturnFile_WithETagHeader()
+    {
+        var (user, client) = await CreateAuthenticatedUserAsync();
+        using var content = CreateValidAvatarPayload();
+        await client.UpdateAvatar(content);
+
+        var db = Application.GetContext();
+        var dbUser = await db.Users
+            .AsNoTracking()
+            .Include(u => u.Avatar)
+            .ThenInclude(a => a!.Document)
+            .FirstAsync(u => u.Id == user.Id);
+        var expectedEtag = dbUser.Avatar!.Document!.Id.ToString();
+
+        var response = await client.GetUserAvatar(user.Id);
+        await Assert.That((int)response.StatusCode).IsEqualTo((int)HttpStatusCode.OK);
+        await Assert.That(response.Content.Headers.ContentType?.MediaType).IsNotNull();
+
+        var bytes = await response.Content.ReadAsByteArrayAsync();
+        await Assert.That(bytes.Length).IsGreaterThan(0);
+
+        var etag = response.Headers.ETag?.Tag;
+        await Assert.That(etag).IsNotNull();
+        await Assert.That(etag!.Trim('"')).IsEqualTo(expectedEtag);
+    }
+
+    [Test]
+    public async Task GetUserAvatar_Should_Return304_WhenETagMatches()
+    {
+        var (user, client) = await CreateAuthenticatedUserAsync();
+        using var content = CreateValidAvatarPayload();
+        await client.UpdateAvatar(content);
+
+        var firstResponse = await client.GetUserAvatar(user.Id);
+        var etag = firstResponse.Headers.ETag?.Tag;
+        await Assert.That(etag).IsNotNull();
+
+        var cachedResponse = await client.GetUserAvatar(user.Id, etag!);
+        await Assert.That((int)cachedResponse.StatusCode).IsEqualTo(304);
+
+        var cachedBytes = await cachedResponse.Content.ReadAsByteArrayAsync();
+        await Assert.That(cachedBytes.Length).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task GetUserAvatar_Should_ReturnFile_WhenETagDoesNotMatch()
+    {
+        var (user, client) = await CreateAuthenticatedUserAsync();
+        using var content = CreateValidAvatarPayload();
+        await client.UpdateAvatar(content);
+
+        var response = await client.GetUserAvatar(user.Id, "\"wrong-etag\"");
+        await Assert.That((int)response.StatusCode).IsEqualTo((int)HttpStatusCode.OK);
+
+        var bytes = await response.Content.ReadAsByteArrayAsync();
+        await Assert.That(bytes.Length).IsGreaterThan(0);
+    }
+
+    [Test]
+    public async Task GetUserAvatar_Should_ReturnNotFound_WhenNoAvatar()
+    {
+        var (user, client) = await CreateAuthenticatedUserAsync();
+
+        var response = await client.GetUserAvatar(user.Id);
+        await Assert.That((int)response.StatusCode).IsEqualTo((int)HttpStatusCode.NotFound);
+    }
+
+    [Test]
+    public async Task GetUserAvatar_Should_ReturnNotFound_WhenUserDoesNotExist()
+    {
+        var (_, client) = await CreateAuthenticatedUserAsync();
+
+        var response = await client.GetUserAvatar(Guid.NewGuid());
+        await Assert.That((int)response.StatusCode).IsEqualTo((int)HttpStatusCode.NotFound);
     }
 }

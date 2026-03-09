@@ -1,3 +1,4 @@
+using System;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -28,4 +29,14 @@ public static class UserApi
 
     public static async Task<HttpResponseMessage> RemoveAvatar(this HttpClient client) =>
         await client.DeleteAsync($"{BaseUrl}/self/avatar");
+
+    public static async Task<HttpResponseMessage> GetUserAvatar(this HttpClient client, Guid userId) =>
+        await client.GetAsync($"{BaseUrl}/{userId}/avatar");
+
+    public static async Task<HttpResponseMessage> GetUserAvatar(this HttpClient client, Guid userId, string etag)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get, $"{BaseUrl}/{userId}/avatar");
+        request.Headers.TryAddWithoutValidation("If-None-Match", etag);
+        return await client.SendAsync(request);
+    }
 }

@@ -11,12 +11,14 @@ using Digital.Net.Entities.Models.Avatars;
 using Digital.Net.Entities.Models.Documents;
 using Digital.Net.Entities.Models.Users;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Api.Services.Users;
 
 public class UserService(
     IDocumentService documentService,
-    DigitalContext context) : IUserService
+    DigitalContext context
+) : IUserService
 {
     public async Task<Result> UpdatePasswordAsync(User user, string currentPassword, string newPassword)
     {
@@ -67,6 +69,21 @@ public class UserService(
         context.Avatars.Remove(avatar);
         await context.SaveChangesAsync();
         return await documentService.RemoveDocumentAsync(documentId);
+    }
+
+    public async Task<Result<Document>> GetUserAvatarDocumentAsync(Guid userId)
+    {
+        var result = new Result<Document>();
+        var user = await context.Users
+            .Include(u => u.Avatar)
+            .ThenInclude(a => a!.Document)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user?.Avatar?.Document is not { } document)
+            return result.AddError(new DocumentNotFoundException());
+
+        result.Value = document;
+        return result;
     }
 
     private async Task<Result<Document>> SaveAvatarAsync(Result<Document> result, User user)

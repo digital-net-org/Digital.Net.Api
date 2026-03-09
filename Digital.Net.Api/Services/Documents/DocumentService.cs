@@ -1,8 +1,8 @@
 using Digital.Net.Api.Services.Documents.Exceptions;
+using Digital.Net.Api.Services.Documents.Extensions;
 using Digital.Net.Core.Configuration;
 using Digital.Net.Core.Exceptions.types;
 using Digital.Net.Core.Messages;
-using Digital.Net.Api.Services.Documents.Extensions;
 using Digital.Net.Core.Settings;
 using Digital.Net.Entities.Context;
 using Digital.Net.Entities.Models.Documents;
@@ -19,7 +19,7 @@ public class DocumentService(
 ) : IDocumentService
 {
     public string GetDocumentPath(Document document) => Path.Combine(
-        configuration.Get<string>(AppSettings.FileSystemPathKey) ?? AppSettings.DefaultFileSystemPath, 
+        configuration.Get<string>(AppSettings.FileSystemPathKey) ?? AppSettings.DefaultFileSystemPath,
         document.FileName
     );
 
@@ -44,28 +44,6 @@ public class DocumentService(
 
         return result;
     }
-
-    /// TODO: To move in a controller
-    // public Result<FileResult> GetCachedDocumentFile(Document? document, string? contentType = null)
-    // {
-    //     var result = new Result<FileResult>();
-    //     var etag = document?.Id.ToString();
-    //
-    //     if (result.HasError || document is null)
-    //         return result.AddError(new DocumentNotFoundException());
-    //     if (httpContextService.Request.Headers.TestIfNoneMatch(etag))
-    //         return result;
-    //
-    //     var file = result.Try(() => GetDocumentFile(document.Id, contentType));
-    //     if (result.HasError || file is null)
-    //         return result.AddError(new DocumentNotFoundException());
-    //
-    //     httpContextService.Response.Headers.CacheControl = "public, max-age=0, must-revalidate";
-    //     httpContextService.Response.Headers.ETag = etag;
-    //     httpContextService.Response.Headers.Remove("Content-Disposition");
-    //     result.Value = file;
-    //     return result;
-    // }
 
     public async Task<Result<Document>> SaveImageDocumentAsync(IFormFile form, User? uploader, int? quality = null)
     {
