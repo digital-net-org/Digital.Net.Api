@@ -4,13 +4,13 @@ using Digital.Net.Api.RateLimiter.Limiters;
 using Digital.Net.Api.Services.Authentication;
 using Digital.Net.Api.Services.Authentication.Exceptions;
 using Digital.Net.Api.Services.Authentication.Filters;
+using Digital.Net.Api.Services.Documents.Exceptions;
 using Digital.Net.Api.Services.Users;
 using Digital.Net.Core.Formatters;
 using Digital.Net.Core.Messages;
 using Digital.Net.Entities.Crud;
 using Digital.Net.Entities.Crud.Enpoints;
 using Digital.Net.Entities.Exceptions;
-using Digital.Net.Entities.Models.Documents;
 using Digital.Net.Entities.Models.Users;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -49,6 +49,7 @@ public static class UserEndpoints
 
         group
             .MapPut("/self/avatar", UpdateAvatar)
+            .DisableAntiforgery() // Not needed as we don't use session cookie
             .WithSummary("UpdateAvatar")
             .WithDescription("Updates the authenticated user's avatar.");
 
@@ -108,7 +109,7 @@ public static class UserEndpoints
         return TypedResults.Ok(result);
     }
 
-    private static async Task<Ok<Result<Document>>> UpdateAvatar(
+    private static async Task<Results<Ok, BadRequest<Result>, InternalServerError<Result>>> UpdateAvatar(
         IFormFile avatar,
         IUserService userService,
         IUserContextService userContextService
@@ -116,16 +117,26 @@ public static class UserEndpoints
     {
         var user = userContextService.GetUser();
         var result = await userService.UpdateAvatar(user, avatar);
-        return TypedResults.Ok(result);
+
+        if (result.HasErrorOfType<TooHeavyException>() || result.HasErrorOfType<UnsupportedFormatException>())
+            return TypedResults.BadRequest(result);
+        if (result.HasError)
+            return TypedResults.InternalServerError(result);
+
+        return TypedResults.Ok();
     }
 
-    private static async Task<Ok<Result>> RemoveAvatar(
+    private static async Task<Results<Ok, InternalServerError<Result>>> RemoveAvatar(
         IUserService userService,
         IUserContextService userContextService
     )
     {
         var user = userContextService.GetUser();
         var result = await userService.RemoveUserAvatar(user);
-        return TypedResults.Ok(result);
+
+        if (result.HasError)
+            return TypedResults.InternalServerError(result);
+
+        return TypedResults.Ok();
     }
 }

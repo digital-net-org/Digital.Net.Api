@@ -19,11 +19,12 @@ public static class FormFileImages
         {
             await using var ms = form.OpenReadStream();
             using var image = await Image.LoadAsync(ms);
-            using var memStream = new MemoryStream();
+            var memStream = new MemoryStream();
             await image.SaveAsync(memStream, FormFileHelper.GetJpegEncoder(quality));
+            var fileBytes = memStream.ToArray();
             fileName ??= FormFileHelper.GenerateFileName();
 
-            result.Value = new FormFile(memStream, 0, memStream.ToArray().Length, fileName, $"{fileName}.jpg")
+            result.Value = new FormFile(new MemoryStream(fileBytes), 0, fileBytes.Length, fileName, $"{fileName}.jpg")
             {
                 Headers = new HeaderDictionary(),
                 ContentType = "image/jpeg"

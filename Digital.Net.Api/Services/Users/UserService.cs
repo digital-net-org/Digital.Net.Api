@@ -33,27 +33,38 @@ public class UserService(
         return result;
     }
 
-    public async Task<Result<Document>> UpdateAvatar(User user, IFormFile form)
+    public async Task<Result> UpdateAvatar(User user, IFormFile form)
     {
+        var result = new Result();
         if (form.Length > AppSettings.DefaultMaxAvatarSize)
-            return new Result<Document>().AddError(new TooHeavyException());
+            return result.AddError(new TooHeavyException());
         if (!form.IsImage())
-            return new Result<Document>().AddError(new UnsupportedFormatException());
+            return result.AddError(new UnsupportedFormatException());
 
-        var result = await documentService.SaveImageDocumentAsync(form, user);
-        if (result.HasError || result.Value is null)
+        var documentResult = await documentService.SaveImageDocumentAsync(form, user);
+        result.Merge(documentResult);
+        if (result.HasError || documentResult.Value is null)
             return result;
         if (user.AvatarId is not null)
             await RemoveUserAvatar(user);
 
-        return await SaveAvatarAsync(result, user);
+        return result.Merge(await SaveAvatarAsync(documentResult, user));
     }
 
     public async Task<Result> RemoveUserAvatar(User user)
     {
-        var documentId = user.Avatar!.DocumentId;
+        if (user.AvatarId is null)
+            return new Result();
+
+        var avatar = await context.Avatars.FindAsync(user.AvatarId);
+        if (avatar is null)
+            return new Result();
+
+        var documentId = avatar.DocumentId;
         user.AvatarId = null;
-        context.Avatars.Remove(user.Avatar!);
+        user.Avatar = null;
+        context.Users.Update(user);
+        context.Avatars.Remove(avatar);
         await context.SaveChangesAsync();
         return await documentService.RemoveDocumentAsync(documentId);
     }

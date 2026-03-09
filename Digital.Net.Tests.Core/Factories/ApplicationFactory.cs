@@ -36,6 +36,7 @@ public class ApplicationFactory : WebApplicationFactory<DigitalProgram>
             { AppSettings.DomainKey, "domain.test" },
             { AppSettings.ConnectionStringKey, $"Data Source={dbPath}" },
             { AppSettings.UseSqliteKey, "true" },
+            { AppSettings.FileSystemPathKey, ".test_storage" },
             { "Logging:LogLevel:Default", "None" },
             { "Logging:LogLevel:Microsoft", "None" }
         };

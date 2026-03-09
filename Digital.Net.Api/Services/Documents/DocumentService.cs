@@ -103,7 +103,12 @@ public class DocumentService(
         result.Value = new Document(uploader, file);
         await context.Documents.AddAsync(result.Value);
 
-        await using var stream = new FileStream(GetDocumentPath(result.Value), FileMode.Create);
+        var fullPath = Path.GetFullPath(GetDocumentPath(result.Value));
+        var dir = Path.GetDirectoryName(fullPath);
+        if (dir is not null && !Directory.Exists(dir))
+            Directory.CreateDirectory(dir);
+
+        await using var stream = new FileStream(fullPath, FileMode.Create);
         await file.CopyToAsync(stream);
 
         await context.SaveChangesAsync();

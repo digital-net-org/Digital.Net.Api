@@ -22,4 +22,10 @@ public static class UserApi
     ) =>
         await client.PutAsJsonAsync($"{BaseUrl}/self/password",
             new UserPasswordUpdatePayload { CurrentPassword = currentPassword, NewPassword = newPassword });
+
+    public static async Task<HttpResponseMessage> UpdateAvatar(this HttpClient client, MultipartFormDataContent content) =>
+        await client.PutAsync($"{BaseUrl}/self/avatar", content);
+
+    public static async Task<HttpResponseMessage> RemoveAvatar(this HttpClient client) =>
+        await client.DeleteAsync($"{BaseUrl}/self/avatar");
 }

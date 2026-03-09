@@ -4,6 +4,7 @@
 
 */**/bin
 */**/obj
+*/**/.test_storage
 
 out/
 release/
