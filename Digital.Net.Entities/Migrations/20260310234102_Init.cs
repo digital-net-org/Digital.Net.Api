@@ -6,29 +6,13 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Digital.Net.Entities.Migrations
 {
     /// <inheritdoc />
-    public partial class InitDb : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.EnsureSchema(
                 name: "digital_net");
-
-            migrationBuilder.CreateTable(
-                name: "ApplicationOption",
-                schema: "digital_net",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Key = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
-                    Value = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ApplicationOption", x => x.Id);
-                });
 
             migrationBuilder.CreateTable(
                 name: "Page",
@@ -41,7 +25,7 @@ namespace Digital.Net.Entities.Migrations
                     Path = table.Column<string>(type: "character varying(2068)", maxLength: 2068, nullable: false),
                     IsPublished = table.Column<bool>(type: "boolean", nullable: false),
                     IsIndexed = table.Column<bool>(type: "boolean", nullable: false),
-                    PuckData = table.Column<string>(type: "text", nullable: true),
+                    JsonLd = table.Column<string>(type: "character varying(65535)", maxLength: 65535, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
@@ -51,23 +35,22 @@ namespace Digital.Net.Entities.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PageMeta",
+                name: "PageOpenGraph",
                 schema: "digital_net",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
-                    Property = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
-                    Content = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    Property = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    Content = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: false),
                     PageId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PageMeta", x => x.Id);
+                    table.PrimaryKey("PK_PageOpenGraph", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_PageMeta_Page_PageId",
+                        name: "FK_PageOpenGraph_Page_PageId",
                         column: x => x.PageId,
                         principalSchema: "digital_net",
                         principalTable: "Page",
@@ -81,6 +64,7 @@ namespace Digital.Net.Entities.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
                     Key = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
                     ExpiredAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
@@ -139,6 +123,7 @@ namespace Digital.Net.Entities.Migrations
                     Password = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     Login = table.Column<string>(type: "character varying(24)", maxLength: 24, nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    IsAdmin = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
@@ -208,29 +193,6 @@ namespace Digital.Net.Entities.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "PageAsset",
-                schema: "digital_net",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Path = table.Column<string>(type: "character varying(2068)", maxLength: 2068, nullable: false),
-                    DocumentId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PageAsset", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PageAsset_Document_DocumentId",
-                        column: x => x.DocumentId,
-                        principalSchema: "digital_net",
-                        principalTable: "Document",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_ApiKey_Key",
                 schema: "digital_net",
@@ -239,23 +201,17 @@ namespace Digital.Net.Entities.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_ApiKey_UserId",
+                name: "IX_ApiKey_UserId_Name",
                 schema: "digital_net",
                 table: "ApiKey",
-                column: "UserId");
+                columns: new[] { "UserId", "Name" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ApiToken_UserId",
                 schema: "digital_net",
                 table: "ApiToken",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ApplicationOption_Id",
-                schema: "digital_net",
-                table: "ApplicationOption",
-                column: "Id",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Avatar_DocumentId",
@@ -290,22 +246,9 @@ namespace Digital.Net.Entities.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_PageAsset_DocumentId",
+                name: "IX_PageOpenGraph_PageId",
                 schema: "digital_net",
-                table: "PageAsset",
-                column: "DocumentId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PageAsset_Path",
-                schema: "digital_net",
-                table: "PageAsset",
-                column: "Path",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PageMeta_PageId",
-                schema: "digital_net",
-                table: "PageMeta",
+                table: "PageOpenGraph",
                 column: "PageId");
 
             migrationBuilder.CreateIndex(
@@ -369,19 +312,11 @@ namespace Digital.Net.Entities.Migrations
                 schema: "digital_net");
 
             migrationBuilder.DropTable(
-                name: "ApplicationOption",
-                schema: "digital_net");
-
-            migrationBuilder.DropTable(
                 name: "Event",
                 schema: "digital_net");
 
             migrationBuilder.DropTable(
-                name: "PageAsset",
-                schema: "digital_net");
-
-            migrationBuilder.DropTable(
-                name: "PageMeta",
+                name: "PageOpenGraph",
                 schema: "digital_net");
 
             migrationBuilder.DropTable(

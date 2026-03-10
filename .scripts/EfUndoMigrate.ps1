@@ -5,7 +5,7 @@ $ErrorActionPreference = "Stop"
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $rootDir = Split-Path -Parent $scriptDir
 $appSettingsPath = Join-Path $rootDir "Digital.Net.Tests.Program" "appsettings.Development.json"
-$entitiesProject = Join-Path $rootDir "Digital.Net.Api.Entities"
+$entitiesProject = Join-Path $rootDir "Digital.Net.Entities"
 $startupProject = Join-Path $rootDir "Digital.Net.Tests.Program"
 
 if (-not (Test-Path $appSettingsPath)) {
@@ -27,7 +27,7 @@ Write-Host "Connection: $connectionString" -ForegroundColor DarkGray
 dotnet ef migrations remove `
     --project $entitiesProject `
     --startup-project $startupProject `
-    --connection $connectionString
+    -- $connectionString
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "Last migration reverted successfully." -ForegroundColor Green

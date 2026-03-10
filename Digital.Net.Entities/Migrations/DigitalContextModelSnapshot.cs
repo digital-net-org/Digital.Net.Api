@@ -47,6 +47,12 @@ namespace Digital.Net.Entities.Migrations
                         .HasColumnType("character varying(64)")
                         .HasColumnName("Key");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("Name");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("UpdatedAt");
@@ -60,7 +66,8 @@ namespace Digital.Net.Entities.Migrations
                     b.HasIndex("Key")
                         .IsUnique();
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "Name")
+                        .IsUnique();
 
                     b.ToTable("ApiKey", "digital_net");
                 });

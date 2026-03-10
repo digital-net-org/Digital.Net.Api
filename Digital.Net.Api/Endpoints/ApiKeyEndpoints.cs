@@ -21,7 +21,7 @@ public static class ApiKeyEndpoints
     {
         var group = app
             .MapGroup("/user/self/api-key")
-            .WithTags("ApiKey")
+            .WithTags("User")
             .RequireRateLimiting(GlobalLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt);
 
