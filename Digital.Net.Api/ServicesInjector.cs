@@ -1,3 +1,4 @@
+using Digital.Net.Api.Services.ApiKeys;
 using Digital.Net.Api.Services.Auditing;
 using Digital.Net.Api.Services.Authentication;
 using Digital.Net.Api.Services.Documents;
@@ -15,6 +16,7 @@ public static class ServicesInjector
     public static IServiceCollection AddDigitalServices(this IServiceCollection services)
     {
         services
+            .AddDigitalApiKeyServices()
             .AddDigitalAuditingServices()
             .AddDigitalAuthenticationServices()
             .AddDigitalUserServices()

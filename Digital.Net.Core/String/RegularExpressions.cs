@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 
 namespace Digital.Net.Core.String;
 
@@ -22,6 +22,11 @@ public static partial class RegularExpressions
     public const string PasswordPattern = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{12,128}$";
 
     public static Regex Password => PasswordRegex();
+
+    [GeneratedRegex(ApiKeyNamePattern)]
+    private static partial Regex ApiKeyNameRegex();
+    public const string ApiKeyNamePattern = @"^[a-zA-Z0-9 _-]{1,64}$";
+    public static Regex ApiKeyName => ApiKeyNameRegex();
 
     [GeneratedRegex("(?<!^)([A-Z])")]
     public static partial Regex PascalCase();

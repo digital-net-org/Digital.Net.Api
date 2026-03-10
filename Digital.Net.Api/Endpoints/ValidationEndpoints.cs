@@ -40,6 +40,12 @@ public static class ValidationEndpoints
             .WithSummary("GetAvatarSizeLimit")
             .WithDescription("Get the maximum allowed size for avatar images in bytes.");
 
+        controller
+            .MapGet("/pattern/api-key-name", () => TypedResults.Ok(RegularExpressions.ApiKeyNamePattern))
+            .RequireAuthentication(AuthorizeType.Any)
+            .WithSummary("GetApiKeyNamePattern")
+            .WithDescription("Get the API key name pattern as a string. This is designed to validate API key names.");
+
         return app;
     }
 }

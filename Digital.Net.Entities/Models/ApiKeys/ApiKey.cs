@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Security.Cryptography;
 using System.Text;
 using Digital.Net.Core.Random;
+using Digital.Net.Core.String;
 using Digital.Net.Entities.Attributes;
 using Digital.Net.Entities.Models.Users;
 using Microsoft.EntityFrameworkCore;
@@ -11,13 +12,20 @@ namespace Digital.Net.Entities.Models.ApiKeys;
 
 [Table("ApiKey")]
 [Index(nameof(Key), IsUnique = true)]
-public class ApiKey(Guid userId, string? key = null, DateTime? expiredAt = null) : Entity
+[Index(nameof(UserId), nameof(Name), IsUnique = true)]
+public class ApiKey(Guid userId, string name, string? key = null, DateTime? expiredAt = null) : Entity
 {
     public static string Hash(string apiKey)
     {
         var hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(apiKey));
         return Convert.ToBase64String(hashBytes);
     }
+
+    [Column("Name")]
+    [MaxLength(64)]
+    [Required]
+    [RegexValidation(RegularExpressions.ApiKeyNamePattern)]
+    public string Name { get; set; } = name;
 
     [Column("Key")]
     [MaxLength(64)]

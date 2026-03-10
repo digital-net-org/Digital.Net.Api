@@ -24,7 +24,7 @@ public class DevelopmentSeed(
         if (result.HasError)
             throw new Exception(result.Errors.First().Message);
 
-        foreach (var apiKey in result.Value!.Select(user => new ApiKey(user.Id, GenerateApiKey(user))))
+        foreach (var apiKey in result.Value!.Select(user => new ApiKey(user.Id, $"dev-{user.Login.ToLower()}", GenerateApiKey(user))))
             await context.ApiKeys.AddAsync(apiKey);
         await context.SaveChangesAsync();
     }

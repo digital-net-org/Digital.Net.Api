@@ -66,7 +66,7 @@ public class ApiKeyAuthorizationTest
         var user = Application.CreateUser();
         
         var context = Application.GetContext();
-        await context.ApiKeys.AddAsync(new ApiKey(user.Id, key, expiry));
+        await context.ApiKeys.AddAsync(new ApiKey(user.Id, "test-key", key, expiry));
         await context.SaveChangesAsync();
 
         client.DefaultRequestHeaders.Add(header ?? AuthenticationStaticOptions.ApiKeyHeaderAccessor, key);

@@ -36,7 +36,7 @@ public class TestSeed(
             ]
         );
 
-        await context.ApiKeys.AddAsync(new ApiKey(result.Value!.First().Id, TestAdminApiKey));
+        await context.ApiKeys.AddAsync(new ApiKey(result.Value!.First().Id, "admin-key", TestAdminApiKey));
         await context.SaveChangesAsync();
     }
 
