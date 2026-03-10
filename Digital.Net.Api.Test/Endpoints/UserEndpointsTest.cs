@@ -3,7 +3,9 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Digital.Net.Api.Endpoints.Dto;
 using Digital.Net.Api.Services.Documents;
+using Digital.Net.Api.Services.Users.Events;
 using Digital.Net.Core.Messages;
+using Digital.Net.Entities.Models.Events;
 using Digital.Net.Entities.Models.Users;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data;
@@ -107,6 +109,88 @@ public class UserEndpointsTest
     }
 
     [Test]
+    public async Task PatchSelf_ShouldCreateAuditEvent_WhenUsernameUpdated()
+    {
+        var (user, client) = await CreateAuthenticatedUserAsync();
+
+        var patch = new[] { new { op = "replace", path = "/Username", value = "AuditUser" } };
+        var response = await client.PatchSelf(patch);
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+
+        var auditEvent = await Application.GetContext().Events
+            .Where(e => e.UserId == user.Id && e.Name == UserEvents.UpdateProfile)
+            .OrderByDescending(e => e.CreatedAt)
+            .FirstAsync();
+
+        await Assert.That(auditEvent.State).EqualTo(EventState.Success);
+        await Assert.That(auditEvent.Payload).Contains("Username");
+    }
+
+    [Test]
+    public async Task PatchSelf_ShouldCreateAuditEvent_WhenEmailUpdated()
+    {
+        var (user, client) = await CreateAuthenticatedUserAsync();
+
+        var patch = new[] { new { op = "replace", path = "/Email", value = "auditemail@test.com" } };
+        var response = await client.PatchSelf(patch);
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+
+        var auditEvent = await Application.GetContext().Events
+            .Where(e => e.UserId == user.Id && e.Name == UserEvents.UpdateProfile)
+            .OrderByDescending(e => e.CreatedAt)
+            .FirstAsync();
+
+        await Assert.That(auditEvent.State).EqualTo(EventState.Success);
+        await Assert.That(auditEvent.Payload).Contains("Email");
+    }
+
+    [Test]
+    public async Task PatchSelf_ShouldCreateFailedAuditEvent_WhenReadOnlyFieldPatched()
+    {
+        var (user, client) = await CreateAuthenticatedUserAsync();
+
+        var patch = new[] { new { op = "replace", path = "/IsAdmin", value = "true" } };
+        await client.PatchSelf(patch);
+
+        var auditEvent = await Application.GetContext().Events
+            .Where(e => e.UserId == user.Id && e.Name == UserEvents.UpdateProfile)
+            .OrderByDescending(e => e.CreatedAt)
+            .FirstAsync();
+
+        await Assert.That(auditEvent.State).EqualTo(EventState.Failed);
+        await Assert.That(auditEvent.HasError).IsTrue();
+    }
+
+    [Test]
+    public async Task PatchSelf_ShouldRejectInvalidEmail()
+    {
+        var (_, client) = await CreateAuthenticatedUserAsync();
+
+        var patch = new[] { new { op = "replace", path = "/Email", value = "not-an-email" } };
+        var response = await client.PatchSelf(patch);
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task PatchSelf_ShouldRejectDuplicateEmail()
+    {
+        var (_, client) = await CreateAuthenticatedUserAsync();
+        var otherUser = Application.CreateUser(new TestUserPayload
+        {
+            IsActive = true,
+            Email = "taken@test.com"
+        });
+
+        var patch = new[] { new { op = "replace", path = "/Email", value = otherUser.Email } };
+        var response = await client.PatchSelf(patch);
+
+        await Assert.That(response.StatusCode).IsNotEqualTo(HttpStatusCode.OK);
+    }
+
+    [Test]
     public async Task UpdatePassword_ShouldUpdatePassword()
     {
         var (user, client) = await CreateAuthenticatedUserAsync();
@@ -120,6 +204,50 @@ public class UserEndpointsTest
         var loginResponse = await loginClient.Login(user.Login, newPassword);
 
         await Assert.That(loginResponse.StatusCode).EqualTo(HttpStatusCode.OK);
+    }
+
+    [Test]
+    public async Task UpdatePassword_ShouldCreateAuditEvent_WhenSuccessful()
+    {
+        var (user, client) = await CreateAuthenticatedUserAsync();
+        const string newPassword = "NewPassword123!";
+
+        var response = await client.UpdatePassword(TestUserFactory.TestUserPassword, newPassword);
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+
+        var auditEvent = await Application.GetContext().Events
+            .Where(e => e.UserId == user.Id && e.Name == UserEvents.UpdatePassword)
+            .OrderByDescending(e => e.CreatedAt)
+            .FirstAsync();
+
+        await Assert.That(auditEvent.State).EqualTo(EventState.Success);
+        await Assert.That(auditEvent.HasError).IsFalse();
+    }
+
+    [Test]
+    public async Task UpdatePassword_ShouldCreateAuditEvent_WhenFailed()
+    {
+        var (user, client) = await CreateAuthenticatedUserAsync();
+
+        var response = await client.UpdatePassword("WrongPassword!", "NewPassword123!");
+        await Assert.That(response.StatusCode).IsNotEqualTo(HttpStatusCode.OK);
+
+        var auditEvent = await Application.GetContext().Events
+            .Where(e => e.UserId == user.Id && e.Name == UserEvents.UpdatePassword)
+            .OrderByDescending(e => e.CreatedAt)
+            .FirstAsync();
+
+        await Assert.That(auditEvent.State).EqualTo(EventState.Failed);
+        await Assert.That(auditEvent.HasError).IsTrue();
+    }
+
+    [Test]
+    public async Task UpdatePassword_ShouldRejectWeakPassword()
+    {
+        var (_, client) = await CreateAuthenticatedUserAsync();
+
+        var response = await client.UpdatePassword(TestUserFactory.TestUserPassword, "weak");
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.BadRequest);
     }
 
     private static MultipartFormDataContent CreateValidAvatarPayload()

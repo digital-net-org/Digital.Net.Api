@@ -1,17 +1,20 @@
 using System.Text.Json;
 using Digital.Net.Api.Endpoints.Dto;
 using Digital.Net.Api.RateLimiter.Limiters;
+using Digital.Net.Api.Services.Auditing;
 using Digital.Net.Api.Services.Authentication;
 using Digital.Net.Api.Services.Authentication.Exceptions;
 using Digital.Net.Api.Services.Authentication.Filters;
 using Digital.Net.Api.Services.Documents;
 using Digital.Net.Api.Services.Documents.Exceptions;
 using Digital.Net.Api.Services.Users;
+using Digital.Net.Api.Services.Users.Events;
 using Digital.Net.Core.Formatters;
 using Digital.Net.Core.Messages;
 using Digital.Net.Entities.Crud;
 using Digital.Net.Entities.Crud.Enpoints;
 using Digital.Net.Entities.Exceptions;
+using Digital.Net.Entities.Models.Events;
 using Digital.Net.Entities.Models.Users;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -80,21 +83,40 @@ public static class UserEndpoints
         [FromBody]
         JsonElement patch,
         ICrudService<User> crudService,
+        IAuditService auditService,
         IUserContextService userContextService
     )
     {
         var userId = userContextService.GetUserId();
         var result = await crudService.Patch(patch.GetPatchDocument<User>(), userId);
 
+        Func<EventState, Task> registerEvent = async (state) =>
+        {
+            await auditService.RegisterEventAsync(
+                UserEvents.UpdateProfile,
+                state,
+                result,
+                userId,
+                patch.ToString()
+            );
+        };
+
         if (result.HasError && (
                 result.HasErrorOfType<InvalidOperationException>()
                 || result.HasErrorOfType<EntityValidationException>()
             ))
+        {
+            await registerEvent(EventState.Failed);
             return TypedResults.BadRequest(result);
+        }
 
         if (result.HasError)
+        {
+            await registerEvent(EventState.Failed);
             return TypedResults.InternalServerError(result);
+        }
 
+        await registerEvent(EventState.Success);
         return TypedResults.Ok(result);
     }
 

@@ -1,14 +1,17 @@
+using Digital.Net.Api.Services.Auditing;
 using Digital.Net.Api.Services.Authentication.Exceptions;
 using Digital.Net.Api.Services.Authentication.Utils;
 using Digital.Net.Api.Services.Documents;
 using Digital.Net.Api.Services.Documents.Exceptions;
 using Digital.Net.Api.Services.Documents.Extensions;
+using Digital.Net.Api.Services.Users.Events;
 using Digital.Net.Core.Messages;
 using Digital.Net.Core.Settings;
 using Digital.Net.Core.String;
 using Digital.Net.Entities.Context;
 using Digital.Net.Entities.Models.Avatars;
 using Digital.Net.Entities.Models.Documents;
+using Digital.Net.Entities.Models.Events;
 using Digital.Net.Entities.Models.Users;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -17,21 +20,41 @@ namespace Digital.Net.Api.Services.Users;
 
 public class UserService(
     IDocumentService documentService,
+    IAuditService auditService,
     DigitalContext context
 ) : IUserService
 {
     public async Task<Result> UpdatePasswordAsync(User user, string currentPassword, string newPassword)
     {
         var result = new Result();
+        Func<EventState, Task> registerEvent = async (state) =>
+        {
+            await auditService.RegisterEventAsync(
+                UserEvents.UpdatePassword,
+                state,
+                result,
+                user.Id
+            );
+        };
 
         if (!PasswordUtils.VerifyPassword(user, currentPassword))
-            return result.AddError(new InvalidCredentialsException());
+        {
+            result.AddError(new InvalidCredentialsException());
+            await registerEvent(EventState.Failed);
+            return result;
+        }
+
         if (!RegularExpressions.Password.IsMatch(newPassword))
-            return result.AddError(new PasswordMalformedException());
+        {
+            result.AddError(new PasswordMalformedException());
+            await registerEvent(EventState.Failed);
+            return result;
+        }
 
         user.Password = PasswordUtils.HashPassword(newPassword);
         context.Users.Update(user);
         await context.SaveChangesAsync();
+        await registerEvent(EventState.Success);
         return result;
     }
 
