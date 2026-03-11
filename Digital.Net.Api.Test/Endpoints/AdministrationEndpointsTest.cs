@@ -1,12 +1,15 @@
 using System.Net;
 using System.Net.Http.Json;
 using Digital.Net.Api.Endpoints.Dto;
+using Digital.Net.Api.Services.Users.Events;
 using Digital.Net.Core.Messages;
 using Digital.Net.Entities.Crud.Enpoints;
+using Digital.Net.Entities.Models.Events;
 using Digital.Net.Entities.Models.Users;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data.Records;
 using Digital.Net.Tests.Core.Sdk;
+using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Api.Test.Endpoints;
 
@@ -48,19 +51,70 @@ public class AdministrationEndpointsTest
     }
 
     [Test]
-    public async Task CreateUser_ShouldReturnBadRequest_WhenPasswordIsMissing()
+    public async Task CreateUser_ShouldCreateUser()
     {
         var (_, client) = await CreateTestAdminAsync();
         var payload = new UserPayload
         {
-            Username = "TestCreateUser",
-            Login = "testcreate",
-            Email = "testcreate@test.com"
+            Username = "NewTestUser",
+            Login = "newtestuser",
+            Email = "newuser@test.com",
+            Password = "ValidPassword123!"
+        };
+
+        var response = await client.CreateUser(payload);
+        var result = await response.Content.ReadFromJsonAsync<Result<Guid>>();
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+        await Assert.That(result!.Value).IsNotEqualTo(Guid.Empty);
+
+        var createdUser = await Application.GetContext().Users.FindAsync(result.Value);
+        await Assert.That(createdUser).IsNotNull();
+        await Assert.That(createdUser!.Username).IsEqualTo("NewTestUser");
+        await Assert.That(createdUser.Email).IsEqualTo("newuser@test.com");
+        await Assert.That(createdUser.Login).IsEqualTo("newtestuser");
+        await Assert.That(createdUser.IsActive).IsFalse();
+        await Assert.That(createdUser.IsAdmin).IsFalse();
+    }
+
+    [Test]
+    public async Task CreateUser_ShouldReturnBadRequest_WhenPasswordMalformed()
+    {
+        var (_, client) = await CreateTestAdminAsync();
+        var payload = new UserPayload
+        {
+            Username = "TestMalformed",
+            Login = "testmalformed",
+            Email = "malformed@test.com",
+            Password = "weak"
         };
 
         var response = await client.CreateUser(payload);
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task CreateUser_ShouldGenerateAuditEvent()
+    {
+        var (admin, client) = await CreateTestAdminAsync();
+        var payload = new UserPayload
+        {
+            Username = "AuditTestUser",
+            Login = "audittestuser",
+            Email = "audit@test.com",
+            Password = "ValidPassword123!"
+        };
+
+        var response = await client.CreateUser(payload);
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+
+        var auditEvent = await Application.GetContext().Events
+            .Where(e => e.UserId == admin.Id && e.Name == UserEvents.CreateUser)
+            .OrderByDescending(e => e.CreatedAt)
+            .FirstAsync();
+
+        await Assert.That(auditEvent.State).EqualTo(EventState.Success);
     }
 
     [Test]

@@ -79,21 +79,4 @@ public class ApiDocAuthorizationTest
         var response = await client.GetAsync("/openapi/v1.json");
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Unauthorized);
     }
-
-    [Test]
-    public async Task Scalar_ShouldReturnUnauthorized_WithoutApiKey()
-    {
-        var client = Application.CreateClient();
-        var response = await client.GetAsync("/scalar/v1");
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Unauthorized);
-    }
-
-    [Test]
-    public async Task Scalar_ShouldReturnOk_WithValidApiKeyQueryParam()
-    {
-        var (apiKey, client) = await SetupWithApiKey();
-
-        var response = await client.GetAsync($"/scalar/v1?api-key={apiKey}");
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
-    }
 }

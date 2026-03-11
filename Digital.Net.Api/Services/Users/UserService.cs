@@ -109,6 +109,29 @@ public class UserService(
         return result;
     }
 
+    public async Task<Result<Guid>> CreateUserAsync(string username, string login, string email, string password)
+    {
+        var result = new Result<Guid>();
+
+        if (!RegularExpressions.Password.IsMatch(password))
+            return result.AddError(new PasswordMalformedException());
+
+        var user = new User
+        {
+            Username = username,
+            Login = login,
+            Email = email,
+            Password = PasswordUtils.HashPassword(password),
+            IsActive = false,
+            IsAdmin = false
+        };
+
+        await context.Users.AddAsync(user);
+        await context.SaveChangesAsync();
+        result.Value = user.Id;
+        return result;
+    }
+
     private async Task<Result<Document>> SaveAvatarAsync(Result<Document> result, User user)
     {
         try

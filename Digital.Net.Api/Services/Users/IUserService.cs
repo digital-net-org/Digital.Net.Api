@@ -11,4 +11,5 @@ public interface IUserService
     Task<Result> UpdateAvatar(User user, IFormFile form);
     Task<Result> RemoveUserAvatar(User user);
     Task<Result<Document>> GetUserAvatarDocumentAsync(Guid userId);
+    Task<Result<Guid>> CreateUserAsync(string username, string login, string email, string password);
 }
