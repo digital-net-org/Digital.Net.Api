@@ -5,6 +5,8 @@ using Digital.Net.Api.Services.Documents;
 using Digital.Net.Api.Services.Documents.Exceptions;
 using Digital.Net.Api.Services.Documents.Extensions;
 using Digital.Net.Api.Services.Users.Events;
+using Digital.Net.Api.Services.Users.Exceptions;
+using Digital.Net.Core.Exceptions.types;
 using Digital.Net.Core.Messages;
 using Digital.Net.Core.Settings;
 using Digital.Net.Core.String;
@@ -129,6 +131,23 @@ public class UserService(
         await context.Users.AddAsync(user);
         await context.SaveChangesAsync();
         result.Value = user.Id;
+        return result;
+    }
+
+    public async Task<Result> DeleteUserAsync(Guid userId)
+    {
+        var result = new Result();
+        var user = await context.Users.FindAsync(userId);
+
+        if (user is null)
+            return result.AddError(new ResourceNotFoundException());
+
+        if (user.IsAdmin)
+            return result.AddError(new CannotDeleteAdminException());
+
+        await RemoveUserAvatar(user);
+        context.Users.Remove(user);
+        await context.SaveChangesAsync();
         return result;
     }
 

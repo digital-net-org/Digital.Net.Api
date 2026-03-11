@@ -3,6 +3,8 @@ Unless specified otherwise, do not try to run or create migrations. If you still
 - `.scripts/EfMigrate.ps1`
 - `.scripts/EfUndoMigrate.ps1`
 
+Integration tests uses SQLite, no migration are needed in the development phase.
+
 ## Running tests
 The project uses **[TUnit](https://tunit.dev/docs)** (not xUnit, not NUnit).
 

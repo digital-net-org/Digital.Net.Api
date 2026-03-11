@@ -19,4 +19,13 @@ public static class AdministrationApi
 
     public static async Task<HttpResponseMessage> CreateUser(this HttpClient client, UserPayload payload) =>
         await client.PostAsJsonAsync($"{BaseUrl}/user", payload);
+
+    public static async Task<HttpResponseMessage> DeleteUser(this HttpClient client, Guid userId, UserDeletePayload payload)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Delete, $"{BaseUrl}/user/{userId}")
+        {
+            Content = JsonContent.Create(payload)
+        };
+        return await client.SendAsync(request);
+    }
 }

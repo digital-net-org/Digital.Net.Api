@@ -25,7 +25,7 @@ public class Event : Entity
     public string Name { get; init; } = string.Empty;
 
     [Column("Payload")]
-    [MaxLength(64)]
+    [MaxLength(4096)]
     public string? Payload { get; init; } = string.Empty;
 
     [Column("UserAgent")]

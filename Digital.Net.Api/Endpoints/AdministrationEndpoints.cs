@@ -1,11 +1,16 @@
 using System.Linq.Expressions;
+using System.Text.Json;
 using Digital.Net.Api.Endpoints.Dto;
 using Digital.Net.Api.RateLimiter.Limiters;
 using Digital.Net.Api.Services.Auditing;
 using Digital.Net.Api.Services.Authentication;
 using Digital.Net.Api.Services.Authentication.Filters;
+using Digital.Net.Api.Services.Authentication.Utils;
 using Digital.Net.Api.Services.Users;
 using Digital.Net.Api.Services.Users.Events;
+using Digital.Net.Api.Services.Users.Events.Types;
+using Digital.Net.Api.Services.Users.Exceptions;
+using Digital.Net.Core.Exceptions.types;
 using Digital.Net.Core.Messages;
 using Digital.Net.Core.Predicates;
 using Digital.Net.Entities.Crud.Enpoints;
@@ -45,6 +50,11 @@ public static class AdministrationEndpoints
             .WithSummary("CreateUser")
             .WithDescription("Creates a new user with the provided information.");
 
+        controller
+            .MapDelete("user/{id:guid}", DeleteUser)
+            .WithSummary("DeleteUser")
+            .WithDescription("Deletes a user after admin password confirmation. Admin users cannot be deleted.");
+
         return app;
     }
 
@@ -70,16 +80,64 @@ public static class AdministrationEndpoints
             UserEvents.CreateUser,
             EventState.Success,
             result,
-            userContextService.GetUserId()
+            userContextService.GetUserId(),
+            JsonSerializer.Serialize(new AdminUserMutationEvent(payload, result.Value))
         );
         return TypedResults.Ok(result);
     }
 
-    private static Expression<Func<User, bool>>
-        PaginationFilter(
-            this Expression<Func<User, bool>> predicate,
-            UserQuery query
+    private static async
+        Task<Results<
+            Ok<Result>,
+            BadRequest<Result>,
+            NotFound<Result>,
+            InternalServerError<Result>,
+            StatusCodeHttpResult,
+            UnauthorizedHttpResult>>
+        DeleteUser(
+            Guid id,
+            [FromBody]
+            UserDeletePayload payload,
+            IUserService userService,
+            IUserContextService userContextService,
+            IAuditService auditService
         )
+    {
+        var admin = userContextService.GetUser();
+
+        if (!PasswordUtils.VerifyPassword(admin, payload.Password))
+            return TypedResults.Unauthorized();
+
+        var result = await userService.DeleteUserAsync(id);
+
+        Func<EventState, Task> registerEvent = async state =>
+            await auditService.RegisterEventAsync(
+                UserEvents.DeleteUser,
+                state,
+                result,
+                admin.Id,
+                JsonSerializer.Serialize(new AdminUserMutationEvent { Id = id })
+            );
+
+        if (result.HasErrorOfType<CannotDeleteAdminException>())
+        {
+            await registerEvent(EventState.Failed);
+            return TypedResults.StatusCode(403);
+        }
+
+        if (result.HasErrorOfType<ResourceNotFoundException>())
+            return TypedResults.NotFound(result);
+        if (result.HasError)
+            return TypedResults.InternalServerError(result);
+
+        await registerEvent(EventState.Success);
+        return TypedResults.Ok(result);
+    }
+
+    private static Expression<Func<User, bool>> PaginationFilter(
+        this Expression<Func<User, bool>> predicate,
+        UserQuery query
+    )
     {
         if (!string.IsNullOrEmpty(query.Username))
             predicate = predicate.Add(x => x.Username.StartsWith(query.Username));
