@@ -347,4 +347,91 @@ public class AdministrationEndpointsTest
         await Assert.That(eventPayload).IsNotNull();
         await Assert.That(eventPayload!.Id).IsEqualTo(adminTarget.Id);
     }
+
+    [Test]
+    public async Task UpdateUserRole_ShouldPromoteToAdmin()
+    {
+        var (_, client) = await CreateTestAdminAsync();
+        var targetUser = Application.CreateUser(new TestUserPayload { IsActive = true });
+        var payload = new UserRolePayload { IsAdmin = true, Password = TestUserFactory.TestUserPassword };
+
+        var response = await client.UpdateUserRole(targetUser.Id, payload);
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+
+        var updatedUser = await Application.GetContext().Users
+            .AsNoTracking()
+            .FirstAsync(u => u.Id == targetUser.Id);
+        await Assert.That(updatedUser.IsAdmin).IsTrue();
+    }
+
+    [Test]
+    public async Task UpdateUserRole_ShouldReturnForbidden_WhenDemotingAdmin()
+    {
+        var (_, client) = await CreateTestAdminAsync();
+        var adminTarget = Application.CreateUser(new TestUserPayload { IsActive = true, IsAdmin = true });
+        var payload = new UserRolePayload { IsAdmin = false, Password = TestUserFactory.TestUserPassword };
+
+        var response = await client.UpdateUserRole(adminTarget.Id, payload);
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Forbidden);
+    }
+
+    [Test]
+    public async Task UpdateUserRole_ShouldReturnUnauthorized_WhenPasswordInvalid()
+    {
+        var (_, client) = await CreateTestAdminAsync();
+        var targetUser = Application.CreateUser();
+        var payload = new UserRolePayload { IsAdmin = true, Password = "WrongPassword123!" };
+
+        var response = await client.UpdateUserRole(targetUser.Id, payload);
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Unauthorized);
+    }
+
+    [Test]
+    public async Task UpdateUserRole_ShouldGenerateAuditEvent()
+    {
+        var (admin, client) = await CreateTestAdminAsync();
+        var targetUser = Application.CreateUser(new TestUserPayload { IsActive = true });
+        var payload = new UserRolePayload { IsAdmin = true, Password = TestUserFactory.TestUserPassword };
+
+        var response = await client.UpdateUserRole(targetUser.Id, payload);
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+
+        var auditEvent = await Application.GetContext().Events
+            .Where(e => e.UserId == admin.Id && e.Name == UserEvents.UpdateUserRole && !e.HasError)
+            .OrderByDescending(e => e.CreatedAt)
+            .FirstAsync();
+
+        await Assert.That(auditEvent.State).EqualTo(EventState.Success);
+        await Assert.That(auditEvent.Payload).IsNotNull();
+
+        var eventPayload = JsonSerializer.Deserialize<AdminUserMutationEvent>(auditEvent.Payload!);
+        await Assert.That(eventPayload).IsNotNull();
+        await Assert.That(eventPayload!.Id).IsEqualTo(targetUser.Id);
+    }
+
+    [Test]
+    public async Task UpdateUserRole_ShouldGenerateSecurityEvent_WhenDemotingAdmin()
+    {
+        var (admin, client) = await CreateTestAdminAsync();
+        var adminTarget = Application.CreateUser(new TestUserPayload { IsActive = true, IsAdmin = true });
+        var payload = new UserRolePayload { IsAdmin = false, Password = TestUserFactory.TestUserPassword };
+
+        var response = await client.UpdateUserRole(adminTarget.Id, payload);
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Forbidden);
+
+        var securityEvent = await Application.GetContext().Events
+            .Where(e => e.UserId == admin.Id && e.Name == UserEvents.UpdateUserRole && e.HasError)
+            .OrderByDescending(e => e.CreatedAt)
+            .FirstAsync();
+
+        await Assert.That(securityEvent.State).EqualTo(EventState.Failed);
+        await Assert.That(securityEvent.Payload).IsNotNull();
+
+        var eventPayload = JsonSerializer.Deserialize<AdminUserMutationEvent>(securityEvent.Payload!);
+        await Assert.That(eventPayload).IsNotNull();
+        await Assert.That(eventPayload!.Id).IsEqualTo(adminTarget.Id);
+    }
 }

@@ -60,6 +60,11 @@ public static class AdministrationEndpoints
             .WithSummary("UpdateUserStatus")
             .WithDescription("Activates or deactivates a user. Admin users cannot be deactivated.");
 
+        controller
+            .MapPatch("user/{id:guid}/role", UpdateUserRole)
+            .WithSummary("UpdateUserRole")
+            .WithDescription("Grants or revokes admin privileges. Existing admins cannot be demoted.");
+
         return app;
     }
 
@@ -181,6 +186,53 @@ public static class AdministrationEndpoints
             );
 
         if (result.HasErrorOfType<CannotRevokeAdminException>())
+        {
+            await registerEvent(EventState.Failed);
+            return TypedResults.StatusCode(403);
+        }
+
+        if (result.HasErrorOfType<ResourceNotFoundException>())
+            return TypedResults.NotFound(result);
+        if (result.HasError)
+            return TypedResults.InternalServerError(result);
+
+        await registerEvent(EventState.Success);
+        return TypedResults.Ok(result);
+    }
+
+    private static async
+        Task<Results<
+            Ok<Result>,
+            NotFound<Result>,
+            InternalServerError<Result>,
+            StatusCodeHttpResult,
+            UnauthorizedHttpResult>>
+        UpdateUserRole(
+            Guid id,
+            [FromBody]
+            UserRolePayload payload,
+            IUserService userService,
+            IUserContextService userContextService,
+            IAuditService auditService
+        )
+    {
+        var admin = userContextService.GetUser();
+
+        if (!PasswordUtils.VerifyPassword(admin, payload.Password))
+            return TypedResults.Unauthorized();
+
+        var result = await userService.UpdateUserRoleAsync(id, payload.IsAdmin);
+
+        Func<EventState, Task> registerEvent = async state =>
+            await auditService.RegisterEventAsync(
+                UserEvents.UpdateUserRole,
+                state,
+                result,
+                admin.Id,
+                JsonSerializer.Serialize(new AdminUserMutationEvent { Id = id })
+            );
+
+        if (result.HasErrorOfType<CannotDemoteAdminException>())
         {
             await registerEvent(EventState.Failed);
             return TypedResults.StatusCode(403);

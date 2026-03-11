@@ -14,4 +14,5 @@ public interface IUserService
     Task<Result<Guid>> CreateUserAsync(string username, string login, string email, string password);
     Task<Result> DeleteUserAsync(Guid userId);
     Task<Result> UpdateUserStatusAsync(Guid userId, bool isActive);
+    Task<Result> UpdateUserRoleAsync(Guid userId, bool isAdmin);
 }

@@ -37,4 +37,13 @@ public static class AdministrationApi
         };
         return await client.SendAsync(request);
     }
+
+    public static async Task<HttpResponseMessage> UpdateUserRole(this HttpClient client, Guid userId, UserRolePayload payload)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Patch, $"{BaseUrl}/user/{userId}/role")
+        {
+            Content = JsonContent.Create(payload)
+        };
+        return await client.SendAsync(request);
+    }
 }

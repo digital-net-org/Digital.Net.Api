@@ -1,8 +1,8 @@
 # US-ADMIN-05 : Gestion des rôles d'administration
 
 | Statut Backend | Statut Backoffice |
-| :---: | :---: |
-| `TO DO` | `TO DO` |
+|:--------------:| :---: |
+|     `DONE`     | `TO DO` |
 * **En tant que** administrateur
 * **Je veux** pouvoir donner les droits d'administration à un autre utilisateur
 * **Afin de** déléguer la gestion du CMS à d'autres collaborateurs de confiance.

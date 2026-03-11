@@ -168,6 +168,23 @@ public class UserService(
         return result;
     }
 
+    public async Task<Result> UpdateUserRoleAsync(Guid userId, bool isAdmin)
+    {
+        var result = new Result();
+        var user = await context.Users.FindAsync(userId);
+
+        if (user is null)
+            return result.AddError(new ResourceNotFoundException());
+
+        if (user.IsAdmin && !isAdmin)
+            return result.AddError(new CannotDemoteAdminException());
+
+        user.IsAdmin = isAdmin;
+        context.Users.Update(user);
+        await context.SaveChangesAsync();
+        return result;
+    }
+
     private async Task<Result<Document>> SaveAvatarAsync(Result<Document> result, User user)
     {
         try
