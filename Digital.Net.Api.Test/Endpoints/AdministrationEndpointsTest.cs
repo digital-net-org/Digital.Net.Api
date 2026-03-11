@@ -260,4 +260,91 @@ public class AdministrationEndpointsTest
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
         await Assert.That(result!.Value.All(u => u.IsActive == false)).IsTrue();
     }
+
+    [Test]
+    public async Task UpdateUserStatus_ShouldActivateUser()
+    {
+        var (_, client) = await CreateTestAdminAsync();
+        var targetUser = Application.CreateUser(new TestUserPayload { IsActive = false });
+
+        var response = await client.UpdateUserStatus(targetUser.Id, new UserStatusPayload { IsActive = true });
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+
+        var updatedUser = await Application.GetContext().Users
+            .AsNoTracking()
+            .FirstAsync(u => u.Id == targetUser.Id);
+        await Assert.That(updatedUser.IsActive).IsTrue();
+    }
+
+    [Test]
+    public async Task UpdateUserStatus_ShouldDeactivateUser()
+    {
+        var (_, client) = await CreateTestAdminAsync();
+        var targetUser = Application.CreateUser(new TestUserPayload { IsActive = true });
+
+        var response = await client.UpdateUserStatus(targetUser.Id, new UserStatusPayload { IsActive = false });
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+
+        var updatedUser = await Application.GetContext().Users
+            .AsNoTracking()
+            .FirstAsync(u => u.Id == targetUser.Id);
+        await Assert.That(updatedUser.IsActive).IsFalse();
+    }
+
+    [Test]
+    public async Task UpdateUserStatus_ShouldReturnForbidden_WhenDeactivatingAdmin()
+    {
+        var (_, client) = await CreateTestAdminAsync();
+        var adminTarget = Application.CreateUser(new TestUserPayload { IsActive = true, IsAdmin = true });
+
+        var response = await client.UpdateUserStatus(adminTarget.Id, new UserStatusPayload { IsActive = false });
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Forbidden);
+    }
+
+    [Test]
+    public async Task UpdateUserStatus_ShouldGenerateAuditEvent()
+    {
+        var (admin, client) = await CreateTestAdminAsync();
+        var targetUser = Application.CreateUser(new TestUserPayload { IsActive = false });
+
+        var response = await client.UpdateUserStatus(targetUser.Id, new UserStatusPayload { IsActive = true });
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+
+        var auditEvent = await Application.GetContext().Events
+            .Where(e => e.UserId == admin.Id && e.Name == UserEvents.UpdateUserStatus && !e.HasError)
+            .OrderByDescending(e => e.CreatedAt)
+            .FirstAsync();
+
+        await Assert.That(auditEvent.State).EqualTo(EventState.Success);
+        await Assert.That(auditEvent.Payload).IsNotNull();
+
+        var eventPayload = JsonSerializer.Deserialize<AdminUserMutationEvent>(auditEvent.Payload!);
+        await Assert.That(eventPayload).IsNotNull();
+        await Assert.That(eventPayload!.Id).IsEqualTo(targetUser.Id);
+    }
+
+    [Test]
+    public async Task UpdateUserStatus_ShouldGenerateSecurityEvent_WhenDeactivatingAdmin()
+    {
+        var (admin, client) = await CreateTestAdminAsync();
+        var adminTarget = Application.CreateUser(new TestUserPayload { IsActive = true, IsAdmin = true });
+
+        var response = await client.UpdateUserStatus(adminTarget.Id, new UserStatusPayload { IsActive = false });
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Forbidden);
+
+        var securityEvent = await Application.GetContext().Events
+            .Where(e => e.UserId == admin.Id && e.Name == UserEvents.UpdateUserStatus && e.HasError)
+            .OrderByDescending(e => e.CreatedAt)
+            .FirstAsync();
+
+        await Assert.That(securityEvent.State).EqualTo(EventState.Failed);
+        await Assert.That(securityEvent.Payload).IsNotNull();
+
+        var eventPayload = JsonSerializer.Deserialize<AdminUserMutationEvent>(securityEvent.Payload!);
+        await Assert.That(eventPayload).IsNotNull();
+        await Assert.That(eventPayload!.Id).IsEqualTo(adminTarget.Id);
+    }
 }

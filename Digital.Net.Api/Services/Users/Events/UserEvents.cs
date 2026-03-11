@@ -8,4 +8,5 @@ public static class UserEvents
     public const string DeleteApiKey = "USER_DELETE_API_KEY";
     public const string CreateUser = "ADMIN_CREATE_USER";
     public const string DeleteUser = "ADMIN_DELETE_USER";
+    public const string UpdateUserStatus = "ADMIN_UPDATE_USER_STATUS";
 }

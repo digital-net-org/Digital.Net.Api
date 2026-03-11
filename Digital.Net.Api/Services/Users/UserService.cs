@@ -151,6 +151,23 @@ public class UserService(
         return result;
     }
 
+    public async Task<Result> UpdateUserStatusAsync(Guid userId, bool isActive)
+    {
+        var result = new Result();
+        var user = await context.Users.FindAsync(userId);
+
+        if (user is null)
+            return result.AddError(new ResourceNotFoundException());
+
+        if (user.IsAdmin && !isActive)
+            return result.AddError(new CannotRevokeAdminException());
+
+        user.IsActive = isActive;
+        context.Users.Update(user);
+        await context.SaveChangesAsync();
+        return result;
+    }
+
     private async Task<Result<Document>> SaveAvatarAsync(Result<Document> result, User user)
     {
         try

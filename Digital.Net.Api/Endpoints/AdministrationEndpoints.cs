@@ -55,6 +55,11 @@ public static class AdministrationEndpoints
             .WithSummary("DeleteUser")
             .WithDescription("Deletes a user after admin password confirmation. Admin users cannot be deleted.");
 
+        controller
+            .MapPatch("user/{id:guid}/status", UpdateUserStatus)
+            .WithSummary("UpdateUserStatus")
+            .WithDescription("Activates or deactivates a user. Admin users cannot be deactivated.");
+
         return app;
     }
 
@@ -146,5 +151,47 @@ public static class AdministrationEndpoints
         if (query.IsActive.HasValue)
             predicate = predicate.Add(x => x.IsActive == query.IsActive);
         return predicate;
+    }
+
+    private static async
+        Task<Results<
+            Ok<Result>,
+            NotFound<Result>,
+            InternalServerError<Result>,
+            StatusCodeHttpResult>>
+        UpdateUserStatus(
+            Guid id,
+            [FromBody]
+            UserStatusPayload payload,
+            IUserService userService,
+            IUserContextService userContextService,
+            IAuditService auditService
+        )
+    {
+        var adminId = userContextService.GetUserId();
+        var result = await userService.UpdateUserStatusAsync(id, payload.IsActive);
+
+        Func<EventState, Task> registerEvent = async state =>
+            await auditService.RegisterEventAsync(
+                UserEvents.UpdateUserStatus,
+                state,
+                result,
+                adminId,
+                JsonSerializer.Serialize(new AdminUserMutationEvent { Id = id })
+            );
+
+        if (result.HasErrorOfType<CannotRevokeAdminException>())
+        {
+            await registerEvent(EventState.Failed);
+            return TypedResults.StatusCode(403);
+        }
+
+        if (result.HasErrorOfType<ResourceNotFoundException>())
+            return TypedResults.NotFound(result);
+        if (result.HasError)
+            return TypedResults.InternalServerError(result);
+
+        await registerEvent(EventState.Success);
+        return TypedResults.Ok(result);
     }
 }

@@ -28,4 +28,13 @@ public static class AdministrationApi
         };
         return await client.SendAsync(request);
     }
+
+    public static async Task<HttpResponseMessage> UpdateUserStatus(this HttpClient client, Guid userId, UserStatusPayload payload)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Patch, $"{BaseUrl}/user/{userId}/status")
+        {
+            Content = JsonContent.Create(payload)
+        };
+        return await client.SendAsync(request);
+    }
 }
