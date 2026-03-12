@@ -32,7 +32,7 @@ public static class AdministrationEndpoints
             .MapGroup("admin")
             .WithTags("Administration")
             .RequireRateLimiting(GlobalLimiter.Policy)
-            .RequireAuthentication(AuthorizeType.Any)
+            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey)
             .RequireAdmin();
 
         controller

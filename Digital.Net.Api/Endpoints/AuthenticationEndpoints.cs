@@ -37,7 +37,7 @@ public static class AuthenticationEndpoints
 
         controller
             .MapPost("logout-all", LogoutAll)
-            .RequireAuthentication(AuthorizeType.Any)
+            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey)
             .WithSummary("LogoutAll")
             .WithDescription("Logout all user sessions on all devices.");
 

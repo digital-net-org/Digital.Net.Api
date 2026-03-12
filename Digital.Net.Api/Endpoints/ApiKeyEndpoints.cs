@@ -23,7 +23,7 @@ public static class ApiKeyEndpoints
             .MapGroup("/user/self/api-key")
             .WithTags("User")
             .RequireRateLimiting(GlobalLimiter.Policy)
-            .RequireAuthentication(AuthorizeType.Jwt);
+            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         group
             .MapPost("", Create)

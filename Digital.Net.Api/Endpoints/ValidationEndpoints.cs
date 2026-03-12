@@ -24,25 +24,25 @@ public static class ValidationEndpoints
 
         controller
             .MapGet("/pattern/username", () => TypedResults.Ok(RegularExpressions.UsernamePattern))
-            .RequireAuthentication(AuthorizeType.Any)
+            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey)
             .WithSummary("GetUsernamePattern")
             .WithDescription("Get the username pattern as a string. This is designed to validate usernames.");
 
         controller
             .MapGet("/pattern/password", () => TypedResults.Ok(RegularExpressions.PasswordPattern))
-            .RequireAuthentication(AuthorizeType.Any)
+            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey)
             .WithSummary("GetPasswordPattern")
             .WithDescription("Get the password pattern as a string. This is designed to validate passwords.");
 
         controller
             .MapGet("/size/avatar", () => TypedResults.Ok(AppSettings.DefaultMaxAvatarSize))
-            .RequireAuthentication(AuthorizeType.Any)
+            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey)
             .WithSummary("GetAvatarSizeLimit")
             .WithDescription("Get the maximum allowed size for avatar images in bytes.");
 
         controller
             .MapGet("/pattern/api-key-name", () => TypedResults.Ok(RegularExpressions.ApiKeyNamePattern))
-            .RequireAuthentication(AuthorizeType.Any)
+            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey)
             .WithSummary("GetApiKeyNamePattern")
             .WithDescription("Get the API key name pattern as a string. This is designed to validate API key names.");
 

@@ -32,7 +32,7 @@ public static class UserEndpoints
             .MapGroup("/user")
             .WithTags("User")
             .RequireRateLimiting(GlobalLimiter.Policy)
-            .RequireAuthentication(AuthorizeType.Any);
+            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         group.MapCrudSchema<User>("");
 
@@ -134,7 +134,7 @@ public static class UserEndpoints
             return TypedResults.BadRequest(result);
         if (result.HasErrorOfType<InvalidCredentialsException>())
             return TypedResults.Unauthorized();
-
+        
         return TypedResults.Ok(result);
     }
 
