@@ -1,28 +1,27 @@
-# US-ADMIN-06 : Consultation des événements d'un utilisateur
+# US-ADMIN-06 : Consultation des événements (API Events)
 
 | Statut Backend | Statut Backoffice |
-| :---: | :---: |
-| `TO DO` | `TO DO` |
+|:--------------:|:-----------------:|
+|    `DONE` ✅    |      `TO DO`      |
 * **En tant que** administrateur
-* **Je veux** pouvoir consulter l'historique des événements (audit) associés à un utilisateur spécifique
-* **Afin de** retracer ses actions, diagnostiquer des problèmes ou surveiller l'activité du compte.
+* **Je veux** pouvoir consulter l'historique des événements (audit)
+* **Afin de** retracer les actions des utilisateurs, diagnostiquer des problèmes ou surveiller l'activité du compte.
+
+> **Note technique :** Cette fonctionnalité crée une API dédiée `/events` (read-only, admin-only) plutôt qu'un endpoint imbriqué dans la section administration, afin de conserver les patterns génériques existants (`MapCrudGet`, `MapPaginationGet` dans `Digital.Net.Entities/Crud/Enpoints/`).
 
 ### Critères d'acceptation :
 
-**1. Point d'accès (Endpoint)**
-* Un endpoint spécifique `GET /admin/user/{id:guid}/events` doit être créé dans la section d'administration (`AdministrationEndpoints.cs`).
-* Cet endpoint est strictement réservé aux utilisateurs ayant les droits d'administration.
+**1. Points d'accès (Endpoints)**
+* `GET /events` — liste paginée et filtrable des événements d'audit.
+* `GET /events/{id:guid}` — consultation d'un événement par son identifiant unique.
+* Ces endpoints sont strictement réservés aux utilisateurs ayant les droits d'administration.
+* Les événements sont en **lecture seule** (pas de création, modification ou suppression via l'API).
 
 **2. Pagination**
-* La liste des événements retournée doit être paginée pour éviter de surcharger le réseau et la base de données.
-* Les requêtes devront supporter les paramètres habituels de pagination (ex: `page`, `pageSize` ou `Skip`/`Take`).
+* La liste retournée est paginée via les paramètres standards hérités de `Query` : `Index`, `Size`, `OrderBy`.
 
-**3. Filtrage temporel (Plage de dates)**
-* L'administrateur peut filtrer les résultats selon une plage de dates via des paramètres de requête optionnels :
-  * `from` : Date de début (ex: inclure les événements survenus à partir de cette date).
-  * `to` : Date de fin (ex: inclure les événements survenus jusqu'à cette date).
-* Si aucune date n'est fournie, tous les événements historiques de l'utilisateur sont pris en compte, sous réserve de la pagination.
-
-**4. Filtrage par type d'événement**
-* L'administrateur peut filtrer les résultats par le *type d'événement* (ex: un paramètre `eventType` correspondant aux constantes de `UserEvents.cs`).
-* **Contrainte de sécurité** : L'endpoint ne doit renvoyer **uniquement** les événements qui sont directement associés à cet utilisateur (vérification via `UserId` lié à l'événement d'audit).
+**3. Filtrage**
+* `UserId` (Guid?, optionnel) — filtre les événements associés à un utilisateur spécifique.
+* `EventType` (string?, optionnel) — filtre par type d'événement (correspond aux constantes définies dans `UserEvents.cs` et `AuthenticationEvents.cs`).
+* `CreatedFrom` / `CreatedTo` (DateTime?, optionnel) — plage de dates sur `CreatedAt` (hérités de `Query`).
+* Si aucun filtre n'est fourni, tous les événements sont retournés sous réserve de la pagination.

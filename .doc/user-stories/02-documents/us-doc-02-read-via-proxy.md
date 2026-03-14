@@ -1,8 +1,8 @@
 # US-DOC-02 : Consultation d'un document via un proxy
 
 | Statut Backend | Statut Backoffice |
-| :---: | :---: |
-| `DONE` ✅ | - |
+|:--------------:|:-----------------:|
+|    `DONE` ✅    |         -         |
 * **En tant que** utilisateur
 * **Je veux** pouvoir consulter ou récupérer un document via le point d'API de l'entité proxy qui le référence (ex: mon Avatar)
 * **Afin de** garantir que l'accès au fichier est régi par les mêmes règles de sécurité que l'entité proxy elle-même.

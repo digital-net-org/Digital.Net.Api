@@ -2,7 +2,7 @@
 
 | Statut Backend | Statut Backoffice |
 |:--------------:|:-----------------:|
-|     `DONE`     |       `N/A`       |
+|    `DONE` ✅    |       `N/A`       |
 * **En tant que** développeur / architecte système
 * **Je veux** ajouter un nouveau type d'authentification "Application"
 * **Afin de** permettre à des systèmes de confiance (comme le générateur de site statique Next.js) d'accéder à des endpoints spécifiques (ex: liste des urls pour le sitemap) sans utiliser de compte utilisateur classique.

@@ -1,8 +1,8 @@
 # US-AVATAR-01 : Association et Gestion d'un Avatar
 
 | Statut Backend | Statut Backoffice |
-| :---: | :---: |
-| `DONE` ✅ | `TO DO` |
+|:--------------:|:-----------------:|
+|    `DONE` ✅    |      `TO DO`      |
 * **En tant que** utilisateur
 * **Je veux** pouvoir ajouter, modifier ou supprimer mon avatar (image de profil)
 * **Afin de** personnaliser mon profil.

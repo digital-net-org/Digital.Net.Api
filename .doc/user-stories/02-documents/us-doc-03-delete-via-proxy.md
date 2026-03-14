@@ -1,8 +1,8 @@
 # US-DOC-03 : Suppression d'un document via un proxy
 
 | Statut Backend | Statut Backoffice |
-| :---: | :---: |
-| `DONE` ✅ | - |
+|:--------------:|:-----------------:|
+|    `DONE` ✅    |         -         |
 * **En tant que** développeur/système (ou indirectement via l'utilisateur d'une fonctionnalité proxy)
 * **Je veux** qu'en supprimant le document via l'entité proxy (ou en supprimant l'entité proxy elle-même), le document soit physiquement supprimé
 * **Afin de** libérer de l'espace de stockage et maintenir la cohérence des données.

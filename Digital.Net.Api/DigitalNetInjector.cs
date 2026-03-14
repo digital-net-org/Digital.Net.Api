@@ -61,6 +61,7 @@ public static class DigitalSdkInjector
             .MapUserEndpoints()
             .MapApiKeyEndpoints()
             .MapAdministrationEndpoints()
+            .MapEventsEndpoints()
             .MapPageEndpoints()
             .MapValidationEndpoints();
 

@@ -1,8 +1,8 @@
 # US-AUTH-01 : Connexion, Tokens et Session Utilisateur
 
 | Statut Backend | Statut Backoffice |
-| :---: | :---: |
-| `DONE` ✅ | `TO DO` |
+|:--------------:|:-----------------:|
+|    `DONE` ✅    |      `TO DO`      |
 * **En tant que** utilisateur (ou application frontend)
 * **Je veux** m'authentifier avec mes identifiants (Login et Mot de passe)
 * **Afin de** créer une session sécurisée et accéder aux endpoints restreints de l'API.

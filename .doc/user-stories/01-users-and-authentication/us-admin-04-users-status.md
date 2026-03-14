@@ -1,8 +1,8 @@
 # US-ADMIN-04 : Activation / Révocation d'un utilisateur
 
 | Statut Backend | Statut Backoffice |
-|:--------------:| :---: |
-|     `DONE`     | `TO DO` |
+|:--------------:|:-----------------:|
+|    `DONE` ✅    |      `TO DO`      |
 * **En tant que** administrateur
 * **Je veux** pouvoir activer ou révoquer un utilisateur
 * **Afin de** bloquer ou autoriser temporairement son accès au système, sans avoir à supprimer ses données.

@@ -1,8 +1,8 @@
 # US-ADMIN-01 : Création d'un utilisateur
 
 | Statut Backend | Statut Backoffice |
-|:--------------:| :---: |
-|     `DONE`     | `TO DO` |
+|:--------------:|:-----------------:|
+|    `DONE` ✅    |      `TO DO`      |
 * **En tant que** administrateur
 * **Je veux** pouvoir créer un nouvel utilisateur
 * **Afin de** lui donner accès au système.

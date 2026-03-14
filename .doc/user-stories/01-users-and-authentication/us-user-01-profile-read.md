@@ -1,8 +1,8 @@
 # US-USER-01 : Consultation du profil utilisateur
 
 | Statut Backend | Statut Backoffice |
-| :---: | :---: |
-| `DONE` ✅ | `TO DO` |
+|:--------------:|:-----------------:|
+|    `DONE` ✅    |      `TO DO`      |
 * **En tant que** utilisateur authentifié
 * **Je veux** pouvoir lire les informations de mon profil
 * **Afin de** vérifier mes données personnelles enregistrées dans le système.
