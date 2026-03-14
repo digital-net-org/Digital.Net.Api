@@ -36,3 +36,12 @@ A DTO must always have:
 ## Endpoint return values
 Always return a `Result` or `Result<T>` wrapped in a `TypedResults`.
 Never let uncaught exceptions bubble up from an endpoint.
+
+## HTTP Headers
+
+All custom Digital Net HTTP headers must be prefixed with `DN-`.
+
+| Header | Purpose |
+|--------|---------|
+| `DN-Api-Key` | User API key authentication |
+| `DN-Application-Key` | Application (system-to-system) authentication |

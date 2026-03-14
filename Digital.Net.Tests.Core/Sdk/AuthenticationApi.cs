@@ -57,6 +57,9 @@ public static class AuthenticationApi
     public static async Task<HttpResponseMessage> TestAnyAuthorization(this HttpClient client) =>
         await client.GetAsync("test/authentication/any");
 
+    public static async Task<HttpResponseMessage> TestApplicationAuthorization(this HttpClient client) =>
+        await client.GetAsync("test/authentication/application");
+
     public static async Task<HttpResponseMessage> TestAdminAuthorization(this HttpClient client) =>
         await client.GetAsync("test/authentication/admin");
 

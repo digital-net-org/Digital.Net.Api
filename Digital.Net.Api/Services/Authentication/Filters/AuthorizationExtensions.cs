@@ -1,11 +1,14 @@
 using Digital.Net.Api.Services.Authentication.Exceptions;
 using Digital.Net.Api.Services.Authentication.Options;
 using Digital.Net.Api.Services.Authentication.Types;
+using Digital.Net.Core.Configuration;
+using Digital.Net.Core.Settings;
 using Digital.Net.Entities.Context;
 using Digital.Net.Entities.Models.ApiKeys;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Digital.Net.Api.Services.Authentication.Filters;
@@ -90,6 +93,7 @@ public static class AuthorizationExtensions
     {
         var dbCtx = ctx.HttpContext.RequestServices.GetRequiredService<DigitalContext>();
         var jwtService = ctx.HttpContext.RequestServices.GetRequiredService<IJwtService>();
+        var config = ctx.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
         var result = new AuthorizationResult();
 
         if (type.HasFlag(AuthorizeType.ApiKey))
@@ -103,6 +107,12 @@ public static class AuthorizationExtensions
                 jwtService.AuthorizeToken(
                     ctx.HttpContext.Request.Headers.Authorization.FirstOrDefault()?.Split(" ").Last()
                 ));
+        if (type.HasFlag(AuthorizeType.Application) && !result.IsAuthorized)
+            result.Merge(
+                AuthorizeApplication(
+                    config,
+                    ctx.HttpContext.Request.Headers[AuthenticationStaticOptions.ApplicationKeyHeaderAccessor].FirstOrDefault()
+                ));
         
         if (!result.IsAuthorized)
             return Results.StatusCode(401);
@@ -112,6 +122,16 @@ public static class AuthorizationExtensions
         ctx.HttpContext.Items[AuthenticationStaticOptions.ApiContextAuthorizationKey] = result;
 
         return await next(ctx);
+    }
+
+    private static AuthorizationResult AuthorizeApplication(IConfiguration config, string? key)
+    {
+        var result = new AuthorizationResult();
+        var configuredKey = config.Get<string>(AppSettings.ApplicationKeyKey);
+        if (string.IsNullOrWhiteSpace(configuredKey) || !string.Equals(key, configuredKey, StringComparison.Ordinal))
+            return result.AddError(new InvalidTokenException());
+        result.Authorize(Guid.Empty);
+        return result;
     }
 
     private static AuthorizationResult AuthorizeApiKey(DigitalContext dbCtx, string? key)

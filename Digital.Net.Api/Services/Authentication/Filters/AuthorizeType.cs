@@ -5,5 +5,5 @@ public enum AuthorizeType
 {
     ApiKey = 1,
     Jwt = 2,
-    Any = ApiKey | Jwt
+    Application = 4
 }

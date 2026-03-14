@@ -29,23 +29,23 @@ public static class PageEndpoints
 
         controller
             .MapCrudGet<Page, PageDto>("")
-            .RequireAuthentication(AuthorizeType.Any);
+            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         controller
             .MapPaginationGet<Page, PageDto, PageQuery>("", PaginationFilter)
-            .RequireAuthentication(AuthorizeType.Any);
+            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         controller
             .MapCrudPatch<Page>("")
-            .RequireAuthentication(AuthorizeType.Any);
+            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         controller
             .MapCrudPost<Page, PagePayload>("")
-            .RequireAuthentication(AuthorizeType.Any);
+            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         controller
             .MapCrudDelete<Page>("")
-            .RequireAuthentication(AuthorizeType.Any);
+            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         return app;
     }
