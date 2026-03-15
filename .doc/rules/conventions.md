@@ -13,8 +13,8 @@ Do not duplicate those rules here. Always refer to and respect them.
 
 | Element | Convention | Example |
 |---------|-----------|---------|
-| Assembly | `Digital.Net.Api.{Domain}` | 
-| Test assembly | `Digital.Net.Api.{Domain}.Test`|
+| Assembly | `Digital.Net.{Domain}` |
+| Test assembly | `Digital.Net.{Domain}.Test`|
 | Endpoints class | `{Domain}Endpoints` (static class)|
 | Endpoints mapping | `Map{Domain}Endpoints` method |
 | DI injector | `{Domain}Injector` or `{Domain}ServicesInjector` (static class) |

@@ -1,10 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Digital.Net.Cms.Endpoints.Dto;
-using Digital.Net.Core.Http;
 using Digital.Net.Tests.Core.Http;
 
 namespace Digital.Net.Tests.Core.Sdk;

@@ -1,8 +1,8 @@
-using Digital.Net.Api.Bootstrap;
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Endpoints;
 using Digital.Net.Cms.Models;
-using Digital.Net.Entities.Crud;
+using Digital.Net.Core.Bootstrap;
+using Digital.Net.Core.Services.Crud;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 

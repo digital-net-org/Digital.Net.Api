@@ -1,6 +1,6 @@
 using System;
-using Digital.Net.Api.Endpoints.Dto;
-using Digital.Net.Entities.Models.Users;
+using Digital.Net.Core.Endpoints.Dto;
+using Digital.Net.Core.Entities.Models.Users;
 
 namespace Digital.Net.Tests.Core.Factories.Data.Records;
 

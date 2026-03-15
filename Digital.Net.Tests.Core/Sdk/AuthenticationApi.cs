@@ -2,9 +2,9 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using Digital.Net.Api.Endpoints.Dto;
-using Digital.Net.Core.Messages;
-using Digital.Net.Entities.Models.Users;
+using Digital.Net.Core.Endpoints.Dto;
+using Digital.Net.Core.Entities.Models.Users;
+using Digital.Net.Lib.Messages;
 using Digital.Net.Tests.Core.Factories.Data;
 using Digital.Net.Tests.Core.Http;
 

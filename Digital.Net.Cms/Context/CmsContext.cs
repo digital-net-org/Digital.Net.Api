@@ -1,5 +1,5 @@
 using Digital.Net.Cms.Models;
-using Digital.Net.Entities.Interceptors;
+using Digital.Net.Core.Entities.Interceptors;
 using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Cms.Context;

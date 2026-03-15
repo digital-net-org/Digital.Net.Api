@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using Digital.Net.Api;
-using Digital.Net.Api.Services.Authentication.Filters;
 using Digital.Net.Cms;
+using Digital.Net.Core;
+using Digital.Net.Core.Services.Authentication.Filters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;

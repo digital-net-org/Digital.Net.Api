@@ -1,0 +1,339 @@
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace Digital.Net.Core.Entities.Migrations
+{
+    /// <inheritdoc />
+    public partial class Init : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.EnsureSchema(
+                name: "digital_net");
+
+            migrationBuilder.CreateTable(
+                name: "Page",
+                schema: "digital_net",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Title = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    Description = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    Path = table.Column<string>(type: "character varying(2068)", maxLength: 2068, nullable: false),
+                    IsPublished = table.Column<bool>(type: "boolean", nullable: false),
+                    IsIndexed = table.Column<bool>(type: "boolean", nullable: false),
+                    JsonLd = table.Column<string>(type: "character varying(65535)", maxLength: 65535, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Page", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PageOpenGraph",
+                schema: "digital_net",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Property = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    Content = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: false),
+                    PageId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PageOpenGraph", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PageOpenGraph_Page_PageId",
+                        column: x => x.PageId,
+                        principalSchema: "digital_net",
+                        principalTable: "Page",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ApiKey",
+                schema: "digital_net",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    Key = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    ExpiredAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApiKey", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ApiToken",
+                schema: "digital_net",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Key = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
+                    UserAgent = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
+                    ExpiredAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApiToken", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Avatar",
+                schema: "digital_net",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    X = table.Column<int>(type: "integer", nullable: false),
+                    Y = table.Column<int>(type: "integer", nullable: false),
+                    DocumentId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Avatar", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "User",
+                schema: "digital_net",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Username = table.Column<string>(type: "character varying(24)", maxLength: 24, nullable: false),
+                    Email = table.Column<string>(type: "character varying(254)", maxLength: 254, nullable: false),
+                    AvatarId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Password = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    Login = table.Column<string>(type: "character varying(24)", maxLength: 24, nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    IsAdmin = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_User", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_User_Avatar_AvatarId",
+                        column: x => x.AvatarId,
+                        principalSchema: "digital_net",
+                        principalTable: "Avatar",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Document",
+                schema: "digital_net",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    FileName = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    MimeType = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    FileSize = table.Column<long>(type: "bigint", nullable: false),
+                    UploaderId = table.Column<Guid>(type: "uuid", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Document", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Document_User_UploaderId",
+                        column: x => x.UploaderId,
+                        principalSchema: "digital_net",
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Event",
+                schema: "digital_net",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    Payload = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
+                    UserAgent = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
+                    IpAddress = table.Column<string>(type: "character varying(45)", maxLength: 45, nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    State = table.Column<int>(type: "integer", nullable: true),
+                    HasError = table.Column<bool>(type: "boolean", nullable: false),
+                    ErrorTrace = table.Column<string>(type: "character varying(4096)", maxLength: 4096, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Event", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Event_User_UserId",
+                        column: x => x.UserId,
+                        principalSchema: "digital_net",
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApiKey_Key",
+                schema: "digital_net",
+                table: "ApiKey",
+                column: "Key",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApiKey_UserId_Name",
+                schema: "digital_net",
+                table: "ApiKey",
+                columns: new[] { "UserId", "Name" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApiToken_UserId",
+                schema: "digital_net",
+                table: "ApiToken",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Avatar_DocumentId",
+                schema: "digital_net",
+                table: "Avatar",
+                column: "DocumentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Document_FileName",
+                schema: "digital_net",
+                table: "Document",
+                column: "FileName",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Document_UploaderId",
+                schema: "digital_net",
+                table: "Document",
+                column: "UploaderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Event_UserId",
+                schema: "digital_net",
+                table: "Event",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Page_Path",
+                schema: "digital_net",
+                table: "Page",
+                column: "Path",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PageOpenGraph_PageId",
+                schema: "digital_net",
+                table: "PageOpenGraph",
+                column: "PageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_User_AvatarId",
+                schema: "digital_net",
+                table: "User",
+                column: "AvatarId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_User_Username_Email",
+                schema: "digital_net",
+                table: "User",
+                columns: new[] { "Username", "Email" },
+                unique: true);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_ApiKey_User_UserId",
+                schema: "digital_net",
+                table: "ApiKey",
+                column: "UserId",
+                principalSchema: "digital_net",
+                principalTable: "User",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_ApiToken_User_UserId",
+                schema: "digital_net",
+                table: "ApiToken",
+                column: "UserId",
+                principalSchema: "digital_net",
+                principalTable: "User",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Avatar_Document_DocumentId",
+                schema: "digital_net",
+                table: "Avatar",
+                column: "DocumentId",
+                principalSchema: "digital_net",
+                principalTable: "Document",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Document_User_UploaderId",
+                schema: "digital_net",
+                table: "Document");
+
+            migrationBuilder.DropTable(
+                name: "ApiKey",
+                schema: "digital_net");
+
+            migrationBuilder.DropTable(
+                name: "ApiToken",
+                schema: "digital_net");
+
+            migrationBuilder.DropTable(
+                name: "Event",
+                schema: "digital_net");
+
+            migrationBuilder.DropTable(
+                name: "PageOpenGraph",
+                schema: "digital_net");
+
+            migrationBuilder.DropTable(
+                name: "Page",
+                schema: "digital_net");
+
+            migrationBuilder.DropTable(
+                name: "User",
+                schema: "digital_net");
+
+            migrationBuilder.DropTable(
+                name: "Avatar",
+                schema: "digital_net");
+
+            migrationBuilder.DropTable(
+                name: "Document",
+                schema: "digital_net");
+        }
+    }
+}

@@ -1,8 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Digital.Net.Api.Endpoints.Dto;
-using Digital.Net.Core.Http;
+using Digital.Net.Core.Endpoints.Dto;
 using Digital.Net.Tests.Core.Http;
 
 namespace Digital.Net.Tests.Core.Sdk;

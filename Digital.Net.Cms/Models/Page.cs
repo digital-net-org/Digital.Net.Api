@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Digital.Net.Entities.Attributes;
-using Digital.Net.Entities.Models;
+using Digital.Net.Core.Entities.Attributes;
+using Digital.Net.Core.Entities.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Cms.Models;

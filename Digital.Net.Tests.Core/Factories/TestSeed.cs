@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Digital.Net.Api.Services.Authentication.Utils;
-using Digital.Net.Entities.Context;
-using Digital.Net.Entities.Models.ApiKeys;
-using Digital.Net.Entities.Models.Users;
-using Digital.Net.Entities.Seeds;
+using Digital.Net.Core.Services.Authentication.Utils;
+using Digital.Net.Core.Entities.Context;
+using Digital.Net.Core.Entities.Models.ApiKeys;
+using Digital.Net.Core.Entities.Models.Users;
+using Digital.Net.Core.Entities.Seeds;
 using Microsoft.Extensions.Logging;
 
 namespace Digital.Net.Tests.Core.Factories;

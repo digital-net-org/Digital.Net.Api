@@ -1,0 +1,12 @@
+<Solution>
+  <Project Path="Digital.Net.Lib/Digital.Net.Lib.csproj" />
+  <Project Path="Digital.Net.Core/Digital.Net.Core.csproj" />
+  <Project Path="Digital.Net.Core.Entities/Digital.Net.Core.Entities.csproj" />
+  <Project Path="Digital.Net.Cms/Digital.Net.Cms.csproj" />
+  <Project Path="Digital.Net.Tests.Core/Digital.Net.Tests.Core.csproj" />
+  <Project Path="Digital.Net.Tests.Program/Digital.Net.Tests.Program.csproj" />
+  <Project Path="Digital.Net.Lib.Test/Digital.Net.Lib.Test.csproj" />
+  <Project Path="Digital.Net.Core.Test/Digital.Net.Core.Test.csproj" />
+  <Project Path="Digital.Net.Core.Entities.Test/Digital.Net.Core.Entities.Test.csproj" />
+  <Project Path="Digital.Net.Cms.Test/Digital.Net.Cms.Test.csproj" />
+</Solution>

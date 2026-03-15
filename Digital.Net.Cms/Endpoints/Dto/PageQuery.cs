@@ -1,4 +1,4 @@
-using Digital.Net.Entities.Crud.Endpoints;
+using Digital.Net.Core.Services.Pagination;
 
 namespace Digital.Net.Cms.Endpoints.Dto;
 

@@ -7,11 +7,11 @@
 <p align="center">
     <a href="https://www.docker.com/"><img src="https://img.shields.io/badge/Docker-blue.svg?color=1d63ed"></a>
         <a href="https://dotnet.microsoft.com/en-us/languages/csharp"><img src="https://img.shields.io/badge/C%23-blue.svg?color=622075"></a>
-    <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview?WT.mc_id=dotnet-35129-website"><img src="https://img.shields.io/badge/Dotnet-blue.svg?color=4f2bce"></a>
+    <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-10/overview"><img src="https://img.shields.io/badge/Dotnet_10-blue.svg?color=4f2bce"></a>
 </p>
 
 ## 📦 Installation
-Install the nuget package in your project and call the `AddDigitalSdk()` and `UseDigitalSdk()` methods.
+Install the nuget package in your project and call the `AddDigitalNet()` and `UseDigitalNet()` methods.
 
 ```csharp
 public sealed class Program
@@ -19,11 +19,11 @@ public sealed class Program
     private static async Task Main(string[] args)
     {
         var app = WebApplication.CreateBuilder(args)
-            .AddDigitalSdk()
+            .AddDigitalNet()
             .Build();
 
         await app
-            .UseDigitalSdk()
+            .UseDigitalNet()
             .RunAsync();
     }
 }

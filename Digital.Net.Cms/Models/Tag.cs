@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Digital.Net.Entities.Models;
+using Digital.Net.Core.Entities.Models;
 
 namespace Digital.Net.Cms.Models;
 

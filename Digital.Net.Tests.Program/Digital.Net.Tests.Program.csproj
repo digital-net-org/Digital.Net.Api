@@ -10,9 +10,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Digital.Net.Api\Digital.Net.Api.csproj"/>
-        <ProjectReference Include="..\Digital.Net.Cms\Digital.Net.Cms.csproj"/>
         <ProjectReference Include="..\Digital.Net.Core\Digital.Net.Core.csproj"/>
-        <ProjectReference Include="..\Digital.Net.Entities\Digital.Net.Entities.csproj"/>
+        <ProjectReference Include="..\Digital.Net.Cms\Digital.Net.Cms.csproj"/>
+        <ProjectReference Include="..\Digital.Net.Lib\Digital.Net.Lib.csproj"/>
+        <ProjectReference Include="..\Digital.Net.Core.Entities\Digital.Net.Core.Entities.csproj" />
     </ItemGroup>
 </Project>

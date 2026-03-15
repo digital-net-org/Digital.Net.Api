@@ -1,7 +1,7 @@
-using Digital.Net.Api.Services.Authentication.Utils;
-using Digital.Net.Core.Random;
-using Digital.Net.Entities.Context;
-using Digital.Net.Entities.Models.Users;
+using Digital.Net.Core.Services.Authentication.Utils;
+using Digital.Net.Core.Entities.Context;
+using Digital.Net.Core.Entities.Models.Users;
+using Digital.Net.Lib.Random;
 using Digital.Net.Tests.Core.Factories.Data.Records;
 
 namespace Digital.Net.Tests.Core.Factories.Data;

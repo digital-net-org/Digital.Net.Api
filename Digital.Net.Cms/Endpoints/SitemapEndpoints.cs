@@ -1,7 +1,7 @@
-using Digital.Net.Api.RateLimiter.Limiters;
-using Digital.Net.Api.Services.Authentication.Filters;
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Endpoints.Dto;
+using Digital.Net.Core.RateLimiter.Limiters;
+using Digital.Net.Core.Services.Authentication.Filters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
