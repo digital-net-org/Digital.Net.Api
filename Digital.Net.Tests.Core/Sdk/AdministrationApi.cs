@@ -31,7 +31,7 @@ public static class AdministrationApi
 
     public static async Task<HttpResponseMessage> UpdateUserStatus(this HttpClient client, Guid userId, UserStatusPayload payload)
     {
-        var request = new HttpRequestMessage(HttpMethod.Patch, $"{BaseUrl}/user/{userId}/status")
+        var request = new HttpRequestMessage(HttpMethod.Put, $"{BaseUrl}/user/{userId}/status")
         {
             Content = JsonContent.Create(payload)
         };
@@ -40,7 +40,7 @@ public static class AdministrationApi
 
     public static async Task<HttpResponseMessage> UpdateUserRole(this HttpClient client, Guid userId, UserRolePayload payload)
     {
-        var request = new HttpRequestMessage(HttpMethod.Patch, $"{BaseUrl}/user/{userId}/role")
+        var request = new HttpRequestMessage(HttpMethod.Put, $"{BaseUrl}/user/{userId}/role")
         {
             Content = JsonContent.Create(payload)
         };

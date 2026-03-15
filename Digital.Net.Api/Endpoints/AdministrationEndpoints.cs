@@ -57,12 +57,12 @@ public static class AdministrationEndpoints
             .WithDescription("Deletes a user after admin password confirmation. Admin users cannot be deleted.");
 
         controller
-            .MapPatch("user/{id:guid}/status", UpdateUserStatus)
+            .MapPut("user/{id:guid}/status", UpdateUserStatus)
             .WithSummary("UpdateUserStatus")
             .WithDescription("Activates or deactivates a user. Admin users cannot be deactivated.");
 
         controller
-            .MapPatch("user/{id:guid}/role", UpdateUserRole)
+            .MapPut("user/{id:guid}/role", UpdateUserRole)
             .WithSummary("UpdateUserRole")
             .WithDescription("Grants or revokes admin privileges. Existing admins cannot be demoted.");
 

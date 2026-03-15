@@ -13,6 +13,7 @@ public static class AppSettings
     public const string DefaultFileSystemPath = "/digital_net_storage";
     public static readonly string DefaultAuthJwtSecret = Randomizer.GenerateRandomString(Randomizer.AnyCharacter, 64);
 
+    public const string ApplicationNameKey = "ApplicationName";
     public const string DomainKey = "Domain";
     public const string CorsAllowedOriginsKey = "CorsAllowedOrigins";
     public const string ConnectionStringKey = "Database:ConnectionString";
@@ -22,9 +23,9 @@ public static class AppSettings
     public const string JwtBearerExpirationKey = "Auth:JwtBearerExpiration";
     public const string JwtSecretKey = "Auth:JwtSecret";
     public const string ApplicationKeyKey = "Auth:ApplicationKey";
-    public const string GitOrigin = "Git:Origin";
-    public const string GitCommitSha = "Git:CommitSha";
-    public const string GitRelease = "Git:Release";
+    public const string GitOriginKey = "Git:Origin";
+    public const string GitCommitShaKey = "Git:CommitSha";
+    public const string GitReleaseKey = "Git:Release";
 
     /// <summary>
     ///     Add the following to the configuration builder:

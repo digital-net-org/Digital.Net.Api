@@ -28,10 +28,10 @@ public static class RootEndpoints
 
     private static Ok<ApplicationVersion> GetApplicationVersion(IConfiguration configuration) => TypedResults.Ok(
         new ApplicationVersion(
-            "TestProgram",
+            configuration[AppSettings.ApplicationNameKey] ?? string.Empty,
             "Digital.Net",
-            configuration[AppSettings.GitOrigin] ?? string.Empty,
-            configuration[AppSettings.GitCommitSha] ?? string.Empty,
-            configuration[AppSettings.GitRelease] ?? string.Empty
+            configuration[AppSettings.GitOriginKey] ?? string.Empty,
+            configuration[AppSettings.GitCommitShaKey] ?? string.Empty,
+            configuration[AppSettings.GitReleaseKey] ?? string.Empty
         ));
 }
