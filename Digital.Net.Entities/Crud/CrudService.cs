@@ -48,7 +48,7 @@ public class CrudService<TContext, T>(
             return result.AddError(new ResourceNotFoundException());
         try
         {
-            crudValidationService.ValidatePatchPayload(patch);
+            crudValidationService.ValidatePatchPayload(patch, id);
             patch.ApplyTo(entity);
             context.Set<T>().Update(entity);
             await context.SaveChangesAsync();

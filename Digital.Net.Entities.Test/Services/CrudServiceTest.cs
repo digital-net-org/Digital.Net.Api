@@ -292,10 +292,7 @@ public class CrudServiceTest : UnitTest, IDisposable
         });
     }
 
-    // --- BUG-001: unique constraint self-patch ---
-
     [Test]
-    [Skip("BUG-001: ValidateProperty unique check finds the entity itself — see .doc/user-stories/bugfixes.md")]
     public async Task Patch_Succeeds_WhenPatchingUniqueFieldToSameValue()
     {
         var entity = GetTestEntity();

@@ -19,7 +19,7 @@ public interface ICrudValidationService<TContext> where TContext : DbContext
     /// <param name="patch">The patch document to validate</param>
     /// <typeparam name="T">The model of the entity</typeparam>
     /// <returns>Validation result</returns>
-    public void ValidatePatchPayload<T>(JsonPatchDocument<T> patch) where T : Entity;
+    public void ValidatePatchPayload<T>(JsonPatchDocument<T> patch, Guid? entityId = null) where T : Entity;
 
     /// <summary>
     ///     Validate a create payload against the entity schema.
@@ -29,5 +29,5 @@ public interface ICrudValidationService<TContext> where TContext : DbContext
     /// <returns>Validation result</returns>
     public void ValidateCreatePayload<T>(T entity) where T : Entity;
 
-    public void ValidateProperty<T>(object? value, string path, SchemaProperty<T>? property) where T : Entity;
+    public void ValidateProperty<T>(object? value, string path, SchemaProperty<T>? property, Guid? entityId = null) where T : Entity;
 }

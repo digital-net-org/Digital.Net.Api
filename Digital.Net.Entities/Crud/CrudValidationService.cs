@@ -35,7 +35,7 @@ public class CrudValidationService<TContext>(
                 .GetMethod("ValidateProperty")!
                 .MakeGenericMethod(entity.GetType());
 
-            validateMethod.Invoke(this, [value, property.Name, schemaProp]);
+            validateMethod.Invoke(this, [value, property.Name, schemaProp, null]);
         }
     }
 
@@ -77,7 +77,7 @@ public class CrudValidationService<TContext>(
             );
     }
 
-    public void ValidatePatchPayload<T>(JsonPatchDocument<T> patch) where T : Entity
+    public void ValidatePatchPayload<T>(JsonPatchDocument<T> patch, Guid? entityId = null) where T : Entity
     {
         var schema = GetSchema<T>();
         foreach (var o in patch.Operations)
@@ -101,7 +101,7 @@ public class CrudValidationService<TContext>(
                 ValidateDynamicPayload(entity);
                 return;
             }
-            
+
 
             var schemaProperty = schema
                 .FirstOrDefault(x =>
@@ -110,13 +110,13 @@ public class CrudValidationService<TContext>(
             if (schemaProperty is null)
                 return;
 
-            ValidateProperty(o.value, o.path, schemaProperty);
+            ValidateProperty(o.value, o.path, schemaProperty, entityId);
             if (schemaProperty.IsIdentity || schemaProperty.IsReadOnly)
                 throw new EntityValidationException($"{o.path}: This field is read-only.");
         }
     }
 
-    public void ValidateProperty<T>(object? value, string path, SchemaProperty<T>? property) where T : Entity
+    public void ValidateProperty<T>(object? value, string path, SchemaProperty<T>? property, Guid? entityId = null) where T : Entity
     {
         if (value is null || property is null)
             return;
@@ -142,7 +142,7 @@ public class CrudValidationService<TContext>(
         if (property is { MaxLength: > 0, Type: "String" } && value.ToString()?.Length > property.MaxLength)
             throw new EntityValidationException($"{path}: Maximum length exceeded.");
 
-        if (property.IsUnique && context.Set<T>().Any(x => EF.Property<object>(x, property.Name).Equals(value)))
+        if (property.IsUnique && context.Set<T>().Any(x => (entityId == null || x.Id != entityId) && EF.Property<object>(x, property.Name).Equals(value)))
             throw new EntityValidationException($"{path}: This value violates a unique constraint.");
 
         if (property.RegexValidation is not null && !property.RegexValidation.IsMatch(value.ToString() ?? ""))
