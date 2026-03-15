@@ -1,6 +1,6 @@
 using System.Text.Json;
-using Digital.Net.Core.Services.Crud.Exceptions;
 using Digital.Net.Core.Entities.Models;
+using Digital.Net.Core.Services.Crud.Exceptions;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Formatters;
 using Digital.Net.Lib.Messages;
@@ -35,11 +35,9 @@ public static class CrudEndpointExtensions
         where TContext : DbContext
         where T : Entity =>
         app
-            .MapGet($"{route}/schema", (
-                ICrudValidationService<TContext> crudValidationService
-            ) =>
+            .MapGet($"{route}/schema", () =>
             {
-                var result = new Result<List<SchemaProperty<T>>>(crudValidationService.GetSchema<T>());
+                var result = new Result<List<SchemaProperty<T>>>(SchemaProperty<T>.Get());
                 return TypedResults.Ok(result);
             })
             .WithSummary("GetSchema")

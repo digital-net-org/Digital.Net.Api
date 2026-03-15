@@ -4,6 +4,10 @@ using Digital.Net.Core.Entities.Attributes;
 
 namespace Digital.Net.Core.Entities.Models;
 
+/// <summary>
+///     Schema describing an entity property.
+/// </summary>
+/// <typeparam name="T">The model of the entity</typeparam>
 public class SchemaProperty<T>(PropertyInfo propertyInfo)
     where T : Entity
 {
@@ -19,4 +23,11 @@ public class SchemaProperty<T>(PropertyInfo propertyInfo)
     public bool IsIdentity { get; } = AttributeAnalyzer<T>.IsIdentity(propertyInfo);
     public bool IsForeignKey { get; } = AttributeAnalyzer<T>.IsForeignKey(propertyInfo);
     public Regex? RegexValidation { get; } = AttributeAnalyzer<T>.GetRegex(propertyInfo);
+
+    /// <summary>
+    ///     Get a schema of the entity describing its properties.
+    /// </summary>
+    /// <returns>Schema of the entity</returns>
+    public static List<SchemaProperty<T>> Get() =>
+        typeof(T).GetProperties().Select(property => new SchemaProperty<T>(property)).ToList();
 }

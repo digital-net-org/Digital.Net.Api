@@ -14,9 +14,6 @@ public class CrudValidationService<TContext>(
 ) : ICrudValidationService<TContext>
     where TContext : DbContext
 {
-    public List<SchemaProperty<T>> GetSchema<T>() where T : Entity =>
-        typeof(T).GetProperties().Select(property => new SchemaProperty<T>(property)).ToList();
-
     private void ValidateDynamicPayload(Entity entity)
     {
         var schema = typeof(CrudValidationService<TContext>)
@@ -28,7 +25,7 @@ public class CrudValidationService<TContext>(
         {
             var value = property.GetValue(entity);
             var schemaProp = ((IEnumerable<object>)schema!)
-                .FirstOrDefault(p => 
+                .FirstOrDefault(p =>
                     (string)p.GetType().GetProperty("Name")!.GetValue(p)! == property.Name);
 
             var validateMethod = typeof(CrudValidationService<TContext>)
@@ -37,12 +34,6 @@ public class CrudValidationService<TContext>(
 
             validateMethod.Invoke(this, [value, property.Name, schemaProp, null]);
         }
-    }
-
-    private bool IsSubPropertyPatch(string path)
-    {
-        var parts = path.ExtractFromPath();
-        return parts.Count > 2;
     }
 
     private Type? GetNestedType<T>(List<string> path)
@@ -68,7 +59,7 @@ public class CrudValidationService<TContext>(
 
     public void ValidateCreatePayload<T>(T entity) where T : Entity
     {
-        var schema = GetSchema<T>();
+        var schema = SchemaProperty<T>.Get();
         foreach (var property in entity.GetType().GetProperties())
             ValidateProperty(
                 property.GetValue(entity),
@@ -79,7 +70,7 @@ public class CrudValidationService<TContext>(
 
     public void ValidatePatchPayload<T>(JsonPatchDocument<T> patch, Guid? entityId = null) where T : Entity
     {
-        var schema = GetSchema<T>();
+        var schema = SchemaProperty<T>.Get();
         foreach (var o in patch.Operations)
         {
             if (o.value is null || (o.op != "add" && o.op != "replace"))
@@ -116,7 +107,8 @@ public class CrudValidationService<TContext>(
         }
     }
 
-    public void ValidateProperty<T>(object? value, string path, SchemaProperty<T>? property, Guid? entityId = null) where T : Entity
+    public void ValidateProperty<T>(object? value, string path, SchemaProperty<T>? property, Guid? entityId = null)
+        where T : Entity
     {
         if (value is null || property is null)
             return;
@@ -126,7 +118,7 @@ public class CrudValidationService<TContext>(
             && value.ToString() is "00000000-0000-0000-0000-000000000000" or "0"
         )
             return;
-        
+
         if (path is "CreatedAt" or "UpdatedAt" && (DateTime)value == DateTime.MinValue)
             return;
 
@@ -142,7 +134,8 @@ public class CrudValidationService<TContext>(
         if (property is { MaxLength: > 0, Type: "String" } && value.ToString()?.Length > property.MaxLength)
             throw new EntityValidationException($"{path}: Maximum length exceeded.");
 
-        if (property.IsUnique && context.Set<T>().Any(x => (entityId == null || x.Id != entityId) && EF.Property<object>(x, property.Name).Equals(value)))
+        if (property.IsUnique && context.Set<T>().Any(x =>
+                (entityId == null || x.Id != entityId) && EF.Property<object>(x, property.Name).Equals(value)))
             throw new EntityValidationException($"{path}: This value violates a unique constraint.");
 
         if (property.RegexValidation is not null && !property.RegexValidation.IsMatch(value.ToString() ?? ""))

@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Digital.Net.Core.Entities.Models;
 using Digital.Net.Core.Services.Crud;
 using Digital.Net.Core.Services.Crud.Exceptions;
 using Digital.Net.Lib.Exceptions.types;
@@ -44,7 +45,7 @@ public class CrudServiceTest : UnitTest, IDisposable
 
     [Test]
     public async Task GetSchema_ReturnsCorrectSchema_WhenEntityHasProperties() =>
-        await Assert.That(_validationService.GetSchema<CrudTestEntity>()[0].Name).IsEqualTo("Name");
+        await Assert.That(SchemaProperty<CrudTestEntity>.Get()[0].Name).IsEqualTo("Name");
 
     [Test]
     public async Task Patch_UpdatesEntity_WhenQueryIsValid()
@@ -195,8 +196,7 @@ public class CrudServiceTest : UnitTest, IDisposable
     public async Task ValidateCreatePayload_DoesNotThrow_WhenEntityIsValid()
     {
         var entity = GetTestEntity();
-        _validationService.ValidateCreatePayload(entity); // throws = test fails
-        await Assert.That(true).IsTrue();
+        await Assert.That(() => _validationService.ValidateCreatePayload(entity)).ThrowsNothing();
     }
 
     [Test]
@@ -237,33 +237,28 @@ public class CrudServiceTest : UnitTest, IDisposable
     [Test]
     public async Task ValidateProperty_DoesNotThrow_WhenValueIsNull()
     {
-        var schema = _validationService.GetSchema<CrudTestEntity>().First(x => x.Name == "Name");
-        _validationService.ValidateProperty(null, "Name", schema);
-        await Assert.That(true).IsTrue();
+        var schema = SchemaProperty<CrudTestEntity>.Get().First(x => x.Name == "Name");
+        await Assert.That(() => _validationService.ValidateProperty(null, "Name", schema)).ThrowsNothing();
     }
 
     [Test]
-    public async Task ValidateProperty_DoesNotThrow_WhenSchemaPropertyIsNull()
-    {
-        _validationService.ValidateProperty<CrudTestEntity>("value", "Name", null);
-        await Assert.That(true).IsTrue();
-    }
+    public async Task ValidateProperty_DoesNotThrow_WhenSchemaPropertyIsNull() =>
+        await Assert.That(() => _validationService.ValidateProperty<CrudTestEntity>("value", "Name", null)).ThrowsNothing();
 
     [Test]
     public async Task ValidateProperty_DoesNotThrow_WhenRequiredStringHasValue()
     {
-        var schema = _validationService.GetSchema<CrudTestEntity>().First(x => x.Name == "Name");
-        _validationService.ValidateProperty("validname", "Name", schema);
-        await Assert.That(true).IsTrue();
+        var schema = SchemaProperty<CrudTestEntity>.Get().First(x => x.Name == "Name");
+        await Assert.That(() => _validationService.ValidateProperty("validname", "Name", schema)).ThrowsNothing();
     }
 
     [Test]
     public async Task ValidateProperty_Throws_WhenRequiredStringIsEmpty()
     {
-        var schema = _validationService.GetSchema<CrudTestEntity>().First(x => x.Name == "Name");
+        var schema = SchemaProperty<CrudTestEntity>.Get().First(x => x.Name == "Name");
         await Assert.ThrowsAsync<EntityValidationException>(async () =>
         {
-            _validationService.ValidateProperty<CrudTestEntity>("", "Name", schema);
+            _validationService.ValidateProperty("", "Name", schema);
             await Task.CompletedTask;
         });
     }
@@ -271,10 +266,10 @@ public class CrudServiceTest : UnitTest, IDisposable
     [Test]
     public async Task ValidateProperty_Throws_WhenMaxLengthExceeded()
     {
-        var schema = _validationService.GetSchema<CrudTestEntity>().First(x => x.Name == "UniqueField");
+        var schema = SchemaProperty<CrudTestEntity>.Get().First(x => x.Name == "UniqueField");
         await Assert.ThrowsAsync<EntityValidationException>(async () =>
         {
-            _validationService.ValidateProperty<CrudTestEntity>(new string('X', 65), "UniqueField", schema);
+            _validationService.ValidateProperty(new string('X', 65), "UniqueField", schema);
             await Task.CompletedTask;
         });
     }
@@ -282,10 +277,10 @@ public class CrudServiceTest : UnitTest, IDisposable
     [Test]
     public async Task ValidateProperty_Throws_WhenRegexFails()
     {
-        var schema = _validationService.GetSchema<CrudTestEntity>().First(x => x.Name == "Name");
+        var schema = SchemaProperty<CrudTestEntity>.Get().First(x => x.Name == "Name");
         await Assert.ThrowsAsync<EntityValidationException>(async () =>
         {
-            _validationService.ValidateProperty<CrudTestEntity>("ab", "Name", schema);
+            _validationService.ValidateProperty("ab", "Name", schema);
             await Task.CompletedTask;
         });
     }
