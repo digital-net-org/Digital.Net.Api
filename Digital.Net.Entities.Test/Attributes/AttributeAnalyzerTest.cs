@@ -113,4 +113,86 @@ public class AttributeAnalyzerTest : UnitTest
     [Test]
     public async Task GetRegex_ReturnsNotNull_ForRegexProperty() =>
         await Assert.That(AttributeAnalyzer<TestEntity>.GetRegex("SecretProperty")).IsNotNull();
+
+    // --- PropertyInfo overloads ---
+
+    [Test]
+    public async Task IsRequired_ReturnsTrue_ForRequiredProperty_ViaPropertyInfo() =>
+        await Assert.That(AttributeAnalyzer<TestEntity>.IsRequired(typeof(TestEntity).GetProperty("RequiredProperty")!)).IsTrue();
+
+    [Test]
+    public async Task IsRequired_ReturnsFalse_ForNonRequiredProperty_ViaPropertyInfo() =>
+        await Assert.That(AttributeAnalyzer<TestEntity>.IsRequired(typeof(TestEntity).GetProperty("UniqueProperty")!)).IsFalse();
+
+    [Test]
+    public async Task IsUnique_ReturnsTrue_ForUniqueProperty_ViaPropertyInfo() =>
+        await Assert.That(AttributeAnalyzer<TestEntity>.IsUnique(typeof(TestEntity).GetProperty("UniqueProperty")!)).IsTrue();
+
+    [Test]
+    public async Task IsUnique_ReturnsFalse_ForNonUniqueProperty_ViaPropertyInfo() =>
+        await Assert.That(AttributeAnalyzer<TestEntity>.IsUnique(typeof(TestEntity).GetProperty("RequiredProperty")!)).IsFalse();
+
+    [Test]
+    public async Task MaxLength_ReturnsCorrectLength_ForMaxLengthProperty_ViaPropertyInfo() =>
+        await Assert.That(AttributeAnalyzer<TestEntity>.MaxLength(typeof(TestEntity).GetProperty("MaxLengthProperty")!)).IsEqualTo(50);
+
+    [Test]
+    public async Task MaxLength_ReturnsNull_ForNonMaxLengthProperty_ViaPropertyInfo() =>
+        await Assert.That(AttributeAnalyzer<TestEntity>.MaxLength(typeof(TestEntity).GetProperty("RequiredProperty")!)).IsNull();
+
+    [Test]
+    public async Task IsIdentity_ReturnsTrue_ForIdentityProperty_ViaPropertyInfo() =>
+        await Assert.That(AttributeAnalyzer<TestEntity>.IsIdentity(typeof(TestEntity).GetProperty("IdentityProperty")!)).IsTrue();
+
+    [Test]
+    public async Task IsIdentity_ReturnsFalse_ForNonIdentityProperty_ViaPropertyInfo() =>
+        await Assert.That(AttributeAnalyzer<TestEntity>.IsIdentity(typeof(TestEntity).GetProperty("RequiredProperty")!)).IsFalse();
+
+    [Test]
+    public async Task IsForeignKey_ReturnsTrue_ForForeignKeyProperty_ViaPropertyInfo() =>
+        await Assert.That(AttributeAnalyzer<TestEntity>.IsForeignKey(typeof(TestEntity).GetProperty("ForeignKeyProperty")!)).IsTrue();
+
+    [Test]
+    public async Task IsForeignKey_ReturnsFalse_ForNonForeignKeyProperty_ViaPropertyInfo() =>
+        await Assert.That(AttributeAnalyzer<TestEntity>.IsForeignKey(typeof(TestEntity).GetProperty("RequiredProperty")!)).IsFalse();
+
+    [Test]
+    public async Task IsSecret_ReturnsTrue_ForSecretProperty_ViaPropertyInfo() =>
+        await Assert.That(AttributeAnalyzer<TestEntity>.IsSecret(typeof(TestEntity).GetProperty("SecretProperty")!)).IsTrue();
+
+    [Test]
+    public async Task IsSecret_ReturnsFalse_ForNonSecretProperty_ViaPropertyInfo() =>
+        await Assert.That(AttributeAnalyzer<TestEntity>.IsSecret(typeof(TestEntity).GetProperty("RequiredProperty")!)).IsFalse();
+
+    [Test]
+    public async Task IsReadOnly_ReturnsTrue_ForReadOnlyProperty_ViaPropertyInfo() =>
+        await Assert.That(AttributeAnalyzer<TestEntity>.IsReadOnly(typeof(TestEntity).GetProperty("FormProperty")!)).IsTrue();
+
+    [Test]
+    public async Task IsReadOnly_ReturnsFalse_ForNonReadOnlyProperty_ViaPropertyInfo() =>
+        await Assert.That(AttributeAnalyzer<TestEntity>.IsReadOnly(typeof(TestEntity).GetProperty("RequiredProperty")!)).IsFalse();
+
+    [Test]
+    public async Task GetPath_ReturnsColumnName_ForColumnProperty_ViaPropertyInfo() =>
+        await Assert.That(AttributeAnalyzer<TestEntity>.GetPath(typeof(TestEntity).GetProperty("FormProperty")!)).IsEqualTo("form_property");
+
+    [Test]
+    public async Task GetPath_ReturnsPropertyName_ForNonColumnProperty_ViaPropertyInfo() =>
+        await Assert.That(AttributeAnalyzer<TestEntity>.GetPath(typeof(TestEntity).GetProperty("RequiredProperty")!)).IsEqualTo("RequiredProperty");
+
+    [Test]
+    public async Task GetDataFlag_ReturnsFlag_ForFlaggedProperty_ViaPropertyInfo() =>
+        await Assert.That(AttributeAnalyzer<TestEntity>.GetDataFlag(typeof(TestEntity).GetProperty("FormProperty")!)).IsEqualTo("test_flag");
+
+    [Test]
+    public async Task GetDataFlag_ReturnsNull_ForUnflaggedProperty_ViaPropertyInfo() =>
+        await Assert.That(AttributeAnalyzer<TestEntity>.GetDataFlag(typeof(TestEntity).GetProperty("RequiredProperty")!)).IsNull();
+
+    [Test]
+    public async Task GetRegex_ReturnsNotNull_ForRegexProperty_ViaPropertyInfo() =>
+        await Assert.That(AttributeAnalyzer<TestEntity>.GetRegex(typeof(TestEntity).GetProperty("SecretProperty")!)).IsNotNull();
+
+    [Test]
+    public async Task GetRegex_ReturnsNull_ForNonRegexProperty_ViaPropertyInfo() =>
+        await Assert.That(AttributeAnalyzer<TestEntity>.GetRegex(typeof(TestEntity).GetProperty("RequiredProperty")!)).IsNull();
 }

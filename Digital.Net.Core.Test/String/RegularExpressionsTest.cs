@@ -66,6 +66,21 @@ public class RegularExpressionsTests : UnitTest
     }
 
     [Test]
+    [Arguments("valid-key-1", true)]
+    [Arguments("ValidKey", true)]
+    [Arguments("key 123", true)]
+    [Arguments("key_123", true)]
+    [Arguments("key-123", true)]
+    [Arguments("", false)]
+    [Arguments("key!@#", false)]
+    [Arguments("key.invalid", false)]
+    public async Task ApiKeyName_Regex_Should_Validate_Correctly(string name, bool expected)
+    {
+        var result = RegularExpressions.ApiKeyName.IsMatch(name);
+        await Assert.That(result).IsEqualTo(expected);
+    }
+
+    [Test]
     [Arguments("object.name", true)]
     [Arguments("object.name.too", true)]
     [Arguments(".object.name", true)]

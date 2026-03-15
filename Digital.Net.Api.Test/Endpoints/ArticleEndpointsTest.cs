@@ -24,6 +24,79 @@ public class ArticleEndpointsTest
     }
 
     [Test]
+    public async Task GetArticleById_ShouldReturnArticle()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var article = Application.GetCmsContext().BuildTestArticle();
+
+        var response = await client.GetArticleById(article.Id);
+        var result = await response.Content.ReadFromJsonAsync<Result<ArticleDto>>();
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+        await Assert.That(result!.Value!.Id).IsEqualTo(article.Id);
+        await Assert.That(result.Value.Name).IsEqualTo(article.Name);
+    }
+
+    [Test]
+    public async Task GetArticleById_ShouldReturnNotFound_WhenArticleDoesNotExist()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+
+        var response = await client.GetArticleById(Guid.NewGuid());
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.NotFound);
+    }
+
+    [Test]
+    public async Task GetArticles_ShouldReturnPaginatedArticles()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var context = Application.GetCmsContext();
+        context.BuildTestArticle();
+        context.BuildTestArticle();
+        context.BuildTestArticle();
+
+        var response = await client.GetArticles(new ArticleQuery { Size = 2, Index = 1 });
+        var result = await response.Content.ReadFromJsonAsync<QueryResult<ArticleDto>>();
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+        await Assert.That(result!.Size).IsEqualTo(2);
+        await Assert.That(result.Index).IsEqualTo(1);
+        await Assert.That(result.Total).IsGreaterThanOrEqualTo(3);
+    }
+
+    [Test]
+    public async Task GetArticles_ShouldFilterByPublished()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var context = Application.GetCmsContext();
+        context.BuildTestArticle(published: true);
+        context.BuildTestArticle(published: false);
+
+        var response = await client.GetArticles(new ArticleQuery { Published = true });
+        var result = await response.Content.ReadFromJsonAsync<QueryResult<ArticleDto>>();
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+        await Assert.That(result!.Value.All(a => a.Published)).IsTrue();
+    }
+
+    [Test]
+    public async Task GetArticles_ShouldFilterByName()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var context = Application.GetCmsContext();
+        var target = context.BuildTestArticle();
+        context.BuildTestArticle();
+
+        var response = await client.GetArticles(new ArticleQuery { Name = target.Name });
+        var result = await response.Content.ReadFromJsonAsync<QueryResult<ArticleDto>>();
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+        await Assert.That(result!.Value.Any(a => a.Id == target.Id)).IsTrue();
+        await Assert.That(result.Value.All(a => a.Name.StartsWith(target.Name))).IsTrue();
+    }
+
+    [Test]
     public async Task GetArticles_ShouldFilterByTagId()
     {
         var client = await CreateAuthenticatedClientAsync();
@@ -39,5 +112,77 @@ public class ArticleEndpointsTest
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
         await Assert.That(result!.Value.Any(a => a.Id == articleWithTag.Id)).IsTrue();
         await Assert.That(result.Value.Any(a => a.Id == articleWithoutTag.Id)).IsFalse();
+    }
+
+    [Test]
+    public async Task GetArticleByPath_ShouldReturnPublishedArticle()
+    {
+        var client = Application.CreateApplicationClient();
+        var path = "/article-path-" + Guid.NewGuid().ToString("N")[..8];
+        Application.GetCmsContext().BuildTestArticle(path: path, published: true);
+
+        var response = await client.GetArticleByPath(path);
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+    }
+
+    [Test]
+    public async Task GetArticleByPath_ShouldReturnNotFound_WhenNotPublished()
+    {
+        var client = Application.CreateApplicationClient();
+        var path = "/article-unpublished-" + Guid.NewGuid().ToString("N")[..8];
+        Application.GetCmsContext().BuildTestArticle(path: path, published: false);
+
+        var response = await client.GetArticleByPath(path);
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.NotFound);
+    }
+
+    [Test]
+    public async Task CreateArticle_ShouldCreateArticle()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var payload = new ArticlePayload
+        {
+            Path = "/new-article-" + Guid.NewGuid().ToString("N")[..8],
+            Name = "Test Article",
+            Content = "Test content body"
+        };
+
+        var response = await client.CreateArticle(payload);
+        var result = await response.Content.ReadFromJsonAsync<Result<Guid>>();
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+        await Assert.That(result!.Value).IsNotEqualTo(Guid.Empty);
+    }
+
+    [Test]
+    public async Task PatchArticle_ShouldUpdateArticle()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var article = Application.GetCmsContext().BuildTestArticle();
+
+        var patch = new[] { new { op = "replace", path = "/Name", value = "UpdatedName" } };
+        var response = await client.PatchArticle(article.Id, patch);
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+
+        var getResponse = await client.GetArticleById(article.Id);
+        var result = await getResponse.Content.ReadFromJsonAsync<Result<ArticleDto>>();
+        await Assert.That(result!.Value!.Name).IsEqualTo("UpdatedName");
+    }
+
+    [Test]
+    public async Task DeleteArticle_ShouldDeleteArticle()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var article = Application.GetCmsContext().BuildTestArticle();
+
+        var response = await client.DeleteArticle(article.Id);
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+
+        var getResponse = await client.GetArticleById(article.Id);
+        await Assert.That(getResponse.StatusCode).EqualTo(HttpStatusCode.NotFound);
     }
 }

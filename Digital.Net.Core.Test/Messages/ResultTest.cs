@@ -100,6 +100,54 @@ public class ResultTest : UnitTest
         await Assert.That(model.HasErrorOfType<NotImplementedException>()).IsFalse();
     }
 
+    [Test]
+    public async Task TryAsync_ReturnsResultWithError_WhenExceptionThrown()
+    {
+        var model = new Result();
+        await model.TryAsync(async () =>
+        {
+            await Task.Yield();
+            throw new Exception("Async error");
+            return new Result<string>();
+        });
+        await Assert.That(model.HasError).IsTrue();
+        await Assert.That(model.Errors[0].Message).IsEqualTo("Async error");
+    }
+
+    [Test]
+    public async Task TryAsync_ReturnsResultWithoutError_WhenNoExceptionThrown()
+    {
+        var model = new Result();
+        await model.TryAsync(async () =>
+        {
+            await Task.Yield();
+            return new Result<string>("ok");
+        });
+        await Assert.That(model.HasError).IsFalse();
+    }
+
+    [Test]
+    public async Task ClearErrors_RemovesAllErrors()
+    {
+        var model = new Result();
+        model.AddError(new Exception("Error 1"));
+        model.AddError(new Exception("Error 2"));
+        await Assert.That(model.HasError).IsTrue();
+
+        model.ClearErrors();
+        await Assert.That(model.HasError).IsFalse();
+        await Assert.That(model.Errors).IsEmpty();
+    }
+
+    [Test]
+    public async Task AddInfo_AddsInfoMessage()
+    {
+        var model = new Result();
+        model.AddInfo("Test info");
+        await Assert.That(model.Infos).HasSingleItem();
+        await Assert.That(model.Infos[0].Message).IsEqualTo("Test info");
+    }
+
     private enum TestEnum
     {
         [Display(Name = "Test of very simple case")]

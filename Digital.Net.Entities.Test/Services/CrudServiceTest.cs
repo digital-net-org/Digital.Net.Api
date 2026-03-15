@@ -191,6 +191,122 @@ public class CrudServiceTest : UnitTest, IDisposable
         await Assert.That(result.HasError).IsTrue();
     }
 
+    // --- ValidateCreatePayload direct tests ---
+
+    [Test]
+    public async Task ValidateCreatePayload_DoesNotThrow_WhenEntityIsValid()
+    {
+        var entity = GetTestEntity();
+        _validationService.ValidateCreatePayload(entity); // throws = test fails
+        await Assert.That(true).IsTrue();
+    }
+
+    [Test]
+    public async Task ValidateCreatePayload_Throws_WhenRequiredStringIsEmpty()
+    {
+        var entity = new TestEntity { Name = "", UniqueField = "SomeUniqueVal" };
+        await Assert.ThrowsAsync<EntityValidationException>(async () =>
+        {
+            _validationService.ValidateCreatePayload(entity);
+            await Task.CompletedTask;
+        });
+    }
+
+    [Test]
+    public async Task ValidateCreatePayload_Throws_WhenRegexViolated()
+    {
+        var entity = new TestEntity { Name = "ab", UniqueField = "SomeUniqueVal" };
+        await Assert.ThrowsAsync<EntityValidationException>(async () =>
+        {
+            _validationService.ValidateCreatePayload(entity);
+            await Task.CompletedTask;
+        });
+    }
+
+    [Test]
+    public async Task ValidateCreatePayload_Throws_WhenMaxLengthExceeded()
+    {
+        var entity = new TestEntity { Name = "validname", UniqueField = new string('X', 65) };
+        await Assert.ThrowsAsync<EntityValidationException>(async () =>
+        {
+            _validationService.ValidateCreatePayload(entity);
+            await Task.CompletedTask;
+        });
+    }
+
+    // --- ValidateProperty direct tests ---
+
+    [Test]
+    public async Task ValidateProperty_DoesNotThrow_WhenValueIsNull()
+    {
+        var schema = _validationService.GetSchema<TestEntity>().First(x => x.Name == "Name");
+        _validationService.ValidateProperty<TestEntity>(null, "Name", schema);
+        await Assert.That(true).IsTrue();
+    }
+
+    [Test]
+    public async Task ValidateProperty_DoesNotThrow_WhenSchemaPropertyIsNull()
+    {
+        _validationService.ValidateProperty<TestEntity>("value", "Name", null);
+        await Assert.That(true).IsTrue();
+    }
+
+    [Test]
+    public async Task ValidateProperty_DoesNotThrow_WhenRequiredStringHasValue()
+    {
+        var schema = _validationService.GetSchema<TestEntity>().First(x => x.Name == "Name");
+        _validationService.ValidateProperty<TestEntity>("validname", "Name", schema);
+        await Assert.That(true).IsTrue();
+    }
+
+    [Test]
+    public async Task ValidateProperty_Throws_WhenRequiredStringIsEmpty()
+    {
+        var schema = _validationService.GetSchema<TestEntity>().First(x => x.Name == "Name");
+        await Assert.ThrowsAsync<EntityValidationException>(async () =>
+        {
+            _validationService.ValidateProperty<TestEntity>("", "Name", schema);
+            await Task.CompletedTask;
+        });
+    }
+
+    [Test]
+    public async Task ValidateProperty_Throws_WhenMaxLengthExceeded()
+    {
+        var schema = _validationService.GetSchema<TestEntity>().First(x => x.Name == "UniqueField");
+        await Assert.ThrowsAsync<EntityValidationException>(async () =>
+        {
+            _validationService.ValidateProperty<TestEntity>(new string('X', 65), "UniqueField", schema);
+            await Task.CompletedTask;
+        });
+    }
+
+    [Test]
+    public async Task ValidateProperty_Throws_WhenRegexFails()
+    {
+        var schema = _validationService.GetSchema<TestEntity>().First(x => x.Name == "Name");
+        await Assert.ThrowsAsync<EntityValidationException>(async () =>
+        {
+            _validationService.ValidateProperty<TestEntity>("ab", "Name", schema);
+            await Task.CompletedTask;
+        });
+    }
+
+    // --- BUG-001: unique constraint self-patch ---
+
+    [Test]
+    [Skip("BUG-001: ValidateProperty unique check finds the entity itself — see .doc/user-stories/bugfixes.md")]
+    public async Task Patch_Succeeds_WhenPatchingUniqueFieldToSameValue()
+    {
+        var entity = GetTestEntity();
+        await _context.TestEntities.AddAsync(entity);
+        await _context.SaveChangesAsync();
+
+        // Patch UniqueField to the value it already has — should not be a conflict
+        var result = await _service.Patch(CreatePatch(e => e.UniqueField, entity.UniqueField), entity.Id);
+        await Assert.That(result.HasError).IsFalse();
+    }
+
     public void Dispose()
     {
         _connection.Dispose();
