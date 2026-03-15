@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Digital.Net.Api.Services.Authentication;
+using Digital.Net.Api.Services.Authentication.Options;
 using Digital.Net.Core.Http;
+using Digital.Net.Core.Settings;
+using Digital.Net.Cms.Context;
 using Digital.Net.Entities.Context;
 using Digital.Net.Entities.Models.Users;
 using Digital.Net.Tests.Core.Factories.Data;
@@ -55,9 +58,27 @@ public class TestApplication : IAsyncInitializer, IAsyncDisposable
     public DigitalContext GetContext() => Factory.Services.GetRequiredService<DigitalContext>();
 
     /// <summary>
+    ///     Retrieves an instance of the CmsContext using the application's service configuration.
+    /// </summary>
+    public CmsContext GetCmsContext() => Factory.Services.GetRequiredService<CmsContext>();
+
+    /// <summary>
     ///     Creates and configures an HttpClient instance to interact with the application's services.
     /// </summary>
     public HttpClient CreateClient() => Factory.CreateClient();
+
+    /// <summary>
+    ///     Creates an HttpClient pre-configured with the Application key header for Application-authenticated endpoints.
+    /// </summary>
+    public HttpClient CreateApplicationClient()
+    {
+        var client = Factory.CreateClient();
+        client.DefaultRequestHeaders.Add(
+            AuthenticationStaticOptions.ApplicationKeyHeaderAccessor,
+            GetConfiguration<string>(AppSettings.ApplicationKeyKey)
+        );
+        return client;
+    }
 
     /// <summary>
     ///     Creates multiple HttpClient instances.

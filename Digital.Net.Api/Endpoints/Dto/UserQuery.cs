@@ -1,4 +1,4 @@
-using Digital.Net.Entities.Crud.Enpoints;
+using Digital.Net.Entities.Crud.Endpoints;
 
 namespace Digital.Net.Api.Endpoints.Dto;
 

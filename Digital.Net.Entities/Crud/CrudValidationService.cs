@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Reflection;
 using Digital.Net.Core.String;
-using Digital.Net.Entities.Context;
 using Digital.Net.Entities.Exceptions;
 using Digital.Net.Entities.Models;
 using Microsoft.AspNetCore.JsonPatch;
@@ -10,16 +9,17 @@ using Newtonsoft.Json.Linq;
 
 namespace Digital.Net.Entities.Crud;
 
-public class CrudValidationService(
-    DigitalContext context
-) : ICrudValidationService
+public class CrudValidationService<TContext>(
+    TContext context
+) : ICrudValidationService<TContext>
+    where TContext : DbContext
 {
     public List<SchemaProperty<T>> GetSchema<T>() where T : Entity =>
         typeof(T).GetProperties().Select(property => new SchemaProperty<T>(property)).ToList();
 
     private void ValidateDynamicPayload(Entity entity)
     {
-        var schema = typeof(CrudValidationService)
+        var schema = typeof(CrudValidationService<TContext>)
             .GetMethod("GetSchema")!
             .MakeGenericMethod(entity.GetType())
             .Invoke(this, null);
@@ -31,7 +31,7 @@ public class CrudValidationService(
                 .FirstOrDefault(p => 
                     (string)p.GetType().GetProperty("Name")!.GetValue(p)! == property.Name);
 
-            var validateMethod = typeof(CrudValidationService)
+            var validateMethod = typeof(CrudValidationService<TContext>)
                 .GetMethod("ValidateProperty")!
                 .MakeGenericMethod(entity.GetType());
 
@@ -92,6 +92,10 @@ public class CrudValidationService(
             var propertyType = GetNestedType<T>(pathParts);
             if (typeof(Entity).IsAssignableFrom(propertyType) && pathParts.Count == 2)
             {
+                var parentSchemaProperty = schema.FirstOrDefault(x =>
+                    x.Name.Equals(pathParts[0], StringComparison.CurrentCultureIgnoreCase));
+                if (parentSchemaProperty is { IsReadOnly: true } or { IsIdentity: true })
+                    throw new EntityValidationException($"{pathParts[0]}: This field is read-only.");
                 var entity = JObject.FromObject(o.value!).ToObject(propertyType) as Entity
                              ?? throw new EntityValidationException($"{o.path}: Invalid entity type.");
                 ValidateDynamicPayload(entity);

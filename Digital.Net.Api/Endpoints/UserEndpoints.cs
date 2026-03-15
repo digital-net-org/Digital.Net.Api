@@ -11,8 +11,9 @@ using Digital.Net.Api.Services.Users;
 using Digital.Net.Api.Services.Users.Events;
 using Digital.Net.Core.Formatters;
 using Digital.Net.Core.Messages;
+using Digital.Net.Entities.Context;
 using Digital.Net.Entities.Crud;
-using Digital.Net.Entities.Crud.Enpoints;
+using Digital.Net.Entities.Crud.Endpoints;
 using Digital.Net.Entities.Exceptions;
 using Digital.Net.Entities.Models.Events;
 using Digital.Net.Entities.Models.Users;
@@ -34,7 +35,7 @@ public static class UserEndpoints
             .RequireRateLimiting(GlobalLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
-        group.MapCrudSchema<User>("");
+        group.MapCrudSchema<DigitalContext, User>("");
 
         group
             .MapGet("/self", GetSelf)

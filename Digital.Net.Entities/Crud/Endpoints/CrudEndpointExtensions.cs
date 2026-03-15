@@ -10,8 +10,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
 
-namespace Digital.Net.Entities.Crud.Enpoints;
+namespace Digital.Net.Entities.Crud.Endpoints;
 
 /// <summary>
 ///     Extension methods to map CRUD endpoints for entities to Minimal API routes.
@@ -22,18 +23,20 @@ public static class CrudEndpointExtensions
     /// <summary>
     ///     Maps a GET endpoint to retrieve the entity schema.
     /// </summary>
+    /// <typeparam name="TContext">The DbContext type</typeparam>
     /// <typeparam name="T">The entity type</typeparam>
     /// <param name="app">The endpoint route builder</param>
     /// <param name="route">The base route for the CRUD operations</param>
     /// <returns>A RouteHandlerBuilder for further configuration</returns>
-    public static RouteHandlerBuilder MapCrudSchema<T>(
+    public static RouteHandlerBuilder MapCrudSchema<TContext, T>(
         this IEndpointRouteBuilder app,
         string route
     )
+        where TContext : DbContext
         where T : Entity =>
         app
             .MapGet($"{route}/schema", (
-                ICrudValidationService crudValidationService
+                ICrudValidationService<TContext> crudValidationService
             ) =>
             {
                 var result = new Result<List<SchemaProperty<T>>>(crudValidationService.GetSchema<T>());

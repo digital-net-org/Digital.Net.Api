@@ -3,8 +3,9 @@ using System.Net.Http.Json;
 using Digital.Net.Api.Endpoints.Dto;
 using Digital.Net.Api.Services.Authentication.Events;
 using Digital.Net.Core.Messages;
-using Digital.Net.Entities.Crud.Enpoints;
+using Digital.Net.Entities.Crud.Endpoints;
 using Digital.Net.Entities.Models.Events;
+using Digital.Net.Entities.Models.Users;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data.Records;
 using Digital.Net.Tests.Core.Sdk;
@@ -16,7 +17,7 @@ public class EventsEndpointsTest
     [ClassDataSource<TestApplication>]
     public required TestApplication Application { get; init; }
 
-    private async Task<(Entities.Models.Users.User, HttpClient)> CreateTestAdminAsync()
+    private async Task<(User, HttpClient)> CreateTestAdminAsync()
     {
         var admin = Application.CreateUser(new TestUserPayload { IsActive = true, IsAdmin = true });
         var client = Application.CreateClient();

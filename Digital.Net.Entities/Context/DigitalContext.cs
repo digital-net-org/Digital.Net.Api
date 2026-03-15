@@ -4,7 +4,6 @@ using Digital.Net.Entities.Models.ApiTokens;
 using Digital.Net.Entities.Models.Avatars;
 using Digital.Net.Entities.Models.Documents;
 using Digital.Net.Entities.Models.Events;
-using Digital.Net.Entities.Models.Pages;
 using Digital.Net.Entities.Models.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,8 +19,6 @@ public class DigitalContext(DbContextOptions<DigitalContext> options) : DbContex
     public DbSet<Document> Documents { get; init; }
     public DbSet<Event> Events { get; init; }
     public DbSet<User> Users { get; init; }
-    public DbSet<Page> Pages { get; init; }
-    public DbSet<PageOpenGraph> PageMetas { get; init; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => 
         optionsBuilder.AddInterceptors(
@@ -34,7 +31,7 @@ public class DigitalContext(DbContextOptions<DigitalContext> options) : DbContex
 
         builder
             .Entity<User>()
-            .HasMany<ApiKey>()
+            .HasMany(u => u.ApiKeys)
             .WithOne(ak => ak.User)
             .HasForeignKey(ak => ak.UserId)
             .OnDelete(DeleteBehavior.Cascade);

@@ -62,7 +62,6 @@ public static class DigitalSdkInjector
             .MapApiKeyEndpoints()
             .MapAdministrationEndpoints()
             .MapEventsEndpoints()
-            .MapPageEndpoints()
             .MapValidationEndpoints();
 
         if (AspNetEnv.IsDevelopment)

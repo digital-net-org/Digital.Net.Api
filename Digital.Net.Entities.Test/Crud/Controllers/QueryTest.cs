@@ -1,4 +1,4 @@
-﻿using Digital.Net.Entities.Crud.Enpoints;
+﻿using Digital.Net.Entities.Crud.Endpoints;
 using Digital.Net.Tests.Core;
 
 namespace Digital.Net.Entities.Test.Crud.Controllers;

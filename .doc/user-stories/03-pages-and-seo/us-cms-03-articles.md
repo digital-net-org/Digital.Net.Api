@@ -2,7 +2,7 @@
 
 | Statut Backend | Statut Backoffice |
 | :---: | :---: |
-| `TO DO` | `TO DO` |
+| `DONE` | `TO DO` |
 * **En tant que** contributeur / rédacteur
 * **Je veux** pouvoir créer, éditer et supprimer des articles
 * **Afin de** publier du contenu éditorial riche sur le site.

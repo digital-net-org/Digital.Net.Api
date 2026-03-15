@@ -13,7 +13,8 @@ using Digital.Net.Api.Services.Users.Exceptions;
 using Digital.Net.Core.Exceptions.types;
 using Digital.Net.Core.Messages;
 using Digital.Net.Core.Predicates;
-using Digital.Net.Entities.Crud.Enpoints;
+using Digital.Net.Entities.Context;
+using Digital.Net.Entities.Crud.Endpoints;
 using Digital.Net.Entities.Models.Events;
 using Digital.Net.Entities.Models.Users;
 using Microsoft.AspNetCore.Builder;
@@ -41,7 +42,7 @@ public static class AdministrationEndpoints
             .WithDescription("Retrieves a user by their unique identifier.");
 
         controller
-            .MapPaginationGet<User, UserDto, UserQuery>("user", PaginationFilter)
+            .MapPaginationGet<DigitalContext, User, UserDto, UserQuery>("user", PaginationFilter)
             .WithSummary("GetPaginatedUsers")
             .WithDescription("Retrieves a paginated list of users with filtering and sorting options.");
 

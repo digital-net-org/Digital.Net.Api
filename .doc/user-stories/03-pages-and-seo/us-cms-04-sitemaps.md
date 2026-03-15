@@ -2,7 +2,7 @@
 
 | Statut Backend | Statut Backoffice |
 | :---: | :---: |
-| `TO DO` | `TO DO` |
+| `DONE` | `TO DO` |
 * **En tant que** générateur de rendu front-end (ex: application Next.js)
 * **Je veux** pouvoir interroger une API me listant toutes les urls du site
 * **Afin de** générer moi-même les fichiers `sitemap.xml` finaux pour les moteurs de recherche.

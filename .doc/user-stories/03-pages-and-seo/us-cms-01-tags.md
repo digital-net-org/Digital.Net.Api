@@ -1,8 +1,8 @@
 # US-CMS-01 : Catégorisation des Articles par Tags
 
 | Statut Backend | Statut Backoffice |
-| :---: | :---: |
-| `TO DO` | `TO DO` |
+|:--------------:| :---: |
+|     `DONE`     | `TO DO` |
 * **En tant que** contributeur / rédacteur
 * **Je veux** pouvoir associer des tags à mes articles
 * **Afin de** classer le contenu thématiquement et faciliter la recherche par les utilisateurs du site.

@@ -4,14 +4,15 @@ using Digital.Net.Core.Messages;
 using Digital.Net.Core.Models;
 using Digital.Net.Entities.Models;
 using Microsoft.AspNetCore.JsonPatch;
-using Digital.Net.Entities.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Entities.Crud;
 
-public class CrudService<T>(
-    DigitalContext context,
-    ICrudValidationService crudValidationService
+public class CrudService<TContext, T>(
+    TContext context,
+    ICrudValidationService<TContext> crudValidationService
 ) : ICrudService<T>
+    where TContext : DbContext
     where T : Entity
 {
     public Result<TModel> GetFirst<TModel>(Expression<Func<T, bool>> expression) where TModel : class

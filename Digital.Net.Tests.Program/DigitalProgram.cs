@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Digital.Net.Api;
 using Digital.Net.Api.Services.Authentication.Filters;
+using Digital.Net.Cms;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -13,9 +14,11 @@ public sealed class DigitalProgram
     {
         var app = WebApplication.CreateBuilder(args)
             .AddDigitalNet()
+            .AddDigitalCms()
             .Build();
 
         app.UseDigitalNet();
+        app.UseDigitalCms();
         MapTestEndpoints(app);
 
 

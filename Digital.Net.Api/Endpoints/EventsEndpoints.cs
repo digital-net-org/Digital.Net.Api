@@ -3,7 +3,8 @@ using Digital.Net.Api.Endpoints.Dto;
 using Digital.Net.Api.RateLimiter.Limiters;
 using Digital.Net.Api.Services.Authentication.Filters;
 using Digital.Net.Core.Predicates;
-using Digital.Net.Entities.Crud.Enpoints;
+using Digital.Net.Entities.Context;
+using Digital.Net.Entities.Crud.Endpoints;
 using Digital.Net.Entities.Models.Events;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -28,7 +29,7 @@ public static class EventsEndpoints
             .WithDescription("Retrieves an audit event by its unique identifier.");
 
         controller
-            .MapPaginationGet<Event, EventDto, EventQuery>("", PaginationFilter)
+            .MapPaginationGet<DigitalContext, Event, EventDto, EventQuery>("", PaginationFilter)
             .WithSummary("GetPaginatedEvents")
             .WithDescription("Retrieves a paginated, filterable list of audit events.");
 

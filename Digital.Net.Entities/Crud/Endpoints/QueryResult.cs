@@ -1,6 +1,6 @@
 ﻿using Digital.Net.Core.Messages;
 
-namespace Digital.Net.Entities.Crud.Enpoints;
+namespace Digital.Net.Entities.Crud.Endpoints;
 
 public class QueryResult<T> : Result<T> where T : class
 {

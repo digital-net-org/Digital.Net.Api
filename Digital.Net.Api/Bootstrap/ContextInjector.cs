@@ -3,6 +3,8 @@ using Digital.Net.Core.Settings;
 using Digital.Net.Entities.Context;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Digital.Net.Api.Bootstrap;
@@ -26,7 +28,12 @@ public static class ContextInjector
         if (useSqlite)
         {
             var context = builder.Services.BuildServiceProvider().GetService<T>();
-            context?.Database.EnsureCreated();
+            if (context is not null)
+            {
+                context.Database.EnsureCreated();
+                try { context.Database.GetService<IRelationalDatabaseCreator>().CreateTables(); }
+                catch { /* Tables may already exist in a shared SQLite file (multiple DbContexts) */ }
+            }
         }
 
         return builder;

@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Digital.Net.Core.String;
 using Digital.Net.Entities.Attributes;
+using Digital.Net.Entities.Models.ApiKeys;
 using Digital.Net.Entities.Models.Avatars;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,7 +28,11 @@ public class User : Entity
     [ForeignKey("Avatar")]
     public Guid? AvatarId { get; set; }
 
+    [ReadOnly]
     public virtual Avatar? Avatar { get; set; }
+
+    [ReadOnly]
+    public virtual List<ApiKey> ApiKeys { get; set; } = [];
 
     [Column("Password")]
     [MaxLength(128)]

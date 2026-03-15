@@ -5,7 +5,7 @@ using Digital.Net.Api.Endpoints.Dto;
 using Digital.Net.Api.Services.Users.Events;
 using Digital.Net.Api.Services.Users.Events.Types;
 using Digital.Net.Core.Messages;
-using Digital.Net.Entities.Crud.Enpoints;
+using Digital.Net.Entities.Crud.Endpoints;
 using Digital.Net.Entities.Models.Events;
 using Digital.Net.Entities.Models.Users;
 using Digital.Net.Tests.Core.Factories;

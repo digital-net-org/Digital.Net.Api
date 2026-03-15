@@ -2,14 +2,13 @@ using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using Digital.Net.Core.Models;
 using Digital.Net.Core.Predicates;
-using Digital.Net.Entities.Context;
 using Digital.Net.Entities.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 
-namespace Digital.Net.Entities.Crud.Enpoints;
+namespace Digital.Net.Entities.Crud.Endpoints;
 
 /// <summary>
 ///     Extension methods to map pagination endpoints for entities to Minimal API routes.
@@ -17,8 +16,10 @@ namespace Digital.Net.Entities.Crud.Enpoints;
 public static class PaginationEndpointExtensions
 {
     /// <summary>
-    ///     Maps a GET endpoint to retrieve a paginated list of entities with optional filtering.
+    ///     Maps a GET endpoint to retrieve a paginated list of entities with optional filtering,
+    ///     using a generic <typeparamref name="TContext" /> database context.
     /// </summary>
+    /// <typeparam name="TContext">The DbContext type to use</typeparam>
     /// <typeparam name="T">The entity type</typeparam>
     /// <typeparam name="TDto">The DTO type to return</typeparam>
     /// <typeparam name="TQuery">The query type containing pagination and filter parameters</typeparam>
@@ -26,11 +27,12 @@ public static class PaginationEndpointExtensions
     /// <param name="route">The base route for the pagination endpoint</param>
     /// <param name="filter">Optional function to add custom filters to the query predicate</param>
     /// <returns>A RouteHandlerBuilder for further configuration</returns>
-    public static RouteHandlerBuilder MapPaginationGet<T, TDto, TQuery>(
+    public static RouteHandlerBuilder MapPaginationGet<TContext, T, TDto, TQuery>(
         this IEndpointRouteBuilder app,
         string route,
         Func<Expression<Func<T, bool>>, TQuery, Expression<Func<T, bool>>>? filter = null
     )
+        where TContext : DbContext
         where T : Entity
         where TDto : class
         where TQuery : Query =>
@@ -38,7 +40,7 @@ public static class PaginationEndpointExtensions
             .MapGet($"{route}", (
                 [AsParameters]
                 TQuery query,
-                DigitalContext context
+                TContext context
             ) =>
             {
                 query.ValidateParameters();

@@ -6,4 +6,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="../Digital.Net.Api/Digital.Net.Api.csproj" />
+    </ItemGroup>
+
 </Project>

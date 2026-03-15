@@ -1,9 +1,9 @@
 using System.Net;
 using System.Net.Http.Json;
-using Digital.Net.Api.Endpoints.Dto;
+using Digital.Net.Cms.Endpoints.Dto;
+using Digital.Net.Cms.Models;
 using Digital.Net.Core.Messages;
-using Digital.Net.Entities.Crud.Enpoints;
-using Digital.Net.Entities.Models.Pages;
+using Digital.Net.Entities.Crud.Endpoints;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data;
 using Digital.Net.Tests.Core.Factories.Data.Records;
@@ -24,15 +24,15 @@ public class PageEndpointsTest
         return client;
     }
 
-    private Page CreateTestPage(string? title = null, string? path = null, bool isPublished = false) =>
-        Application.GetContext().BuildTestPage(title, path, isPublished);
+    private Page CreateTestPage(string? path = null, bool published = false) =>
+        Application.GetCmsContext().BuildTestPage(path, published);
 
     [Test]
     public async Task CreatePage_ShouldCreatePage()
     {
         var client = await CreateAuthenticatedClientAsync();
         var payload = new PagePayload
-            { Title = "TestPage", Path = "/test-create-page-" + Guid.NewGuid().ToString("N")[..8] };
+            { Path = "/test-create-page-" + Guid.NewGuid().ToString("N")[..8] };
 
         var response = await client.CreatePage(payload);
 
@@ -50,7 +50,7 @@ public class PageEndpointsTest
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
         await Assert.That(result!.Value!.Id).IsEqualTo(page.Id);
-        await Assert.That(result.Value!.Title).IsEqualTo(page.Title);
+        await Assert.That(result.Value!.Path).IsEqualTo(page.Path);
     }
 
     [Test]
@@ -72,34 +72,19 @@ public class PageEndpointsTest
     }
 
     [Test]
-    public async Task GetPages_ShouldFilterByTitle()
+    public async Task GetPages_ShouldFilterByPublished()
     {
         var client = await CreateAuthenticatedClientAsync();
-        var target = CreateTestPage("UniqueFilterTitle");
-        CreateTestPage();
+        CreateTestPage(published: true);
+        CreateTestPage(published: false);
 
-        var response = await client.GetPages(new PageQuery { Title = "UniqueFilter" });
+        var response = await client.GetPages(new PageQuery { Published = true });
         var result = await response.Content.ReadFromJsonAsync<QueryResult<PageDto>>();
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
-        await Assert.That(result!.Total).IsEqualTo(1);
-        await Assert.That(result.Value.FirstOrDefault(p => p.Id == target.Id)).IsNotNull();
+        await Assert.That(result!.Value.All(p => p.Published)).IsTrue();
     }
 
-    [Test]
-    public async Task GetPages_ShouldFilterByIsPublished()
-    {
-        var client = await CreateAuthenticatedClientAsync();
-        CreateTestPage(isPublished: true);
-        CreateTestPage(isPublished: false);
-
-        var response = await client.GetPages(new PageQuery { IsPublished = true });
-        var result = await response.Content.ReadFromJsonAsync<QueryResult<PageDto>>();
-
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
-        await Assert.That(result!.Value.All(p => p.IsPublished == true)).IsTrue();
-    }
-    
     [Test]
     public async Task PatchPage_ShouldUpdatePage()
     {
@@ -123,7 +108,7 @@ public class PageEndpointsTest
         var client = await CreateAuthenticatedClientAsync();
         var page = CreateTestPage();
 
-        var tooLongTitle = new string('A', 65);
+        var tooLongTitle = new string('A', 257);
         var patch = new[] { new { op = "replace", path = "/Title", value = tooLongTitle } };
         var response = await client.PatchPage(page.Id, patch);
 
@@ -147,9 +132,9 @@ public class PageEndpointsTest
     [Test]
     public async Task GetPageByPath_ShouldReturnPublishedPage()
     {
-        var client = Application.CreateClient();
+        var client = Application.CreateApplicationClient();
         var uniquePath = "test-public-path-" + Guid.NewGuid().ToString("N")[..8];
-        CreateTestPage(path: uniquePath, isPublished: true);
+        CreateTestPage(uniquePath, true);
 
         var response = await client.GetPageByPath(uniquePath);
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
@@ -158,9 +143,9 @@ public class PageEndpointsTest
     [Test]
     public async Task GetPageByPath_ShouldReturnNotFound_WhenPageIsNotPublished()
     {
-        var client = Application.CreateClient();
+        var client = Application.CreateApplicationClient();
         var uniquePath = "test-unpublished-" + Guid.NewGuid().ToString("N")[..8];
-        CreateTestPage(path: uniquePath, isPublished: false);
+        CreateTestPage(uniquePath, false);
 
         var response = await client.GetPageByPath(uniquePath);
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.NotFound);

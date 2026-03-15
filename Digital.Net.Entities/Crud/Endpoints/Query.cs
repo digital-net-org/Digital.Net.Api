@@ -1,4 +1,4 @@
-﻿namespace Digital.Net.Entities.Crud.Enpoints;
+﻿namespace Digital.Net.Entities.Crud.Endpoints;
 
 public class Query
 {

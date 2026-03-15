@@ -10,6 +10,7 @@
     
     <ItemGroup>
         <ProjectReference Include="..\Digital.Net.Api\Digital.Net.Api.csproj"/>
+        <ProjectReference Include="..\Digital.Net.Cms\Digital.Net.Cms.csproj"/>
         <ProjectReference Include="..\Digital.Net.Tests.Core\Digital.Net.Tests.Core.csproj" />
         <ProjectReference Include="..\Digital.Net.Tests.Program\Digital.Net.Tests.Program.csproj"/>
     </ItemGroup>

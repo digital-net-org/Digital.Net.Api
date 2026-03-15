@@ -1,9 +1,10 @@
 using Digital.Net.Entities.Models;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Entities.Crud;
 
-public interface ICrudValidationService
+public interface ICrudValidationService<TContext> where TContext : DbContext
 {
     /// <summary>
     ///     Get a schema of the entity describing its properties.

@@ -164,6 +164,32 @@ public class UserEndpointsTest
     }
 
     [Test]
+    public async Task PatchSelf_ShouldRejectReadOnlyAvatarMutation()
+    {
+        var (_, client) = await CreateAuthenticatedUserAsync();
+
+        var patch = new[] { new { op = "replace", path = "/Avatar", value = new { Id = Guid.NewGuid() } } };
+        var response = await client.PatchSelf(patch);
+        var result = await response.Content.ReadFromJsonAsync<Result>();
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.BadRequest);
+        await Assert.That(result!.Errors.Any(e => e.Reference == "DIGITAL_NET_ENTITIES_EXCEPTIONS_ENTITYVALIDATIONEXCEPTION")).IsTrue();
+    }
+
+    [Test]
+    public async Task PatchSelf_ShouldRejectReadOnlyApiKeyMutation()
+    {
+        var (_, client) = await CreateAuthenticatedUserAsync();
+
+        var patch = new[] { new { op = "add", path = "/ApiKeys/-", value = new { Name = "hacked", Key = "xxx" } } };
+        var response = await client.PatchSelf(patch);
+        var result = await response.Content.ReadFromJsonAsync<Result>();
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.BadRequest);
+        await Assert.That(result!.Errors.Any(e => e.Reference == "DIGITAL_NET_ENTITIES_EXCEPTIONS_ENTITYVALIDATIONEXCEPTION")).IsTrue();
+    }
+
+    [Test]
     public async Task PatchSelf_ShouldRejectInvalidEmail()
     {
         var (_, client) = await CreateAuthenticatedUserAsync();

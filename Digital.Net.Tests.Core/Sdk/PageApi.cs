@@ -2,14 +2,14 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using Digital.Net.Api.Endpoints.Dto;
+using Digital.Net.Cms.Endpoints.Dto;
 using Digital.Net.Core.Http;
 
 namespace Digital.Net.Tests.Core.Sdk;
 
 public static class PageApi
 {
-    public const string BaseUrl = "/page";
+    public const string BaseUrl = "/cms/pages";
 
     public static async Task<HttpResponseMessage> GetPageById(this HttpClient client, Guid pageId) =>
         await client.GetAsync($"{BaseUrl}/{pageId}");

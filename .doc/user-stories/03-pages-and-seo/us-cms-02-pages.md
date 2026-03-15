@@ -2,7 +2,7 @@
 
 | Statut Backend | Statut Backoffice |
 | :---: | :---: |
-| `TO DO` | `TO DO` |
+| `DONE` | `TO DO` |
 * **En tant que** contributeur / administrateur
 * **Je veux** pouvoir créer, modifier et supprimer des pages sur le site web
 * **Afin de** structurer l'arborescence et configurer le référencement (SEO) de l'application.
