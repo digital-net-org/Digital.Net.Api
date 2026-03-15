@@ -3,7 +3,6 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Digital.Net.Api.Endpoints.Dto;
-using Digital.Net.Core.Http;
 using Digital.Net.Core.Messages;
 using Digital.Net.Entities.Models.Users;
 using Digital.Net.Tests.Core.Factories.Data;

@@ -1,6 +1,5 @@
 using Digital.Net.Api.Services.Authentication.Options;
 using Digital.Net.Api.Services.Authentication.Types;
-using Digital.Net.Core.Http;
 using Digital.Net.Entities.Context;
 using Digital.Net.Entities.Models.Users;
 using Microsoft.AspNetCore.Http;
@@ -14,7 +13,8 @@ public class UserContextService(
 {
     public Guid GetUserId()
     {
-        var httpContext = httpContextAccessor.GetHttpContext();
+        var httpContext = httpContextAccessor.HttpContext ??
+                          throw new InvalidOperationException("Http Context is not defined");
         var result =
             httpContext.Items.TryGetValue(AuthenticationStaticOptions.ApiContextAuthorizationKey, out var value) &&
             value is AuthorizationResult typedValue

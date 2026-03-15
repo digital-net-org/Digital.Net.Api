@@ -1,13 +1,13 @@
 using System.Net;
 using Digital.Net.Api.Services.Authentication.Events;
 using Digital.Net.Api.Services.Authentication.Options;
-using Digital.Net.Core.Http;
 using Digital.Net.Core.Settings;
 using Digital.Net.Core.String;
 using Digital.Net.Entities.Models.Events;
 using Digital.Net.Entities.Models.Users;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data.Records;
+using Digital.Net.Tests.Core.Http;
 using Digital.Net.Tests.Core.Sdk;
 
 namespace Digital.Net.Api.Test.Endpoints.Authentication.JwtTests;

@@ -1,12 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Digital.Net.Core.Geometry.Models;
 using Digital.Net.Entities.Models.Documents;
 
 namespace Digital.Net.Entities.Models.Avatars;
 
 [Table("Avatar")]
-public class Avatar : Entity, IPosition
+public class Avatar : Entity
 {
     [Column("X")]
     public int X { get; set; }

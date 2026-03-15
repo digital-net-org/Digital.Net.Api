@@ -1,6 +1,6 @@
-namespace Digital.Net.Core.Http;
+namespace Digital.Net.Tests.Core.Http;
 
-public static class QueryString
+public static class QueryStringExtensions
 {
     /// <summary>
     ///     Transform a query object into a query string.
