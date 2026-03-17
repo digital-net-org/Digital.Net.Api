@@ -11,6 +11,8 @@ public class CmsContext(DbContextOptions<CmsContext> options) : DbContext(option
     public DbSet<Page> Pages { get; init; }
     public DbSet<Article> Articles { get; init; }
     public DbSet<Tag> Tags { get; init; }
+    public DbSet<Media> Media { get; init; }
+    public DbSet<MediaVariant> MediaVariants { get; init; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
         optionsBuilder.AddInterceptors(
@@ -28,5 +30,11 @@ public class CmsContext(DbContextOptions<CmsContext> options) : DbContext(option
             .HasMany(a => a.Tags)
             .WithMany(t => t.Articles)
             .UsingEntity("ArticleTag");
+
+        builder.Entity<MediaVariant>()
+            .HasOne(v => v.Media)
+            .WithMany(m => m.Variants)
+            .HasForeignKey(v => v.MediaId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

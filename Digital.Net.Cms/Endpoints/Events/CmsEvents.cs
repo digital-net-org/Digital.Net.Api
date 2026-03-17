@@ -13,4 +13,8 @@ public static class CmsEvents
     public const string CreateArticle = "CMS_CREATE_ARTICLE";
     public const string UpdateArticle = "CMS_UPDATE_ARTICLE";
     public const string DeleteArticle = "CMS_DELETE_ARTICLE";
+
+    public const string CreateMedia = "CMS_CREATE_MEDIA";
+    public const string UpdateMedia = "CMS_UPDATE_MEDIA";
+    public const string DeleteMedia = "CMS_DELETE_MEDIA";
 }

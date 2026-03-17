@@ -1,6 +1,7 @@
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Endpoints;
 using Digital.Net.Cms.Models;
+using Digital.Net.Cms.Services;
 using Digital.Net.Core.Bootstrap;
 using Digital.Net.Core.Services.Crud;
 using Microsoft.AspNetCore.Builder;
@@ -23,7 +24,9 @@ public static class CmsInjector
             .AddScoped<ICrudValidationService<CmsContext>, CrudValidationService<CmsContext>>()
             .AddScoped<ICrudService<Page>, CrudService<CmsContext, Page>>()
             .AddScoped<ICrudService<Article>, CrudService<CmsContext, Article>>()
-            .AddScoped<ICrudService<Tag>, CrudService<CmsContext, Tag>>();
+            .AddScoped<ICrudService<Tag>, CrudService<CmsContext, Tag>>()
+            .AddScoped<ICrudService<Media>, CrudService<CmsContext, Media>>()
+            .AddScoped<IMediaService, MediaService>();
 
         return builder;
     }
@@ -37,7 +40,8 @@ public static class CmsInjector
             .MapCmsTagEndpoints()
             .MapCmsPageEndpoints()
             .MapCmsArticleEndpoints()
-            .MapCmsSitemapEndpoints();
+            .MapCmsSitemapEndpoints()
+            .MapCmsMediaEndpoints();
 
         return app;
     }
