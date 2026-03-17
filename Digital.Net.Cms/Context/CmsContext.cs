@@ -11,6 +11,8 @@ public class CmsContext(DbContextOptions<CmsContext> options) : DbContext(option
     public DbSet<Page> Pages { get; init; }
     public DbSet<Article> Articles { get; init; }
     public DbSet<Tag> Tags { get; init; }
+    public DbSet<Sheet> Sheets { get; init; }
+    public DbSet<PageSheet> PageSheets { get; init; }
     public DbSet<Media> Media { get; init; }
     public DbSet<MediaVariant> MediaVariants { get; init; }
 
@@ -30,6 +32,19 @@ public class CmsContext(DbContextOptions<CmsContext> options) : DbContext(option
             .HasMany(a => a.Tags)
             .WithMany(t => t.Articles)
             .UsingEntity("ArticleTag");
+
+        builder.Entity<PageSheet>()
+            .HasKey(ps => new { ps.PageId, ps.SheetId });
+
+        builder.Entity<PageSheet>()
+            .HasOne(ps => ps.Page)
+            .WithMany()
+            .HasForeignKey(ps => ps.PageId);
+
+        builder.Entity<PageSheet>()
+            .HasOne(ps => ps.Sheet)
+            .WithMany(s => s.PageSheets)
+            .HasForeignKey(ps => ps.SheetId);
 
         builder.Entity<MediaVariant>()
             .HasOne(v => v.Media)

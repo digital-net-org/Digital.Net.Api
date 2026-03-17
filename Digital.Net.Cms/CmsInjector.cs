@@ -25,6 +25,8 @@ public static class CmsInjector
             .AddScoped<ICrudService<Page>, CrudService<CmsContext, Page>>()
             .AddScoped<ICrudService<Article>, CrudService<CmsContext, Article>>()
             .AddScoped<ICrudService<Tag>, CrudService<CmsContext, Tag>>()
+            .AddScoped<ICrudService<Sheet>, CrudService<CmsContext, Sheet>>()
+            .AddScoped<ICrudService<Tag>, CrudService<CmsContext, Tag>>()
             .AddScoped<ICrudService<Media>, CrudService<CmsContext, Media>>()
             .AddScoped<IMediaService, MediaService>();
 
@@ -40,8 +42,9 @@ public static class CmsInjector
             .MapCmsTagEndpoints()
             .MapCmsPageEndpoints()
             .MapCmsArticleEndpoints()
+            .MapCmsMediaEndpoints()
             .MapCmsSitemapEndpoints()
-            .MapCmsMediaEndpoints();
+            .MapCmsSheetEndpoints();
 
         return app;
     }
