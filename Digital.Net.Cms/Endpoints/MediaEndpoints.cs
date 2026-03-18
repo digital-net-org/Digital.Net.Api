@@ -5,6 +5,7 @@ using Digital.Net.Cms.Endpoints.Dto;
 using Digital.Net.Cms.Endpoints.Events;
 using Digital.Net.Cms.Models;
 using Digital.Net.Cms.Services;
+using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.RateLimiter.Limiters;
 using Digital.Net.Core.Services.Auditing;
 using Digital.Net.Core.Services.Authentication;
@@ -14,15 +15,12 @@ using Digital.Net.Core.Services.Crud.Extensions;
 using Digital.Net.Core.Services.Documents;
 using Digital.Net.Core.Services.Documents.Exceptions;
 using Digital.Net.Core.Services.Pagination.Extensions;
-using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Lib.Formatters;
 using Digital.Net.Lib.Predicates;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Cms.Endpoints;
 
@@ -37,52 +35,49 @@ public static class MediaEndpoints
 
     public static IEndpointRouteBuilder MapCmsMediaEndpoints(this IEndpointRouteBuilder app)
     {
-        // Admin CRUD endpoints (JWT / API Key)
-        var admin = app
+        var userRoutes = app
             .MapGroup("cms/media")
             .WithTags("CMS - Media")
             .RequireRateLimiting(GlobalLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
-        admin
+        userRoutes
             .MapCrudGet<Media, MediaDto>("");
 
-        admin
+        userRoutes
             .MapPaginationGet<CmsContext, Media, MediaDto, MediaQuery>("", PaginationFilter);
 
-        admin
+        userRoutes
             .MapPost("", UploadMedia)
             .DisableAntiforgery()
             .WithSummary("Upload")
             .WithDescription("Uploads a new media image.");
 
-        admin
+        userRoutes
             .MapPatch("{id:guid}", UpdateMedia)
             .WithSummary("Patch")
             .WithDescription("Updates a media's metadata by its ID.");
 
-        admin
+        userRoutes
             .MapDelete("{id:guid}", DeleteMedia)
             .WithSummary("Delete")
             .WithDescription("Deletes a media, its original document, and all cached variants.");
 
-        // Purge endpoints (Admin)
-        admin
+        userRoutes
             .MapDelete("{id:guid}/variants", PurgeMediaVariants)
             .WithSummary("PurgeMediaVariants")
             .WithDescription("Purges all cached variants for a given media.");
 
-        admin
+        userRoutes
             .MapDelete("variants/{variantId:guid}", PurgeVariant)
             .WithSummary("PurgeVariant")
             .WithDescription("Purges a specific variant by its ID.");
 
-        admin
+        userRoutes
             .MapDelete("variants", PurgeAllVariants)
             .WithSummary("PurgeAllVariants")
             .WithDescription("Purges all cached variants across all media.");
 
-        // Image serving endpoint (Application + JWT + API Key)
         app
             .MapGroup("cms/media")
             .WithTags("CMS - Media")

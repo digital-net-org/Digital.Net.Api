@@ -49,4 +49,6 @@ public class Document : Entity
         var extension = Path.GetExtension(originalFileName);
         return $"{Guid.NewGuid()}{extension}";
     }
+
+    public bool IsSvg() => DocumentTypes.SvgMimeTypes.Contains(MimeType, StringComparer.OrdinalIgnoreCase);
 }

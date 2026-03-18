@@ -1,7 +1,5 @@
 using Digital.Net.Core.Entities.Models.Documents;
 using Digital.Net.Lib.Messages;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Digital.Net.Cms.Services;
 
@@ -13,16 +11,21 @@ public interface IMediaService
     ///     returns an existing or newly generated variant Document.
     ///     For SVGs or requests without resize params, returns the original Document.
     /// </summary>
+    /// <param name="mediaId">The media ID for which to retrieve the variant.</param>
+    /// <param name="width">The optional width of the variant to generate.</param>
+    /// <param name="quality">The optional quality of the variant to generate.</param>
     Task<Result<Document>> GetOrCreateVariantAsync(Guid mediaId, int? width, int? quality);
 
     /// <summary>
     ///     Purges all cached variants for a given media.
     /// </summary>
+    /// <param name="mediaId">The ID of the media for which to purge variants.</param>
     Task<Result> PurgeMediaVariantsAsync(Guid mediaId);
 
     /// <summary>
     ///     Purges a specific variant by its ID.
     /// </summary>
+    /// <param name="variantId">The ID of the variant to purge.</param>   
     Task<Result> PurgeVariantAsync(Guid variantId);
 
     /// <summary>
@@ -33,5 +36,6 @@ public interface IMediaService
     /// <summary>
     ///     Deletes a media, its original Document, and all variant Documents.
     /// </summary>
+    /// <param name="mediaId">The ID of the media to delete.</param>  
     Task<Result> DeleteMediaAsync(Guid mediaId);
 }

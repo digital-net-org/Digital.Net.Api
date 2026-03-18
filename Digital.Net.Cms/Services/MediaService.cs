@@ -22,8 +22,6 @@ public class MediaService(
     IConfiguration configuration
 ) : IMediaService
 {
-    private static readonly string[] SvgMimeTypes = ["image/svg+xml"];
-
     public async Task<Result<Document>> GetOrCreateVariantAsync(Guid mediaId, int? width, int? quality)
     {
         var result = new Result<Document>();
@@ -38,7 +36,7 @@ public class MediaService(
         if (originalDocument is null)
             return result.AddError(new ResourceNotFoundException());
 
-        if (!width.HasValue || IsSvg(originalDocument.MimeType))
+        if (!width.HasValue || originalDocument.IsSvg())
         {
             result.Value = originalDocument;
             return result;
@@ -71,7 +69,7 @@ public class MediaService(
             .ToListAsync();
 
         foreach (var variant in variants)
-            await RemoveVariantDocumentAsync(variant);
+            await documentService.RemoveDocumentAsync(variant.DocumentId);
 
         cmsContext.MediaVariants.RemoveRange(variants);
         await cmsContext.SaveChangesAsync();
@@ -85,7 +83,7 @@ public class MediaService(
         if (variant is null)
             return result.AddError(new ResourceNotFoundException());
 
-        await RemoveVariantDocumentAsync(variant);
+        await documentService.RemoveDocumentAsync(variant.DocumentId);
         cmsContext.MediaVariants.Remove(variant);
         await cmsContext.SaveChangesAsync();
         return result;
@@ -97,7 +95,7 @@ public class MediaService(
         var variants = await cmsContext.MediaVariants.ToListAsync();
 
         foreach (var variant in variants)
-            await RemoveVariantDocumentAsync(variant);
+            await documentService.RemoveDocumentAsync(variant.DocumentId);
 
         cmsContext.MediaVariants.RemoveRange(variants);
         await cmsContext.SaveChangesAsync();
@@ -115,7 +113,7 @@ public class MediaService(
             return result.AddError(new ResourceNotFoundException());
 
         foreach (var variant in media.Variants)
-            await RemoveVariantDocumentAsync(variant);
+            await documentService.RemoveDocumentAsync(variant.DocumentId);
 
         cmsContext.MediaVariants.RemoveRange(media.Variants);
         cmsContext.Media.Remove(media);
@@ -198,12 +196,4 @@ public class MediaService(
 
         return result;
     }
-
-    private async Task RemoveVariantDocumentAsync(MediaVariant variant)
-    {
-        await documentService.RemoveDocumentAsync(variant.DocumentId);
-    }
-
-    private static bool IsSvg(string mimeType) =>
-        SvgMimeTypes.Contains(mimeType, StringComparer.OrdinalIgnoreCase);
 }
