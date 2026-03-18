@@ -1,15 +1,24 @@
 #!/usr/bin/env pwsh
 param(
     [Parameter(Mandatory = $true, Position = 0)]
+    [ValidateSet("digital", "cms")]
+    [string]$Context,
+
+    [Parameter(Mandatory = $true, Position = 1)]
     [string]$MigrationName
 )
 
 $ErrorActionPreference = "Stop"
 
+$contextMap = @{
+    "digital" = "Digital.Net.Core.Entities"
+    "cms"     = "Digital.Net.Cms"
+}
+
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $rootDir = Split-Path -Parent $scriptDir
 $appSettingsPath = Join-Path $rootDir "Digital.Net.Tests.Program" "appsettings.Development.json"
-$entitiesProject = Join-Path $rootDir "Digital.Net.Entities"
+$entityProject = Join-Path $rootDir $contextMap[$Context]
 $startupProject = Join-Path $rootDir "Digital.Net.Tests.Program"
 
 if (-not (Test-Path $appSettingsPath)) {
@@ -25,11 +34,12 @@ if ([string]::IsNullOrWhiteSpace($connectionString)) {
     exit 1
 }
 
-Write-Host "Creating migration '$MigrationName'..." -ForegroundColor Cyan
+Write-Host "Creating migration '$MigrationName' for context '$Context'..." -ForegroundColor Cyan
+Write-Host "Project: $($contextMap[$Context])" -ForegroundColor DarkGray
 Write-Host "Connection: $connectionString" -ForegroundColor DarkGray
 
 dotnet ef migrations add $MigrationName `
-    --project $entitiesProject `
+    --project $entityProject `
     --startup-project $startupProject `
     -- $connectionString
 
