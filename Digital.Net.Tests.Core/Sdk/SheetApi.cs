@@ -43,10 +43,6 @@ public static class SheetApi
     ) =>
         await client.DeleteAsync($"/cms/pages/{pageId}/sheets/{sheetId}");
 
-    public static async Task<HttpResponseMessage> GetResource(
-        this HttpClient client,
-        Guid sheetId,
-        string ext
-    ) =>
-        await client.GetAsync($"/cms/resource/{sheetId}.{ext}");
+    public static async Task<HttpResponseMessage> GetResource(this HttpClient client, Guid sheetId) =>
+        await client.GetAsync($"/cms/resource/{sheetId}");
 }

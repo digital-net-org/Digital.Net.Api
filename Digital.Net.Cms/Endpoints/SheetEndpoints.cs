@@ -13,6 +13,7 @@ using Digital.Net.Core.Services.Crud.Extensions;
 using Digital.Net.Core.Services.Pagination.Extensions;
 using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Lib.Formatters;
+using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.Predicates;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -91,7 +92,7 @@ public static class SheetEndpoints
             .MapGroup("cms")
             .WithTags("CMS - Sheets")
             .RequireRateLimiting(GlobalLimiter.Policy)
-            .MapGet("resource/{id:guid}.{ext}", GetResource)
+            .MapGet("resource/{id:guid}", GetResource)
             .WithSummary("GetResource")
             .WithDescription("Serves the content of a published sheet with the appropriate Content-Type.")
             .RequireAuthentication(AuthorizeType.Application);
@@ -168,23 +169,23 @@ public static class SheetEndpoints
             : Results.Ok(result);
     }
 
-    private static Results<Ok<List<PageSheetDto>>, NotFound> GetPageSheets(
+    private static async Task<Results<Ok<Result<List<PageSheetDto>>>, NotFound>> GetPageSheets(
         Guid pageId,
         CmsContext context
     )
     {
-        var page = context.Pages.Find(pageId);
+        var page = await context.Pages.FindAsync(pageId);
         if (page is null)
             return TypedResults.NotFound();
 
-        var sheets = context.PageSheets
+        var sheets = await context.PageSheets
             .Include(ps => ps.Sheet)
             .Where(ps => ps.PageId == pageId && ps.Sheet.Published)
             .OrderBy(ps => ps.LoadOrder)
             .Select(ps => new PageSheetDto(ps))
-            .ToList();
+            .ToListAsync();
 
-        return TypedResults.Ok(sheets);
+        return TypedResults.Ok(new Result<List<PageSheetDto>>(sheets));
     }
 
     private static async Task<IResult> AssociateSheet(
@@ -236,13 +237,12 @@ public static class SheetEndpoints
         return Results.Ok();
     }
 
-    private static Results<ContentHttpResult, NotFound> GetResource(
+    private static async Task<Results<ContentHttpResult, NotFound>> GetResource(
         Guid id,
-        string ext,
         CmsContext context
     )
     {
-        var sheet = context.Sheets.FirstOrDefault(s => s.Id == id && s.Published);
+        var sheet = await context.Sheets.FirstOrDefaultAsync(s => s.Id == id && s.Published);
         if (sheet is null)
             return TypedResults.NotFound();
 

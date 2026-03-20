@@ -18,7 +18,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Digital.Net.Lib.Messages;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Cms.Endpoints;
@@ -71,16 +73,16 @@ public static class ArticleEndpoints
         return app;
     }
 
-    private static Results<Ok<ArticleDto>, NotFound> GetArticleByPath(
+    private static async Task<Results<Ok<Result<ArticleDto>>, NotFound>> GetArticleByPath(
         string path,
         CmsContext context
     )
     {
-        var article = context.Articles
+        var article = await context.Articles
             .Include(a => a.Tags)
-            .FirstOrDefault(a => a.Path == path && a.Published);
+            .FirstOrDefaultAsync(a => a.Path == path && a.Published);
 
-        return article is null ? TypedResults.NotFound() : TypedResults.Ok(new ArticleDto(article));
+        return article is null ? TypedResults.NotFound() : TypedResults.Ok(new Result<ArticleDto>(new ArticleDto(article)));
     }
 
     private static async Task<IResult> CreateArticle(

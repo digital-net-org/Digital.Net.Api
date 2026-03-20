@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using Digital.Net.Cms.Endpoints.Dto;
+using Digital.Net.Lib.Messages;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data;
 using Digital.Net.Tests.Core.Sdk;
@@ -31,10 +32,10 @@ public class SitemapEndpointsTest
         context.BuildTestPage(published: false); // excluded
 
         var response = await client.GetSitemapData();
-        var result = await response.Content.ReadFromJsonAsync<List<SitemapEntryDto>>();
+        var result = await response.Content.ReadFromJsonAsync<Result<List<SitemapEntryDto>>>();
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
-        await Assert.That(result!.Any(e => e.Path == included.Path)).IsTrue();
+        await Assert.That(result!.Value!.Any(e => e.Path == included.Path)).IsTrue();
     }
 
     [Test]
@@ -45,10 +46,10 @@ public class SitemapEndpointsTest
         var unpublished = context.BuildTestPage(published: false);
 
         var response = await client.GetSitemapData();
-        var result = await response.Content.ReadFromJsonAsync<List<SitemapEntryDto>>();
+        var result = await response.Content.ReadFromJsonAsync<Result<List<SitemapEntryDto>>>();
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
-        await Assert.That(result!.Any(e => e.Path == unpublished.Path)).IsFalse();
+        await Assert.That(result!.Value!.Any(e => e.Path == unpublished.Path)).IsFalse();
     }
 
     [Test]
@@ -59,10 +60,10 @@ public class SitemapEndpointsTest
         var article = context.BuildTestArticle(published: true);
 
         var response = await client.GetSitemapData();
-        var result = await response.Content.ReadFromJsonAsync<List<SitemapEntryDto>>();
+        var result = await response.Content.ReadFromJsonAsync<Result<List<SitemapEntryDto>>>();
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
         // Articles inherit from Page and should appear in the sitemap
-        await Assert.That(result!.Any(e => e.Path == article.Path)).IsTrue();
+        await Assert.That(result!.Value!.Any(e => e.Path == article.Path)).IsTrue();
     }
 }

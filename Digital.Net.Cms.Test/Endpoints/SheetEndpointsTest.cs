@@ -107,6 +107,48 @@ public class SheetEndpointsTest
     }
 
     [Test]
+    public async Task GetSheets_ShouldFilterByName()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var context = Application.GetCmsContext();
+        context.BuildTestSheet(name: "UniquePrefix_A");
+        context.BuildTestSheet(name: "UniquePrefix_B");
+        context.BuildTestSheet(name: "Other");
+
+        var response = await client.GetSheets(new SheetQuery { Name = "UniquePrefix" });
+        var result = await response.Content.ReadFromJsonAsync<QueryResult<SheetDto>>();
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+        await Assert.That(result!.Value.All(s => s.Name.StartsWith("UniquePrefix"))).IsTrue();
+        await Assert.That(result.Value.Count).IsGreaterThanOrEqualTo(2);
+    }
+
+    [Test]
+    public async Task GetSheets_ShouldFilterByPublished()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var context = Application.GetCmsContext();
+        context.BuildTestSheet(published: true);
+        context.BuildTestSheet(published: false);
+
+        var response = await client.GetSheets(new SheetQuery { Published = true });
+        var result = await response.Content.ReadFromJsonAsync<QueryResult<SheetDto>>();
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+        await Assert.That(result!.Value.All(s => s.Published)).IsTrue();
+    }
+
+    [Test]
+    public async Task GetSheets_ShouldReturn401_WhenUnauthenticated()
+    {
+        var client = Application.CreateClient();
+
+        var response = await client.GetSheets();
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Unauthorized);
+    }
+
+    [Test]
     public async Task PatchSheet_ShouldUpdateSheet()
     {
         var client = await CreateAuthenticatedClientAsync();
@@ -163,6 +205,30 @@ public class SheetEndpointsTest
     }
 
     [Test]
+    public async Task AssociateSheet_ShouldReturnNotFound_WhenPageDoesNotExist()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var sheet = Application.GetCmsContext().BuildTestSheet();
+
+        var payload = new PageSheetPayload { SheetId = sheet.Id, LoadOrder = 0 };
+        var response = await client.AssociateSheet(Guid.NewGuid(), payload);
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.NotFound);
+    }
+
+    [Test]
+    public async Task AssociateSheet_ShouldReturnNotFound_WhenSheetDoesNotExist()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var page = Application.GetCmsContext().BuildTestPage();
+
+        var payload = new PageSheetPayload { SheetId = Guid.NewGuid(), LoadOrder = 0 };
+        var response = await client.AssociateSheet(page.Id, payload);
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.NotFound);
+    }
+
+    [Test]
     public async Task AssociateSheet_ShouldReturnConflict_WhenAlreadyAssociated()
     {
         var client = await CreateAuthenticatedClientAsync();
@@ -201,6 +267,16 @@ public class SheetEndpointsTest
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.NotFound);
     }
 
+    [Test]
+    public async Task GetPageSheets_ShouldReturnNotFound_WhenPageDoesNotExist()
+    {
+        var client = Application.CreateApplicationClient();
+
+        var response = await client.GetPageSheets(Guid.NewGuid());
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.NotFound);
+    }
+
     // --- Resource Serving Tests ---
 
     [Test]
@@ -210,7 +286,7 @@ public class SheetEndpointsTest
         var sheet = context.BuildTestSheet(type: "css", content: "body { color: red; }", published: true);
         var client = Application.CreateApplicationClient();
 
-        var response = await client.GetResource(sheet.Id, "css");
+        var response = await client.GetResource(sheet.Id);
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
         await Assert.That(response.Content.Headers.ContentType!.MediaType).IsEqualTo("text/css");
@@ -225,7 +301,7 @@ public class SheetEndpointsTest
         var sheet = context.BuildTestSheet(type: "js", content: "console.log('hello');", published: true);
         var client = Application.CreateApplicationClient();
 
-        var response = await client.GetResource(sheet.Id, "js");
+        var response = await client.GetResource(sheet.Id);
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
         await Assert.That(response.Content.Headers.ContentType!.MediaType).IsEqualTo("application/javascript");
@@ -240,7 +316,7 @@ public class SheetEndpointsTest
         var sheet = context.BuildTestSheet(published: false);
         var client = Application.CreateApplicationClient();
 
-        var response = await client.GetResource(sheet.Id, "css");
+        var response = await client.GetResource(sheet.Id);
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.NotFound);
     }
@@ -261,11 +337,11 @@ public class SheetEndpointsTest
 
         var client = Application.CreateApplicationClient();
         var response = await client.GetPageSheets(page.Id);
-        var result = await response.Content.ReadFromJsonAsync<List<PageSheetDto>>();
+        var result = await response.Content.ReadFromJsonAsync<Result<List<PageSheetDto>>>();
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
-        await Assert.That(result!.Count).IsEqualTo(2);
-        await Assert.That(result[0].Name).IsEqualTo("First");
-        await Assert.That(result[1].Name).IsEqualTo("Second");
+        await Assert.That(result!.Value!.Count).IsEqualTo(2);
+        await Assert.That(result.Value[0].Name).IsEqualTo("First");
+        await Assert.That(result.Value[1].Name).IsEqualTo("Second");
     }
 }

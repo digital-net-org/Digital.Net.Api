@@ -18,7 +18,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Digital.Net.Lib.Messages;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Cms.Endpoints;
 
@@ -70,13 +72,13 @@ public static class CmsPageEndpoints
         return app;
     }
 
-    private static Results<Ok<PageDto>, NotFound> GetPageByPath(
+    private static async Task<Results<Ok<Result<PageDto>>, NotFound>> GetPageByPath(
         string path,
         CmsContext context
     )
     {
-        var page = context.Pages.FirstOrDefault(p => p.Path == path && p.Published);
-        return page is null ? TypedResults.NotFound() : TypedResults.Ok(new PageDto(page));
+        var page = await context.Pages.FirstOrDefaultAsync(p => p.Path == path && p.Published);
+        return page is null ? TypedResults.NotFound() : TypedResults.Ok(new Result<PageDto>(new PageDto(page)));
     }
 
     private static async Task<IResult> CreatePage(

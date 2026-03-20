@@ -24,7 +24,6 @@ public static class CmsInjector
             .AddScoped<ICrudValidationService<CmsContext>, CrudValidationService<CmsContext>>()
             .AddScoped<ICrudService<Page>, CrudService<CmsContext, Page>>()
             .AddScoped<ICrudService<Article>, CrudService<CmsContext, Article>>()
-            .AddScoped<ICrudService<Tag>, CrudService<CmsContext, Tag>>()
             .AddScoped<ICrudService<Sheet>, CrudService<CmsContext, Sheet>>()
             .AddScoped<ICrudService<Tag>, CrudService<CmsContext, Tag>>()
             .AddScoped<ICrudService<Media>, CrudService<CmsContext, Media>>()
