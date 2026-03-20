@@ -2,7 +2,7 @@
 
 | Statut Backend | Statut Backoffice |
 | :---: | :---: |
-| `TO DO` | `TO DO` |
+| `DONE` ✅ | `TO DO` |
 * **En tant que** contributeur / administrateur
 * **Je veux** pouvoir créer et éditer des feuilles de code CSS et JavaScript depuis le backoffice et les associer à des pages ou articles
 * **Afin de** pouvoir injecter des scripts ou styles personnalisés (analytics, tracking, mise en forme spécifique) sur des pages spécifiques, sans passer par un déploiement front-end.
@@ -37,7 +37,7 @@
 * Chaque action doit générer un événement d'Audit détaillé.
 
 **5. API de lecture Front-End (Application Auth)**
-* Route de lecture : `GET /cms/resource/{id}.{ext}` pour servir le contenu de la sheet avec le bon Content-Type (`text/css` ou `application/javascript`).
+* Route de lecture : `GET /cms/resource/{id}` pour servir le contenu de la sheet avec le bon Content-Type (`text/css` ou `application/javascript`).
 * Un endpoint permet de récupérer la liste des sheets (CSS et JS) associées à une page donnée, triées par ordre de chargement. Seules les sheets publiées sont retournées.
 * La réponse inclut le type (`css`/`js`), l'URL de la sheet et l'ordre de chargement.
 * L'accès à ces endpoints est sécurisé par le type d'authentification `Application`.

@@ -2,7 +2,7 @@
 
 | Statut Backend | Statut Backoffice |
 | :---: | :---: |
-| `TO DO` | `TO DO` |
+| `DONE` ✅ | `TO DO` |
 * **En tant que** contributeur / administrateur
 * **Je veux** pouvoir uploader des images et les servir avec redimensionnement et compression à la volée, avec mise en cache des variantes générées
 * **Afin de** fournir des images optimisées et adaptées à chaque contexte d'affichage, compatibles avec le composant `<Image>` de Next.js.
