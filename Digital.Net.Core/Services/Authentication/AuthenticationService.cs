@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Security.Authentication;
 using Digital.Net.Core.Entities.Context;
+using Digital.Net.Core.Entities.Models.ApiTokens;
 using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Core.Services.Auditing;
@@ -89,11 +90,12 @@ public class AuthenticationService(
     public async Task<Result<(string bearer, string? refresh)>> RefreshTokensAsync(string? refreshToken, string? userAgent = null)
     {
         var result = new Result<(string, string?)>((string.Empty, null));
-        var apiToken = context.ApiTokens.FirstOrDefault(a => a.Key == (refreshToken ?? string.Empty));
+        var hashedToken = ApiToken.Hash(refreshToken ?? string.Empty);
+        var apiToken = context.ApiTokens.FirstOrDefault(a => a.Key == hashedToken);
         if (apiToken is null)
             return result.AddError(new InvalidTokenException());
 
-        var tokenResult = jwtService.AuthorizeToken(apiToken.Key);
+        var tokenResult = jwtService.AuthorizeToken(refreshToken);
         result.Merge(tokenResult);
         
         if (result.HasError)
@@ -141,7 +143,7 @@ public class AuthenticationService(
     )
     {
         var result = new Result();
-        var userId = context.ApiTokens.FirstOrDefault(u => u.Key == refreshToken)?.UserId;
+        var userId = context.ApiTokens.FirstOrDefault(u => u.Key == ApiToken.Hash(refreshToken ?? string.Empty))?.UserId;
         if (userId is null)
             return result.AddError(new AuthenticationException());
 

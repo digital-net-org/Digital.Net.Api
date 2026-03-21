@@ -18,7 +18,7 @@ public class JwtService(
 {
     public async Task RevokeTokenAsync(string token)
     {
-        var record = context.ApiTokens.FirstOrDefault(t => t.Key == token);
+        var record = context.ApiTokens.FirstOrDefault(t => t.Key == ApiToken.Hash(token));
 
         if (record is null)
             return;
@@ -51,7 +51,7 @@ public class JwtService(
         var token = SignToken(content, tokenExpiration);
 
         HandleMaxConcurrentSessions(userId);
-        context.ApiTokens.Add(new ApiToken(userId, token, userAgent, tokenExpiration));
+        context.ApiTokens.Add(new ApiToken(userId, ApiToken.Hash(token), userAgent, tokenExpiration));
         context.SaveChanges();
 
         return token;
