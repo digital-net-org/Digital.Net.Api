@@ -78,6 +78,9 @@ public class DocumentService(
         if (uploader is null)
             return result.AddError(new NoUploaderException());
 
+        if (DocumentTypes.SvgMimeTypes.Contains(file.ContentType, StringComparer.OrdinalIgnoreCase))
+            file = await SvgSanitizer.SanitizeAsync(file);
+
         result.Value = new Document(uploader, file);
         await context.Documents.AddAsync(result.Value);
 
