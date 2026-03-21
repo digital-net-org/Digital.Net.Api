@@ -94,6 +94,8 @@ public class AuthenticationService(
         var apiToken = context.ApiTokens.FirstOrDefault(a => a.Key == hashedToken);
         if (apiToken is null)
             return result.AddError(new InvalidTokenException());
+        if (apiToken.UserAgent != (userAgent ?? string.Empty))
+            return result.AddError(new InvalidTokenException());
 
         var tokenResult = jwtService.AuthorizeToken(refreshToken);
         result.Merge(tokenResult);
