@@ -10,4 +10,5 @@ public static class AuthenticationStaticOptions
     public const int MaxConcurrentSessions = 5;
     public const int MaxLoginAttempts = 3;
     public const long MaxLoginAttemptsThreshold = 900000;
+    public const int MinLoginDurationMs = 5000;
 }

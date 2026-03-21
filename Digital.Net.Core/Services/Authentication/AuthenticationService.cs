@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Security.Authentication;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Events;
@@ -41,6 +42,7 @@ public class AuthenticationService(
         string? userAgent = null
     )
     {
+        var startedAt = Stopwatch.GetTimestamp();
         var result = new Result<(string, string)>((string.Empty, string.Empty));
         userAgent ??= string.Empty;
 
@@ -64,6 +66,11 @@ public class AuthenticationService(
             userAgent,
             ipAddress
         );
+
+        var elapsed = Stopwatch.GetElapsedTime(startedAt);
+        var remaining = TimeSpan.FromMilliseconds(AuthenticationStaticOptions.MinLoginDurationMs) - elapsed;
+        if (remaining > TimeSpan.Zero)
+            await Task.Delay(remaining);
 
         if (result.HasError || user is null)
             return result;
