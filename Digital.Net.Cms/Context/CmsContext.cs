@@ -15,6 +15,9 @@ public class CmsContext(DbContextOptions<CmsContext> options) : DbContext(option
     public DbSet<PageSheet> PageSheets { get; init; }
     public DbSet<Media> Media { get; init; }
     public DbSet<MediaVariant> MediaVariants { get; init; }
+    public DbSet<Form> Forms { get; init; }
+    public DbSet<FormField> FormFields { get; init; }
+    public DbSet<FormSubmission> FormSubmissions { get; init; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
         optionsBuilder.AddInterceptors(
@@ -50,6 +53,18 @@ public class CmsContext(DbContextOptions<CmsContext> options) : DbContext(option
             .HasOne(v => v.Media)
             .WithMany(m => m.Variants)
             .HasForeignKey(v => v.MediaId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<FormField>()
+            .HasOne(f => f.Form)
+            .WithMany(fm => fm.Fields)
+            .HasForeignKey(f => f.FormId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<FormSubmission>()
+            .HasOne(s => s.Form)
+            .WithMany(fm => fm.Submissions)
+            .HasForeignKey(s => s.FormId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

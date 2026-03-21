@@ -21,4 +21,12 @@ public static class CmsEvents
     public const string CreateMedia = "CMS_CREATE_MEDIA";
     public const string UpdateMedia = "CMS_UPDATE_MEDIA";
     public const string DeleteMedia = "CMS_DELETE_MEDIA";
+
+    public const string CreateForm = "CMS_CREATE_FORM";
+    public const string UpdateForm = "CMS_UPDATE_FORM";
+    public const string DeleteForm = "CMS_DELETE_FORM";
+    public const string CreateFormField = "CMS_CREATE_FORM_FIELD";
+    public const string UpdateFormField = "CMS_UPDATE_FORM_FIELD";
+    public const string DeleteFormField = "CMS_DELETE_FORM_FIELD";
+    public const string FormSubmission = "CMS_FORM_SUBMISSION";
 }

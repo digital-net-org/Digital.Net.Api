@@ -2,7 +2,7 @@
 
 | Statut Backend | Statut Backoffice |
 | :---: | :---: |
-| `TO DO` | `TO DO` |
+| `DONE` ✅ | `TO DO` |
 * **En tant que** contributeur / administrateur
 * **Je veux** pouvoir créer et configurer des formulaires depuis le backoffice
 * **Afin de** permettre aux développeurs front-end de les implémenter sur le site client (formulaire de contact, demande de devis, inscription, etc.) sans passer par un déploiement.
