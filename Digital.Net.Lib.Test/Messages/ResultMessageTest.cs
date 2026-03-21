@@ -12,7 +12,7 @@ public class ResultMessageTest : UnitTest
         var result = new ResultMessage(ex);
         await Assert.That(result.Message).IsEqualTo("Something went wrong");
         await Assert.That(result.Reference).IsEqualTo("SYSTEM_EXCEPTION");
-        await Assert.That(result.StackTrace).IsEqualTo(ex.StackTrace);
+        await Assert.That(result.StackTrace).IsNull();
         await Assert.That(result.Code).Matches(@"0x[0-9A-F]{8}");
     }
 

@@ -1,4 +1,5 @@
-﻿using Digital.Net.Lib.Exceptions;
+﻿using Digital.Net.Lib.Environment;
+using Digital.Net.Lib.Exceptions;
 
 namespace Digital.Net.Lib.Messages;
 
@@ -14,7 +15,7 @@ public class ResultMessage
         Code = message?.GetHashCode().ToString() ?? ex.GetFormattedErrorCode();
         Message = message ?? ex.Message;
         Reference = ex.GetReference();
-        StackTrace = ex.StackTrace;
+        StackTrace = AspNetEnv.IsDevelopment ? ex.StackTrace : null;
         Exception = ex;
     }
 

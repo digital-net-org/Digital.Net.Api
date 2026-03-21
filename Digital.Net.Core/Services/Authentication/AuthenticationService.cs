@@ -8,6 +8,7 @@ using Digital.Net.Core.Services.Authentication.Events;
 using Digital.Net.Core.Services.Authentication.Exceptions;
 using Digital.Net.Core.Services.Authentication.Options;
 using Digital.Net.Core.Services.Authentication.Utils;
+using Digital.Net.Lib.Environment;
 using Digital.Net.Lib.Messages;
 using Microsoft.EntityFrameworkCore;
 
@@ -67,10 +68,13 @@ public class AuthenticationService(
             ipAddress
         );
 
-        var elapsed = Stopwatch.GetElapsedTime(startedAt);
-        var remaining = TimeSpan.FromMilliseconds(AuthenticationStaticOptions.MinLoginDurationMs) - elapsed;
-        if (remaining > TimeSpan.Zero)
-            await Task.Delay(remaining);
+        if (!AspNetEnv.IsTest)
+        {
+            var elapsed = Stopwatch.GetElapsedTime(startedAt);
+            var remaining = TimeSpan.FromMilliseconds(AuthenticationStaticOptions.MinLoginDurationMs) - elapsed;
+            if (remaining > TimeSpan.Zero)
+                await Task.Delay(remaining);
+        }
 
         if (result.HasError || user is null)
             return result;
