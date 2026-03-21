@@ -13,9 +13,9 @@ public static class GlobalLimiter
         options.AddFixedWindowLimiter(Policy, opts =>
         {
             opts.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-            opts.PermitLimit = 100;
-            opts.QueueLimit = 50;
-            opts.Window = TimeSpan.FromMilliseconds(100);
+            opts.PermitLimit = 2000;
+            opts.QueueLimit = 500;
+            opts.Window = TimeSpan.FromSeconds(1);
         });
     };
 }
