@@ -59,9 +59,12 @@ public static class AuthenticationEndpoints
     {
         var result = new Result<string>();
         var userAgent = ctx.GetUserAgent() ?? string.Empty;
-        var ipAddress = ctx.GetRemoteIpAddress() ?? string.Empty;
+        var ipAddress = ctx.GetRemoteIpAddress();
 
-        var loginRes = await service.LoginAsync(request.Login, request.Password, userAgent, ipAddress);
+        if (ipAddress is null)
+            return TypedResults.Unauthorized();
+
+        var loginRes = await service.LoginAsync(request.Login, request.Password, ipAddress, userAgent);
         result.Merge(loginRes);
 
         if (result.Errors.Any(e => e.Reference == new TooManyAttemptsException().GetReference()))

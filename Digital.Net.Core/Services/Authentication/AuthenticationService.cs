@@ -1,12 +1,12 @@
 using System.Security.Authentication;
+using Digital.Net.Core.Entities.Context;
+using Digital.Net.Core.Entities.Models.Events;
+using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Core.Services.Auditing;
 using Digital.Net.Core.Services.Authentication.Events;
 using Digital.Net.Core.Services.Authentication.Exceptions;
 using Digital.Net.Core.Services.Authentication.Options;
 using Digital.Net.Core.Services.Authentication.Utils;
-using Digital.Net.Core.Entities.Context;
-using Digital.Net.Core.Entities.Models.Events;
-using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Lib.Messages;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,11 +19,10 @@ public class AuthenticationService(
     DigitalContext context
 ) : IAuthenticationService
 {
-    private async Task<int> GetLoginAttemptCountAsync(User? user = null, string? ipAddress = null)
+    private async Task<int> GetLoginAttemptCountAsync(User? user, string ipAddress)
     {
         if (user is null)
             return 0;
-        ipAddress ??= string.Empty;
         var threshold = DateTime.UtcNow.Subtract(authenticationOptionService.GetMaxLoginAttemptsThreshold());
         return await context.Events.CountAsync(
             e =>
@@ -35,54 +34,43 @@ public class AuthenticationService(
         );
     }
 
-    public async Task<Result<User>> ValidateCredentialsAsync(string login, string password)
-    {
-        var result = new Result<User>
-        {
-            Value = await context.Users.FirstOrDefaultAsync(u => u.Login == login)
-        };
-
-        if (await GetLoginAttemptCountAsync(result.Value) >= AuthenticationStaticOptions.MaxLoginAttempts)
-            result.AddError(new TooManyAttemptsException());
-        else if (result.Value is null)
-            result.AddError(new InvalidCredentialsException());
-        else if (!result.Value.IsActive)
-            result.AddError(new InactiveUserException());
-        else if (!PasswordUtils.VerifyPassword(result.Value, password))
-            result.AddError(new InvalidCredentialsException());
-        return result;
-    }
-
     public async Task<Result<(string bearer, string refresh)>> LoginAsync(
         string login,
         string password,
-        string? userAgent = null,
-        string? ipAddress = null
+        string ipAddress,
+        string? userAgent = null
     )
     {
         var result = new Result<(string, string)>((string.Empty, string.Empty));
         userAgent ??= string.Empty;
-        var userResult = await ValidateCredentialsAsync(login, password);
-        var state = userResult.HasError ? EventState.Failed : EventState.Success;
 
-        result.Merge(userResult);
+        var user = await context.Users.FirstOrDefaultAsync(u => u.Login == login);
+        if (await GetLoginAttemptCountAsync(user, ipAddress) >= AuthenticationStaticOptions.MaxLoginAttempts)
+            result.AddError(new TooManyAttemptsException());
+        else if (user is null)
+            result.AddError(new InvalidCredentialsException());
+        else if (!user.IsActive)
+            result.AddError(new InactiveUserException());
+        else if (!PasswordUtils.VerifyPassword(user, password))
+            result.AddError(new InvalidCredentialsException());
 
+        var state = result.HasError ? EventState.Failed : EventState.Success;
         await auditService.RegisterEventAsync(
             AuthenticationEvents.Login,
             state,
             result,
-            userResult.Value?.Id,
+            user?.Id,
             login,
             userAgent,
             ipAddress
         );
 
-        if (result.HasError)
+        if (result.HasError || user is null)
             return result;
 
         result.Value = (
-            jwtService.GenerateBearerToken(userResult.Value!.Id, userAgent),
-            jwtService.GenerateRefreshToken(userResult.Value.Id, userAgent)
+            jwtService.GenerateBearerToken(user.Id, userAgent),
+            jwtService.GenerateRefreshToken(user.Id, userAgent)
         );
         return result;
     }

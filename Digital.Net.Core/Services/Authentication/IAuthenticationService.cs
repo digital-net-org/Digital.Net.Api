@@ -1,17 +1,15 @@
-using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Lib.Messages;
 
 namespace Digital.Net.Core.Services.Authentication;
 
 public interface IAuthenticationService
 {
-    public Task<Result<User>> ValidateCredentialsAsync(string login, string password);
     public Task<Result<(string bearer, string? refresh)>> RefreshTokensAsync(string? refreshToken, string? userAgent = null);
     public Task<Result<(string bearer, string refresh)>> LoginAsync(
         string login,
         string password,
-        string? userAgent = null,
-        string? ipAddress = null
+        string ipAddress,
+        string? userAgent = null
     );
     public Task<Result> LogoutAsync(
         string? refreshToken,

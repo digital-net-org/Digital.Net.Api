@@ -58,6 +58,15 @@ public class JwtLoginTest
     }
 
     [Test]
+    public async Task Login_WithoutIpAddress_ShouldReturnUnauthorized()
+    {
+        var client = Application.Factory.CreateClient();
+        var user = Application.CreateUser();
+        var response = await client.Login(user);
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Unauthorized);
+    }
+
+    [Test]
     public async Task Login_OnMaxAttempts_ShouldReturnTooManyRequests()
     {
         var client = Application.CreateClient();

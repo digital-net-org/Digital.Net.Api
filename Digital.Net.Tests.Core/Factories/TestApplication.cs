@@ -64,8 +64,14 @@ public class TestApplication : IAsyncInitializer, IAsyncDisposable
 
     /// <summary>
     ///     Creates and configures an HttpClient instance to interact with the application's services.
+    ///     Includes a default X-Forwarded-For header to simulate a reverse proxy environment.
     /// </summary>
-    public HttpClient CreateClient() => Factory.CreateClient();
+    public HttpClient CreateClient()
+    {
+        var client = Factory.CreateClient();
+        client.DefaultRequestHeaders.Add("X-Forwarded-For", "127.0.0.1");
+        return client;
+    }
 
     /// <summary>
     ///     Creates an HttpClient pre-configured with the Application key header for Application-authenticated endpoints.
