@@ -20,7 +20,8 @@ public static class ServicesInjector
             .AddDigitalAuditingServices()
             .AddDigitalAuthenticationServices()
             .AddDigitalUserServices()
-            .AddDigitalDocumentServices();
+            .AddDigitalDocumentServices()
+            .AddHostedService<ExpiredTokenPurgeService>();
         return services;
     }
 
