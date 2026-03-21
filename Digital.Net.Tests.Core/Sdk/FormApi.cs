@@ -10,6 +10,7 @@ namespace Digital.Net.Tests.Core.Sdk;
 public static class FormApi
 {
     public const string BaseUrl = "/cms/forms";
+    public const string SubmissionsUrl = "/cms/forms/submissions";
 
     public static async Task<HttpResponseMessage> GetFormById(this HttpClient client, Guid id) =>
         await client.GetAsync($"{BaseUrl}/{id}");
@@ -54,22 +55,17 @@ public static class FormApi
     ) =>
         await client.DeleteAsync($"{BaseUrl}/{formId}/fields/{fieldId}");
 
-    public static async Task<HttpResponseMessage> GetFormSubmissions(this HttpClient client, Guid formId) =>
-        await client.GetAsync($"{BaseUrl}/{formId}/submissions");
-
-    public static async Task<HttpResponseMessage> GetFormSubmission(
+    public static async Task<HttpResponseMessage> GetFormSubmissions(
         this HttpClient client,
-        Guid formId,
-        Guid submissionId
+        FormSubmissionQuery? query = null
     ) =>
-        await client.GetAsync($"{BaseUrl}/{formId}/submissions/{submissionId}");
+        await client.GetAsync($"{SubmissionsUrl}{query?.ToQueryString()}");
 
-    public static async Task<HttpResponseMessage> DeleteFormSubmission(
-        this HttpClient client,
-        Guid formId,
-        Guid submissionId
-    ) =>
-        await client.DeleteAsync($"{BaseUrl}/{formId}/submissions/{submissionId}");
+    public static async Task<HttpResponseMessage> GetFormSubmission(this HttpClient client, Guid id) =>
+        await client.GetAsync($"{SubmissionsUrl}/{id}");
+
+    public static async Task<HttpResponseMessage> DeleteFormSubmission(this HttpClient client, Guid id) =>
+        await client.DeleteAsync($"{SubmissionsUrl}/{id}");
 
     public static async Task<HttpResponseMessage> GetFormDefinition(this HttpClient client, Guid id) =>
         await client.GetAsync($"{BaseUrl}/{id}/definition");

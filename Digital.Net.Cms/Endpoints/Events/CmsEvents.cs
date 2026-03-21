@@ -28,5 +28,6 @@ public static class CmsEvents
     public const string CreateFormField = "CMS_CREATE_FORM_FIELD";
     public const string UpdateFormField = "CMS_UPDATE_FORM_FIELD";
     public const string DeleteFormField = "CMS_DELETE_FORM_FIELD";
+    public const string DeleteFormSubmission = "CMS_DELETE_FORM_SUBMISSION";
     public const string FormSubmission = "CMS_FORM_SUBMISSION";
 }

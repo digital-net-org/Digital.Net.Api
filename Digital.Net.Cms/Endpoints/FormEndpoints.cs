@@ -98,23 +98,20 @@ public static class FormEndpoints
 
         // Submission admin endpoints
         var submissions = app
-            .MapGroup("cms/forms/{id:guid}/submissions")
+            .MapGroup("cms/forms/submissions")
             .WithTags("CMS - Forms")
             .RequireRateLimiting(GlobalLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         submissions
-            .MapGet("", GetSubmissions)
-            .WithSummary("GetSubmissions")
-            .WithDescription("Returns a paginated list of submissions for a form.");
+            .MapCrudGet<FormSubmission, FormSubmissionDto>("");
 
         submissions
-            .MapGet("{submissionId:guid}", GetSubmissionById)
-            .WithSummary("GetSubmissionById")
-            .WithDescription("Returns a submission by its ID.");
+            .MapPaginationGet<CmsContext, FormSubmission, FormSubmissionDto, FormSubmissionQuery>(
+                "", SubmissionPaginationFilter);
 
         submissions
-            .MapDelete("{submissionId:guid}", DeleteSubmission)
+            .MapDelete("{id:guid}", DeleteSubmission)
             .WithSummary("DeleteSubmission")
             .WithDescription("Deletes a submission by its ID.");
 
@@ -289,6 +286,18 @@ public static class FormEndpoints
         if (field is null)
             return Results.NotFound();
 
+        var patchedType = GetPatchValue(patch, "Type");
+        if (patchedType is not null && !ValidFieldTypes.Contains(patchedType))
+            return Results.BadRequest($"Invalid type '{patchedType}'. Must be one of: {string.Join(", ", ValidFieldTypes)}.");
+
+        var patchedName = GetPatchValue(patch, "Name");
+        if (patchedName is not null)
+        {
+            var duplicate = await context.FormFields.AnyAsync(f => f.FormId == formId && f.Name == patchedName && f.Id != id);
+            if (duplicate)
+                return Results.Conflict($"A field named '{patchedName}' already exists in this form.");
+        }
+
         var result = await crudService.Patch(patch.GetPatchDocument<FormField>(), id);
         await auditService.RegisterEventAsync(
             CmsEvents.UpdateFormField,
@@ -324,52 +333,21 @@ public static class FormEndpoints
 
     // --- Submissions (admin) ---
 
-    private static async Task<Results<Ok<Result<List<FormSubmissionDto>>>, NotFound>> GetSubmissions(
-        Guid id,
-        CmsContext context
-    )
-    {
-        var form = await context.Forms.FindAsync(id);
-        if (form is null)
-            return TypedResults.NotFound();
-
-        var submissions = await context.FormSubmissions
-            .Where(s => s.FormId == id)
-            .OrderByDescending(s => s.CreatedAt)
-            .Select(s => new FormSubmissionDto(s))
-            .ToListAsync();
-
-        return TypedResults.Ok(new Result<List<FormSubmissionDto>>(submissions));
-    }
-
-    private static async Task<Results<Ok<Result<FormSubmissionDto>>, NotFound>> GetSubmissionById(
-        Guid id,
-        Guid submissionId,
-        CmsContext context
-    )
-    {
-        var submission = await context.FormSubmissions
-            .FirstOrDefaultAsync(s => s.Id == submissionId && s.FormId == id);
-        if (submission is null)
-            return TypedResults.NotFound();
-
-        return TypedResults.Ok(new Result<FormSubmissionDto>(new FormSubmissionDto(submission)));
-    }
-
     private static async Task<IResult> DeleteSubmission(
         Guid id,
-        Guid submissionId,
-        CmsContext context
+        ICrudService<FormSubmission> crudService,
+        IAuditService auditService,
+        IUserContextService userContextService
     )
     {
-        var submission = await context.FormSubmissions
-            .FirstOrDefaultAsync(s => s.Id == submissionId && s.FormId == id);
-        if (submission is null)
-            return Results.NotFound();
-
-        context.FormSubmissions.Remove(submission);
-        await context.SaveChangesAsync();
-        return Results.Ok();
+        var result = await crudService.Delete(id);
+        await auditService.RegisterEventAsync(
+            CmsEvents.DeleteFormSubmission,
+            result.HasError ? EventState.Failed : EventState.Success,
+            result,
+            userContextService.GetUserId()
+        );
+        return result.HasError ? Results.NotFound(result) : Results.Ok(result);
     }
 
     // --- Application-facing ---
@@ -440,6 +418,19 @@ public static class FormEndpoints
 
     // --- Helpers ---
 
+    private static string? GetPatchValue(JsonElement patch, string propertyName)
+    {
+        if (patch.ValueKind != JsonValueKind.Array) return null;
+        foreach (var op in patch.EnumerateArray())
+        {
+            if (op.TryGetProperty("path", out var pathEl) &&
+                pathEl.GetString()?.Equals($"/{propertyName}", StringComparison.OrdinalIgnoreCase) == true &&
+                op.TryGetProperty("value", out var valueEl))
+                return valueEl.GetString();
+        }
+        return null;
+    }
+
     private static List<string> ValidateSubmission(
         List<FormField> fields,
         Dictionary<string, string?> values
@@ -467,6 +458,27 @@ public static class FormEndpoints
                 continue;
             }
 
+            if (field.Type == "checkbox" && rawValue is not "true" and not "false")
+            {
+                errors.Add($"{field.Name}: Must be 'true' or 'false'.");
+                continue;
+            }
+
+            if (field.Type is "select" or "radio" && field.OptionsJson is not null)
+            {
+                try
+                {
+                    var options = JsonSerializer.Deserialize<List<string>>(field.OptionsJson);
+                    if (options is not null && !options.Contains(rawValue))
+                        errors.Add($"{field.Name}: Invalid option '{rawValue}'.");
+                }
+                catch (JsonException)
+                {
+                    // Invalid OptionsJson — skip validation
+                }
+                continue;
+            }
+
             if (field.ValidationJson is null)
                 continue;
 
@@ -483,13 +495,6 @@ public static class FormEndpoints
                     maxLengthEl.TryGetInt32(out var maxLength) &&
                     rawValue.Length > maxLength)
                     errors.Add($"{field.Name}: Must be at most {maxLength} characters.");
-
-                if (validation.TryGetProperty("pattern", out var patternEl))
-                {
-                    var pattern = patternEl.GetString();
-                    if (pattern is not null && !System.Text.RegularExpressions.Regex.IsMatch(rawValue, pattern))
-                        errors.Add($"{field.Name}: Value does not match the required pattern.");
-                }
 
                 if (field.Type == "number")
                 {
@@ -529,6 +534,16 @@ public static class FormEndpoints
             predicate = predicate.Add(x => x.Name.StartsWith(query.Name));
         if (query.Published.HasValue)
             predicate = predicate.Add(x => x.Published == query.Published);
+        return predicate;
+    }
+
+    private static Expression<Func<FormSubmission, bool>> SubmissionPaginationFilter(
+        Expression<Func<FormSubmission, bool>> predicate,
+        FormSubmissionQuery query
+    )
+    {
+        if (query.FormId.HasValue)
+            predicate = predicate.Add(x => x.FormId == query.FormId);
         return predicate;
     }
 }

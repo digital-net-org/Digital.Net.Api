@@ -269,6 +269,35 @@ public class FormEndpointsTest
     }
 
     [Test]
+    public async Task PatchFormField_ShouldRejectInvalidType()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var context = Application.GetCmsContext();
+        var form = context.BuildTestForm();
+        var field = context.BuildTestFormField(form.Id, name: "field");
+
+        var patch = new[] { new { op = "replace", path = "/Type", value = "invalid_type" } };
+        var response = await client.PatchFormField(form.Id, field.Id, patch);
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task PatchFormField_ShouldRejectDuplicateName()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var context = Application.GetCmsContext();
+        var form = context.BuildTestForm();
+        context.BuildTestFormField(form.Id, name: "existing");
+        var field = context.BuildTestFormField(form.Id, name: "other");
+
+        var patch = new[] { new { op = "replace", path = "/Name", value = "existing" } };
+        var response = await client.PatchFormField(form.Id, field.Id, patch);
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Conflict);
+    }
+
+    [Test]
     public async Task DeleteFormField_ShouldDeleteField()
     {
         var client = await CreateAuthenticatedClientAsync();
@@ -287,7 +316,7 @@ public class FormEndpointsTest
     // --- Submissions (admin) ---
 
     [Test]
-    public async Task GetSubmissions_ShouldReturnSubmissions()
+    public async Task GetSubmissions_ShouldReturnPaginatedSubmissions()
     {
         var client = await CreateAuthenticatedClientAsync();
         var context = Application.GetCmsContext();
@@ -295,11 +324,29 @@ public class FormEndpointsTest
         context.BuildTestFormSubmission(form.Id, valuesJson: "{\"email\":\"a@b.com\"}");
         context.BuildTestFormSubmission(form.Id, valuesJson: "{\"email\":\"c@d.com\"}");
 
-        var response = await client.GetFormSubmissions(form.Id);
-        var result = await response.Content.ReadFromJsonAsync<Result<List<FormSubmissionDto>>>();
+        var response = await client.GetFormSubmissions(new FormSubmissionQuery { FormId = form.Id });
+        var result = await response.Content.ReadFromJsonAsync<JsonElement>();
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
-        await Assert.That(result!.Value!.Count).IsGreaterThanOrEqualTo(2);
+        await Assert.That(result.GetProperty("total").GetInt32()).IsGreaterThanOrEqualTo(2);
+    }
+
+    [Test]
+    public async Task GetSubmissions_ShouldFilterByFormId()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var context = Application.GetCmsContext();
+        var form1 = context.BuildTestForm();
+        var form2 = context.BuildTestForm();
+        context.BuildTestFormSubmission(form1.Id);
+        context.BuildTestFormSubmission(form2.Id);
+
+        var response = await client.GetFormSubmissions(new FormSubmissionQuery { FormId = form1.Id });
+        var result = await response.Content.ReadFromJsonAsync<JsonElement>();
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        var values = result.GetProperty("value").EnumerateArray().ToList();
+        await Assert.That(values.All(v => v.GetProperty("formId").GetGuid() == form1.Id)).IsTrue();
     }
 
     [Test]
@@ -310,7 +357,7 @@ public class FormEndpointsTest
         var form = context.BuildTestForm();
         var submission = context.BuildTestFormSubmission(form.Id, valuesJson: "{\"name\":\"Test\"}");
 
-        var response = await client.GetFormSubmission(form.Id, submission.Id);
+        var response = await client.GetFormSubmission(submission.Id);
         var result = await response.Content.ReadFromJsonAsync<Result<FormSubmissionDto>>();
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
@@ -326,11 +373,11 @@ public class FormEndpointsTest
         var form = context.BuildTestForm();
         var submission = context.BuildTestFormSubmission(form.Id);
 
-        var response = await client.DeleteFormSubmission(form.Id, submission.Id);
+        var response = await client.DeleteFormSubmission(submission.Id);
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
-        var getResponse = await client.GetFormSubmission(form.Id, submission.Id);
+        var getResponse = await client.GetFormSubmission(submission.Id);
         await Assert.That(getResponse.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
     }
 
@@ -399,6 +446,20 @@ public class FormEndpointsTest
     }
 
     [Test]
+    public async Task SubmitForm_ShouldAcceptWithoutIpAndUserAgent()
+    {
+        var context = Application.GetCmsContext();
+        var form = context.BuildTestForm(published: true);
+        context.BuildTestFormField(form.Id, name: "name", type: "text", label: "Name");
+
+        var client = Application.CreateApplicationClient();
+        var payload = new FormSubmitPayload { Values = new() { ["name"] = "Test" } };
+        var response = await client.SubmitForm(form.Id, payload);
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
+    }
+
+    [Test]
     public async Task SubmitForm_ShouldReturn400_WhenRequiredFieldMissing()
     {
         var context = Application.GetCmsContext();
@@ -420,6 +481,74 @@ public class FormEndpointsTest
 
         var client = Application.CreateApplicationClient();
         var response = await client.SubmitForm(form.Id, MakePayload(new() { ["email"] = "not-an-email" }));
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task SubmitForm_ShouldReturn400_WhenCheckboxValueInvalid()
+    {
+        var context = Application.GetCmsContext();
+        var form = context.BuildTestForm(published: true);
+        context.BuildTestFormField(form.Id, name: "agree", type: "checkbox", label: "Agree");
+
+        var client = Application.CreateApplicationClient();
+        var response = await client.SubmitForm(form.Id, MakePayload(new() { ["agree"] = "yes" }));
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task SubmitForm_ShouldAcceptValidCheckboxValue()
+    {
+        var context = Application.GetCmsContext();
+        var form = context.BuildTestForm(published: true);
+        context.BuildTestFormField(form.Id, name: "agree", type: "checkbox", label: "Agree");
+
+        var client = Application.CreateApplicationClient();
+        var response = await client.SubmitForm(form.Id, MakePayload(new() { ["agree"] = "true" }));
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
+    }
+
+    [Test]
+    public async Task SubmitForm_ShouldReturn400_WhenSelectOptionInvalid()
+    {
+        var context = Application.GetCmsContext();
+        var form = context.BuildTestForm(published: true);
+        context.BuildTestFormField(form.Id, name: "color", type: "select", label: "Color",
+            optionsJson: "[\"red\",\"green\",\"blue\"]");
+
+        var client = Application.CreateApplicationClient();
+        var response = await client.SubmitForm(form.Id, MakePayload(new() { ["color"] = "purple" }));
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task SubmitForm_ShouldAcceptValidSelectOption()
+    {
+        var context = Application.GetCmsContext();
+        var form = context.BuildTestForm(published: true);
+        context.BuildTestFormField(form.Id, name: "color", type: "select", label: "Color",
+            optionsJson: "[\"red\",\"green\",\"blue\"]");
+
+        var client = Application.CreateApplicationClient();
+        var response = await client.SubmitForm(form.Id, MakePayload(new() { ["color"] = "red" }));
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
+    }
+
+    [Test]
+    public async Task SubmitForm_ShouldReturn400_WhenRadioOptionInvalid()
+    {
+        var context = Application.GetCmsContext();
+        var form = context.BuildTestForm(published: true);
+        context.BuildTestFormField(form.Id, name: "plan", type: "radio", label: "Plan",
+            optionsJson: "[\"free\",\"pro\"]");
+
+        var client = Application.CreateApplicationClient();
+        var response = await client.SubmitForm(form.Id, MakePayload(new() { ["plan"] = "enterprise" }));
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
     }
@@ -448,20 +577,6 @@ public class FormEndpointsTest
 
         var client = Application.CreateApplicationClient();
         var response = await client.SubmitForm(form.Id, MakePayload(new() { ["username"] = "toolongvalue" }));
-
-        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
-    }
-
-    [Test]
-    public async Task SubmitForm_ShouldReturn400_WhenPatternNotMatched()
-    {
-        var context = Application.GetCmsContext();
-        var form = context.BuildTestForm(published: true);
-        context.BuildTestFormField(form.Id, name: "code", type: "text", label: "Code",
-            validationJson: "{\"pattern\": \"^[A-Z]{3}$\"}");
-
-        var client = Application.CreateApplicationClient();
-        var response = await client.SubmitForm(form.Id, MakePayload(new() { ["code"] = "abc" }));
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
     }

@@ -15,14 +15,12 @@ public class FormSubmission : Entity
     public required string ValuesJson { get; set; }
 
     [Column("SubmitterIp")]
-    [Required]
     [MaxLength(64)]
-    public required string SubmitterIp { get; set; }
+    public string? SubmitterIp { get; set; }
 
     [Column("UserAgent")]
-    [Required]
     [MaxLength(512)]
-    public required string UserAgent { get; set; }
+    public string? UserAgent { get; set; }
 
     public virtual Form Form { get; set; } = null!;
 }

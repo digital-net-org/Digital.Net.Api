@@ -29,7 +29,8 @@ public static class CmsInjector
             .AddScoped<ICrudService<Media>, CrudService<CmsContext, Media>>()
             .AddScoped<IMediaService, MediaService>()
             .AddScoped<ICrudService<Form>, CrudService<CmsContext, Form>>()
-            .AddScoped<ICrudService<FormField>, CrudService<CmsContext, FormField>>();
+            .AddScoped<ICrudService<FormField>, CrudService<CmsContext, FormField>>()
+            .AddScoped<ICrudService<FormSubmission>, CrudService<CmsContext, FormSubmission>>();
 
         return builder;
     }

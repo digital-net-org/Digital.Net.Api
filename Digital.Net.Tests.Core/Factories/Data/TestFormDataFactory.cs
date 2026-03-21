@@ -59,8 +59,8 @@ public static class TestFormDataFactory
         this CmsContext context,
         Guid formId,
         string? valuesJson = null,
-        string submitterIp = "127.0.0.1",
-        string userAgent = "TestAgent/1.0"
+        string? submitterIp = "127.0.0.1",
+        string? userAgent = "TestAgent/1.0"
     )
     {
         var submission = new FormSubmission
