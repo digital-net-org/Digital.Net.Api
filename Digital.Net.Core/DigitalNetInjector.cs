@@ -2,7 +2,6 @@ using Digital.Net.Core.Bootstrap;
 using Digital.Net.Core.Endpoints;
 using Digital.Net.Core.RateLimiter.Limiters;
 using Digital.Net.Core.Seeds;
-using Digital.Net.Core.Services.Authentication.Filters;
 using Digital.Net.Core.Services.Crud;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Lib.Environment;
@@ -71,11 +70,10 @@ public static class DigitalSdkInjector
             .MapValidationEndpoints();
 
         if (AspNetEnv.IsDevelopment)
+        {
             app.MapScalarApiReference();
-        else
-            app.UseMiddleware<ApiDocAuthorizationMiddleware>();
-
-        app.MapOpenApi();
+            app.MapOpenApi();
+        }
 
         return app;
     }
