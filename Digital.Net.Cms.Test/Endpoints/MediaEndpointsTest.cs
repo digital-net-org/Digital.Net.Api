@@ -27,7 +27,6 @@ public class MediaEndpointsTest
     private string GetStoragePath() =>
         Application.GetConfiguration<string>(AppSettings.FileSystemPathKey) ?? ".test_storage";
 
-    // --- Upload Tests ---
 
     [Test]
     public async Task UploadMedia_ShouldCreateMedia()
@@ -53,7 +52,6 @@ public class MediaEndpointsTest
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.BadRequest);
     }
 
-    // --- CRUD Tests ---
 
     [Test]
     public async Task GetMediaById_ShouldReturnMedia()
@@ -141,7 +139,6 @@ public class MediaEndpointsTest
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.NotFound);
     }
 
-    // --- Image Serving Tests ---
 
     [Test]
     public async Task GetMediaImage_ShouldServeOriginalImage()
@@ -231,7 +228,6 @@ public class MediaEndpointsTest
         await Assert.That(response.Content.Headers.ContentType!.MediaType).IsEqualTo("image/svg+xml");
     }
 
-    // --- Purge Tests ---
 
     [Test]
     public async Task PurgeMediaVariants_ShouldPurgeAllVariantsForMedia()

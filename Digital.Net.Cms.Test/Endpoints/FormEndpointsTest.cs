@@ -23,7 +23,6 @@ public class FormEndpointsTest
         return client;
     }
 
-    // --- Form CRUD ---
 
     [Test]
     public async Task CreateForm_ShouldCreateForm()
@@ -177,7 +176,6 @@ public class FormEndpointsTest
         await Assert.That(context.FormSubmissions.Any(s => s.FormId == form.Id)).IsFalse();
     }
 
-    // --- FormField CRUD ---
 
     [Test]
     public async Task CreateFormField_ShouldCreateField()
@@ -313,7 +311,6 @@ public class FormEndpointsTest
         await Assert.That(getResponse.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
     }
 
-    // --- Submissions (admin) ---
 
     [Test]
     public async Task GetSubmissions_ShouldReturnPaginatedSubmissions()
@@ -381,7 +378,6 @@ public class FormEndpointsTest
         await Assert.That(getResponse.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
     }
 
-    // --- Form Definition (Application) ---
 
     [Test]
     public async Task GetFormDefinition_ShouldReturnPublishedFormWithFields()
@@ -426,7 +422,6 @@ public class FormEndpointsTest
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
     }
 
-    // --- SubmitForm (Application) ---
 
     private static FormSubmitPayload MakePayload(Dictionary<string, string?> values) =>
         new() { Values = values, SubmitterIp = "1.2.3.4", UserAgent = "TestAgent/1.0" };

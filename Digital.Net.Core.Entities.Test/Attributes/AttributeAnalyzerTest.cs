@@ -114,7 +114,6 @@ public class AttributeAnalyzerTest : UnitTest
     public async Task GetRegex_ReturnsNotNull_ForRegexProperty() =>
         await Assert.That(AttributeAnalyzer<TestEntity>.GetRegex("SecretProperty")).IsNotNull();
 
-    // --- PropertyInfo overloads ---
 
     [Test]
     public async Task IsRequired_ReturnsTrue_ForRequiredProperty_ViaPropertyInfo() =>

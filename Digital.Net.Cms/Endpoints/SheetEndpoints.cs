@@ -60,7 +60,6 @@ public static class SheetEndpoints
             .WithSummary("Delete")
             .WithDescription("Deletes a sheet by its ID.");
 
-        // Page-Sheet association endpoints
         var associations = app
             .MapGroup("cms/pages/{pageId:guid}/sheets")
             .WithTags("CMS - Sheets")
@@ -87,7 +86,6 @@ public static class SheetEndpoints
             .WithDescription("Removes a sheet association from a page.")
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
-        // Resource serving endpoint
         app
             .MapGroup("cms")
             .WithTags("CMS - Sheets")

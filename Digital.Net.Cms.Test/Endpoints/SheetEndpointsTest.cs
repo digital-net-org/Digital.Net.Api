@@ -23,7 +23,6 @@ public class SheetEndpointsTest
         return client;
     }
 
-    // --- CRUD Tests ---
 
     [Test]
     public async Task CreateSheet_ShouldCreateSheet()
@@ -188,7 +187,6 @@ public class SheetEndpointsTest
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.NotFound);
     }
 
-    // --- Association Tests ---
 
     [Test]
     public async Task AssociateSheet_ShouldAssociateSheetToPage()
@@ -277,7 +275,6 @@ public class SheetEndpointsTest
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.NotFound);
     }
 
-    // --- Resource Serving Tests ---
 
     [Test]
     public async Task GetResource_ShouldServeCssContent()
@@ -321,7 +318,6 @@ public class SheetEndpointsTest
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.NotFound);
     }
 
-    // --- Page Sheets Listing Tests ---
 
     [Test]
     public async Task GetPageSheets_ShouldReturnPublishedSheetsOrderedByLoadOrder()

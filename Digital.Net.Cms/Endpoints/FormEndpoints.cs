@@ -64,7 +64,6 @@ public static class FormEndpoints
             .WithSummary("Delete")
             .WithDescription("Deletes a form by its ID.");
 
-        // FormField endpoints
         var fields = app
             .MapGroup("cms/forms/{formId:guid}/fields")
             .WithTags("CMS - Forms")
@@ -96,7 +95,6 @@ public static class FormEndpoints
             .WithSummary("DeleteFormField")
             .WithDescription("Deletes a form field by its ID.");
 
-        // Submission admin endpoints
         var submissions = app
             .MapGroup("cms/forms/submissions")
             .WithTags("CMS - Forms")
@@ -115,7 +113,6 @@ public static class FormEndpoints
             .WithSummary("DeleteSubmission")
             .WithDescription("Deletes a submission by its ID.");
 
-        // Application-facing endpoints
         app
             .MapGroup("cms/forms")
             .WithTags("CMS - Forms")
@@ -139,7 +136,6 @@ public static class FormEndpoints
         return app;
     }
 
-    // --- Form CRUD ---
 
     private static async Task<IResult> CreateForm(
         [FromBody] FormPayload payload,
@@ -196,7 +192,6 @@ public static class FormEndpoints
         return result.HasError ? Results.NotFound(result) : Results.Ok(result);
     }
 
-    // --- FormField CRUD ---
 
     private static async Task<Results<Ok<Result<List<FormFieldDto>>>, NotFound>> GetFormFields(
         Guid formId,
@@ -331,7 +326,6 @@ public static class FormEndpoints
         return result.HasError ? Results.BadRequest(result) : Results.Ok(result);
     }
 
-    // --- Submissions (admin) ---
 
     private static async Task<IResult> DeleteSubmission(
         Guid id,
@@ -350,7 +344,6 @@ public static class FormEndpoints
         return result.HasError ? Results.NotFound(result) : Results.Ok(result);
     }
 
-    // --- Application-facing ---
 
     private static async Task<Results<Ok<Result<FormDto>>, NotFound>> GetFormDefinition(
         Guid id,
@@ -416,7 +409,6 @@ public static class FormEndpoints
         return Results.Ok(new Result());
     }
 
-    // --- Helpers ---
 
     private static string? GetPatchValue(JsonElement patch, string propertyName)
     {
