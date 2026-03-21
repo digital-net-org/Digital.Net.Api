@@ -50,6 +50,12 @@ public static class DigitalSdkInjector
     /// <returns></returns>
     public static WebApplication UseDigitalNet(this WebApplication app)
     {
+        app.Use(async (context, next) =>
+        {
+            context.Response.Headers.XContentTypeOptions = "nosniff";
+            await next();
+        });
+
         app
             .UseCors()
             .UseRateLimiter()
