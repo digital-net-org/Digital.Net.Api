@@ -138,7 +138,8 @@ public static class FormEndpoints
 
 
     private static async Task<IResult> CreateForm(
-        [FromBody] FormPayload payload,
+        [FromBody]
+        FormPayload payload,
         ICrudService<Form> crudService,
         IAuditService auditService,
         IUserContextService userContextService
@@ -159,7 +160,8 @@ public static class FormEndpoints
 
     private static async Task<IResult> UpdateForm(
         Guid id,
-        [FromBody] JsonElement patch,
+        [FromBody]
+        JsonElement patch,
         ICrudService<Form> crudService,
         IAuditService auditService,
         IUserContextService userContextService
@@ -226,7 +228,8 @@ public static class FormEndpoints
 
     private static async Task<IResult> CreateFormField(
         Guid formId,
-        [FromBody] FormFieldPayload payload,
+        [FromBody]
+        FormFieldPayload payload,
         ICrudService<FormField> crudService,
         IAuditService auditService,
         IUserContextService userContextService,
@@ -234,7 +237,8 @@ public static class FormEndpoints
     )
     {
         if (!ValidFieldTypes.Contains(payload.Type))
-            return Results.BadRequest($"Invalid type '{payload.Type}'. Must be one of: {string.Join(", ", ValidFieldTypes)}.");
+            return Results.BadRequest(
+                $"Invalid type '{payload.Type}'. Must be one of: {string.Join(", ", ValidFieldTypes)}.");
 
         var form = await context.Forms.FindAsync(formId);
         if (form is null)
@@ -270,7 +274,8 @@ public static class FormEndpoints
     private static async Task<IResult> UpdateFormField(
         Guid formId,
         Guid id,
-        [FromBody] JsonElement patch,
+        [FromBody]
+        JsonElement patch,
         ICrudService<FormField> crudService,
         IAuditService auditService,
         IUserContextService userContextService,
@@ -283,12 +288,14 @@ public static class FormEndpoints
 
         var patchedType = GetPatchValue(patch, "Type");
         if (patchedType is not null && !ValidFieldTypes.Contains(patchedType))
-            return Results.BadRequest($"Invalid type '{patchedType}'. Must be one of: {string.Join(", ", ValidFieldTypes)}.");
+            return Results.BadRequest(
+                $"Invalid type '{patchedType}'. Must be one of: {string.Join(", ", ValidFieldTypes)}.");
 
         var patchedName = GetPatchValue(patch, "Name");
         if (patchedName is not null)
         {
-            var duplicate = await context.FormFields.AnyAsync(f => f.FormId == formId && f.Name == patchedName && f.Id != id);
+            var duplicate =
+                await context.FormFields.AnyAsync(f => f.FormId == formId && f.Name == patchedName && f.Id != id);
             if (duplicate)
                 return Results.Conflict($"A field named '{patchedName}' already exists in this form.");
         }
@@ -358,7 +365,8 @@ public static class FormEndpoints
         if (form is null)
             return TypedResults.NotFound();
 
-        var authResult = httpContext.Items[AuthenticationStaticOptions.ApiContextAuthorizationKey] as AuthorizationResult;
+        var authResult =
+            httpContext.Items[AuthenticationStaticOptions.ApiContextAuthorizationKey] as AuthorizationResult;
         var isApplicationAuth = authResult?.UserId == Guid.Empty;
         if (isApplicationAuth && !form.Published)
             return TypedResults.NotFound();
@@ -368,7 +376,8 @@ public static class FormEndpoints
 
     private static async Task<IResult> SubmitForm(
         Guid id,
-        [FromBody] FormSubmitPayload payload,
+        [FromBody]
+        FormSubmitPayload payload,
         CmsContext context,
         IAuditService auditService
     )
@@ -420,6 +429,7 @@ public static class FormEndpoints
                 op.TryGetProperty("value", out var valueEl))
                 return valueEl.GetString();
         }
+
         return null;
     }
 
@@ -444,7 +454,8 @@ public static class FormEndpoints
             if (!hasValue || rawValue is null)
                 continue;
 
-            if (field.Type == "email" && !System.Text.RegularExpressions.Regex.IsMatch(rawValue, RegularExpressions.EmailPattern))
+            if (field.Type == "email" &&
+                !System.Text.RegularExpressions.Regex.IsMatch(rawValue, RegularExpressions.EmailPattern))
             {
                 errors.Add($"{field.Name}: Invalid email address.");
                 continue;
@@ -468,6 +479,7 @@ public static class FormEndpoints
                 {
                     // Invalid OptionsJson — skip validation
                 }
+
                 continue;
             }
 

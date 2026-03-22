@@ -2,6 +2,7 @@ using Digital.Net.Core.Services.ApiKeys;
 using Digital.Net.Core.Services.Auditing;
 using Digital.Net.Core.Services.Authentication;
 using Digital.Net.Core.Services.Documents;
+using Digital.Net.Core.Services.Events;
 using Digital.Net.Core.Services.Users;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +20,7 @@ public static class ServicesInjector
             .AddDigitalApiKeyServices()
             .AddDigitalAuditingServices()
             .AddDigitalAuthenticationServices()
+            .AddDigitalEventServices()
             .AddDigitalUserServices()
             .AddDigitalDocumentServices()
             .AddHostedService<ExpiredTokenPurgeService>();

@@ -1,10 +1,11 @@
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Events;
+using Digital.Net.Core.Services.Events;
 using Digital.Net.Lib.Messages;
 
 namespace Digital.Net.Core.Services.Auditing;
 
-public class AuditService(DigitalContext context) : IAuditService
+public class AuditService(DigitalContext context, IEventSignalService signalService) : IAuditService
 {
     public async Task RegisterEventAsync(
         string name,
@@ -25,11 +26,13 @@ public class AuditService(DigitalContext context) : IAuditService
             UserAgent = userAgent ?? string.Empty,
             IpAddress = ipAddress ?? string.Empty
         };
-        
+
         if (result is not null && result.HasError)
             appEvent.SetError(result);
-        
+
         await context.Events.AddAsync(appEvent);
         await context.SaveChangesAsync();
+
+        signalService.Emit(new EventSignal(name, state, DateTime.UtcNow));
     }
 }

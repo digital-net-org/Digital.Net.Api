@@ -3,8 +3,14 @@ using Digital.Net.Cms.Endpoints;
 using Digital.Net.Cms.Models;
 using Digital.Net.Cms.Services;
 using Digital.Net.Core.Bootstrap;
+using Digital.Net.Core.Entities.Models.Events;
+using Digital.Net.Core.RateLimiter.Limiters;
+using Digital.Net.Core.Services.Authentication;
+using Digital.Net.Core.Services.Authentication.Filters;
 using Digital.Net.Core.Services.Crud;
+using Digital.Net.Core.Services.Events.Extensions;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Digital.Net.Cms;
@@ -48,6 +54,18 @@ public static class CmsInjector
             .MapCmsSitemapEndpoints()
             .MapCmsSheetEndpoints()
             .MapCmsFormEndpoints();
+
+        app
+            .MapSseStream(
+                "cms/events/stream",
+                "mutation",
+                signal => signal.Name.StartsWith("CMS_") && signal.State == EventState.Success
+            )
+            .WithTags("CMS - Events")
+            .WithSummary("SSE Stream")
+            .WithDescription("Subscribe to CMS mutation events via Server-Sent Events.")
+            .RequireRateLimiting(GlobalLimiter.Policy)
+            .RequireAuthentication(AuthorizeType.Application);
 
         return app;
     }
