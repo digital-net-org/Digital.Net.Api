@@ -1,8 +1,8 @@
 # US-ADMIN-06 : Consultation des événements (API Events)
 
-| Statut Backend | Statut Backoffice |
-|:--------------:|:-----------------:|
-|    `DONE` ✅    |      `TO DO`      |
+| Statut |
+|:---:|
+| `DONE` |
 * **En tant que** administrateur
 * **Je veux** pouvoir consulter l'historique des événements (audit)
 * **Afin de** retracer les actions des utilisateurs, diagnostiquer des problèmes ou surveiller l'activité du compte.

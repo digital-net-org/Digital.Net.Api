@@ -1,8 +1,8 @@
 # US-CMS-08 : Notification des Mutations CMS via SSE (Server-Sent Events)
 
-| Statut Backend | Statut Backoffice |
-|:--------------:|:-----------------:|
-|    `TO DO`     |       `N/A`       |
+| Statut |
+|:---:|
+| `DONE` |
 * **En tant que** développeur / architecte système
 * **Je veux** que l'API broadcast les mutations CMS en temps réel via SSE (Server-Sent Events)
 * **Afin de** permettre aux applications clientes abonnées (ex: Next.js) d'être notifiées des changements de données et d'invalider leur cache de manière réactive.

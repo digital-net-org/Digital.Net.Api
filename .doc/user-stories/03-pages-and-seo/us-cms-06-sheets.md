@@ -1,8 +1,8 @@
 # US-CMS-06 : Sheets (CSS / JS)
 
-| Statut Backend | Statut Backoffice |
-| :---: | :---: |
-| `DONE` ✅ | `TO DO` |
+| Statut |
+|:---:|
+| `DONE` |
 * **En tant que** contributeur / administrateur
 * **Je veux** pouvoir créer et éditer des feuilles de code CSS et JavaScript depuis le backoffice et les associer à des pages ou articles
 * **Afin de** pouvoir injecter des scripts ou styles personnalisés (analytics, tracking, mise en forme spécifique) sur des pages spécifiques, sans passer par un déploiement front-end.

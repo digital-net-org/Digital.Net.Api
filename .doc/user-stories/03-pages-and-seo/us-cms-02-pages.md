@@ -1,8 +1,8 @@
 # US-CMS-02 : Gestion des Pages
 
-| Statut Backend | Statut Backoffice |
-| :---: | :---: |
-| `DONE` | `TO DO` |
+| Statut |
+|:---:|
+| `DONE` |
 * **En tant que** contributeur / administrateur
 * **Je veux** pouvoir créer, modifier et supprimer des pages sur le site web
 * **Afin de** structurer l'arborescence et configurer le référencement (SEO) de l'application.

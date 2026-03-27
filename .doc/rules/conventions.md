@@ -33,6 +33,8 @@ A DTO must always have:
 1. An **empty constructor** (for deserialization)
 2. A **constructor taking the source entity** as parameter (for mapping)
 
+Payloads and Queries are input contracts and do **not** follow this pattern — they use `required` properties or records instead.
+
 ## Endpoint return values
 Always return a `Result` or `Result<T>` wrapped in a `TypedResults`.
 Never let uncaught exceptions bubble up from an endpoint.

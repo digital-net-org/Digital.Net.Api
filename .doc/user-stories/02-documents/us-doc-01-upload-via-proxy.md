@@ -1,8 +1,8 @@
 # US-DOC-01 : Ajout d'un document via un proxy
 
-| Statut Backend | Statut Backoffice |
-|:--------------:|:-----------------:|
-|    `DONE` ✅    |         -         |
+| Statut |
+|:---:|
+| `DONE` |
 * **En tant que** développeur/système (ou indirectement via l'utilisateur d'une fonctionnalité proxy)
 * **Je veux** pouvoir uploader et associer un document à une entité "proxy" (ex: Avatar)
 * **Afin de** stocker le fichier de manière centralisée et sécurisée sans l'exposer par un accès public direct.

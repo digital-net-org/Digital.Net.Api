@@ -1,8 +1,8 @@
 # US-ADMIN-02 : Suppression d'un utilisateur
 
-| Statut Backend | Statut Backoffice |
-|:--------------:|:-----------------:|
-|    `DONE` ✅    |      `TO DO`      |
+| Statut |
+|:---:|
+| `DONE` |
 * **En tant que** administrateur
 * **Je veux** pouvoir supprimer un utilisateur
 * **Afin de** retirer définitivement son accès et ses données du système.

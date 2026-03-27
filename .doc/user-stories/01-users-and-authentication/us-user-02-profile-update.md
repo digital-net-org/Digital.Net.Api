@@ -1,8 +1,8 @@
 # US-USER-02 : Mise à jour du profil utilisateur
 
-| Statut Backend | Statut Backoffice |
-|:--------------:|:-----------------:|
-|    `DONE` ✅    |      `TO DO`      |
+| Statut |
+|:---:|
+| `DONE` |
 * **En tant que** utilisateur authentifié
 * **Je veux** pouvoir modifier mes informations personnelles (Mot de passe, Nom d'utilisateur, Email)
 * **Afin de** maintenir mon compte à jour de manière autonome.

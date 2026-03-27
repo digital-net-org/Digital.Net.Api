@@ -1,8 +1,8 @@
 # US-CMS-03 : Gestion des Articles
 
-| Statut Backend | Statut Backoffice |
-| :---: | :---: |
-| `DONE` | `TO DO` |
+| Statut |
+|:---:|
+| `DONE` |
 * **En tant que** contributeur / rédacteur
 * **Je veux** pouvoir créer, éditer et supprimer des articles
 * **Afin de** publier du contenu éditorial riche sur le site.

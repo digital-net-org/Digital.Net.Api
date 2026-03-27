@@ -1,8 +1,8 @@
 # US-AUTH-03 : Génération et Gestion de Clé d'API
 
-| Statut Backend | Statut Backoffice |
-|:--------------:|:-----------------:|
-|    `DONE` ✅    |      `TO DO`      |
+| Statut |
+|:---:|
+| `DONE` |
 * **En tant que** utilisateur (via le Backoffice)
 * **Je veux** pouvoir générer et gérer mes clés d'API
 * **Afin de** pouvoir les utiliser dans des scripts ou applications externes pour interagir avec le CMS.

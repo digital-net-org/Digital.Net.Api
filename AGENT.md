@@ -1,3 +1,6 @@
+## Project rules
+Refer to the documentation in `.doc/rules/` for architecture, conventions, and testing guidelines.
+
 ## Working with EfCore
 Unless specified otherwise, do not try to run or create migrations. If you still need to do so, use the available scripts to do so.
 - `.scripts/EfMigrate.ps1`

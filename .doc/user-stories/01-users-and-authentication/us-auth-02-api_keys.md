@@ -1,8 +1,8 @@
 # US-AUTH-02 : Authentification par Clé d'API (ApiKey)
 
-| Statut Backend | Statut Backoffice |
-|:--------------:|:-----------------:|
-|    `DONE` ✅    |      `TO DO`      |
+| Statut |
+|:---:|
+| `DONE` |
 * **En tant que** système, service tiers ou application Frontend
 * **Je veux** pouvoir m'authentifier auprès de l'API en utilisant une clé d'API
 * **Afin de** requêter le CMS de manière programmatique et sécurisée, sans passer par une authentification classique par mot de passe.

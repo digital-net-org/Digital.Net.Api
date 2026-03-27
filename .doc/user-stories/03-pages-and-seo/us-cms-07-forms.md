@@ -1,8 +1,8 @@
 # US-CMS-07 : Formulaires dynamiques
 
-| Statut Backend | Statut Backoffice |
-| :---: | :---: |
-| `DONE` ✅ | `TO DO` |
+| Statut |
+|:---:|
+| `DONE` |
 * **En tant que** contributeur / administrateur
 * **Je veux** pouvoir créer et configurer des formulaires depuis le backoffice
 * **Afin de** permettre aux développeurs front-end de les implémenter sur le site client (formulaire de contact, demande de devis, inscription, etc.) sans passer par un déploiement.

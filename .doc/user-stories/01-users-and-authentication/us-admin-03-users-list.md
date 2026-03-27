@@ -1,8 +1,8 @@
 # US-ADMIN-03 : Consultation des utilisateurs
 
-| Statut Backend | Statut Backoffice |
-|:--------------:|:-----------------:|
-|    `DONE` ✅    |      `TO DO`      |
+| Statut |
+|:---:|
+| `DONE` |
 * **En tant que** administrateur
 * **Je veux** pouvoir consulter les utilisateurs existants
 * **Afin de** pouvoir les administrer (les gérer, vérifier leur statut, etc.).

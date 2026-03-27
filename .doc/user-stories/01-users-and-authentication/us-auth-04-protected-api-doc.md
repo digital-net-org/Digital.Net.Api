@@ -1,8 +1,8 @@
 # US-AUTH-04 : Protection de la documentation API
 
-| Statut Backend | Statut Backoffice |
-|:--------------:|:-----------------:|
-|    `DONE` ✅    |      `TO DO`      |
+| Statut |
+|:---:|
+| `DONE` |
 * **En tant que** utilisateur (via le navigateur ou un script)
 * **Je veux** pouvoir consulter la documentation de l'API
 * **Afin de** pouvoir l'utiliser dans des scripts ou applications externes pour interagir avec le CMS.
