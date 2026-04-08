@@ -113,7 +113,7 @@ public static class AuthenticationEndpoints
         return TypedResults.Ok(result);
     }
 
-    private static async Task<Results<NoContent, UnauthorizedHttpResult>> Logout(
+    private static async Task<Results<NoContent, UnauthorizedHttpResult, BadRequest>> Logout(
         IAuthenticationService service,
         IAuthenticationOptionService opts,
         IUserContextService userCtx,
@@ -125,7 +125,7 @@ public static class AuthenticationEndpoints
         var cookie = ctx.Request.Cookies[opts.CookieName];
 
         if (string.IsNullOrEmpty(cookie))
-            return TypedResults.Unauthorized();
+            return TypedResults.BadRequest();
 
         await service.LogoutAsync(cookie, userCtx.GetUserId(), userAgent, ipAddress);
         ctx.Response.Cookies.Delete(opts.CookieName);
