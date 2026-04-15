@@ -12,6 +12,8 @@ public class DevelopmentSeed(
     DigitalContext context
 ) : Seeder<User>(logger, context), ISeed
 {
+    private readonly DigitalContext _context = context;
+    
     public const string DefaultPassword = "Devpassword123!";
 
     public static string GenerateApiKey(User user) =>
@@ -25,8 +27,8 @@ public class DevelopmentSeed(
             throw new Exception(result.Errors.First().Message);
 
         foreach (var apiKey in result.Value!.Select(user => new ApiKey(user.Id, $"dev-{user.Login.ToLower()}", GenerateApiKey(user))))
-            await context.ApiKeys.AddAsync(apiKey);
-        await context.SaveChangesAsync();
+            await _context.ApiKeys.AddAsync(apiKey);
+        await _context.SaveChangesAsync();
     }
 
     private static List<User> Users =>

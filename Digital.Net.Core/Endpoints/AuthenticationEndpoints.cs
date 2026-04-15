@@ -30,6 +30,11 @@ public static class AuthenticationEndpoints
             .WithDescription("Login user with login and password.");
 
         controller
+            .MapGet("is-locked", IsLocked)
+            .WithSummary("IsLocked")
+            .WithDescription("Check if the client IP has reached the max login attempts.");
+
+        controller
             .MapPost("logout", Logout)
             .RequireAuthentication(AuthorizeType.Jwt)
             .WithSummary("Logout")
@@ -63,7 +68,9 @@ public static class AuthenticationEndpoints
 
         if (ipAddress is null)
             return TypedResults.Unauthorized();
-
+        if (request.Login.Length is > 48 or < 1 || request.Password.Length is > 256 or < 1)
+            return TypedResults.Unauthorized();
+        
         var loginRes = await service.LoginAsync(request.Login, request.Password, ipAddress, userAgent);
         result.Merge(loginRes);
 
@@ -78,6 +85,18 @@ public static class AuthenticationEndpoints
             BuildCookieOptions(opts.GetRefreshTokenExpirationDate())
         );
         result.Value = loginRes.Value.bearer;
+        return TypedResults.Ok(result);
+    }
+
+    private static async Task<Results<Ok<Result<bool>>, StatusCodeHttpResult>> IsLocked(IAuthenticationService service, HttpContext ctx)
+    {
+        var result = new Result<bool>();
+        var ipAddress = ctx.GetRemoteIpAddress();
+        if (ipAddress is null)
+            result.Value = false;
+        else 
+            result.Value = await service.GetLoginAttemptCountAsync(ipAddress) >= AuthenticationStaticOptions.MaxLoginAttempts;
+        
         return TypedResults.Ok(result);
     }
 

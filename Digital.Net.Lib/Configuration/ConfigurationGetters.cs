@@ -23,6 +23,8 @@ public static class ConfigurationGetters
     public static T? Get<T>(this IConfiguration configuration, string settingPath)
     {
         var section = configuration.GetSection(settingPath);
-        return !section.Exists() || string.IsNullOrEmpty(section.Value) ? default : section.Get<T>();
+        if (!section.Exists()) return default;
+        if (string.IsNullOrEmpty(section.Value) && !section.GetChildren().Any()) return default;
+        return section.Get<T>();
     }
 }

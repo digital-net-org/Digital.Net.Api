@@ -3,7 +3,6 @@ using System.Security.Authentication;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.ApiTokens;
 using Digital.Net.Core.Entities.Models.Events;
-using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Core.Services.Auditing;
 using Digital.Net.Core.Services.Authentication.Events;
 using Digital.Net.Core.Services.Authentication.Exceptions;
@@ -22,10 +21,8 @@ public class AuthenticationService(
     DigitalContext context
 ) : IAuthenticationService
 {
-    private async Task<int> GetLoginAttemptCountAsync(User? user, string ipAddress)
+    public async Task<int> GetLoginAttemptCountAsync(string ipAddress)
     {
-        if (user is null)
-            return 0;
         var threshold = DateTime.UtcNow.Subtract(authenticationOptionService.GetMaxLoginAttemptsThreshold());
         return await context.Events.CountAsync(
             e =>
@@ -33,10 +30,9 @@ public class AuthenticationService(
                 && e.Name == AuthenticationEvents.Login
                 && e.State == EventState.Failed
                 && e.IpAddress == ipAddress
-                && e.UserId == user.Id
         );
     }
-
+    
     public async Task<Result<(string bearer, string refresh)>> LoginAsync(
         string login,
         string password,
@@ -49,7 +45,7 @@ public class AuthenticationService(
         userAgent ??= string.Empty;
 
         var user = await context.Users.FirstOrDefaultAsync(u => u.Login == login);
-        if (await GetLoginAttemptCountAsync(user, ipAddress) >= AuthenticationStaticOptions.MaxLoginAttempts)
+        if (await GetLoginAttemptCountAsync(ipAddress) >= AuthenticationStaticOptions.MaxLoginAttempts)
             result.AddError(new TooManyAttemptsException());
         else if (user is null)
             result.AddError(new InvalidCredentialsException());

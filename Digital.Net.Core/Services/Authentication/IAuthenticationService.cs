@@ -4,6 +4,7 @@ namespace Digital.Net.Core.Services.Authentication;
 
 public interface IAuthenticationService
 {
+    public Task<int> GetLoginAttemptCountAsync(string ipAddress);
     public Task<Result<(string bearer, string? refresh)>> RefreshTokensAsync(string? refreshToken, string? userAgent = null);
     public Task<Result<(string bearer, string refresh)>> LoginAsync(
         string login,
