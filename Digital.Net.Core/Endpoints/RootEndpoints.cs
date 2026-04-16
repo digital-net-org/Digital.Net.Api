@@ -1,6 +1,6 @@
 using Digital.Net.Core.Endpoints.Dto;
-using Digital.Net.Lib.Messages;
 using Digital.Net.Core.RateLimiter.Limiters;
+using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -23,6 +23,11 @@ public static class RootEndpoints
             .MapGet("/", GetApplicationVersion)
             .WithSummary("Gets application version")
             .WithDescription("Get the application version information.");
+
+        controller
+            .MapGet("/ping", () => "pong")
+            .WithSummary("Application health-check")
+            .WithDescription("Verify if the application is up and running.");
 
         return app;
     }
