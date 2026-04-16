@@ -65,11 +65,26 @@ public static class UserEndpoints
             .WithDescription("Removes the authenticated user's avatar.");
 
         group
+            .MapGet("/self/is-admin", GetSelfIsAdmin)
+            .WithSummary("GetSelfIsAdmin")
+            .WithDescription("Returns whether the authenticated user has admin privileges.");
+
+        group
             .MapGet("/{id:guid}/avatar", GetUserAvatar)
             .WithSummary("GetUserAvatar")
             .WithDescription("Retrieves the avatar image file for a given user.");
 
         return app;
+    }
+
+    private static Results<Ok<Result<bool>>, UnauthorizedHttpResult> GetSelfIsAdmin(
+        IUserContextService userContextService
+    )
+    {
+        if (userContextService.GetUser() is not { } user)
+            return TypedResults.Unauthorized();
+
+        return TypedResults.Ok(new Result<bool>(user.IsAdmin));
     }
 
     private static Results<Ok<Result<UserDto>>, UnauthorizedHttpResult> GetSelf(IUserContextService userContextService)

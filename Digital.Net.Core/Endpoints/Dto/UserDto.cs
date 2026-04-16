@@ -16,6 +16,7 @@ public class UserDto
         Email = userModel.Email;
         Avatar = userModel.Avatar is not null ? new AvatarDto(userModel.Avatar) : null;
         IsActive = userModel.IsActive;
+        IsAdmin = userModel.IsAdmin;
         CreatedAt = userModel.CreatedAt;
         UpdatedAt = userModel.UpdatedAt;
     }
@@ -26,6 +27,7 @@ public class UserDto
     public string? Email { get; init; }
     public AvatarDto? Avatar { get; init; }
     public bool? IsActive { get; init; }
+    public bool? IsAdmin { get; init; }
     public DateTime CreatedAt { get; init; }
     public DateTime? UpdatedAt { get; init; }
 }
