@@ -1,6 +1,10 @@
 using System.Linq.Expressions;
 using System.Text.Json;
 using Digital.Net.Core.Endpoints.Dto;
+using Digital.Net.Core.Entities;
+using Digital.Net.Core.Entities.Context;
+using Digital.Net.Core.Entities.Models.Events;
+using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Core.RateLimiter.Limiters;
 using Digital.Net.Core.Services.Auditing;
 using Digital.Net.Core.Services.Authentication;
@@ -12,9 +16,6 @@ using Digital.Net.Core.Services.Users;
 using Digital.Net.Core.Services.Users.Events;
 using Digital.Net.Core.Services.Users.Events.Types;
 using Digital.Net.Core.Services.Users.Exceptions;
-using Digital.Net.Core.Entities.Context;
-using Digital.Net.Core.Entities.Models.Events;
-using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.Predicates;
@@ -23,6 +24,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Core.Endpoints;
 
@@ -152,11 +154,15 @@ public static class AdministrationEndpoints
     )
     {
         if (!string.IsNullOrEmpty(query.Username))
-            predicate = predicate.Add(x => x.Username.StartsWith(query.Username));
+            predicate = predicate.Add(x =>
+                EF.Functions.ILike(x.Username, $"{EfCoreQuery.EscapeLike(query.Username)}%")
+            );
         if (!string.IsNullOrEmpty(query.Email))
             predicate = predicate.Add(x => x.Email.StartsWith(query.Email));
         if (query.IsActive.HasValue)
             predicate = predicate.Add(x => x.IsActive == query.IsActive);
+        if (query.IsAdmin.HasValue)
+            predicate = predicate.Add(x => x.IsAdmin == query.IsAdmin);
         return predicate;
     }
 
