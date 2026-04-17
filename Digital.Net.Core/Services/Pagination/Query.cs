@@ -8,6 +8,7 @@ public class Query
     public int Index { get; set; } = DefaultIndex;
     public int Size { get; set; } = DefaultSize;
     public string? OrderBy { get; set; }
+    public string? Order { get; set; }
     public DateTime? CreatedFrom { get; set; }
     public DateTime? CreatedTo { get; set; }
     public DateTime? UpdatedFrom { get; set; }

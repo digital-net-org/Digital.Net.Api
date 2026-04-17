@@ -52,9 +52,13 @@ public static class PaginationEndpointExtensions
                     var items = context.Set<T>().Where(predicate);
                     var rowCount = items.Count();
 
+                    var config = new ParsingConfig { IsCaseSensitive = false };
+                    var orderBy = string.IsNullOrWhiteSpace(query.OrderBy) ? "CreatedAt" : query.OrderBy;
+                    var direction = string.Equals(query.Order, "desc", StringComparison.OrdinalIgnoreCase) ? " descending" : "";
+
                     items = items.AsNoTracking();
+                    items = items.OrderBy(config, orderBy + direction);
                     items = items.Skip((query.Index - 1) * query.Size).Take(query.Size);
-                    items = items.OrderBy(query.OrderBy ?? "CreatedAt");
 
                     result.Value = Mapper.TryMap<T, TDto>(items.ToList());
                     result.Total = rowCount;
