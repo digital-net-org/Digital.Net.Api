@@ -2,19 +2,68 @@
     <img width="256" src="logo.png">
 </h1>
 <p align="center">
-    Digital Net Rest API solution.
+    Digital Net REST API framework library.
 </p>
 <p align="center">
     <a href="https://www.docker.com/"><img src="https://img.shields.io/badge/Docker-blue.svg?color=1d63ed"></a>
-        <a href="https://dotnet.microsoft.com/en-us/languages/csharp"><img src="https://img.shields.io/badge/C%23-blue.svg?color=622075"></a>
+    <a href="https://dotnet.microsoft.com/en-us/languages/csharp"><img src="https://img.shields.io/badge/C%23-blue.svg?color=622075"></a>
     <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-10/overview"><img src="https://img.shields.io/badge/Dotnet_10-blue.svg?color=4f2bce"></a>
 </p>
 
-## 📦 Installation
+---
+
+## Overview
+
+Digital.Net is a .NET 10 / ASP.NET Core framework that bootstraps a REST API
+with batteries included: authentication (JWT + API key + application), user
+management, generic CRUD services, audit logging, document storage, rate
+limiting, OpenAPI documentation, and an optional headless CMS module (pages,
+articles, tags, media, sitemap).
+
+The solution is composed of several projects:
+
+| Project                         | Role                                       |
+|---------------------------------|--------------------------------------------|
+| `Digital.Net.Core`              | Core framework (auth, CRUD, audit, files)  |
+| `Digital.Net.Core.Entities`     | Entity models and EF Core `DbContext`      |
+| `Digital.Net.Cms`               | Optional headless CMS module               |
+| `Digital.Net.Lib`               | Shared utilities (`Result<T>`, URL helpers)|
+| `Digital.Net.*.Test`            | Unit test projects for each library        |
+| `Digital.Net.Tests.Core`        | Shared test infrastructure                 |
+| `Digital.Net.Tests.Program`     | Integration test host                      |
+
+## Getting Started (contributors)
+
+### Prerequisites
+
+- **.NET SDK** 10
+- **PostgreSQL** 15+ *(or use SQLite for integration tests via the
+  `Database:UseSqlite` flag)*
+
+### Clone and build
+
+```bash
+git clone --recurse-submodules git@github.com:digital-net-org/Digital.Net.Api.git
+cd Digital.Net.Api
+
+dotnet restore Digital.Net.slnx
+dotnet build   Digital.Net.slnx
+```
+
+### Run the tests
+
+```bash
+dotnet test Digital.Net.slnx
+```
+
+Unit tests use an in-memory SQLite database — no external Postgres required.
+
+## Installation (consumers)
 
 ### Core
 
-Install the `Digital.Net.Core` NuGet package and call `AddDigitalNet()` / `UseDigitalNet()` in your entry point.
+Install the `Digital.Net.Core` NuGet package and call `AddDigitalNet()` /
+`UseDigitalNet()` in your entry point.
 
 ```csharp
 public sealed class Program
@@ -32,11 +81,14 @@ public sealed class Program
 }
 ```
 
-This registers authentication (JWT + API Key + Application), user management, CRUD services, audit logging, document storage, rate limiting, and OpenAPI documentation.
+This registers authentication (JWT + API Key + Application), user management,
+CRUD services, audit logging, document storage, rate limiting, and OpenAPI
+documentation.
 
 ### CMS module (optional)
 
-Add the `Digital.Net.Cms` project (or package) and chain `AddDigitalCms()` / `UseDigitalCms()`.
+Add the `Digital.Net.Cms` project (or package) and chain `AddDigitalCms()` /
+`UseDigitalCms()`.
 
 ```csharp
 public sealed class Program
@@ -56,22 +108,23 @@ public sealed class Program
 }
 ```
 
-This adds headless CMS capabilities: pages, articles, tags, media (with on-demand image resizing), CSS/JS sheets, and sitemap data endpoints.
+This adds headless CMS capabilities: pages, articles, tags, media (with
+on-demand image resizing), CSS/JS sheets, and sitemap data endpoints.
 
-## 📝 Configuration
+## Configuration
 
-You can configurate the application using environment variables.
+Configure the application via environment variables or `appsettings.*.json`.
+Files at the project root are loaded automatically; environment variables
+override file values.
 
-The application SDK will automatically load environment variables from the `appsettings.*.json` file located in the root 
-of the project and override the values set in environment variables.
-
-The loadings order is:
+Loading order:
 1. `appsettings.json`
 2. `appsettings.{Environment}.json`
 3. `appsettings.local.json`
 4. Environment variables
 
-#### Environment variables
+### Environment variables
+
 | Accessor                                                                                                                                                                                                  | Type       | Default value            |
 |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|--------------------------|
 | ___ApplicationName___                    <br/>Name of your application, returned by the `GET /` endpoint                                                                                                 | `string`   | `""`                     |
