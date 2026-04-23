@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Digital.Net.Core.Entities.Attributes;
 using Digital.Net.Core.Entities.Models;
+using Digital.Net.Lib.String;
 using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Cms.Models;
@@ -13,7 +14,12 @@ public class Page : Entity
     [Column("Path")]
     [Required]
     [MaxLength(2068)]
+    [RegexValidation(RegularExpressions.PagePathPattern)]
     public required string Path { get; set; }
+
+    [Column("EntityType")]
+    [MaxLength(16)]
+    public PageEntityType? EntityType { get; set; }
 
     [Column("Published")]
     public bool Published { get; set; }

@@ -91,4 +91,24 @@ public class RegularExpressionsTests : UnitTest
         var result = RegularExpressions.ObjectName().IsMatch(objectName);
         await Assert.That(result).IsEqualTo(expected);
     }
+
+    [Test]
+    [Arguments("/", true)]
+    [Arguments("/home", true)]
+    [Arguments("/:id", true)]
+    [Arguments("/articles/:slug", true)]
+    [Arguments("/articles/:slug/comments/:commentId", true)]
+    [Arguments("/bon_slug-test.v2~nok", true)]
+    [Arguments("//", false)]
+    [Arguments("/home/", false)]
+    [Arguments("/a!b", false)]
+    [Arguments("/ hello", false)]
+    [Arguments("/:123bad", false)]
+    [Arguments("home", false)]
+    [Arguments("", false)]
+    public async Task PagePath_Regex_Should_Validate_Correctly(string path, bool expected)
+    {
+        var result = RegularExpressions.PagePath.IsMatch(path);
+        await Assert.That(result).IsEqualTo(expected);
+    }
 }

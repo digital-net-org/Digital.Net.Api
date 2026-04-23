@@ -27,5 +27,16 @@ public static class PageApi
         await client.DeleteAsync($"{BaseUrl}/{pageId}");
 
     public static async Task<HttpResponseMessage> GetPageByPath(this HttpClient client, string path) =>
-        await client.GetAsync($"{BaseUrl}/path/{path}");
+        await client.GetAsync($"{BaseUrl}/path?path={Uri.EscapeDataString(path)}");
+
+    public static async Task<HttpResponseMessage> GetPathAvailability(
+        this HttpClient client,
+        string path,
+        Guid? excludeId = null
+    )
+    {
+        var url = $"{BaseUrl}/path/availability?path={Uri.EscapeDataString(path)}";
+        if (excludeId.HasValue) url += $"&excludeId={excludeId.Value}";
+        return await client.GetAsync(url);
+    }
 }

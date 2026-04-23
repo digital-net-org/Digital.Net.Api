@@ -28,6 +28,11 @@ public static partial class RegularExpressions
     public const string ApiKeyNamePattern = @"^[a-zA-Z0-9 _-]{1,64}$";
     public static Regex ApiKeyName => ApiKeyNameRegex();
 
+    [GeneratedRegex(PagePathPattern)]
+    private static partial Regex PagePathRegex();
+    public const string PagePathPattern = @"^(/|(/(:[a-zA-Z_][a-zA-Z0-9_]*|[a-zA-Z0-9_\-.~]+))+)$";
+    public static Regex PagePath => PagePathRegex();
+
     [GeneratedRegex("(?<!^)([A-Z])")]
     public static partial Regex PascalCase();
 

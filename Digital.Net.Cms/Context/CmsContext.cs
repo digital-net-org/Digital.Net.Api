@@ -28,6 +28,14 @@ public class CmsContext(DbContextOptions<CmsContext> options) : DbContext(option
     {
         builder.HasDefaultSchema(Schema);
 
+        builder.Entity<Page>()
+            .Property(p => p.EntityType)
+            .HasConversion(
+                v => v!.Value.ToString().ToUpperInvariant(),
+                v => Enum.Parse<PageEntityType>(v, ignoreCase: true)
+            )
+            .HasMaxLength(16);
+
         builder.Entity<Article>().ToTable("Article");
 
         builder

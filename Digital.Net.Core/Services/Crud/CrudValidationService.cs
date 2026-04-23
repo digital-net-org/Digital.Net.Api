@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Digital.Net.Core.Services.Crud.Exceptions;
 using Digital.Net.Core.Entities.Models;
 using Digital.Net.Lib.String;
@@ -138,7 +139,7 @@ public class CrudValidationService<TContext>(
                 (entityId == null || x.Id != entityId) && EF.Property<object>(x, property.Name).Equals(value)))
             throw new EntityValidationException($"{path}: This value violates a unique constraint.");
 
-        if (property.RegexValidation is not null && !property.RegexValidation.IsMatch(value.ToString() ?? ""))
+        if (property.RegexValidation is not null && !Regex.IsMatch(value.ToString() ?? "", property.RegexValidation))
             throw new EntityValidationException($"{path}: This value does not meet the requirements.");
     }
 }

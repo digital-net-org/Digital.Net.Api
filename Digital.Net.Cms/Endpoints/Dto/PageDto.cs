@@ -12,6 +12,7 @@ public class PageDto
     {
         Id = page.Id;
         Path = page.Path;
+        EntityType = page.EntityType;
         Published = page.Published;
         Indexed = page.Indexed;
         Title = page.Title;
@@ -25,6 +26,7 @@ public class PageDto
 
     public Guid Id { get; init; }
     public string Path { get; set; } = string.Empty;
+    public PageEntityType? EntityType { get; set; }
     public bool Published { get; set; }
     public bool Indexed { get; set; }
     public string? Title { get; set; }

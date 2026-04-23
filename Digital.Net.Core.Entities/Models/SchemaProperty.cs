@@ -1,5 +1,4 @@
 using System.Reflection;
-using System.Text.RegularExpressions;
 using Digital.Net.Core.Entities.Attributes;
 
 namespace Digital.Net.Core.Entities.Models;
@@ -22,7 +21,7 @@ public class SchemaProperty<T>(PropertyInfo propertyInfo)
     public int? MaxLength { get; } = AttributeAnalyzer<T>.MaxLength(propertyInfo);
     public bool IsIdentity { get; } = AttributeAnalyzer<T>.IsIdentity(propertyInfo);
     public bool IsForeignKey { get; } = AttributeAnalyzer<T>.IsForeignKey(propertyInfo);
-    public Regex? RegexValidation { get; } = AttributeAnalyzer<T>.GetRegex(propertyInfo);
+    public string? RegexValidation { get; } = AttributeAnalyzer<T>.GetRegex(propertyInfo)?.ToString();
 
     /// <summary>
     ///     Get a schema of the entity describing its properties.

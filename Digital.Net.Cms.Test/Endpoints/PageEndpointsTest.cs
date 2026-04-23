@@ -133,7 +133,7 @@ public class PageEndpointsTest
     public async Task GetPageByPath_ShouldReturnPublishedPage()
     {
         var client = Application.CreateApplicationClient();
-        var uniquePath = "test-public-path-" + Guid.NewGuid().ToString("N")[..8];
+        var uniquePath = "/test-public-path-" + Guid.NewGuid().ToString("N")[..8];
         CreateTestPage(uniquePath, true);
 
         var response = await client.GetPageByPath(uniquePath);
@@ -144,10 +144,171 @@ public class PageEndpointsTest
     public async Task GetPageByPath_ShouldReturnNotFound_WhenPageIsNotPublished()
     {
         var client = Application.CreateApplicationClient();
-        var uniquePath = "test-unpublished-" + Guid.NewGuid().ToString("N")[..8];
+        var uniquePath = "/test-unpublished-" + Guid.NewGuid().ToString("N")[..8];
         CreateTestPage(uniquePath, false);
 
         var response = await client.GetPageByPath(uniquePath);
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.NotFound);
+    }
+
+    [Test]
+    public async Task CreatePage_ShouldRejectInvalidPath()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var payload = new PagePayload { Path = "/invalid!path" };
+
+        var response = await client.CreatePage(payload);
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task CreatePage_ShouldRejectTrailingSlash()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var payload = new PagePayload { Path = "/home/" };
+
+        var response = await client.CreatePage(payload);
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task CreatePage_ShouldAcceptDynamicSlugPath()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var payload = new PagePayload
+        {
+            Path = "/articles-" + Guid.NewGuid().ToString("N")[..8] + "/:id"
+        };
+
+        var response = await client.CreatePage(payload);
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+    }
+
+    [Test]
+    public async Task CreatePage_ShouldRejectEntityTypeWithoutDynamicSlug()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var payload = new PagePayload
+        {
+            Path = "/static-" + Guid.NewGuid().ToString("N")[..8],
+            EntityType = PageEntityType.Article
+        };
+
+        var response = await client.CreatePage(payload);
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task CreatePage_ShouldAcceptEntityTypeWithDynamicSlug()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var payload = new PagePayload
+        {
+            Path = "/products-" + Guid.NewGuid().ToString("N")[..8] + "/:id",
+            EntityType = PageEntityType.Article
+        };
+
+        var response = await client.CreatePage(payload);
+        var result = await response.Content.ReadFromJsonAsync<Result<Guid>>();
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+        await Assert.That(result!.Value).IsNotDefault();
+
+        var getResponse = await client.GetPageById(result.Value);
+        var dto = await getResponse.Content.ReadFromJsonAsync<Result<PageDto>>();
+        await Assert.That(dto!.Value!.EntityType).IsEqualTo(PageEntityType.Article);
+    }
+
+    [Test]
+    public async Task PatchPage_ShouldRejectEntityTypeLostConsistency()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var basePath = "/rej-" + Guid.NewGuid().ToString("N")[..8] + "/:id";
+        var createResp = await client.CreatePage(
+            new PagePayload { Path = basePath, EntityType = PageEntityType.Article });
+        var created = await createResp.Content.ReadFromJsonAsync<Result<Guid>>();
+
+        var patch = new[]
+        {
+            new { op = "replace", path = "/Path", value = "/rej-" + Guid.NewGuid().ToString("N")[..8] }
+        };
+        var response = await client.PatchPage(created!.Value, patch);
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task PatchPage_ShouldAcceptPathChangeWithEntityTypeClear()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var basePath = "/acc-" + Guid.NewGuid().ToString("N")[..8] + "/:id";
+        var createResp = await client.CreatePage(
+            new PagePayload { Path = basePath, EntityType = PageEntityType.Article });
+        var created = await createResp.Content.ReadFromJsonAsync<Result<Guid>>();
+
+        var newPath = "/acc-" + Guid.NewGuid().ToString("N")[..8];
+        var patch = new object[]
+        {
+            new { op = "replace", path = "/Path", value = newPath },
+            new { op = "replace", path = "/EntityType", value = (string?)null }
+        };
+        var response = await client.PatchPage(created!.Value, patch);
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+    }
+
+    [Test]
+    public async Task GetPathAvailability_ShouldReturnTrue_WhenPathIsFree()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var freePath = "/free-" + Guid.NewGuid().ToString("N")[..8];
+
+        var response = await client.GetPathAvailability(freePath);
+        var result = await response.Content.ReadFromJsonAsync<Result<bool>>();
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+        await Assert.That(result!.Value).IsTrue();
+    }
+
+    [Test]
+    public async Task GetPathAvailability_ShouldReturnFalse_WhenPathIsTaken()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var takenPath = "/taken-" + Guid.NewGuid().ToString("N")[..8];
+        CreateTestPage(takenPath);
+
+        var response = await client.GetPathAvailability(takenPath);
+        var result = await response.Content.ReadFromJsonAsync<Result<bool>>();
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+        await Assert.That(result!.Value).IsFalse();
+    }
+
+    [Test]
+    public async Task GetPathAvailability_ShouldReturnTrue_WhenExcludeIdOwnsPath()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var ownPath = "/self-" + Guid.NewGuid().ToString("N")[..8];
+        var page = CreateTestPage(ownPath);
+
+        var response = await client.GetPathAvailability(ownPath, page.Id);
+        var result = await response.Content.ReadFromJsonAsync<Result<bool>>();
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+        await Assert.That(result!.Value).IsTrue();
+    }
+
+    [Test]
+    public async Task GetPathAvailability_ShouldRequireAuthentication()
+    {
+        var client = Application.CreateClient();
+
+        var response = await client.GetPathAvailability("/any");
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Unauthorized);
     }
 }

@@ -12,6 +12,9 @@ public class SchemaPropertyTest : UnitTest
     {
         [Column("required_property"), DataFlag("test_flag"), Required, ReadOnly]
         public string RequiredProperty { get; set; }
+
+        [RegexValidation(@"^[a-z]+$")]
+        public string RegexProperty { get; set; }
     }
 
     [Test]
@@ -31,5 +34,13 @@ public class SchemaPropertyTest : UnitTest
         await Assert.That(schemaProperty.IsIdentity).IsFalse();
         await Assert.That(schemaProperty.IsForeignKey).IsFalse();
         await Assert.That(schemaProperty.MaxLength).IsNull();
+    }
+
+    [Test]
+    public async Task SchemaProperty_ExposesRegexPatternAsString()
+    {
+        var propertyInfo = typeof(TestEntity).GetProperty("RegexProperty");
+        var schemaProperty = new SchemaProperty<TestEntity>(propertyInfo!);
+        await Assert.That(schemaProperty.RegexValidation).IsEqualTo(@"^[a-z]+$");
     }
 }
