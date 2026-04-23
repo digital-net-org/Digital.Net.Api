@@ -7,21 +7,49 @@ namespace Digital.Net.Core.Entities.Models;
 ///     Schema describing an entity property.
 /// </summary>
 /// <typeparam name="T">The model of the entity</typeparam>
-public class SchemaProperty<T>(PropertyInfo propertyInfo)
+public class SchemaProperty<T>
     where T : Entity
 {
-    public string Name { get; } = propertyInfo.Name;
-    public string Path { get; } = AttributeAnalyzer<T>.GetPath(propertyInfo);
-    public string Type { get; } = propertyInfo.PropertyType.Name;
-    public string? DataFlag { get; } = propertyInfo.GetCustomAttribute<DataFlagAttribute>()?.Flag;
-    public bool IsReadOnly { get; } = AttributeAnalyzer<T>.IsReadOnly(propertyInfo);
-    public bool IsSecret { get; } = AttributeAnalyzer<T>.IsSecret(propertyInfo);
-    public bool IsRequired { get; } = AttributeAnalyzer<T>.IsRequired(propertyInfo);
-    public bool IsUnique { get; } = AttributeAnalyzer<T>.IsUnique(propertyInfo);
-    public int? MaxLength { get; } = AttributeAnalyzer<T>.MaxLength(propertyInfo);
-    public bool IsIdentity { get; } = AttributeAnalyzer<T>.IsIdentity(propertyInfo);
-    public bool IsForeignKey { get; } = AttributeAnalyzer<T>.IsForeignKey(propertyInfo);
-    public string? RegexValidation { get; } = AttributeAnalyzer<T>.GetRegex(propertyInfo)?.ToString();
+    public SchemaProperty(PropertyInfo propertyInfo)
+    {
+        Name = propertyInfo.Name;
+        Path = AttributeAnalyzer<T>.GetPath(propertyInfo);
+        DataFlag = propertyInfo.GetCustomAttribute<DataFlagAttribute>()?.Flag;
+        IsReadOnly = AttributeAnalyzer<T>.IsReadOnly(propertyInfo);
+        IsSecret = AttributeAnalyzer<T>.IsSecret(propertyInfo);
+        IsRequired = AttributeAnalyzer<T>.IsRequired(propertyInfo);
+        IsUnique = AttributeAnalyzer<T>.IsUnique(propertyInfo);
+        MaxLength = AttributeAnalyzer<T>.MaxLength(propertyInfo);
+        IsIdentity = AttributeAnalyzer<T>.IsIdentity(propertyInfo);
+        IsForeignKey = AttributeAnalyzer<T>.IsForeignKey(propertyInfo);
+        RegexValidation = AttributeAnalyzer<T>.GetRegex(propertyInfo)?.ToString();
+
+        var underlying = Nullable.GetUnderlyingType(propertyInfo.PropertyType) ?? propertyInfo.PropertyType;
+        if (underlying.IsEnum)
+        {
+            Type = "Enum";
+            EnumValues = Enum.GetNames(underlying);
+        }
+        else
+        {
+            Type = propertyInfo.PropertyType.Name;
+            EnumValues = null;
+        }
+    }
+
+    public string Name { get; }
+    public string Path { get; }
+    public string Type { get; }
+    public string? DataFlag { get; }
+    public bool IsReadOnly { get; }
+    public bool IsSecret { get; }
+    public bool IsRequired { get; }
+    public bool IsUnique { get; }
+    public int? MaxLength { get; }
+    public bool IsIdentity { get; }
+    public bool IsForeignKey { get; }
+    public string? RegexValidation { get; }
+    public string[]? EnumValues { get; }
 
     /// <summary>
     ///     Get a schema of the entity describing its properties.

@@ -13,15 +13,24 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.Processing;
 
-namespace Digital.Net.Cms.Services;
+namespace Digital.Net.Cms.Services.Medias;
 
 public class MediaService(
     CmsContext cmsContext,
     DigitalContext digitalContext,
     IDocumentService documentService,
     IConfiguration configuration
-) : IMediaService
+)
 {
+    /// <summary>
+    ///     Returns the Document to serve for a media image request.
+    ///     If width/quality are provided and the media is a raster image,
+    ///     returns an existing or newly generated variant Document.
+    ///     For SVGs or requests without resize params, returns the original Document.
+    /// </summary>
+    /// <param name="mediaId">The media ID for which to retrieve the variant.</param>
+    /// <param name="width">The optional width of the variant to generate.</param>
+    /// <param name="quality">The optional quality of the variant to generate.</param>
     public async Task<Result<Document>> GetOrCreateVariantAsync(Guid mediaId, int? width, int? quality)
     {
         var result = new Result<Document>();
@@ -61,6 +70,10 @@ public class MediaService(
         return await GenerateVariantAsync(media, originalDocument, w, q);
     }
 
+    /// <summary>
+    ///     Purges all cached variants for a given media.
+    /// </summary>
+    /// <param name="mediaId">The ID of the media for which to purge variants.</param>
     public async Task<Result> PurgeMediaVariantsAsync(Guid mediaId)
     {
         var result = new Result();
@@ -76,6 +89,10 @@ public class MediaService(
         return result;
     }
 
+    /// <summary>
+    ///     Purges a specific variant by its ID.
+    /// </summary>
+    /// <param name="variantId">The ID of the variant to purge.</param>
     public async Task<Result> PurgeVariantAsync(Guid variantId)
     {
         var result = new Result();
@@ -89,6 +106,9 @@ public class MediaService(
         return result;
     }
 
+    /// <summary>
+    ///     Purges all cached variants across all media.
+    /// </summary>
     public async Task<Result> PurgeAllVariantsAsync()
     {
         var result = new Result();
@@ -102,6 +122,10 @@ public class MediaService(
         return result;
     }
 
+    /// <summary>
+    ///     Deletes a media, its original Document, and all variant Documents.
+    /// </summary>
+    /// <param name="mediaId">The ID of the media to delete.</param>
     public async Task<Result> DeleteMediaAsync(Guid mediaId)
     {
         var result = new Result();

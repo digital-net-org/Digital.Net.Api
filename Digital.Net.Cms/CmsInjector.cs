@@ -2,6 +2,7 @@ using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Endpoints;
 using Digital.Net.Cms.Models;
 using Digital.Net.Cms.Services;
+using Digital.Net.Cms.Services.Medias;
 using Digital.Net.Cms.Services.Pages;
 using Digital.Net.Core.Bootstrap;
 using Digital.Net.Core.Entities.Models.Events;
@@ -34,7 +35,7 @@ public static class CmsInjector
             .AddScoped<ICrudService<Sheet>, CrudService<CmsContext, Sheet>>()
             .AddScoped<ICrudService<Tag>, CrudService<CmsContext, Tag>>()
             .AddScoped<ICrudService<Media>, CrudService<CmsContext, Media>>()
-            .AddScoped<IMediaService, MediaService>()
+            .AddScoped<MediaService>()
             .AddScoped<ICrudService<Form>, CrudService<CmsContext, Form>>()
             .AddScoped<ICrudService<FormField>, CrudService<CmsContext, FormField>>()
             .AddScoped<ICrudService<FormSubmission>, CrudService<CmsContext, FormSubmission>>();

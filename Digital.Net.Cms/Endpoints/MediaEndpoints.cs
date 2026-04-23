@@ -5,6 +5,7 @@ using Digital.Net.Cms.Endpoints.Dto;
 using Digital.Net.Cms.Endpoints.Events;
 using Digital.Net.Cms.Models;
 using Digital.Net.Cms.Services;
+using Digital.Net.Cms.Services.Medias;
 using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.RateLimiter.Limiters;
 using Digital.Net.Core.Services.Auditing;
@@ -156,7 +157,7 @@ public static class MediaEndpoints
 
     private static async Task<IResult> DeleteMedia(
         Guid id,
-        IMediaService mediaService,
+        MediaService mediaService,
         IAuditService auditService,
         IUserContextService userContextService
     )
@@ -173,17 +174,17 @@ public static class MediaEndpoints
             : Results.Ok(result);
     }
 
-    private static async Task<IResult> PurgeMediaVariants(Guid id, IMediaService mediaService) =>
+    private static async Task<IResult> PurgeMediaVariants(Guid id, MediaService mediaService) =>
         (await mediaService.PurgeMediaVariantsAsync(id)).HasError
             ? Results.NotFound()
             : Results.Ok();
 
-    private static async Task<IResult> PurgeVariant(Guid variantId, IMediaService mediaService) =>
+    private static async Task<IResult> PurgeVariant(Guid variantId, MediaService mediaService) =>
         (await mediaService.PurgeVariantAsync(variantId)).HasError
             ? Results.NotFound()
             : Results.Ok();
 
-    private static async Task<IResult> PurgeAllVariants(IMediaService mediaService)
+    private static async Task<IResult> PurgeAllVariants(MediaService mediaService)
     {
         await mediaService.PurgeAllVariantsAsync();
         return Results.Ok();
@@ -195,7 +196,7 @@ public static class MediaEndpoints
         [FromQuery] int? w,
         [FromQuery] int? q,
         CmsContext context,
-        IMediaService mediaService,
+        MediaService mediaService,
         IDocumentCacheService documentCacheService,
         IUserContextService userContextService
     )
