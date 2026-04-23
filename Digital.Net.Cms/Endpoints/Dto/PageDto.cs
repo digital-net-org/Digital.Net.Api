@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Digital.Net.Cms.Models;
 
 namespace Digital.Net.Cms.Endpoints.Dto;
@@ -18,7 +19,7 @@ public class PageDto
         Title = page.Title;
         Description = page.Description;
         JsonLd = page.JsonLd;
-        OpenGraph = page.OpenGraph;
+        OpenGraph = DeserializeOpenGraph(page.OpenGraph);
         Redirect = page.Redirect;
         CreatedAt = page.CreatedAt;
         UpdatedAt = page.UpdatedAt;
@@ -32,8 +33,20 @@ public class PageDto
     public string? Title { get; set; }
     public string? Description { get; set; }
     public string? JsonLd { get; set; }
-    public string? OpenGraph { get; set; }
+    public IReadOnlyList<OpenGraphEntryDto>? OpenGraph { get; set; }
     public string? Redirect { get; set; }
     public DateTime CreatedAt { get; init; }
     public DateTime? UpdatedAt { get; init; }
+
+    private static readonly JsonSerializerOptions CamelCaseOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    };
+
+    private static IReadOnlyList<OpenGraphEntryDto>? DeserializeOpenGraph(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return null;
+        return JsonSerializer.Deserialize<List<OpenGraphEntryDto>>(raw, CamelCaseOptions);
+    }
 }

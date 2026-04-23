@@ -23,6 +23,9 @@ public static class PageApi
     public static async Task<HttpResponseMessage> PatchPage(this HttpClient client, Guid pageId, object patch) =>
         await client.PatchAsJsonAsync($"{BaseUrl}/{pageId}", patch);
 
+    public static async Task<HttpResponseMessage> GetOpenGraphSchema(this HttpClient client) =>
+        await client.GetAsync($"{BaseUrl}/schema/open-graph");
+
     public static async Task<HttpResponseMessage> DeletePage(this HttpClient client, Guid pageId) =>
         await client.DeleteAsync($"{BaseUrl}/{pageId}");
 

@@ -53,6 +53,12 @@ public static class PageEndpoints
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         controller
+            .MapGet("schema/open-graph", GetOpenGraphSchema)
+            .WithSummary("GetOpenGraphSchema")
+            .WithDescription("Returns the list of valid OpenGraph properties with an allowMultiple flag.")
+            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
+
+        controller
             .MapCrudGet<Page, PageDto>("")
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
@@ -111,7 +117,7 @@ public static class PageEndpoints
         IUserContextService userContextService
     )
     {
-        var consistency = PageValidator.EnsureEntityTypeConsistency(payload.Path, payload.EntityType);
+        var consistency = PagePayloadValidator.ValidateEntityTypeConsistency(payload.Path, payload.EntityType);
         if (consistency.HasError)
         {
             await auditService.RegisterEventAsync(
@@ -144,19 +150,24 @@ public static class PageEndpoints
     )
     {
         var current = await context.Pages.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
-        if (current is null)
-            return Results.NotFound();
+        if (current is null) return Results.NotFound();
 
-        var consistency = PageValidator.ValidatePatch(patch, current);
+        var consistency = PagePayloadValidator.ValidatePatch(patch, current);
         if (consistency.HasError)
         {
             await auditService.RegisterEventAsync(
-                CmsEvents.UpdatePage, EventState.Failed, consistency, userContextService.GetUserId()
+                CmsEvents.UpdatePage, 
+                EventState.Failed, 
+                consistency, 
+                userContextService.GetUserId()
             );
             return Results.BadRequest(consistency);
         }
 
-        var result = await crudService.Patch(patch.GetPatchDocument<Page>(), id);
+        var result = await crudService.Patch(
+            PagePayloadValidator.NormalizePatch(patch).GetPatchDocument<Page>(), 
+            id
+        );
         await auditService.RegisterEventAsync(
             CmsEvents.UpdatePage,
             result.HasError ? EventState.Failed : EventState.Success,
@@ -186,6 +197,9 @@ public static class PageEndpoints
             ? Results.NotFound(result)
             : Results.Ok(result);
     }
+
+    private static Ok<Result<IReadOnlyList<OpenGraphPropertySchema>>> GetOpenGraphSchema() =>
+        TypedResults.Ok(new Result<IReadOnlyList<OpenGraphPropertySchema>>(OpenGraphProperties.Schema));
 
     private static Expression<Func<Page, bool>> PaginationFilter(
         Expression<Func<Page, bool>> predicate,

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http.Json;
 using Digital.Net.Cms.Endpoints.Dto;
@@ -310,5 +311,153 @@ public class PageEndpointsTest
         var response = await client.GetPathAvailability("/any");
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Unauthorized);
+    }
+
+    [Test]
+    public async Task GetOpenGraphSchema_ShouldReturnSchema()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+
+        var response = await client.GetOpenGraphSchema();
+        var result = await response.Content.ReadFromJsonAsync<Result<List<OpenGraphPropertySchema>>>();
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+        await Assert.That(result!.Value!.Any(p => p.Key == "og:title" && !p.AllowMultiple)).IsTrue();
+        await Assert.That(result.Value!.Any(p => p.Key == "og:image" && p.AllowMultiple)).IsTrue();
+    }
+
+    [Test]
+    public async Task GetOpenGraphSchema_ShouldRequireAuthentication()
+    {
+        var client = Application.CreateClient();
+
+        var response = await client.GetOpenGraphSchema();
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Unauthorized);
+    }
+
+    [Test]
+    public async Task PatchPage_ShouldAcceptOpenGraphEntries()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var page = CreateTestPage();
+
+        var patch = new[]
+        {
+            new
+            {
+                op = "replace",
+                path = "/openGraph",
+                value = new object[]
+                {
+                    new { property = "og:title", content = "Example" },
+                    new { property = "og:image", content = "https://example.com/a.jpg" },
+                    new { property = "og:image", content = "https://example.com/b.jpg" },
+                },
+            },
+        };
+        var response = await client.PatchPage(page.Id, patch);
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+
+        var getResponse = await client.GetPageById(page.Id);
+        var result = await getResponse.Content.ReadFromJsonAsync<Result<PageDto>>();
+
+        await Assert.That(result!.Value!.OpenGraph).IsNotNull();
+        await Assert.That(result.Value!.OpenGraph!.Count).IsEqualTo(3);
+        await Assert.That(result.Value!.OpenGraph!.Count(e => e.Property == "og:image")).IsEqualTo(2);
+    }
+
+    [Test]
+    public async Task PatchPage_ShouldRejectUnknownOpenGraphKey()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var page = CreateTestPage();
+
+        var patch = new[]
+        {
+            new
+            {
+                op = "replace",
+                path = "/openGraph",
+                value = new[] { new { property = "og:nonexistent", content = "x" } },
+            },
+        };
+        var response = await client.PatchPage(page.Id, patch);
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task PatchPage_ShouldRejectDuplicateNonAllowMultipleOpenGraphKey()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var page = CreateTestPage();
+
+        var patch = new[]
+        {
+            new
+            {
+                op = "replace",
+                path = "/openGraph",
+                value = new[]
+                {
+                    new { property = "og:title", content = "A" },
+                    new { property = "og:title", content = "B" },
+                },
+            },
+        };
+        var response = await client.PatchPage(page.Id, patch);
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task PatchPage_ShouldClearOpenGraphOnNull()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var page = CreateTestPage();
+
+        var setPatch = new[]
+        {
+            new
+            {
+                op = "replace",
+                path = "/openGraph",
+                value = (object)new[] { new { property = "og:title", content = "x" } },
+            },
+        };
+        await client.PatchPage(page.Id, setPatch);
+
+        var clearPatch = new object[]
+        {
+            new { op = "replace", path = "/openGraph", value = (object?)null },
+        };
+        var response = await client.PatchPage(page.Id, clearPatch);
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+
+        var getResponse = await client.GetPageById(page.Id);
+        var result = await getResponse.Content.ReadFromJsonAsync<Result<PageDto>>();
+        await Assert.That(result!.Value!.OpenGraph).IsNull();
+    }
+
+    [Test]
+    public async Task PatchPage_ShouldRejectEmptyOpenGraphContent()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var page = CreateTestPage();
+
+        var patch = new[]
+        {
+            new
+            {
+                op = "replace",
+                path = "/openGraph",
+                value = new[] { new { property = "og:title", content = "" } },
+            },
+        };
+        var response = await client.PatchPage(page.Id, patch);
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.BadRequest);
     }
 }
