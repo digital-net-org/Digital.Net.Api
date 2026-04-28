@@ -83,4 +83,10 @@ public static class AttributeAnalyzer<T>
 
     public static Regex? GetRegex(PropertyInfo property) =>
         property.GetCustomAttribute<RegexValidationAttribute>()?.Regex;
+
+    public static IReadOnlyList<string>? GetOneOf(string propertyName) =>
+        typeof(T).GetProperty(propertyName)?.GetCustomAttribute<OneOfAttribute>()?.Values;
+
+    public static IReadOnlyList<string>? GetOneOf(PropertyInfo property) =>
+        property.GetCustomAttribute<OneOfAttribute>()?.Values;
 }

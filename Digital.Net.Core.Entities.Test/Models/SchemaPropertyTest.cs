@@ -28,6 +28,9 @@ public class SchemaPropertyTest : UnitTest
         [RegexValidation(@"^[a-z]{6,}$")]
         public string ValidatedProperty { get; set; }
 
+        [OneOf("alpha", "beta", "gamma")]
+        public string? OneOfProperty { get; set; }
+
         [ForeignKey("Foreign")]
         public Guid ForeignId { get; set; }
 
@@ -121,6 +124,24 @@ public class SchemaPropertyTest : UnitTest
         await Assert.ThrowsAsync<EntityValidationException>(async () =>
         {
             schema.Validate("ab", "ValidatedProperty");
+            await Task.CompletedTask;
+        });
+    }
+
+    [Test]
+    public async Task Validate_DoesNotThrow_WhenOneOfValueIsKnown()
+    {
+        var schema = SchemaFor("OneOfProperty");
+        await Assert.That(() => schema.Validate("alpha", "OneOfProperty")).ThrowsNothing();
+    }
+
+    [Test]
+    public async Task Validate_Throws_WhenOneOfValueIsUnknown()
+    {
+        var schema = SchemaFor("OneOfProperty");
+        await Assert.ThrowsAsync<EntityValidationException>(async () =>
+        {
+            schema.Validate("delta", "OneOfProperty");
             await Task.CompletedTask;
         });
     }

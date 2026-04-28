@@ -25,6 +25,7 @@ public class SchemaProperty<T>
         IsIdentity = AttributeAnalyzer<T>.IsIdentity(propertyInfo);
         IsForeignKey = AttributeAnalyzer<T>.IsForeignKey(propertyInfo);
         RegexValidation = AttributeAnalyzer<T>.GetRegex(propertyInfo)?.ToString();
+        OneOfValues = AttributeAnalyzer<T>.GetOneOf(propertyInfo);
 
         var underlying = Nullable.GetUnderlyingType(propertyInfo.PropertyType) ?? propertyInfo.PropertyType;
         if (underlying.IsEnum)
@@ -51,6 +52,7 @@ public class SchemaProperty<T>
     public bool IsIdentity { get; }
     public bool IsForeignKey { get; }
     public string? RegexValidation { get; }
+    public IReadOnlyList<string>? OneOfValues { get; }
     public string[]? EnumValues { get; }
 
     /// <summary>
@@ -80,6 +82,8 @@ public class SchemaProperty<T>
             throw new EntityValidationException($"{path}: This field is required and cannot be empty.");
         if (RegexValidation is not null && !Regex.IsMatch(value.ToString() ?? "", RegexValidation))
             throw new EntityValidationException($"{path}: This value does not meet the requirements.");
+        if (OneOfValues is not null && !OneOfValues.Contains(value.ToString() ?? string.Empty))
+            throw new EntityValidationException($"{path}: Value must be one of: {string.Join(", ", OneOfValues)}.");
     }
 
     public void ValidateMutation(object? value, string path)

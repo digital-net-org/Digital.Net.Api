@@ -27,6 +27,11 @@ public class CrudTestEntity : Entity
     [ReadOnly]
     public string? ReadOnlyField { get; set; }
 
+    [Column("OneOfField")]
+    [MaxLength(16)]
+    [OneOf("alpha", "beta", "gamma")]
+    public string? OneOfField { get; set; }
+
     public virtual List<CrudTestChild> Children { get; set; } = [];
 
     [ReadOnly]
