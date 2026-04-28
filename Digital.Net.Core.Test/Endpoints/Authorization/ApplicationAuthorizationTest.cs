@@ -3,19 +3,19 @@ using Digital.Net.Core.Services.Authentication.Options;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Sdk;
 
-namespace Digital.Net.Core.Test.Endpoints.Authentication.ApplicationTests;
+namespace Digital.Net.Core.Test.Endpoints.Authorization;
 
 public class ApplicationAuthorizationTest
 {
-    [ClassDataSource<TestApplication>]
-    public required TestApplication Application { get; init; }
+    [ClassDataSource<ApplicationFixture>]
+    public required ApplicationFixture ApplicationFixture { get; init; }
 
     private const string ValidApplicationKey = "test-application-secret-key-for-integration-tests";
 
     [Test]
     public async Task Authorize_WithValidApplicationKey_ShouldReturnOk()
     {
-        var client = Application.CreateClient();
+        var client = ApplicationFixture.CreateClient();
         client.DefaultRequestHeaders.Add(AuthenticationStaticOptions.ApplicationKeyHeaderAccessor, ValidApplicationKey);
         var response = await client.TestApplicationAuthorization();
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
@@ -24,7 +24,7 @@ public class ApplicationAuthorizationTest
     [Test]
     public async Task Authorize_ShouldReturnUnauthorized_OnInvalidKey()
     {
-        var client = Application.CreateClient();
+        var client = ApplicationFixture.CreateClient();
         client.DefaultRequestHeaders.Add(AuthenticationStaticOptions.ApplicationKeyHeaderAccessor, "invalid-key");
         var response = await client.TestApplicationAuthorization();
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Unauthorized);
@@ -33,7 +33,7 @@ public class ApplicationAuthorizationTest
     [Test]
     public async Task Authorize_ShouldReturnUnauthorized_OnMissingHeader()
     {
-        var response = await Application.CreateClient().TestApplicationAuthorization();
+        var response = await ApplicationFixture.CreateClient().TestApplicationAuthorization();
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Unauthorized);
     }
 }

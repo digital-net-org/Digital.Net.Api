@@ -1,22 +1,22 @@
 using System.Net;
-using Digital.Net.Core.Services.Authentication.Events;
 using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.Entities.Models.Users;
+using Digital.Net.Core.Services.Authentication.Events;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Sdk;
 
-namespace Digital.Net.Core.Test.Endpoints.Authentication.JwtTests;
+namespace Digital.Net.Core.Test.Endpoints.Authentication;
 
-public class JwtLogoutTest
+public class LogoutTest
 {
-    [ClassDataSource<TestApplication>]
-    public required TestApplication Application { get; init; }
+    [ClassDataSource<ApplicationFixture>]
+    public required ApplicationFixture ApplicationFixture { get; init; }
     
     [Test]
     public async Task Logout_ShouldLogoutClient()
     {
-        var client = Application.CreateClient();
-        var user = Application.CreateUser();
+        var client = ApplicationFixture.CreateClient();
+        var user = ApplicationFixture.CreateUser();
         await client.Login(user);
 
         var result = await client.Logout();
@@ -26,9 +26,9 @@ public class JwtLogoutTest
     [Test]
     public async Task LogoutAll_ShouldLogoutAllClients()
     {
-        var client = Application.CreateClient();
-        var secondClient = Application.CreateClient();
-        var user = Application.CreateUser();
+        var client = ApplicationFixture.CreateClient();
+        var secondClient = ApplicationFixture.CreateClient();
+        var user = ApplicationFixture.CreateUser();
         await client.Login(user);
         await secondClient.Login(user);
 
@@ -42,12 +42,12 @@ public class JwtLogoutTest
         string eventType
     )
     {
-        var logoutEvent = Application
+        var logoutEvent = ApplicationFixture
             .GetContext().Events
             .Where(x => x.UserId == user.Id)
             .OrderByDescending(x => x.CreatedAt)
             .First();
-        var userTokens = Application
+        var userTokens = ApplicationFixture
             .GetContext().ApiTokens
             .Where(x => x.UserId == user.Id)
             .ToList();

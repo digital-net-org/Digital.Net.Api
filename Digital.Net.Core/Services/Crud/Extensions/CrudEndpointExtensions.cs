@@ -1,6 +1,6 @@
 using System.Text.Json;
+using Digital.Net.Core.Entities.Exceptions;
 using Digital.Net.Core.Entities.Models;
-using Digital.Net.Core.Services.Crud.Exceptions;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Formatters;
 using Digital.Net.Lib.Messages;

@@ -10,7 +10,7 @@ namespace Digital.Net.Core.Services.Crud;
 
 public class CrudService<TContext, T>(
     TContext context,
-    ICrudValidationService<TContext> crudValidationService
+    CrudPatchDispatcher<T> patchDispatcher
 ) : ICrudService<T>
     where TContext : DbContext
     where T : Entity
@@ -33,10 +33,41 @@ public class CrudService<TContext, T>(
     public Result<TModel> Get<TModel>(Guid id) where TModel : class
     {
         var result = new Result<TModel>();
-        var entity = context.Set<T>().Find(id);
+        try
+        {
+            var entity = context.Set<T>().Find(id);
+            if (entity is null)
+                throw new ResourceNotFoundException();
+            result.Value = Mapper.MapFromConstructor<T, TModel>(entity);
+        }
+        catch (Exception ex)
+        {
+            result.AddError(ex);
+        }
+
+        return result;
+    }
+
+    public async Task<Result<TModel>> GetHydratedAsync<TModel>(Guid id, CancellationToken ct = default)
+        where TModel : class
+    {
+        var result = new Result<TModel>();
+        var entity = await context.Set<T>().AsNoTracking().FirstOrDefaultAsync(e => e.Id == id, ct);
         if (entity is null)
             return result.AddError(new ResourceNotFoundException());
-        result.Value = Mapper.MapFromConstructor<T, TModel>(entity);
+
+        var dto = Mapper.MapFromConstructor<T, TModel>(entity);
+        var pivots = await patchDispatcher.LoadAllAsync(id, ct);
+        foreach (var (path, list) in pivots)
+        {
+            var prop = typeof(TModel).GetProperty(
+                ToPropertyName(path),
+                BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase
+            );
+            if (prop?.CanWrite is true) prop.SetValue(dto, list);
+        }
+
+        result.Value = dto;
         return result;
     }
 
@@ -48,10 +79,11 @@ public class CrudService<TContext, T>(
             return result.AddError(new ResourceNotFoundException());
         try
         {
-            crudValidationService.ValidatePatchPayload(patch, id);
+            CrudValidator.ValidatePatchPayload(patch);
             patch.ApplyTo(entity);
             context.Set<T>().Update(entity);
-            await context.SaveChangesAsync();
+
+            await context.SaveAsync();
         }
         catch (Exception e)
         {
@@ -70,7 +102,7 @@ public class CrudService<TContext, T>(
         try
         {
             context.Set<T>().Remove(entity);
-            await context.SaveChangesAsync();
+            await context.SaveAsync();
         }
         catch (Exception e)
         {
@@ -84,9 +116,9 @@ public class CrudService<TContext, T>(
         var result = new Result<Guid>();
         try
         {
-            crudValidationService.ValidateCreatePayload(entity);
+            CrudValidator.ValidateCreatePayload(entity);
             await context.Set<T>().AddAsync(entity);
-            await context.SaveChangesAsync();
+            await context.SaveAsync();
             result.Value = entity.Id;
         }
         catch (Exception e)

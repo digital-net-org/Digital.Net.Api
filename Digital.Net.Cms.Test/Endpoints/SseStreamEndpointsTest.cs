@@ -10,13 +10,13 @@ namespace Digital.Net.Cms.Test.Endpoints;
 
 public class SseStreamEndpointsTest
 {
-    [ClassDataSource<TestApplication>]
-    public required TestApplication Application { get; init; }
+    [ClassDataSource<ApplicationFixture>]
+    public required ApplicationFixture ApplicationFixture { get; init; }
 
     private async Task<HttpClient> CreateAuthenticatedClientAsync()
     {
-        var user = Application.CreateUser(new TestUserPayload { IsActive = true });
-        var client = Application.CreateClient();
+        var user = ApplicationFixture.CreateUser(new TestUserPayload { IsActive = true });
+        var client = ApplicationFixture.CreateClient();
         await client.Login(user);
         return client;
     }
@@ -24,7 +24,7 @@ public class SseStreamEndpointsTest
     [Test]
     public async Task Subscribe_ShouldRequireApplicationAuth()
     {
-        var client = Application.CreateClient();
+        var client = ApplicationFixture.CreateClient();
 
         var response = await client.GetAsync(SseApi.CmsStreamUrl);
 
@@ -35,7 +35,7 @@ public class SseStreamEndpointsTest
     public async Task Signal_ShouldBeEmitted_WhenCmsEntityCreated()
     {
         EventSignal? received = null;
-        var signalService = Application.GetService<IEventSignalService>();
+        var signalService = ApplicationFixture.GetService<IEventSignalService>();
         signalService.OnSignal += signal => received = signal;
 
         var apiClient = await CreateAuthenticatedClientAsync();
@@ -50,7 +50,7 @@ public class SseStreamEndpointsTest
     public async Task Signal_ShouldBeEmittedWithFailedState_WhenOperationFails()
     {
         EventSignal? received = null;
-        var signalService = Application.GetService<IEventSignalService>();
+        var signalService = ApplicationFixture.GetService<IEventSignalService>();
         signalService.OnSignal += signal => received = signal;
 
         var apiClient = await CreateAuthenticatedClientAsync();
@@ -69,7 +69,7 @@ public class SseStreamEndpointsTest
             signal.Name.StartsWith("CMS_") && signal.State == EventState.Success;
 
         EventSignal? received = null;
-        var signalService = Application.GetService<IEventSignalService>();
+        var signalService = ApplicationFixture.GetService<IEventSignalService>();
         signalService.OnSignal += signal =>
         {
             if (cmsFilter(signal))
@@ -90,7 +90,7 @@ public class SseStreamEndpointsTest
             signal.Name.StartsWith("CMS_") && signal.State == EventState.Success;
 
         EventSignal? received = null;
-        var signalService = Application.GetService<IEventSignalService>();
+        var signalService = ApplicationFixture.GetService<IEventSignalService>();
         signalService.OnSignal += signal =>
         {
             if (cmsFilter(signal))
@@ -110,7 +110,7 @@ public class SseStreamEndpointsTest
             signal.Name.StartsWith("CMS_") && signal.State == EventState.Success;
 
         EventSignal? received = null;
-        var signalService = Application.GetService<IEventSignalService>();
+        var signalService = ApplicationFixture.GetService<IEventSignalService>();
         signalService.OnSignal += signal =>
         {
             if (cmsFilter(signal))
@@ -118,8 +118,8 @@ public class SseStreamEndpointsTest
         };
 
         // Login triggers AUTH_LOGIN — not a CMS event
-        var user = Application.CreateUser(new TestUserPayload { IsActive = true });
-        var client = Application.CreateClient();
+        var user = ApplicationFixture.CreateUser(new TestUserPayload { IsActive = true });
+        var client = ApplicationFixture.CreateClient();
         await client.Login(user);
 
         await Assert.That(received).IsNull();

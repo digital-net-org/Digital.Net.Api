@@ -1,11 +1,8 @@
 using Digital.Net.Core.Endpoints.Dto;
 using Digital.Net.Core.RateLimiter.Limiters;
 using Digital.Net.Core.Services.ApiKeys;
-using Digital.Net.Core.Services.Auditing;
 using Digital.Net.Core.Services.Authentication;
 using Digital.Net.Core.Services.Authentication.Filters;
-using Digital.Net.Core.Services.Users.Events;
-using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Lib.Messages;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -43,30 +40,21 @@ public static class ApiKeyEndpoints
         return app;
     }
 
-    private static async Task<Results<Ok<Result<string>>, BadRequest<Result<string>>>> Create(
+    public static async Task<Results<Ok<Result<string>>, BadRequest<Result<string>>>> Create(
         [FromBody] ApiKeyCreatePayload payload,
-        IApiKeyService apiKeyService,
-        IUserContextService userContextService,
-        IAuditService auditService
+        ApiKeyService apiKeyService,
+        IUserContextService userContextService
     )
     {
         var userId = userContextService.GetUserId();
         var result = await apiKeyService.CreateAsync(userId, payload.Name, payload.ExpiredAt);
-
-        if (result.HasError)
-            return TypedResults.BadRequest(result);
-
-        await auditService.RegisterEventAsync(
-            UserEvents.CreateApiKey,
-            EventState.Success,
-            result,
-            userId
-        );
-        return TypedResults.Ok(result);
+        return result.HasError
+            ? TypedResults.BadRequest(result)
+            : TypedResults.Ok(result);
     }
 
-    private static async Task<Ok<Result<List<ApiKeyDto>>>> List(
-        IApiKeyService apiKeyService,
+    public static async Task<Ok<Result<List<ApiKeyDto>>>> List(
+        ApiKeyService apiKeyService,
         IUserContextService userContextService
     )
     {
@@ -79,25 +67,16 @@ public static class ApiKeyEndpoints
         return TypedResults.Ok(dtoResult);
     }
 
-    private static async Task<Results<Ok<Result>, NotFound<Result>>> Delete(
+    public static async Task<Results<Ok<Result>, NotFound<Result>>> Delete(
         Guid id,
-        IApiKeyService apiKeyService,
-        IUserContextService userContextService,
-        IAuditService auditService
+        ApiKeyService apiKeyService,
+        IUserContextService userContextService
     )
     {
         var userId = userContextService.GetUserId();
         var result = await apiKeyService.DeleteAsync(userId, id);
-
-        if (result.HasErrorOfType<KeyNotFoundException>())
-            return TypedResults.NotFound(result);
-
-        await auditService.RegisterEventAsync(
-            UserEvents.DeleteApiKey,
-            EventState.Success,
-            result,
-            userId
-        );
-        return TypedResults.Ok(result);
+        return result.HasErrorOfType<KeyNotFoundException>()
+            ? TypedResults.NotFound(result)
+            : TypedResults.Ok(result);
     }
 }

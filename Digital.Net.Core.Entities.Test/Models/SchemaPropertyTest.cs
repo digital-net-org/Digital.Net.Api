@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Digital.Net.Core.Entities.Attributes;
+using Digital.Net.Core.Entities.Exceptions;
 using Digital.Net.Core.Entities.Models;
 using Digital.Net.Tests.Core;
 
@@ -23,9 +24,23 @@ public class SchemaPropertyTest : UnitTest
         [RegexValidation(@"^[a-z]+$")]
         public string RegexProperty { get; set; }
 
+        [Required]
+        [RegexValidation(@"^[a-z]{6,}$")]
+        public string ValidatedProperty { get; set; }
+
+        [ForeignKey("Foreign")]
+        public Guid ForeignId { get; set; }
+
         public TestEnum EnumProperty { get; set; }
 
         public TestEnum? NullableEnumProperty { get; set; }
+    }
+
+    private static SchemaProperty<TestEntity> SchemaFor(string propertyName)
+    {
+        var info = typeof(TestEntity).GetProperty(propertyName)
+                   ?? throw new InvalidOperationException($"Missing test property '{propertyName}'.");
+        return new SchemaProperty<TestEntity>(info);
     }
 
     [Test]
@@ -62,7 +77,7 @@ public class SchemaPropertyTest : UnitTest
         var propertyInfo = typeof(TestEntity).GetProperty("EnumProperty");
         var schemaProperty = new SchemaProperty<TestEntity>(propertyInfo!);
         await Assert.That(schemaProperty.Type).IsEqualTo("Enum");
-        await Assert.That(schemaProperty.EnumValues).IsEquivalentTo(new[] { "Alpha", "Beta", "Gamma" });
+        await Assert.That(schemaProperty.EnumValues).IsEquivalentTo(["Alpha", "Beta", "Gamma"]);
     }
 
     [Test]
@@ -71,6 +86,121 @@ public class SchemaPropertyTest : UnitTest
         var propertyInfo = typeof(TestEntity).GetProperty("NullableEnumProperty");
         var schemaProperty = new SchemaProperty<TestEntity>(propertyInfo!);
         await Assert.That(schemaProperty.Type).IsEqualTo("Enum");
-        await Assert.That(schemaProperty.EnumValues).IsEquivalentTo(new[] { "Alpha", "Beta", "Gamma" });
+        await Assert.That(schemaProperty.EnumValues).IsEquivalentTo(["Alpha", "Beta", "Gamma"]);
+    }
+
+    [Test]
+    public async Task Validate_DoesNotThrow_WhenValueIsNull()
+    {
+        var schema = SchemaFor("ValidatedProperty");
+        await Assert.That(() => schema.Validate(null, "ValidatedProperty")).ThrowsNothing();
+    }
+
+    [Test]
+    public async Task Validate_DoesNotThrow_WhenRequiredStringHasValidValue()
+    {
+        var schema = SchemaFor("ValidatedProperty");
+        await Assert.That(() => schema.Validate("validname", "ValidatedProperty")).ThrowsNothing();
+    }
+
+    [Test]
+    public async Task Validate_Throws_WhenRequiredStringIsEmpty()
+    {
+        var schema = SchemaFor("ValidatedProperty");
+        await Assert.ThrowsAsync<EntityValidationException>(async () =>
+        {
+            schema.Validate("", "ValidatedProperty");
+            await Task.CompletedTask;
+        });
+    }
+
+    [Test]
+    public async Task Validate_Throws_WhenRegexFails()
+    {
+        var schema = SchemaFor("ValidatedProperty");
+        await Assert.ThrowsAsync<EntityValidationException>(async () =>
+        {
+            schema.Validate("ab", "ValidatedProperty");
+            await Task.CompletedTask;
+        });
+    }
+
+    [Test]
+    public async Task Validate_DoesNotThrow_WhenIdentityHasEmptyGuid()
+    {
+        var schema = SchemaFor("Id");
+        await Assert.That(() => schema.Validate(Guid.Empty, "Id")).ThrowsNothing();
+    }
+
+    [Test]
+    public async Task Validate_DoesNotThrow_WhenForeignKeyIsEmptyGuid()
+    {
+        var schema = SchemaFor("ForeignId");
+        await Assert.That(() => schema.Validate(Guid.Empty, "ForeignId")).ThrowsNothing();
+    }
+
+    [Test]
+    public async Task Validate_DoesNotThrow_WhenCreatedAtIsMinValue()
+    {
+        var schema = SchemaFor("CreatedAt");
+        await Assert.That(() => schema.Validate(DateTime.MinValue, "CreatedAt")).ThrowsNothing();
+    }
+
+    [Test]
+    public async Task Validate_DoesNotThrow_WhenUpdatedAtIsMinValue()
+    {
+        var schema = SchemaFor("UpdatedAt");
+        await Assert.That(() => schema.Validate(DateTime.MinValue, "UpdatedAt")).ThrowsNothing();
+    }
+
+    [Test]
+    public async Task Validate_Throws_WhenIdentityHasNonDefaultValue()
+    {
+        var schema = SchemaFor("Id");
+        await Assert.ThrowsAsync<EntityValidationException>(async () =>
+        {
+            schema.Validate(Guid.NewGuid(), "Id");
+            await Task.CompletedTask;
+        });
+    }
+
+    [Test]
+    public async Task ValidateMutation_DoesNotThrow_WhenRegularPropertyHasValidValue()
+    {
+        var schema = SchemaFor("ValidatedProperty");
+        await Assert.That(() => schema.ValidateMutation("validname", "ValidatedProperty")).ThrowsNothing();
+    }
+
+    [Test]
+    public async Task ValidateMutation_Throws_WhenSchemaIsReadOnly()
+    {
+        var schema = SchemaFor("RequiredProperty");
+        await Assert.ThrowsAsync<EntityValidationException>(async () =>
+        {
+            schema.ValidateMutation("anything", "RequiredProperty");
+            await Task.CompletedTask;
+        });
+    }
+
+    [Test]
+    public async Task ValidateMutation_Throws_WhenSchemaIsIdentity()
+    {
+        var schema = SchemaFor("Id");
+        await Assert.ThrowsAsync<EntityValidationException>(async () =>
+        {
+            schema.ValidateMutation(Guid.Empty, "Id");
+            await Task.CompletedTask;
+        });
+    }
+
+    [Test]
+    public async Task ValidateMutation_PropagatesValidateError_WhenValueIsInvalid()
+    {
+        var schema = SchemaFor("ValidatedProperty");
+        await Assert.ThrowsAsync<EntityValidationException>(async () =>
+        {
+            schema.ValidateMutation(string.Empty, "ValidatedProperty");
+            await Task.CompletedTask;
+        });
     }
 }

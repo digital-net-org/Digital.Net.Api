@@ -6,7 +6,7 @@ public static class ApiKeyServicesInjector
 {
     public static IServiceCollection AddDigitalApiKeyServices(this IServiceCollection services)
     {
-        services.AddScoped<IApiKeyService, ApiKeyService>();
+        services.AddScoped<ApiKeyService>();
         return services;
     }
 }

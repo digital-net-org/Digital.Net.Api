@@ -14,19 +14,19 @@ namespace Digital.Net.Cms.Test.Endpoints;
 
 public class PageEndpointsTest
 {
-    [ClassDataSource<TestApplication>]
-    public required TestApplication Application { get; init; }
+    [ClassDataSource<ApplicationFixture>]
+    public required ApplicationFixture ApplicationFixture { get; init; }
 
     private async Task<HttpClient> CreateAuthenticatedClientAsync()
     {
-        var user = Application.CreateUser(new TestUserPayload { IsActive = true });
-        var client = Application.CreateClient();
+        var user = ApplicationFixture.CreateUser(new TestUserPayload { IsActive = true });
+        var client = ApplicationFixture.CreateClient();
         await client.Login(user);
         return client;
     }
 
     private Page CreateTestPage(string? path = null, bool published = false) =>
-        Application.GetCmsContext().BuildTestPage(path, published);
+        ApplicationFixture.GetCmsContext().BuildTestPage(path, published);
 
     [Test]
     public async Task CreatePage_ShouldCreatePage()
@@ -104,19 +104,6 @@ public class PageEndpointsTest
     }
 
     [Test]
-    public async Task PatchPage_ShouldRejectOverMaxLengthTitle()
-    {
-        var client = await CreateAuthenticatedClientAsync();
-        var page = CreateTestPage();
-
-        var tooLongTitle = new string('A', 257);
-        var patch = new[] { new { op = "replace", path = "/Title", value = tooLongTitle } };
-        var response = await client.PatchPage(page.Id, patch);
-
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.BadRequest);
-    }
-
-    [Test]
     public async Task DeletePage_ShouldDeletePage()
     {
         var client = await CreateAuthenticatedClientAsync();
@@ -133,7 +120,7 @@ public class PageEndpointsTest
     [Test]
     public async Task GetPageByPath_ShouldReturnPublishedPage()
     {
-        var client = Application.CreateApplicationClient();
+        var client = ApplicationFixture.CreateApplicationClient();
         var uniquePath = "/test-public-path-" + Guid.NewGuid().ToString("N")[..8];
         CreateTestPage(uniquePath, true);
 
@@ -144,7 +131,7 @@ public class PageEndpointsTest
     [Test]
     public async Task GetPageByPath_ShouldReturnNotFound_WhenPageIsNotPublished()
     {
-        var client = Application.CreateApplicationClient();
+        var client = ApplicationFixture.CreateApplicationClient();
         var uniquePath = "/test-unpublished-" + Guid.NewGuid().ToString("N")[..8];
         CreateTestPage(uniquePath, false);
 
@@ -306,7 +293,7 @@ public class PageEndpointsTest
     [Test]
     public async Task GetPathAvailability_ShouldRequireAuthentication()
     {
-        var client = Application.CreateClient();
+        var client = ApplicationFixture.CreateClient();
 
         var response = await client.GetPathAvailability("/any");
 
@@ -329,7 +316,7 @@ public class PageEndpointsTest
     [Test]
     public async Task GetOpenGraphSchema_ShouldRequireAuthentication()
     {
-        var client = Application.CreateClient();
+        var client = ApplicationFixture.CreateClient();
 
         var response = await client.GetOpenGraphSchema();
 

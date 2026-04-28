@@ -13,19 +13,19 @@ namespace Digital.Net.Cms.Test.Endpoints;
 
 public class MediaEndpointsTest
 {
-    [ClassDataSource<TestApplication>]
-    public required TestApplication Application { get; init; }
+    [ClassDataSource<ApplicationFixture>]
+    public required ApplicationFixture ApplicationFixture { get; init; }
 
     private async Task<HttpClient> CreateAuthenticatedClientAsync()
     {
-        var user = Application.CreateUser(new TestUserPayload { IsActive = true });
-        var client = Application.CreateClient();
+        var user = ApplicationFixture.CreateUser(new TestUserPayload { IsActive = true });
+        var client = ApplicationFixture.CreateClient();
         await client.Login(user);
         return client;
     }
 
     private string GetStoragePath() =>
-        Application.GetConfiguration<string>(AppSettings.FileSystemPathKey) ?? ".test_storage";
+        ApplicationFixture.GetConfiguration<string>(AppSettings.FileSystemPathKey) ?? ".test_storage";
 
 
     [Test]
@@ -57,8 +57,8 @@ public class MediaEndpointsTest
     public async Task GetMediaById_ShouldReturnMedia()
     {
         var client = await CreateAuthenticatedClientAsync();
-        var media = Application.GetCmsContext()
-            .BuildTestMedia(Application.GetContext(), name: "FindById");
+        var media = ApplicationFixture.GetCmsContext()
+            .BuildTestMedia(ApplicationFixture.GetContext(), "FindById");
 
         var response = await client.GetMediaById(media.Id);
         var result = await response.Content.ReadFromJsonAsync<Result<MediaDto>>();
@@ -82,8 +82,8 @@ public class MediaEndpointsTest
     public async Task GetMedia_ShouldReturnPaginatedMedia()
     {
         var client = await CreateAuthenticatedClientAsync();
-        var cmsCtx = Application.GetCmsContext();
-        var digCtx = Application.GetContext();
+        var cmsCtx = ApplicationFixture.GetCmsContext();
+        var digCtx = ApplicationFixture.GetContext();
         cmsCtx.BuildTestMedia(digCtx);
         cmsCtx.BuildTestMedia(digCtx);
         cmsCtx.BuildTestMedia(digCtx);
@@ -101,8 +101,8 @@ public class MediaEndpointsTest
     public async Task PatchMedia_ShouldUpdateMedia()
     {
         var client = await CreateAuthenticatedClientAsync();
-        var media = Application.GetCmsContext()
-            .BuildTestMedia(Application.GetContext());
+        var media = ApplicationFixture.GetCmsContext()
+            .BuildTestMedia(ApplicationFixture.GetContext());
 
         var patch = new[] { new { op = "replace", path = "/Name", value = "UpdatedName" } };
         var response = await client.PatchMedia(media.Id, patch);
@@ -118,8 +118,8 @@ public class MediaEndpointsTest
     public async Task DeleteMedia_ShouldDeleteMedia()
     {
         var client = await CreateAuthenticatedClientAsync();
-        var media = Application.GetCmsContext()
-            .BuildTestMedia(Application.GetContext(), storagePath: GetStoragePath());
+        var media = ApplicationFixture.GetCmsContext()
+            .BuildTestMedia(ApplicationFixture.GetContext(), storagePath: GetStoragePath());
 
         var response = await client.DeleteMedia(media.Id);
 
@@ -143,9 +143,9 @@ public class MediaEndpointsTest
     [Test]
     public async Task GetMediaImage_ShouldServeOriginalImage()
     {
-        var media = Application.GetCmsContext()
-            .BuildTestMedia(Application.GetContext(), published: true, storagePath: GetStoragePath());
-        var client = Application.CreateApplicationClient();
+        var media = ApplicationFixture.GetCmsContext()
+            .BuildTestMedia(ApplicationFixture.GetContext(), published: true, storagePath: GetStoragePath());
+        var client = ApplicationFixture.CreateApplicationClient();
 
         var response = await client.GetMediaImage(media.Id, "png");
 
@@ -156,15 +156,15 @@ public class MediaEndpointsTest
     [Test]
     public async Task GetMediaImage_ShouldServeResizedVariant()
     {
-        var media = Application.GetCmsContext()
+        var media = ApplicationFixture.GetCmsContext()
             .BuildTestMedia(
-                Application.GetContext(),
+                ApplicationFixture.GetContext(),
                 published: true,
                 storagePath: GetStoragePath(),
                 imageWidth: 800,
                 imageHeight: 600
             );
-        var client = Application.CreateApplicationClient();
+        var client = ApplicationFixture.CreateApplicationClient();
 
         var response = await client.GetMediaImage(media.Id, "webp", w: 400, q: 80);
 
@@ -175,15 +175,15 @@ public class MediaEndpointsTest
     [Test]
     public async Task GetMediaImage_ShouldServeOriginal_WhenRequestedWidthIsLarger()
     {
-        var media = Application.GetCmsContext()
+        var media = ApplicationFixture.GetCmsContext()
             .BuildTestMedia(
-                Application.GetContext(),
+                ApplicationFixture.GetContext(),
                 published: true,
                 storagePath: GetStoragePath(),
                 imageWidth: 100,
                 imageHeight: 100
             );
-        var client = Application.CreateApplicationClient();
+        var client = ApplicationFixture.CreateApplicationClient();
 
         var response = await client.GetMediaImage(media.Id, "png", w: 500);
 
@@ -194,9 +194,9 @@ public class MediaEndpointsTest
     [Test]
     public async Task GetMediaImage_ShouldReturnNotFound_WhenUnpublishedWithApplicationAuth()
     {
-        var media = Application.GetCmsContext()
-            .BuildTestMedia(Application.GetContext(), published: false, storagePath: GetStoragePath());
-        var client = Application.CreateApplicationClient();
+        var media = ApplicationFixture.GetCmsContext()
+            .BuildTestMedia(ApplicationFixture.GetContext(), published: false, storagePath: GetStoragePath());
+        var client = ApplicationFixture.CreateApplicationClient();
 
         var response = await client.GetMediaImage(media.Id, "png");
 
@@ -206,8 +206,8 @@ public class MediaEndpointsTest
     [Test]
     public async Task GetMediaImage_ShouldServeUnpublished_WhenAuthenticatedWithJwt()
     {
-        var media = Application.GetCmsContext()
-            .BuildTestMedia(Application.GetContext(), published: false, storagePath: GetStoragePath());
+        var media = ApplicationFixture.GetCmsContext()
+            .BuildTestMedia(ApplicationFixture.GetContext(), published: false, storagePath: GetStoragePath());
         var client = await CreateAuthenticatedClientAsync();
 
         var response = await client.GetMediaImage(media.Id, "png");
@@ -218,9 +218,9 @@ public class MediaEndpointsTest
     [Test]
     public async Task GetMediaImage_ShouldServeSvgWithoutProcessing()
     {
-        var media = Application.GetCmsContext()
-            .BuildTestSvgMedia(Application.GetContext(), published: true, storagePath: GetStoragePath());
-        var client = Application.CreateApplicationClient();
+        var media = ApplicationFixture.GetCmsContext()
+            .BuildTestSvgMedia(ApplicationFixture.GetContext(), published: true, storagePath: GetStoragePath());
+        var client = ApplicationFixture.CreateApplicationClient();
 
         var response = await client.GetMediaImage(media.Id, "svg", w: 50, q: 50);
 
@@ -232,15 +232,15 @@ public class MediaEndpointsTest
     [Test]
     public async Task PurgeMediaVariants_ShouldPurgeAllVariantsForMedia()
     {
-        var media = Application.GetCmsContext()
+        var media = ApplicationFixture.GetCmsContext()
             .BuildTestMedia(
-                Application.GetContext(),
+                ApplicationFixture.GetContext(),
                 published: true,
                 storagePath: GetStoragePath(),
                 imageWidth: 800,
                 imageHeight: 600
             );
-        var appClient = Application.CreateApplicationClient();
+        var appClient = ApplicationFixture.CreateApplicationClient();
         await appClient.GetMediaImage(media.Id, "webp", w: 200, q: 80);
         await appClient.GetMediaImage(media.Id, "webp", w: 400, q: 80);
 

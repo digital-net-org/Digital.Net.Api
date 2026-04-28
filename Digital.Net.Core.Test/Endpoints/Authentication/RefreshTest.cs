@@ -2,21 +2,21 @@ using System.Net;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Sdk;
 
-namespace Digital.Net.Core.Test.Endpoints.Authentication.JwtTests;
+namespace Digital.Net.Core.Test.Endpoints.Authentication;
 
-public class JwtRefreshTest
+public class RefreshTest
 {
-    [ClassDataSource<TestApplication>]
-    public required TestApplication Application { get; init; }
+    [ClassDataSource<ApplicationFixture>]
+    public required ApplicationFixture ApplicationFixture { get; init; }
     
     [Test]
     public async Task RefreshTokens_WithValidRefreshToken_ShouldReturnToken()
     {
-        var client = Application.CreateClient();
-        var user = Application.CreateUser();
+        var client = ApplicationFixture.CreateClient();
+        var user = ApplicationFixture.CreateUser();
         await client.Login(user);
         var response = await client.RefreshTokens();
-        var userTokens = Application.GetContext().ApiTokens.Where(x => x.UserId == user.Id).ToList();
+        var userTokens = ApplicationFixture.GetContext().ApiTokens.Where(x => x.UserId == user.Id).ToList();
         // var cookieToken = response.Headers.TryGetCookie(CookieName);
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
@@ -31,8 +31,8 @@ public class JwtRefreshTest
     [Test]
     public async Task RefreshTokens_WithInvalidToken_ShouldReturnUnauthorized()
     {
-        var client = Application.CreateClient();
-        var user = Application.CreateUser();
+        var client = ApplicationFixture.CreateClient();
+        var user = ApplicationFixture.CreateUser();
         await client.Login(user);
         await client.Logout();
         var response = await client.RefreshTokens();

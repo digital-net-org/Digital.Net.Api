@@ -17,7 +17,6 @@ public static class AppSettings
     public const string DomainKey = "Domain";
     public const string CorsAllowedOriginsKey = "CorsAllowedOrigins";
     public const string ConnectionStringKey = "Database:ConnectionString";
-    public const string UseSqliteKey = "Database:UseSqlite";
     public const string FileSystemPathKey = "FileSystemPath";
     public const string JwtRefreshExpirationKey = "Auth:JwtRefreshExpiration";
     public const string JwtBearerExpirationKey = "Auth:JwtBearerExpiration";

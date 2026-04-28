@@ -1,12 +1,10 @@
 using System.Collections.Generic;
-using System.IO;
 using System.Net.Http;
 using Digital.Net.Core.Services.Authentication;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Core.Entities.Seeds;
 using Digital.Net.Lib.Environment;
-using Digital.Net.Lib.Random;
 using Digital.Net.Lib.Settings;
 using Digital.Net.Tests.Core.Factories.Data;
 using Digital.Net.Tests.Core.Factories.Data.Records;
@@ -23,19 +21,14 @@ public class ApplicationFactory : WebApplicationFactory<DigitalProgram>
 {
     private readonly Dictionary<string, string?> _testSettings;
 
-    public ApplicationFactory()
+    public ApplicationFactory(string connectionString)
     {
         AspNetEnv.Set(AspNetEnv.Test);
 
-        var dbPath = Path.Combine(
-            Path.GetTempPath(),
-            $"sqlite_db_{Randomizer.GenerateRandomString(Randomizer.AnyNumber, 8)}.db"
-        );
         _testSettings = new Dictionary<string, string?>
         {
             { AppSettings.DomainKey, "domain.test" },
-            { AppSettings.ConnectionStringKey, $"Data Source={dbPath}" },
-            { AppSettings.UseSqliteKey, "true" },
+            { AppSettings.ConnectionStringKey, connectionString },
             { AppSettings.FileSystemPathKey, ".test_storage" },
             { AppSettings.ApplicationKeyKey, "test-application-secret-key-for-integration-tests" },
             { "Logging:LogLevel:Default", "None" },
@@ -79,7 +72,7 @@ public class ApplicationFactory : WebApplicationFactory<DigitalProgram>
     ///     Creates a test user.
     /// </summary>
     public User CreateUser(TestUserPayload? userDto = null) => GetContext().BuildTestUser(userDto);
-    
+
     /// <summary>
     ///     Authenticates a user and configures the provided HTTP client with a Bearer token
     ///     using the user's credentials.

@@ -3,8 +3,6 @@ using Digital.Net.Lib.Configuration;
 using Digital.Net.Lib.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Digital.Net.Core.Bootstrap;
@@ -15,36 +13,13 @@ public static class ContextInjector
         where T : DbContext
     {
         var connectionString = builder.Configuration.GetOrThrow<string>($"{AppSettings.ConnectionStringKey}");
-        var useSqlite = builder.Configuration.Get<bool>(AppSettings.UseSqliteKey);
-
-        builder.Services.AddDbContext<T>(options =>
-        {
-            if (useSqlite)
-                options.UseSqlite(connectionString);
-            else
-                options.UseDigitalNpgsql<T>(connectionString);
-        });
-
-        if (useSqlite)
-        {
-            var context = builder.Services.BuildServiceProvider().GetService<T>();
-            if (context is not null)
-            {
-                context.Database.EnsureCreated();
-                try { context.Database.GetService<IRelationalDatabaseCreator>().CreateTables(); }
-                catch { /* Tables may already exist in a shared SQLite file (multiple DbContexts) */ }
-            }
-        }
-
+        builder.Services.AddDbContext<T>(options => options.UseDigitalNpgsql<T>(connectionString));
         return builder;
     }
 
     public static WebApplicationBuilder ApplyMigrations<T>(this WebApplicationBuilder builder)
         where T : DbContext
     {
-        if (builder.Configuration.Get<bool>(AppSettings.UseSqliteKey))
-            return builder;
-
         var context = builder.Services.BuildServiceProvider().GetRequiredService<T>();
         context.Database.Migrate();
         return builder;

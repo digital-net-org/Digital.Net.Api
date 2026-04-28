@@ -3,18 +3,18 @@ using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data.Records;
 using Digital.Net.Tests.Core.Sdk;
 
-namespace Digital.Net.Core.Test.Endpoints.Authentication.AdminTests;
+namespace Digital.Net.Core.Test.Endpoints.Authorization;
 
 public class AdminAuthorizationTest
 {
-    [ClassDataSource<TestApplication>]
-    public required TestApplication Application { get; init; }
+    [ClassDataSource<ApplicationFixture>]
+    public required ApplicationFixture ApplicationFixture { get; init; }
 
     [Test]
     public async Task Authorize_WithValidApiKey_ShouldReturnOk()
     {
-        var client = Application.CreateClient();
-        var user = Application.CreateUser(new TestUserPayload { IsActive = true, IsAdmin = true });
+        var client = ApplicationFixture.CreateClient();
+        var user = ApplicationFixture.CreateUser(new TestUserPayload { IsActive = true, IsAdmin = true });
 
         await client.Login(user);
         var response = await client.TestAdminAuthorization();

@@ -1,17 +1,17 @@
 using System.Net;
-using Digital.Net.Core.Services.Authentication.Options;
 using Digital.Net.Core.Entities.Models.ApiKeys;
 using Digital.Net.Core.Entities.Models.Users;
+using Digital.Net.Core.Services.Authentication.Options;
 using Digital.Net.Lib.Random;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Sdk;
 
-namespace Digital.Net.Core.Test.Endpoints.Authentication.ApiKeyTests;
+namespace Digital.Net.Core.Test.Endpoints.Authorization;
 
 public class ApiKeyAuthorizationTest
 {
-    [ClassDataSource<TestApplication>]
-    public required TestApplication Application { get; init; }
+    [ClassDataSource<ApplicationFixture>]
+    public required ApplicationFixture ApplicationFixture { get; init; }
 
     [Test]
     public async Task Authorize_WithValidApiKey_ShouldReturnOk()
@@ -38,7 +38,7 @@ public class ApiKeyAuthorizationTest
     [Test]
     public async Task Authorize_ShouldReturnUnauthorized_OnInvalidApiKey()
     {
-        var client = Application.CreateClient();
+        var client = ApplicationFixture.CreateClient();
         client.DefaultRequestHeaders.Add(AuthenticationStaticOptions.ApiKeyHeaderAccessor, "SomeString");
         await ExecuteTestAsync(client, HttpStatusCode.Unauthorized);
     }
@@ -47,7 +47,7 @@ public class ApiKeyAuthorizationTest
     public async Task Authorize_ShouldReturnUnauthorized_OnInactiveUser()
     {
         var (user, client) = await Setup(Randomizer.GenerateRandomString(Randomizer.AnyLetter, 128));
-        var context = Application.GetContext();
+        var context = ApplicationFixture.GetContext();
 
         var userInDb = await context.Users.FindAsync(user.Id);
         userInDb!.IsActive = false;
@@ -58,14 +58,14 @@ public class ApiKeyAuthorizationTest
 
     [Test]
     public async Task Authorize_ShouldReturnUnauthorized_OnMissingApiKeyHeader() =>
-        await ExecuteTestAsync(Application.CreateClient(), HttpStatusCode.Unauthorized);
+        await ExecuteTestAsync(ApplicationFixture.CreateClient(), HttpStatusCode.Unauthorized);
 
     private async Task<(User, HttpClient)> Setup(string key, DateTime? expiry = null, string? header = null)
     {
-        var client = Application.CreateClient();
-        var user = Application.CreateUser();
-        
-        var context = Application.GetContext();
+        var client = ApplicationFixture.CreateClient();
+        var user = ApplicationFixture.CreateUser();
+
+        var context = ApplicationFixture.GetContext();
         await context.ApiKeys.AddAsync(new ApiKey(user.Id, "test-key", key, expiry));
         await context.SaveChangesAsync();
 

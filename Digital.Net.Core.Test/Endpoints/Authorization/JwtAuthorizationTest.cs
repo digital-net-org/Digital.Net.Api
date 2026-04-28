@@ -5,18 +5,18 @@ using Digital.Net.Tests.Core.Factories.Data.Records;
 using Digital.Net.Tests.Core.Sdk;
 using Microsoft.EntityFrameworkCore;
 
-namespace Digital.Net.Core.Test.Endpoints.Authentication.JwtTests;
+namespace Digital.Net.Core.Test.Endpoints.Authorization;
 
 public class JwtAuthorizationTest
 {
-    [ClassDataSource<TestApplication>]
-    public required TestApplication Application { get; init; }
+    [ClassDataSource<ApplicationFixture>]
+    public required ApplicationFixture ApplicationFixture { get; init; }
     
     [Test]
     public async Task LoggedUser_OnProtectedRoute_ShouldBeAuthorized()
     {
-        var client = Application.CreateClient();
-        var user = Application.CreateUser();
+        var client = ApplicationFixture.CreateClient();
+        var user = ApplicationFixture.CreateUser();
 
         await client.Login(user);
         var response = await client.TestJwtAuthorization();
@@ -27,10 +27,10 @@ public class JwtAuthorizationTest
     [Test]
     public async Task InactiveUser_OnLoginRoute_ShouldNotBeAuthorized()
     {
-        var client = Application.CreateClient();
-        var user = Application.CreateUser(new TestUserPayload { IsActive = false });
+        var client = ApplicationFixture.CreateClient();
+        var user = ApplicationFixture.CreateUser(new TestUserPayload { IsActive = false });
         var response = await client.Login(user);
-        var loginEvent = await Application
+        var loginEvent = await ApplicationFixture
             .GetContext().Events
             .Where(x => x.UserId == user.Id).OrderByDescending(x => x.CreatedAt)
             .FirstAsync();
@@ -43,11 +43,11 @@ public class JwtAuthorizationTest
     [Test]
     public async Task InactiveUser_OnProtectedRoute_ShouldNotBeAuthorized()
     {
-        var client = Application.CreateClient();
-        var user = Application.CreateUser(new TestUserPayload { IsActive = true });
+        var client = ApplicationFixture.CreateClient();
+        var user = ApplicationFixture.CreateUser(new TestUserPayload { IsActive = true });
         await client.Login(user);
 
-        var context = Application.GetContext();
+        var context = ApplicationFixture.GetContext();
         var userInDb = await context.Users.FindAsync(user.Id);
         userInDb!.IsActive = false;
         context.Users.Update(userInDb);

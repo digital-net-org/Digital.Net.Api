@@ -12,13 +12,13 @@ namespace Digital.Net.Cms.Test.Endpoints;
 
 public class TagEndpointsTest
 {
-    [ClassDataSource<TestApplication>]
-    public required TestApplication Application { get; init; }
+    [ClassDataSource<ApplicationFixture>]
+    public required ApplicationFixture ApplicationFixture { get; init; }
 
     private async Task<HttpClient> CreateAuthenticatedClientAsync()
     {
-        var user = Application.CreateUser(new TestUserPayload { IsActive = true });
-        var client = Application.CreateClient();
+        var user = ApplicationFixture.CreateUser(new TestUserPayload { IsActive = true });
+        var client = ApplicationFixture.CreateClient();
         await client.Login(user);
         return client;
     }
@@ -40,7 +40,7 @@ public class TagEndpointsTest
     public async Task GetTagById_ShouldReturnTag()
     {
         var client = await CreateAuthenticatedClientAsync();
-        var tag = Application.GetCmsContext().BuildTestTag("FindById");
+        var tag = ApplicationFixture.GetCmsContext().BuildTestTag("FindById");
 
         var response = await client.GetTagById(tag.Id);
         var result = await response.Content.ReadFromJsonAsync<Result<TagDto>>();
@@ -64,7 +64,7 @@ public class TagEndpointsTest
     public async Task GetTags_ShouldReturnPaginatedTags()
     {
         var client = await CreateAuthenticatedClientAsync();
-        var context = Application.GetCmsContext();
+        var context = ApplicationFixture.GetCmsContext();
         context.BuildTestTag();
         context.BuildTestTag();
         context.BuildTestTag();
@@ -82,7 +82,7 @@ public class TagEndpointsTest
     public async Task GetTags_ShouldFilterByName()
     {
         var client = await CreateAuthenticatedClientAsync();
-        var context = Application.GetCmsContext();
+        var context = ApplicationFixture.GetCmsContext();
         var target = context.BuildTestTag("FilterPrefix");
         context.BuildTestTag();
 
@@ -98,7 +98,7 @@ public class TagEndpointsTest
     public async Task PatchTag_ShouldUpdateTag()
     {
         var client = await CreateAuthenticatedClientAsync();
-        var tag = Application.GetCmsContext().BuildTestTag();
+        var tag = ApplicationFixture.GetCmsContext().BuildTestTag();
 
         var patch = new[] { new { op = "replace", path = "/Name", value = "UpdatedTagName" } };
         var response = await client.PatchTag(tag.Id, patch);
@@ -114,7 +114,7 @@ public class TagEndpointsTest
     public async Task DeleteTag_ShouldDeleteTag()
     {
         var client = await CreateAuthenticatedClientAsync();
-        var tag = Application.GetCmsContext().BuildTestTag();
+        var tag = ApplicationFixture.GetCmsContext().BuildTestTag();
 
         var response = await client.DeleteTag(tag.Id);
 

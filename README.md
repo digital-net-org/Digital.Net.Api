@@ -37,8 +37,9 @@ The solution is composed of several projects:
 ### Prerequisites
 
 - **.NET SDK** 10
-- **PostgreSQL** 15+ *(or use SQLite for integration tests via the
-  `Database:UseSqlite` flag)*
+- **PostgreSQL** 15+
+- **Docker** or **Podman** (the test suite spins up an ephemeral
+  PostgreSQL container via [Testcontainers](https://dotnet.testcontainers.org/))
 
 ### Clone and build
 
@@ -56,7 +57,25 @@ dotnet build   Digital.Net.slnx
 dotnet test Digital.Net.slnx
 ```
 
-Unit tests use an in-memory SQLite database — no external Postgres required.
+The test suite uses [Testcontainers](https://dotnet.testcontainers.org/) to
+start a single ephemeral PostgreSQL container shared by every test, with
+[Respawn](https://github.com/jbogard/Respawn) truncating the tables between
+tests. Docker just works out of the box.
+
+#### Running on Podman
+
+If you use Podman (rootless), enable the Docker-compatible socket and point
+Testcontainers at it:
+
+```bash
+systemctl --user enable --now podman.socket
+export DOCKER_HOST="unix://${XDG_RUNTIME_DIR}/podman/podman.sock"
+export TESTCONTAINERS_RYUK_DISABLED=true
+```
+
+Ryuk (the cleanup container) is disabled because it does not play well with
+rootless Podman. The Postgres container still cleans itself up via
+`WithCleanUp(true)` when the test session exits.
 
 ## Installation (consumers)
 
@@ -131,7 +150,6 @@ Loading order:
 | ___Domain___                             <br/>Describes your application domain. Used to **prefix Cookies**, setup JWT **Audience/Issuer** and all subdomains will be added the allowed **CORS policies** | `string`   | **Mandatory**            |
 | ___CorsAllowedOrigins___                 <br/>All entries will be added the allowed **CORS policies** _(be aware that Domain is automatically added to allowed origins)_                                  | `string[]` | `[]`                     |
 | ___Database:ConnectionString___          <br/>Postgres Database connection string formated like `"Host=host;Port=5432;Database=db;Username=usr;Password=psw"`                                             | `string`   | **Mandatory**            |
-| ___Database:UseSqlite___                 <br/>Use an Sqlite Database if true. Used for Integration tests                                                                                                  | `boolean`  | `false`                  |
 | ___FileSystemPath___                     <br/>Path to folder where the application will save uploaded files                                                                                               | `string`   | `"/digital_net_storage"` |
 | ___Auth:JwtRefreshExpiration___          <br/>Refresh token expiration expressed in milliseconds                                                                                                          | `number`   | `3600000`                |
 | ___Auth:JwtBearerExpiration___           <br/>Bearer token expiration expressed in milliseconds                                                                                                           | `number`   | `300000`                 |

@@ -1,5 +1,5 @@
-using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Core.Entities.Context;
+using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Core.Entities.Seeds;
 using Microsoft.Extensions.Logging;
 
@@ -10,23 +10,23 @@ public class SeederTestSeed(
     DigitalContext context
 ) : Seeder<User>(logger, context), ISeed
 {
-    public static readonly List<User> Users =
+    public static List<User> CreateUsers(string testId) =>
     [
         new()
         {
-            Username = "TestUser",
+            Username = $"TestUser_{testId}",
             Password = "TestPassword",
-            Login = "TestLogin",
-            Email = "TestEmail@email.com"
+            Login = $"TestLogin_{testId}",
+            Email = $"TestEmail_{testId}@email.com"
         },
         new()
         {
-            Username = "TestUser2",
+            Username = $"TestUser2_{testId}",
             Password = "TestPassword2",
-            Login = "TestLogin2",
-            Email = "TestEmail2@email.com"
+            Login = $"TestLogin2_{testId}",
+            Email = $"TestEmail2_{testId}@email.com"
         }
     ];
 
-    public override async Task ApplySeed() => await SeedAsync(Users);
+    public override async Task ApplySeed() => await SeedAsync(CreateUsers("global"));
 }

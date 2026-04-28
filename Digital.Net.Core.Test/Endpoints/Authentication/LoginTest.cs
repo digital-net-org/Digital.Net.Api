@@ -1,27 +1,28 @@
 using System.Net;
-using Digital.Net.Core.Services.Authentication.Events;
-using Digital.Net.Core.Services.Authentication.Options;
 using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.Entities.Models.Users;
+using Digital.Net.Core.Services.Authentication.Events;
+using Digital.Net.Core.Services.Authentication.Options;
 using Digital.Net.Lib.Settings;
 using Digital.Net.Lib.String;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data.Records;
 using Digital.Net.Tests.Core.Http;
 using Digital.Net.Tests.Core.Sdk;
+using Microsoft.EntityFrameworkCore;
 
-namespace Digital.Net.Core.Test.Endpoints.Authentication.JwtTests;
+namespace Digital.Net.Core.Test.Endpoints.Authentication;
 
-public class JwtLoginTest
+public class LoginTest
 {
-    [ClassDataSource<TestApplication>]
-    public required TestApplication Application { get; init; }
+    [ClassDataSource<ApplicationFixture>]
+    public required ApplicationFixture ApplicationFixture { get; init; }
     
     [Test]
     public async Task Login_OnSuccess_ShouldReturnTokensAndGenerateEvents()
     {
-        var client = Application.CreateClient();
-        var user = Application.CreateUser();
+        var client = ApplicationFixture.CreateClient();
+        var user = ApplicationFixture.CreateUser();
         await ExecuteTestAsync(
             user,
             await client.Login(user),
@@ -33,8 +34,8 @@ public class JwtLoginTest
     [Test]
     public async Task Login_OnWrongPassword_ShouldReturnUnauthorized()
     {
-        var client = Application.CreateClient();
-        var user = Application.CreateUser();
+        var client = ApplicationFixture.CreateClient();
+        var user = ApplicationFixture.CreateUser();
         await ExecuteTestAsync(
             user,
             await client.Login(user.Login, "wrong password"),
@@ -47,8 +48,8 @@ public class JwtLoginTest
     [Test]
     public async Task Login_OnInactiveUser_ShouldReturnUnauthorized()
     {
-        var client = Application.CreateClient();
-        var user = Application.CreateUser(new TestUserPayload { IsActive = false });
+        var client = ApplicationFixture.CreateClient();
+        var user = ApplicationFixture.CreateUser(new TestUserPayload { IsActive = false });
         await ExecuteTestAsync(
             user,
             await client.Login(user),
@@ -60,8 +61,8 @@ public class JwtLoginTest
     [Test]
     public async Task Login_WithoutIpAddress_ShouldReturnUnauthorized()
     {
-        var client = Application.Factory.CreateClient();
-        var user = Application.CreateUser();
+        var client = ApplicationFixture.Factory.CreateClient();
+        var user = ApplicationFixture.CreateUser();
         var response = await client.Login(user);
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Unauthorized);
     }
@@ -69,8 +70,8 @@ public class JwtLoginTest
     [Test]
     public async Task Login_OnMaxAttempts_ShouldReturnTooManyRequests()
     {
-        var client = Application.CreateClient();
-        var user = Application.CreateUser();
+        var client = ApplicationFixture.CreateClient();
+        var user = ApplicationFixture.CreateUser();
         for (var i = 0; i < AuthenticationStaticOptions.MaxLoginAttempts; i++)
             await client.Login(user.Login, "wrongPassword");
 
@@ -82,8 +83,35 @@ public class JwtLoginTest
         );
     }
 
+    [Test]
+    public async Task Login_OnMaxCurrentSessions_ShouldInvalidateOldestSession()
+    {
+        const int maxSessions = AuthenticationStaticOptions.MaxConcurrentSessions;
+        var clients = new List<HttpClient>();
+        var user = ApplicationFixture.CreateUser();
+
+        for (var i = 0; i < maxSessions + 1; i++)
+        {
+            var c = ApplicationFixture.CreateClient();
+            clients.Add(c);
+            await c.Login(user);
+        }
+
+        var successCount = await ApplicationFixture
+            .GetContext().Events
+            .CountAsync(e => e.UserId == user.Id
+                             && e.Name == AuthenticationEvents.Login
+                             && e.State == EventState.Success
+            );
+
+        await Assert.That(successCount).EqualTo(maxSessions + 1);
+
+        var failure = await clients.First().RefreshTokens();
+        await Assert.That(failure.StatusCode).EqualTo(HttpStatusCode.Unauthorized);
+    }
+
     private string CookieName =>
-        $"{Application.GetConfiguration<string>(AppSettings.DomainKey) ?? throw new Exception()}_refresh";
+        $"{ApplicationFixture.GetConfiguration<string>(AppSettings.DomainKey) ?? throw new Exception()}_refresh";
 
     private async Task ExecuteTestAsync(
         User user,
@@ -92,12 +120,12 @@ public class JwtLoginTest
         HttpStatusCode expectedStatus
     )
     {
-        var loginEvent = Application
+        var loginEvent = ApplicationFixture
             .GetContext().Events
             .Where(x => x.UserId == user.Id)
             .OrderByDescending(x => x.CreatedAt)
             .First();
-        var storedToken = Application
+        var storedToken = ApplicationFixture
             .GetContext().ApiTokens
             .FirstOrDefault(x => x.UserId == user.Id);
         

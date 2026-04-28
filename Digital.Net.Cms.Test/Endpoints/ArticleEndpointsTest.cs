@@ -12,13 +12,13 @@ namespace Digital.Net.Cms.Test.Endpoints;
 
 public class ArticleEndpointsTest
 {
-    [ClassDataSource<TestApplication>]
-    public required TestApplication Application { get; init; }
+    [ClassDataSource<ApplicationFixture>]
+    public required ApplicationFixture ApplicationFixture { get; init; }
 
     private async Task<HttpClient> CreateAuthenticatedClientAsync()
     {
-        var user = Application.CreateUser(new TestUserPayload { IsActive = true });
-        var client = Application.CreateClient();
+        var user = ApplicationFixture.CreateUser(new TestUserPayload { IsActive = true });
+        var client = ApplicationFixture.CreateClient();
         await client.Login(user);
         return client;
     }
@@ -27,7 +27,7 @@ public class ArticleEndpointsTest
     public async Task GetArticleById_ShouldReturnArticle()
     {
         var client = await CreateAuthenticatedClientAsync();
-        var article = Application.GetCmsContext().BuildTestArticle();
+        var article = ApplicationFixture.GetCmsContext().BuildTestArticle();
 
         var response = await client.GetArticleById(article.Id);
         var result = await response.Content.ReadFromJsonAsync<Result<ArticleDto>>();
@@ -51,7 +51,7 @@ public class ArticleEndpointsTest
     public async Task GetArticles_ShouldReturnPaginatedArticles()
     {
         var client = await CreateAuthenticatedClientAsync();
-        var context = Application.GetCmsContext();
+        var context = ApplicationFixture.GetCmsContext();
         context.BuildTestArticle();
         context.BuildTestArticle();
         context.BuildTestArticle();
@@ -69,7 +69,7 @@ public class ArticleEndpointsTest
     public async Task GetArticles_ShouldFilterByPublished()
     {
         var client = await CreateAuthenticatedClientAsync();
-        var context = Application.GetCmsContext();
+        var context = ApplicationFixture.GetCmsContext();
         context.BuildTestArticle(published: true);
         context.BuildTestArticle(published: false);
 
@@ -84,7 +84,7 @@ public class ArticleEndpointsTest
     public async Task GetArticles_ShouldFilterByName()
     {
         var client = await CreateAuthenticatedClientAsync();
-        var context = Application.GetCmsContext();
+        var context = ApplicationFixture.GetCmsContext();
         var target = context.BuildTestArticle();
         context.BuildTestArticle();
 
@@ -100,7 +100,7 @@ public class ArticleEndpointsTest
     public async Task GetArticles_ShouldFilterByTagId()
     {
         var client = await CreateAuthenticatedClientAsync();
-        var context = Application.GetCmsContext();
+        var context = ApplicationFixture.GetCmsContext();
 
         var tag = context.BuildTestTag();
         var articleWithTag = context.BuildTestArticle(tags: [tag]);
@@ -117,9 +117,9 @@ public class ArticleEndpointsTest
     [Test]
     public async Task GetArticleByPath_ShouldReturnPublishedArticle()
     {
-        var client = Application.CreateApplicationClient();
+        var client = ApplicationFixture.CreateApplicationClient();
         var path = "/article-path-" + Guid.NewGuid().ToString("N")[..8];
-        Application.GetCmsContext().BuildTestArticle(path: path, published: true);
+        ApplicationFixture.GetCmsContext().BuildTestArticle(path, true);
 
         var response = await client.GetArticleByPath(path);
 
@@ -129,9 +129,9 @@ public class ArticleEndpointsTest
     [Test]
     public async Task GetArticleByPath_ShouldReturnNotFound_WhenNotPublished()
     {
-        var client = Application.CreateApplicationClient();
+        var client = ApplicationFixture.CreateApplicationClient();
         var path = "/article-unpublished-" + Guid.NewGuid().ToString("N")[..8];
-        Application.GetCmsContext().BuildTestArticle(path: path, published: false);
+        ApplicationFixture.GetCmsContext().BuildTestArticle(path, false);
 
         var response = await client.GetArticleByPath(path);
 
@@ -160,7 +160,7 @@ public class ArticleEndpointsTest
     public async Task PatchArticle_ShouldUpdateArticle()
     {
         var client = await CreateAuthenticatedClientAsync();
-        var article = Application.GetCmsContext().BuildTestArticle();
+        var article = ApplicationFixture.GetCmsContext().BuildTestArticle();
 
         var patch = new[] { new { op = "replace", path = "/Name", value = "UpdatedName" } };
         var response = await client.PatchArticle(article.Id, patch);
@@ -176,7 +176,7 @@ public class ArticleEndpointsTest
     public async Task DeleteArticle_ShouldDeleteArticle()
     {
         var client = await CreateAuthenticatedClientAsync();
-        var article = Application.GetCmsContext().BuildTestArticle();
+        var article = ApplicationFixture.GetCmsContext().BuildTestArticle();
 
         var response = await client.DeleteArticle(article.Id);
 

@@ -10,13 +10,13 @@ namespace Digital.Net.Cms.Test.Endpoints;
 
 public class SitemapEndpointsTest
 {
-    [ClassDataSource<TestApplication>]
-    public required TestApplication Application { get; init; }
+    [ClassDataSource<ApplicationFixture>]
+    public required ApplicationFixture ApplicationFixture { get; init; }
 
     [Test]
     public async Task GetSitemapData_ShouldRequireApplicationAuth()
     {
-        var client = Application.CreateClient();
+        var client = ApplicationFixture.CreateClient();
 
         var response = await client.GetSitemapData();
 
@@ -26,44 +26,32 @@ public class SitemapEndpointsTest
     [Test]
     public async Task GetSitemapData_ShouldReturnPublishedAndIndexedPages()
     {
-        var client = Application.CreateApplicationClient();
-        var context = Application.GetCmsContext();
-        var included = context.BuildTestPage(published: true);
-        context.BuildTestPage(published: false); // excluded
+        var client = ApplicationFixture.CreateApplicationClient();
+        var context = ApplicationFixture.GetCmsContext();
+
+        var included = context.BuildTestPage(published: true, indexed: true);
+        context.BuildTestPage(published: true, indexed: false);
+        context.BuildTestPage(published: false);
 
         var response = await client.GetSitemapData();
         var result = await response.Content.ReadFromJsonAsync<Result<List<SitemapEntryDto>>>();
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
         await Assert.That(result!.Value!.Any(e => e.Path == included.Path)).IsTrue();
-    }
-
-    [Test]
-    public async Task GetSitemapData_ShouldExcludeUnpublishedPages()
-    {
-        var client = Application.CreateApplicationClient();
-        var context = Application.GetCmsContext();
-        var unpublished = context.BuildTestPage(published: false);
-
-        var response = await client.GetSitemapData();
-        var result = await response.Content.ReadFromJsonAsync<Result<List<SitemapEntryDto>>>();
-
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
-        await Assert.That(result!.Value!.Any(e => e.Path == unpublished.Path)).IsFalse();
+        await Assert.That(result.Value!.Count).IsEqualTo(1);
     }
 
     [Test]
     public async Task GetSitemapData_ShouldIncludePublishedArticles()
     {
-        var client = Application.CreateApplicationClient();
-        var context = Application.GetCmsContext();
+        var client = ApplicationFixture.CreateApplicationClient();
+        var context = ApplicationFixture.GetCmsContext();
         var article = context.BuildTestArticle(published: true);
 
         var response = await client.GetSitemapData();
         var result = await response.Content.ReadFromJsonAsync<Result<List<SitemapEntryDto>>>();
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
-        // Articles inherit from Page and should appear in the sitemap
         await Assert.That(result!.Value!.Any(e => e.Path == article.Path)).IsTrue();
     }
 }

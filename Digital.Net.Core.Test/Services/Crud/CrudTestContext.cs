@@ -13,6 +13,8 @@ public class CrudTestContext(DbContextOptions<CrudTestContext> options) : DbCont
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
+        builder.HasDefaultSchema("crud_test");
+
         builder
             .Entity<CrudTestEntity>()
             .HasMany(e => e.Children)

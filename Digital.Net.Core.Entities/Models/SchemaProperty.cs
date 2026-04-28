@@ -1,5 +1,7 @@
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Digital.Net.Core.Entities.Attributes;
+using Digital.Net.Core.Entities.Exceptions;
 
 namespace Digital.Net.Core.Entities.Models;
 
@@ -57,4 +59,34 @@ public class SchemaProperty<T>
     /// <returns>Schema of the entity</returns>
     public static List<SchemaProperty<T>> Get() =>
         typeof(T).GetProperties().Select(property => new SchemaProperty<T>(property)).ToList();
+
+    public void Validate(object? value, string path)
+    {
+        if (value is null)
+            return;
+
+        if (
+            (IsIdentity || IsForeignKey)
+            && value.ToString() is "00000000-0000-0000-0000-000000000000" or "0"
+        )
+            return;
+
+        if (path is "CreatedAt" or "UpdatedAt" && (DateTime)value == DateTime.MinValue)
+            return;
+
+        if (IsIdentity)
+            throw new EntityValidationException($"{path}: This field is read-only.");
+        if (IsRequired && Type == "String" && string.IsNullOrWhiteSpace(value.ToString()))
+            throw new EntityValidationException($"{path}: This field is required and cannot be empty.");
+        if (RegexValidation is not null && !Regex.IsMatch(value.ToString() ?? "", RegexValidation))
+            throw new EntityValidationException($"{path}: This value does not meet the requirements.");
+    }
+
+    public void ValidateMutation(object? value, string path)
+    {
+        Validate(value, path);
+
+        if (IsIdentity || IsReadOnly)
+            throw new EntityValidationException($"{path}: This field is read-only.");
+    }
 }
