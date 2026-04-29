@@ -10,12 +10,10 @@ using Digital.Net.Core.Services.Authentication;
 using Digital.Net.Core.Services.Authentication.Exceptions;
 using Digital.Net.Core.Services.Authentication.Filters;
 using Digital.Net.Core.Services.Crud;
-using Digital.Net.Core.Services.Crud.Extensions;
 using Digital.Net.Core.Services.Documents;
 using Digital.Net.Core.Services.Documents.Exceptions;
 using Digital.Net.Core.Services.Users;
 using Digital.Net.Core.Services.Users.Events;
-using Digital.Net.Lib.Formatters;
 using Digital.Net.Lib.Messages;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -98,42 +96,30 @@ public static class UserEndpoints
     private static async Task<Results<Ok<Result>, BadRequest<Result>, InternalServerError<Result>>> PatchSelf(
         [FromBody]
         JsonElement patch,
-        ICrudService<User> crudService,
+        CrudService<DigitalContext, User> crudService,
         IAuditService auditService,
-        IUserContextService userContextService
+        IUserContextService userContextService,
+        CancellationToken ct
     )
     {
         var userId = userContextService.GetUserId();
-        var result = await crudService.Patch(patch.GetPatchDocument<User>(), userId);
+        var result = await crudService.Patch(patch, userId, ct);
+        var isBadRequest = result.HasErrorOfType<EntityValidationException>() ||
+                           result.HasErrorOfType<InvalidOperationException>();
 
-        Func<EventState, Task> registerEvent = async (state) =>
-        {
-            await auditService.RegisterEventAsync(
-                UserEvents.UpdateProfile,
-                state,
-                result,
-                userId,
-                patch.ToString()
-            );
-        };
-
-        if (result.HasError && (
-                result.HasErrorOfType<InvalidOperationException>()
-                || result.HasErrorOfType<EntityValidationException>()
-            ))
-        {
-            await registerEvent(EventState.Failed);
-            return TypedResults.BadRequest(result);
-        }
-
-        if (result.HasError)
-        {
-            await registerEvent(EventState.Failed);
+        if (result.HasError && !isBadRequest)
             return TypedResults.InternalServerError(result);
-        }
 
-        await registerEvent(EventState.Success);
-        return TypedResults.Ok(result);
+        await auditService.RegisterEventAsync(
+            UserEvents.UpdateProfile,
+            result.HasError ? EventState.Failed : EventState.Success,
+            result,
+            userContextService.GetUserId()
+        );
+
+        return result.HasError
+            ? TypedResults.BadRequest(result)
+            : TypedResults.Ok(result);
     }
 
     private static async Task<Results<Ok<Result>, BadRequest<Result>, UnauthorizedHttpResult>> UpdatePassword(

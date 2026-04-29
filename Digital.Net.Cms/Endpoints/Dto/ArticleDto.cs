@@ -1,4 +1,5 @@
-using Digital.Net.Cms.Models;
+using Digital.Net.Cms.Models.Articles;
+using Digital.Net.Cms.Services.Pages.Dto;
 
 namespace Digital.Net.Cms.Endpoints.Dto;
 

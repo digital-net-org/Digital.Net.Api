@@ -96,14 +96,14 @@ public class SchemaPropertyTest : UnitTest
     public async Task Validate_DoesNotThrow_WhenValueIsNull()
     {
         var schema = SchemaFor("ValidatedProperty");
-        await Assert.That(() => schema.Validate(null, "ValidatedProperty")).ThrowsNothing();
+        await Assert.That(() => schema.ValidatePath(null, "ValidatedProperty")).ThrowsNothing();
     }
 
     [Test]
     public async Task Validate_DoesNotThrow_WhenRequiredStringHasValidValue()
     {
         var schema = SchemaFor("ValidatedProperty");
-        await Assert.That(() => schema.Validate("validname", "ValidatedProperty")).ThrowsNothing();
+        await Assert.That(() => schema.ValidatePath("validname", "ValidatedProperty")).ThrowsNothing();
     }
 
     [Test]
@@ -112,7 +112,7 @@ public class SchemaPropertyTest : UnitTest
         var schema = SchemaFor("ValidatedProperty");
         await Assert.ThrowsAsync<EntityValidationException>(async () =>
         {
-            schema.Validate("", "ValidatedProperty");
+            schema.ValidatePath("", "ValidatedProperty");
             await Task.CompletedTask;
         });
     }
@@ -123,7 +123,7 @@ public class SchemaPropertyTest : UnitTest
         var schema = SchemaFor("ValidatedProperty");
         await Assert.ThrowsAsync<EntityValidationException>(async () =>
         {
-            schema.Validate("ab", "ValidatedProperty");
+            schema.ValidatePath("ab", "ValidatedProperty");
             await Task.CompletedTask;
         });
     }
@@ -132,7 +132,7 @@ public class SchemaPropertyTest : UnitTest
     public async Task Validate_DoesNotThrow_WhenOneOfValueIsKnown()
     {
         var schema = SchemaFor("OneOfProperty");
-        await Assert.That(() => schema.Validate("alpha", "OneOfProperty")).ThrowsNothing();
+        await Assert.That(() => schema.ValidatePath("alpha", "OneOfProperty")).ThrowsNothing();
     }
 
     [Test]
@@ -141,7 +141,7 @@ public class SchemaPropertyTest : UnitTest
         var schema = SchemaFor("OneOfProperty");
         await Assert.ThrowsAsync<EntityValidationException>(async () =>
         {
-            schema.Validate("delta", "OneOfProperty");
+            schema.ValidatePath("delta", "OneOfProperty");
             await Task.CompletedTask;
         });
     }
@@ -150,28 +150,28 @@ public class SchemaPropertyTest : UnitTest
     public async Task Validate_DoesNotThrow_WhenIdentityHasEmptyGuid()
     {
         var schema = SchemaFor("Id");
-        await Assert.That(() => schema.Validate(Guid.Empty, "Id")).ThrowsNothing();
+        await Assert.That(() => schema.ValidatePath(Guid.Empty, "Id")).ThrowsNothing();
     }
 
     [Test]
     public async Task Validate_DoesNotThrow_WhenForeignKeyIsEmptyGuid()
     {
         var schema = SchemaFor("ForeignId");
-        await Assert.That(() => schema.Validate(Guid.Empty, "ForeignId")).ThrowsNothing();
+        await Assert.That(() => schema.ValidatePath(Guid.Empty, "ForeignId")).ThrowsNothing();
     }
 
     [Test]
     public async Task Validate_DoesNotThrow_WhenCreatedAtIsMinValue()
     {
         var schema = SchemaFor("CreatedAt");
-        await Assert.That(() => schema.Validate(DateTime.MinValue, "CreatedAt")).ThrowsNothing();
+        await Assert.That(() => schema.ValidatePath(DateTime.MinValue, "CreatedAt")).ThrowsNothing();
     }
 
     [Test]
     public async Task Validate_DoesNotThrow_WhenUpdatedAtIsMinValue()
     {
         var schema = SchemaFor("UpdatedAt");
-        await Assert.That(() => schema.Validate(DateTime.MinValue, "UpdatedAt")).ThrowsNothing();
+        await Assert.That(() => schema.ValidatePath(DateTime.MinValue, "UpdatedAt")).ThrowsNothing();
     }
 
     [Test]
@@ -180,7 +180,7 @@ public class SchemaPropertyTest : UnitTest
         var schema = SchemaFor("Id");
         await Assert.ThrowsAsync<EntityValidationException>(async () =>
         {
-            schema.Validate(Guid.NewGuid(), "Id");
+            schema.ValidatePath(Guid.NewGuid(), "Id");
             await Task.CompletedTask;
         });
     }
@@ -189,7 +189,7 @@ public class SchemaPropertyTest : UnitTest
     public async Task ValidateMutation_DoesNotThrow_WhenRegularPropertyHasValidValue()
     {
         var schema = SchemaFor("ValidatedProperty");
-        await Assert.That(() => schema.ValidateMutation("validname", "ValidatedProperty")).ThrowsNothing();
+        await Assert.That(() => schema.ValidatePathMutation("validname", "ValidatedProperty")).ThrowsNothing();
     }
 
     [Test]
@@ -198,7 +198,7 @@ public class SchemaPropertyTest : UnitTest
         var schema = SchemaFor("RequiredProperty");
         await Assert.ThrowsAsync<EntityValidationException>(async () =>
         {
-            schema.ValidateMutation("anything", "RequiredProperty");
+            schema.ValidatePathMutation("anything", "RequiredProperty");
             await Task.CompletedTask;
         });
     }
@@ -209,7 +209,7 @@ public class SchemaPropertyTest : UnitTest
         var schema = SchemaFor("Id");
         await Assert.ThrowsAsync<EntityValidationException>(async () =>
         {
-            schema.ValidateMutation(Guid.Empty, "Id");
+            schema.ValidatePathMutation(Guid.Empty, "Id");
             await Task.CompletedTask;
         });
     }
@@ -220,7 +220,7 @@ public class SchemaPropertyTest : UnitTest
         var schema = SchemaFor("ValidatedProperty");
         await Assert.ThrowsAsync<EntityValidationException>(async () =>
         {
-            schema.ValidateMutation(string.Empty, "ValidatedProperty");
+            schema.ValidatePathMutation(string.Empty, "ValidatedProperty");
             await Task.CompletedTask;
         });
     }

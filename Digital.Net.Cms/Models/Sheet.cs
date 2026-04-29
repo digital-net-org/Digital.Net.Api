@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Digital.Net.Core.Entities.Attributes;
 using Digital.Net.Core.Entities.Models;
 
 namespace Digital.Net.Cms.Models;
@@ -15,6 +16,7 @@ public class Sheet : Entity
     [Column("Type")]
     [Required]
     [MaxLength(16)]
+    [OneOf("css", "js", "html")]
     public required string Type { get; set; }
 
     [Column("Content")]
@@ -23,6 +25,4 @@ public class Sheet : Entity
 
     [Column("Published")]
     public bool Published { get; set; }
-
-    public virtual List<PageSheet> PageSheets { get; set; } = [];
 }

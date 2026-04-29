@@ -1,19 +1,19 @@
 using System.Linq.Expressions;
 using System.Text.Json;
 using Digital.Net.Cms.Context;
-using Digital.Net.Cms.Endpoints.Dto;
 using Digital.Net.Cms.Endpoints.Events;
 using Digital.Net.Cms.Models;
+using Digital.Net.Cms.Models.Pages;
 using Digital.Net.Cms.Services.Pages;
-using Digital.Net.Core.Entities.Models.Events;
+using Digital.Net.Cms.Services.Pages.Dto;
+using Digital.Net.Cms.Services.Pages.OpenGraph;
+using Digital.Net.Core.Entities.Exceptions;
 using Digital.Net.Core.RateLimiter.Limiters;
-using Digital.Net.Core.Services.Auditing;
 using Digital.Net.Core.Services.Authentication;
 using Digital.Net.Core.Services.Authentication.Filters;
 using Digital.Net.Core.Services.Crud;
-using Digital.Net.Core.Services.Crud.Extensions;
 using Digital.Net.Core.Services.Pagination.Extensions;
-using Digital.Net.Lib.Formatters;
+using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.Predicates;
 using Microsoft.AspNetCore.Builder;
@@ -31,70 +31,89 @@ public static class PageEndpoints
     {
         var controller = app
             .MapGroup("cms/pages")
-            .WithTags("CMS - Pages")
-            .RequireRateLimiting(GlobalLimiter.Policy);
-
-        controller
-            .MapGet("path", GetPageByPath)
-            .WithSummary("GetByPath")
-            .WithDescription(
-                "Retrieves a published page by its path (passed as a query string). Requires Application authentication.")
-            .RequireAuthentication(AuthorizeType.Application);
+            .WithTags("CMSPages")
+            .RequireRateLimiting(GlobalLimiter.Policy)
+            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         controller
             .MapGet("path/availability", GetPathAvailability)
             .WithSummary("CheckPathAvailability")
             .WithDescription(
-                "Returns true if the path is not yet used by any page. ExcludeId scopes out a specific id (edition case).")
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
+                "Returns true if the path is not yet used by any page. ExcludeId scopes out a specific id (edition case)."
+            );
 
-        controller
-            .MapCrudSchema<CmsContext, Page>("")
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
-
+        controller.MapCrudSchema<CmsContext, Page>();
         controller
             .MapGet("schema/open-graph", GetOpenGraphSchema)
             .WithSummary("GetOpenGraphSchema")
-            .WithDescription("Returns the list of valid OpenGraph properties with an allowMultiple flag.")
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
+            .WithDescription("Returns the list of valid OpenGraph property keys.");
 
-        controller
-            .MapCrudGet<Page, PageDto>("")
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
-
-        controller
-            .MapPaginationGet<CmsContext, Page, PageDto, PageQuery>("", PaginationFilter)
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
-
-        controller
-            .MapPost("", CreatePage)
-            .WithSummary("Create")
-            .WithDescription("Creates a new page.")
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
-
+        controller.MapCrudGet<CmsContext, Page, PageDto>();
+        controller.MapPaginationGet<CmsContext, Page, PageDto, PageQuery>(filter: PaginationFilter);
+        controller.MapCrudDelete<CmsContext, Page>(eventType: CmsEvents.DeletePage);
         controller
             .MapPatch("{id:guid}", UpdatePage)
             .WithSummary("Patch")
-            .WithDescription("Updates a page by its ID.")
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
+            .WithDescription(
+                "Applies a JSON Patch to an entity identified by its ID. Returns the patched entity as the specified DTO type. Use the *Schema* endpoint to get the available fields."
+            );
+        controller
+            .MapPost("", CreatePage)
+            .WithSummary("Create")
+            .WithDescription(
+                "Creates a new entity with the provided payload. Returns the created entity as the specified DTO type."
+            );
+        
+        controller
+            .MapGet("{id:guid}/sheets", GetPageSheets)
+            .WithSummary("GetPageSheets")
+            .WithDescription("Retrieves every sheet owned by the page, ordered by load order.");
 
         controller
-            .MapDelete("{id:guid}", DeletePage)
-            .WithSummary("Delete")
-            .WithDescription("Deletes a page by its ID.")
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
+            .MapGet("{id:guid}/openGraph", GetPageOpenGraph)
+            .WithSummary("GetPageOpenGraph")
+            .WithDescription("Retrieves every OpenGraph entry owned by the page, ordered by index.");
+
+
+
+        var publicController = app
+            .MapGroup("cms/pages/public")
+            .WithTags("CMS - Pages")
+            .RequireRateLimiting(GlobalLimiter.Policy)
+            .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
+
+        publicController
+            .MapGet("path", GetPublicPageByPath)
+            .WithSummary("GetByPath")
+            .WithDescription(
+                "Retrieves a published page by its path (passed as a query string). Requires Application authentication."
+            );
+
+        publicController
+            .MapGet("{id:guid}/sheets", GetPublicPageSheets)
+            .WithSummary("GetPageSheets")
+            .WithDescription("Retrieves every published sheet owned by the page, ordered by load order.");
+
+        publicController
+            .MapGet("{id:guid}/sheets/{sheetId:guid}", GetPublicPageSheetResource)
+            .WithSummary("GetPageSheetResource")
+            .WithDescription(
+                "Serves the raw content of a published sheet scoped to its page, with the matching Content-Type."
+            );
 
         return app;
     }
 
-    private static async Task<Results<Ok<Result<PageDto>>, NotFound>> GetPageByPath(
+    private static async Task<Results<Ok<Result<PagePublicDto>>, NotFound<Result<PagePublicDto>>>> GetPublicPageByPath(
         [FromQuery]
         string path,
-        CmsContext context
+        PagePublicService pagePublicService
     )
     {
-        var page = await context.Pages.FirstOrDefaultAsync(p => p.Path == path && p.Published);
-        return page is null ? TypedResults.NotFound() : TypedResults.Ok(new Result<PageDto>(new PageDto(page)));
+        var result = await pagePublicService.GetPageByPath(path);
+        return result.HasErrorOfType<ResourceNotFoundException>()
+            ? TypedResults.NotFound(result)
+            : TypedResults.Ok(result);
     }
 
     private static async Task<Ok<Result<bool>>> GetPathAvailability(
@@ -108,98 +127,104 @@ public static class PageEndpoints
         var taken = await context.Pages.AnyAsync(p => p.Path == path && (excludeId == null || p.Id != excludeId));
         return TypedResults.Ok(new Result<bool>(!taken));
     }
-
-    private static async Task<IResult> CreatePage(
-        [FromBody]
-        PagePayload payload,
-        ICrudService<Page> crudService,
-        IAuditService auditService,
-        IUserContextService userContextService
-    )
+    
+    private static async
+        Task<Results<Ok<Result<List<PageSheetDto>>>, NotFound<Result<List<PageSheetDto>>>>>
+        GetPageSheets(
+            Guid id,
+            CrudService<CmsContext, Page> crudService,
+            CancellationToken ct
+        )
     {
-        var consistency = PagePayloadValidator.ValidateEntityTypeConsistency(payload.Path, payload.EntityType);
-        if (consistency.HasError)
-        {
-            await auditService.RegisterEventAsync(
-                CmsEvents.CreatePage, EventState.Failed, consistency, userContextService.GetUserId()
-            );
-            return Results.BadRequest(consistency);
-        }
-
-        var entity = new Page { Path = payload.Path, EntityType = payload.EntityType };
-        var result = await crudService.Create(entity);
-        await auditService.RegisterEventAsync(
-            CmsEvents.CreatePage,
-            result.HasError ? EventState.Failed : EventState.Success,
-            result,
-            userContextService.GetUserId()
-        );
-        return result.HasError
-            ? Results.BadRequest(result)
-            : Results.Ok(result);
+        var result = await crudService.GetChildren<Sheet, PageSheet, PageSheetDto>(id, ct);
+        return result.HasErrorOfType<ResourceNotFoundException>()
+            ? TypedResults.NotFound(result)
+            : TypedResults.Ok(result);
     }
 
-    private static async Task<IResult> UpdatePage(
-        Guid id,
-        [FromBody]
-        JsonElement patch,
-        ICrudService<Page> crudService,
-        IAuditService auditService,
-        IUserContextService userContextService,
-        CmsContext context
-    )
+    private static async Task<Results<Ok<Result<List<OpenGraphEntryDto>>>, NotFound<Result<List<OpenGraphEntryDto>>>>>
+        GetPageOpenGraph(
+            Guid id,
+            CrudService<CmsContext, Page> crudService,
+            CancellationToken ct
+        )
     {
-        var current = await context.Pages.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
-        if (current is null) return Results.NotFound();
-
-        var consistency = PagePayloadValidator.ValidatePatch(patch, current);
-        if (consistency.HasError)
-        {
-            await auditService.RegisterEventAsync(
-                CmsEvents.UpdatePage, 
-                EventState.Failed, 
-                consistency, 
-                userContextService.GetUserId()
-            );
-            return Results.BadRequest(consistency);
-        }
-
-        var result = await crudService.Patch(
-            PagePayloadValidator.NormalizePatch(patch).GetPatchDocument<Page>(), 
-            id
-        );
-        await auditService.RegisterEventAsync(
-            CmsEvents.UpdatePage,
-            result.HasError ? EventState.Failed : EventState.Success,
-            result,
-            userContextService.GetUserId()
-        );
-        return result.HasError
-            ? Results.BadRequest(result)
-            : Results.Ok(result);
+        var result = await crudService.GetChildren<OpenGraphEntry, PageOpenGraph, OpenGraphEntryDto>(id, ct);
+        return result.HasErrorOfType<ResourceNotFoundException>()
+            ? TypedResults.NotFound(result)
+            : TypedResults.Ok(result);
     }
 
-    private static async Task<IResult> DeletePage(
-        Guid id,
-        ICrudService<Page> crudService,
-        IAuditService auditService,
-        IUserContextService userContextService
-    )
+    private static async Task<Results<Ok<Result<Guid>>, BadRequest<Result<Guid>>, InternalServerError<Result<Guid>>>>
+        CreatePage(
+            [FromBody]
+            PagePayload payload,
+            PageCrudService pageCrudService,
+            IUserContextService userContextService
+        )
     {
-        var result = await crudService.Delete(id);
-        await auditService.RegisterEventAsync(
-            CmsEvents.DeletePage,
-            result.HasError ? EventState.Failed : EventState.Success,
-            result,
-            userContextService.GetUserId()
-        );
-        return result.HasError
-            ? Results.NotFound(result)
-            : Results.Ok(result);
+        var result = await pageCrudService.CreatePage(payload, userContextService.GetUserId());
+        if (result.HasErrorOfType<EntityValidationException>())
+            return TypedResults.BadRequest(result);
+        if (result.HasError)
+            return TypedResults.InternalServerError(result);
+        
+        return TypedResults.Ok(result);
+    }
+
+    private static async Task<Results<Ok<Result>, BadRequest<Result>, NotFound<Result>, InternalServerError<Result>>>
+        UpdatePage(
+            Guid id,
+            [FromBody]
+            JsonElement patch,
+            PageCrudService pageCrudService,
+            IUserContextService userContextService
+        )
+    {
+        var result = await pageCrudService.PatchPage(patch, id, userContextService.GetUserId());
+        if (result.HasErrorOfType<ResourceNotFoundException>())
+            return TypedResults.NotFound(result);
+        if (result.HasErrorOfType<EntityValidationException>())
+            return TypedResults.BadRequest(result);
+        if (result.HasError)
+            return TypedResults.InternalServerError(result);
+
+        return TypedResults.Ok(result);
     }
 
     private static Ok<Result<IReadOnlyList<OpenGraphPropertySchema>>> GetOpenGraphSchema() =>
         TypedResults.Ok(new Result<IReadOnlyList<OpenGraphPropertySchema>>(OpenGraphProperties.Schema));
+
+    private static async
+        Task<Results<Ok<Result<List<PageSheetInfoDto>>>, InternalServerError<Result<List<PageSheetInfoDto>>>, NotFound>>
+        GetPublicPageSheets(
+        Guid id,
+        PagePublicService pagePublicService
+    )
+    {
+        var result = await pagePublicService.GetPageSheetInfos(id);
+        if (result.HasErrorOfType<ResourceNotFoundException>())
+            return TypedResults.NotFound();
+        if (result.HasError)
+            return TypedResults.InternalServerError(result);
+
+        return TypedResults.Ok(result);
+    }
+
+    private static async Task<Results<ContentHttpResult, InternalServerError, NotFound>> GetPublicPageSheetResource(
+        Guid id,
+        Guid sheetId,
+        PagePublicService pagePublicService
+    )
+    {
+        var result = await pagePublicService.GetPageSheetResource(id, sheetId);
+        if (result.HasErrorOfType<ResourceNotFoundException>())
+            return TypedResults.NotFound();
+        if (result.HasError)
+            return TypedResults.InternalServerError();
+
+        return TypedResults.Content(result.Value.content, result.Value.contentType);
+    }
 
     private static Expression<Func<Page, bool>> PaginationFilter(
         Expression<Func<Page, bool>> predicate,

@@ -1,6 +1,7 @@
 using System;
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Models;
+using Digital.Net.Cms.Models.Pages;
 using Digital.Net.Lib.Random;
 
 namespace Digital.Net.Tests.Core.Factories.Data;
@@ -36,9 +37,9 @@ public static class TestSheetDataFactory
     {
         var pageSheet = new PageSheet
         {
-            PageId = pageId,
-            SheetId = sheetId,
-            LoadOrder = loadOrder
+            ParentId = pageId,
+            ChildId = sheetId,
+            Order = loadOrder
         };
         context.PageSheets.Add(pageSheet);
         context.SaveChanges();

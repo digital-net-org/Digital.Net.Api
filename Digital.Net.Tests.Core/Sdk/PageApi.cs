@@ -2,7 +2,7 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using Digital.Net.Cms.Endpoints.Dto;
+using Digital.Net.Cms.Services.Pages.Dto;
 using Digital.Net.Tests.Core.Http;
 
 namespace Digital.Net.Tests.Core.Sdk;
@@ -30,7 +30,7 @@ public static class PageApi
         await client.DeleteAsync($"{BaseUrl}/{pageId}");
 
     public static async Task<HttpResponseMessage> GetPageByPath(this HttpClient client, string path) =>
-        await client.GetAsync($"{BaseUrl}/path?path={Uri.EscapeDataString(path)}");
+        await client.GetAsync($"{BaseUrl}/public/path?path={Uri.EscapeDataString(path)}");
 
     public static async Task<HttpResponseMessage> GetPathAvailability(
         this HttpClient client,
@@ -42,4 +42,20 @@ public static class PageApi
         if (excludeId.HasValue) url += $"&excludeId={excludeId.Value}";
         return await client.GetAsync(url);
     }
+
+    public static async Task<HttpResponseMessage> GetPageSheets(this HttpClient client, Guid pageId) =>
+        await client.GetAsync($"{BaseUrl}/public/{pageId}/sheets");
+
+    public static async Task<HttpResponseMessage> GetPageSheetResource(
+        this HttpClient client,
+        Guid pageId,
+        Guid sheetId
+    ) =>
+        await client.GetAsync($"{BaseUrl}/public/{pageId}/sheets/{sheetId}");
+
+    public static async Task<HttpResponseMessage> GetPageSheetsForEdit(this HttpClient client, Guid pageId) =>
+        await client.GetAsync($"{BaseUrl}/{pageId}/sheets");
+
+    public static async Task<HttpResponseMessage> GetPageOpenGraphForEdit(this HttpClient client, Guid pageId) =>
+        await client.GetAsync($"{BaseUrl}/{pageId}/openGraph");
 }

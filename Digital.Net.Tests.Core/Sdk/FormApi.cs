@@ -18,8 +18,8 @@ public static class FormApi
     public static async Task<HttpResponseMessage> GetForms(this HttpClient client, FormQuery? query = null) =>
         await client.GetAsync($"{BaseUrl}{query?.ToQueryString()}");
 
-    public static async Task<HttpResponseMessage> CreateForm(this HttpClient client, FormPayload payload) =>
-        await client.PostAsJsonAsync(BaseUrl, payload);
+    public static async Task<HttpResponseMessage> CreateForm(this HttpClient client, FormCreatePayload createPayload) =>
+        await client.PostAsJsonAsync(BaseUrl, createPayload);
 
     public static async Task<HttpResponseMessage> PatchForm(this HttpClient client, Guid id, object patch) =>
         await client.PatchAsJsonAsync($"{BaseUrl}/{id}", patch);

@@ -1,4 +1,5 @@
 using Digital.Net.Core.Entities.Exceptions;
+using Digital.Net.Core.Entities.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Core.Entities.Extensions;
@@ -12,7 +13,7 @@ public static class DbContextSaveExtensions
     ///     surfaces it as <c>400 Bad Request</c>. Unknown provider codes bubble up unchanged
     ///     and end up as <c>500 Internal Server Error</c>.
     /// </summary>
-    public static async Task<int> SaveAsync(
+    public static async Task<int> SaveEntityAsync(
         this DbContext context,
         CancellationToken ct = default
     )
@@ -27,5 +28,15 @@ public static class DbContextSaveExtensions
             if (translated is not null) throw translated;
             throw;
         }
+    }
+
+
+    public static void MarkDirty<T>(this DbContext context, Guid id)
+        where T : Entity
+    {
+        var entity = context.Set<T>().Find(id);
+        if (entity is null) return;
+        var entry = context.Entry(entity);
+        if (entry.State == EntityState.Unchanged) entry.State = EntityState.Modified;
     }
 }

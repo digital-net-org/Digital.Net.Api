@@ -275,6 +275,38 @@ namespace Digital.Net.Cms.Migrations
                     b.ToTable("MediaVariant", "digital_net_cms");
                 });
 
+            modelBuilder.Entity("Digital.Net.Cms.Models.OpenGraphEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("Id");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)")
+                        .HasColumnName("Content");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<string>("Property")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("Property");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("UpdatedAt");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OpenGraphEntry", "digital_net_cms");
+                });
+
             modelBuilder.Entity("Digital.Net.Cms.Models.Page", b =>
                 {
                     b.Property<Guid>("Id")
@@ -304,11 +336,6 @@ namespace Digital.Net.Cms.Migrations
                         .HasMaxLength(65535)
                         .HasColumnType("character varying(65535)")
                         .HasColumnName("JsonLd");
-
-                    b.Property<string>("OpenGraph")
-                        .HasMaxLength(65535)
-                        .HasColumnType("character varying(65535)")
-                        .HasColumnName("OpenGraph");
 
                     b.Property<string>("Path")
                         .IsRequired()
@@ -344,23 +371,44 @@ namespace Digital.Net.Cms.Migrations
                     b.UseTptMappingStrategy();
                 });
 
+            modelBuilder.Entity("Digital.Net.Cms.Models.PageOpenGraph", b =>
+                {
+                    b.Property<Guid>("ParentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("ParentId");
+
+                    b.Property<Guid>("ChildId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("ChildId");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer")
+                        .HasColumnName("Order");
+
+                    b.HasKey("ParentId", "ChildId");
+
+                    b.HasIndex("ChildId");
+
+                    b.ToTable("PageOpenGraph", "digital_net_cms");
+                });
+
             modelBuilder.Entity("Digital.Net.Cms.Models.PageSheet", b =>
                 {
-                    b.Property<Guid>("PageId")
+                    b.Property<Guid>("ParentId")
                         .HasColumnType("uuid")
-                        .HasColumnName("PageId");
+                        .HasColumnName("ParentId");
 
-                    b.Property<Guid>("SheetId")
+                    b.Property<Guid>("ChildId")
                         .HasColumnType("uuid")
-                        .HasColumnName("SheetId");
+                        .HasColumnName("ChildId");
 
-                    b.Property<int>("LoadOrder")
+                    b.Property<int>("Order")
                         .HasColumnType("integer")
-                        .HasColumnName("LoadOrder");
+                        .HasColumnName("Order");
 
-                    b.HasKey("PageId", "SheetId");
+                    b.HasKey("ParentId", "ChildId");
 
-                    b.HasIndex("SheetId");
+                    b.HasIndex("ChildId");
 
                     b.ToTable("PageSheet", "digital_net_cms");
                 });
@@ -503,23 +551,42 @@ namespace Digital.Net.Cms.Migrations
                     b.Navigation("Media");
                 });
 
+            modelBuilder.Entity("Digital.Net.Cms.Models.PageOpenGraph", b =>
+                {
+                    b.HasOne("Digital.Net.Cms.Models.OpenGraphEntry", "Child")
+                        .WithMany()
+                        .HasForeignKey("ChildId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Digital.Net.Cms.Models.Page", "Parent")
+                        .WithMany()
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Child");
+
+                    b.Navigation("Parent");
+                });
+
             modelBuilder.Entity("Digital.Net.Cms.Models.PageSheet", b =>
                 {
-                    b.HasOne("Digital.Net.Cms.Models.Page", "Page")
+                    b.HasOne("Digital.Net.Cms.Models.Sheet", "Child")
                         .WithMany()
-                        .HasForeignKey("PageId")
+                        .HasForeignKey("ChildId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Digital.Net.Cms.Models.Sheet", "Sheet")
-                        .WithMany("PageSheets")
-                        .HasForeignKey("SheetId")
+                    b.HasOne("Digital.Net.Cms.Models.Page", "Parent")
+                        .WithMany()
+                        .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Page");
+                    b.Navigation("Child");
 
-                    b.Navigation("Sheet");
+                    b.Navigation("Parent");
                 });
 
             modelBuilder.Entity("Digital.Net.Cms.Models.Article", b =>
@@ -541,11 +608,6 @@ namespace Digital.Net.Cms.Migrations
             modelBuilder.Entity("Digital.Net.Cms.Models.Media", b =>
                 {
                     b.Navigation("Variants");
-                });
-
-            modelBuilder.Entity("Digital.Net.Cms.Models.Sheet", b =>
-                {
-                    b.Navigation("PageSheets");
                 });
 #pragma warning restore 612, 618
         }

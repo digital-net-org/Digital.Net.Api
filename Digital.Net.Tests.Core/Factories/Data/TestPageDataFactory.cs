@@ -1,5 +1,5 @@
 using Digital.Net.Cms.Context;
-using Digital.Net.Cms.Models;
+using Digital.Net.Cms.Models.Pages;
 using Digital.Net.Lib.Random;
 
 namespace Digital.Net.Tests.Core.Factories.Data;

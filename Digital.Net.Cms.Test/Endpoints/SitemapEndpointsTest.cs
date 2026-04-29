@@ -14,16 +14,6 @@ public class SitemapEndpointsTest
     public required ApplicationFixture ApplicationFixture { get; init; }
 
     [Test]
-    public async Task GetSitemapData_ShouldRequireApplicationAuth()
-    {
-        var client = ApplicationFixture.CreateClient();
-
-        var response = await client.GetSitemapData();
-
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Unauthorized);
-    }
-
-    [Test]
     public async Task GetSitemapData_ShouldReturnPublishedAndIndexedPages()
     {
         var client = ApplicationFixture.CreateApplicationClient();

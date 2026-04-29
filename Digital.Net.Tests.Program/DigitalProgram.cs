@@ -45,7 +45,7 @@ public sealed class DigitalProgram
 
         controller
             .MapGet("/application", () => Results.Ok())
-            .RequireAuthentication(AuthorizeType.Application);
+            .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         controller
             .MapGet("/admin", () => Results.Ok())

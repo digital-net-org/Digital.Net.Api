@@ -1,15 +1,12 @@
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Endpoints;
-using Digital.Net.Cms.Models;
-using Digital.Net.Cms.Services;
 using Digital.Net.Cms.Services.Medias;
 using Digital.Net.Cms.Services.Pages;
 using Digital.Net.Core.Bootstrap;
 using Digital.Net.Core.Entities.Models.Events;
+using Digital.Net.Core.Entities.Pivots;
 using Digital.Net.Core.RateLimiter.Limiters;
-using Digital.Net.Core.Services.Authentication;
 using Digital.Net.Core.Services.Authentication.Filters;
-using Digital.Net.Core.Services.Crud;
 using Digital.Net.Core.Services.Events.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -29,16 +26,9 @@ public static class CmsInjector
             .ApplyMigrations<CmsContext>();
 
         builder.Services
-            .AddScoped<ICrudValidationService<CmsContext>, CrudValidationService<CmsContext>>()
-            .AddScoped<ICrudService<Page>, CrudService<CmsContext, Page>>()
-            .AddScoped<ICrudService<Article>, CrudService<CmsContext, Article>>()
-            .AddScoped<ICrudService<Sheet>, CrudService<CmsContext, Sheet>>()
-            .AddScoped<ICrudService<Tag>, CrudService<CmsContext, Tag>>()
-            .AddScoped<ICrudService<Media>, CrudService<CmsContext, Media>>()
+            .AddPageDependencies()
             .AddScoped<MediaService>()
-            .AddScoped<ICrudService<Form>, CrudService<CmsContext, Form>>()
-            .AddScoped<ICrudService<FormField>, CrudService<CmsContext, FormField>>()
-            .AddScoped<ICrudService<FormSubmission>, CrudService<CmsContext, FormSubmission>>();
+            .AddPivotsFromAssemblies<CmsContext>(typeof(CmsInjector).Assembly);
 
         return builder;
     }
@@ -54,7 +44,6 @@ public static class CmsInjector
             .MapCmsArticleEndpoints()
             .MapCmsMediaEndpoints()
             .MapCmsSitemapEndpoints()
-            .MapCmsSheetEndpoints()
             .MapCmsFormEndpoints();
 
         app
@@ -67,7 +56,7 @@ public static class CmsInjector
             .WithSummary("SSE Stream")
             .WithDescription("Subscribe to CMS mutation events via Server-Sent Events.")
             .RequireRateLimiting(GlobalLimiter.Policy)
-            .RequireAuthentication(AuthorizeType.Application);
+            .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         return app;
     }

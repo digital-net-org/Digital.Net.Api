@@ -1,7 +1,5 @@
 using System.Net;
 using System.Net.Http.Json;
-using Digital.Net.Cms.Endpoints.Dto;
-using Digital.Net.Core.Services.Pagination;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.Settings;
 using Digital.Net.Tests.Core.Factories;
@@ -46,7 +44,6 @@ public class MediaEndpointsTest
     {
         var client = await CreateAuthenticatedClientAsync();
         var bytes = "not an image"u8.ToArray();
-
         var response = await client.UploadMedia(bytes, "test.txt", "text/plain", "BadFile");
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.BadRequest);
@@ -54,99 +51,12 @@ public class MediaEndpointsTest
 
 
     [Test]
-    public async Task GetMediaById_ShouldReturnMedia()
-    {
-        var client = await CreateAuthenticatedClientAsync();
-        var media = ApplicationFixture.GetCmsContext()
-            .BuildTestMedia(ApplicationFixture.GetContext(), "FindById");
-
-        var response = await client.GetMediaById(media.Id);
-        var result = await response.Content.ReadFromJsonAsync<Result<MediaDto>>();
-
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
-        await Assert.That(result!.Value!.Id).IsEqualTo(media.Id);
-        await Assert.That(result.Value.Name).IsEqualTo("FindById");
-    }
-
-    [Test]
-    public async Task GetMediaById_ShouldReturnNotFound_WhenMediaDoesNotExist()
-    {
-        var client = await CreateAuthenticatedClientAsync();
-
-        var response = await client.GetMediaById(Guid.NewGuid());
-
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.NotFound);
-    }
-
-    [Test]
-    public async Task GetMedia_ShouldReturnPaginatedMedia()
-    {
-        var client = await CreateAuthenticatedClientAsync();
-        var cmsCtx = ApplicationFixture.GetCmsContext();
-        var digCtx = ApplicationFixture.GetContext();
-        cmsCtx.BuildTestMedia(digCtx);
-        cmsCtx.BuildTestMedia(digCtx);
-        cmsCtx.BuildTestMedia(digCtx);
-
-        var response = await client.GetMedia(new MediaQuery { Size = 2, Index = 1 });
-        var result = await response.Content.ReadFromJsonAsync<QueryResult<MediaDto>>();
-
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
-        await Assert.That(result!.Size).IsEqualTo(2);
-        await Assert.That(result.Index).IsEqualTo(1);
-        await Assert.That(result.Total).IsGreaterThanOrEqualTo(3);
-    }
-
-    [Test]
-    public async Task PatchMedia_ShouldUpdateMedia()
-    {
-        var client = await CreateAuthenticatedClientAsync();
-        var media = ApplicationFixture.GetCmsContext()
-            .BuildTestMedia(ApplicationFixture.GetContext());
-
-        var patch = new[] { new { op = "replace", path = "/Name", value = "UpdatedName" } };
-        var response = await client.PatchMedia(media.Id, patch);
-
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
-
-        var getResponse = await client.GetMediaById(media.Id);
-        var result = await getResponse.Content.ReadFromJsonAsync<Result<MediaDto>>();
-        await Assert.That(result!.Value!.Name).IsEqualTo("UpdatedName");
-    }
-
-    [Test]
-    public async Task DeleteMedia_ShouldDeleteMedia()
-    {
-        var client = await CreateAuthenticatedClientAsync();
-        var media = ApplicationFixture.GetCmsContext()
-            .BuildTestMedia(ApplicationFixture.GetContext(), storagePath: GetStoragePath());
-
-        var response = await client.DeleteMedia(media.Id);
-
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
-
-        var getResponse = await client.GetMediaById(media.Id);
-        await Assert.That(getResponse.StatusCode).EqualTo(HttpStatusCode.NotFound);
-    }
-
-    [Test]
-    public async Task DeleteMedia_ShouldReturnNotFound_WhenMediaDoesNotExist()
-    {
-        var client = await CreateAuthenticatedClientAsync();
-
-        var response = await client.DeleteMedia(Guid.NewGuid());
-
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.NotFound);
-    }
-
-
-    [Test]
     public async Task GetMediaImage_ShouldServeOriginalImage()
     {
-        var media = ApplicationFixture.GetCmsContext()
+        var media = ApplicationFixture
+            .GetCmsContext()
             .BuildTestMedia(ApplicationFixture.GetContext(), published: true, storagePath: GetStoragePath());
         var client = ApplicationFixture.CreateApplicationClient();
-
         var response = await client.GetMediaImage(media.Id, "png");
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
@@ -165,8 +75,7 @@ public class MediaEndpointsTest
                 imageHeight: 600
             );
         var client = ApplicationFixture.CreateApplicationClient();
-
-        var response = await client.GetMediaImage(media.Id, "webp", w: 400, q: 80);
+        var response = await client.GetMediaImage(media.Id, "webp", 400, 80);
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
         await Assert.That(response.Content.Headers.ContentType!.MediaType).IsEqualTo("image/webp");
@@ -184,8 +93,7 @@ public class MediaEndpointsTest
                 imageHeight: 100
             );
         var client = ApplicationFixture.CreateApplicationClient();
-
-        var response = await client.GetMediaImage(media.Id, "png", w: 500);
+        var response = await client.GetMediaImage(media.Id, "png", 500);
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
         await Assert.That(response.Content.Headers.ContentType!.MediaType).IsEqualTo("image/png");
@@ -194,10 +102,10 @@ public class MediaEndpointsTest
     [Test]
     public async Task GetMediaImage_ShouldReturnNotFound_WhenUnpublishedWithApplicationAuth()
     {
-        var media = ApplicationFixture.GetCmsContext()
+        var media = ApplicationFixture
+            .GetCmsContext()
             .BuildTestMedia(ApplicationFixture.GetContext(), published: false, storagePath: GetStoragePath());
         var client = ApplicationFixture.CreateApplicationClient();
-
         var response = await client.GetMediaImage(media.Id, "png");
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.NotFound);
@@ -206,10 +114,10 @@ public class MediaEndpointsTest
     [Test]
     public async Task GetMediaImage_ShouldServeUnpublished_WhenAuthenticatedWithJwt()
     {
-        var media = ApplicationFixture.GetCmsContext()
+        var media = ApplicationFixture
+            .GetCmsContext()
             .BuildTestMedia(ApplicationFixture.GetContext(), published: false, storagePath: GetStoragePath());
         var client = await CreateAuthenticatedClientAsync();
-
         var response = await client.GetMediaImage(media.Id, "png");
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
@@ -218,11 +126,11 @@ public class MediaEndpointsTest
     [Test]
     public async Task GetMediaImage_ShouldServeSvgWithoutProcessing()
     {
-        var media = ApplicationFixture.GetCmsContext()
+        var media = ApplicationFixture
+            .GetCmsContext()
             .BuildTestSvgMedia(ApplicationFixture.GetContext(), published: true, storagePath: GetStoragePath());
         var client = ApplicationFixture.CreateApplicationClient();
-
-        var response = await client.GetMediaImage(media.Id, "svg", w: 50, q: 50);
+        var response = await client.GetMediaImage(media.Id, "svg", 50, 50);
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
         await Assert.That(response.Content.Headers.ContentType!.MediaType).IsEqualTo("image/svg+xml");
@@ -241,8 +149,8 @@ public class MediaEndpointsTest
                 imageHeight: 600
             );
         var appClient = ApplicationFixture.CreateApplicationClient();
-        await appClient.GetMediaImage(media.Id, "webp", w: 200, q: 80);
-        await appClient.GetMediaImage(media.Id, "webp", w: 400, q: 80);
+        await appClient.GetMediaImage(media.Id, "webp", 200, 80);
+        await appClient.GetMediaImage(media.Id, "webp", 400, 80);
 
         var client = await CreateAuthenticatedClientAsync();
         var response = await client.PurgeMediaVariants(media.Id);
@@ -254,9 +162,7 @@ public class MediaEndpointsTest
     public async Task PurgeAllVariants_ShouldPurgeEverything()
     {
         var client = await CreateAuthenticatedClientAsync();
-
         var response = await client.PurgeAllVariants();
-
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
     }
 }

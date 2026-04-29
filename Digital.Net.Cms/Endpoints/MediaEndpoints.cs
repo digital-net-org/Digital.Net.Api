@@ -1,10 +1,8 @@
 using System.Linq.Expressions;
-using System.Text.Json;
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Endpoints.Dto;
 using Digital.Net.Cms.Endpoints.Events;
-using Digital.Net.Cms.Models;
-using Digital.Net.Cms.Services;
+using Digital.Net.Cms.Models.Medias;
 using Digital.Net.Cms.Services.Medias;
 using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.RateLimiter.Limiters;
@@ -12,11 +10,9 @@ using Digital.Net.Core.Services.Auditing;
 using Digital.Net.Core.Services.Authentication;
 using Digital.Net.Core.Services.Authentication.Filters;
 using Digital.Net.Core.Services.Crud;
-using Digital.Net.Core.Services.Crud.Extensions;
 using Digital.Net.Core.Services.Documents;
 using Digital.Net.Core.Services.Documents.Exceptions;
 using Digital.Net.Core.Services.Pagination.Extensions;
-using Digital.Net.Lib.Formatters;
 using Digital.Net.Lib.Predicates;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -42,11 +38,8 @@ public static class MediaEndpoints
             .RequireRateLimiting(GlobalLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
-        userRoutes
-            .MapCrudGet<Media, MediaDto>("");
-
-        userRoutes
-            .MapPaginationGet<CmsContext, Media, MediaDto, MediaQuery>("", PaginationFilter);
+        userRoutes.MapCrudGet<CmsContext, Media, MediaDto>();
+        userRoutes.MapPaginationGet<CmsContext, Media, MediaDto, MediaQuery>(filter: PaginationFilter);
 
         userRoutes
             .MapPost("", UploadMedia)
@@ -54,11 +47,7 @@ public static class MediaEndpoints
             .WithSummary("Upload")
             .WithDescription("Uploads a new media image.");
 
-        userRoutes
-            .MapPatch("{id:guid}", UpdateMedia)
-            .WithSummary("Patch")
-            .WithDescription("Updates a media's metadata by its ID.");
-
+        userRoutes.MapCrudPatch<CmsContext, Media>(eventType: CmsEvents.UpdateMedia);
         userRoutes
             .MapDelete("{id:guid}", DeleteMedia)
             .WithSummary("Delete")
@@ -99,7 +88,7 @@ public static class MediaEndpoints
         [FromForm] string name,
         [FromForm] string? alt,
         IDocumentService documentService,
-        ICrudService<Media> crudService,
+        CrudService<CmsContext, Media> crudService,
         IAuditService auditService,
         IUserContextService userContextService
     )
@@ -134,27 +123,7 @@ public static class MediaEndpoints
             ? Results.BadRequest(result)
             : Results.Ok(result);
     }
-
-    private static async Task<IResult> UpdateMedia(
-        Guid id,
-        [FromBody] JsonElement patch,
-        ICrudService<Media> crudService,
-        IAuditService auditService,
-        IUserContextService userContextService
-    )
-    {
-        var result = await crudService.Patch(patch.GetPatchDocument<Media>(), id);
-        await auditService.RegisterEventAsync(
-            CmsEvents.UpdateMedia,
-            result.HasError ? EventState.Failed : EventState.Success,
-            result,
-            userContextService.GetUserId()
-        );
-        return result.HasError
-            ? Results.BadRequest(result)
-            : Results.Ok(result);
-    }
-
+    
     private static async Task<IResult> DeleteMedia(
         Guid id,
         MediaService mediaService,

@@ -1,4 +1,5 @@
 using Digital.Net.Cms.Models;
+using Digital.Net.Cms.Models.Medias;
 
 namespace Digital.Net.Cms.Endpoints.Dto;
 

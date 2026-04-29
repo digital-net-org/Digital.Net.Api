@@ -1,4 +1,5 @@
 using Digital.Net.Core.Entities.Interceptors;
+using Digital.Net.Core.Entities.Models;
 using Digital.Net.Core.Entities.Models.ApiKeys;
 using Digital.Net.Core.Entities.Models.ApiTokens;
 using Digital.Net.Core.Entities.Models.Avatars;
@@ -29,4 +30,5 @@ public class DigitalContext(DbContextOptions<DigitalContext> options) : DbContex
         builder
             .HasDefaultSchema(Schema)
             .BuildUser()
+            .ConfigurePivots();
 }

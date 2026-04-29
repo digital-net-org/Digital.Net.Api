@@ -1,8 +1,10 @@
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http.Json;
 using Digital.Net.Cms.Endpoints.Dto;
 using Digital.Net.Cms.Models;
+using Digital.Net.Cms.Models.Pages;
+using Digital.Net.Cms.Services.Pages.Dto;
+using Digital.Net.Cms.Services.Pages.OpenGraph;
 using Digital.Net.Core.Services.Pagination;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Tests.Core.Factories;
@@ -211,43 +213,8 @@ public class PageEndpointsTest
         await Assert.That(dto!.Value!.EntityType).IsEqualTo(PageEntityType.Article);
     }
 
-    [Test]
-    public async Task PatchPage_ShouldRejectEntityTypeLostConsistency()
-    {
-        var client = await CreateAuthenticatedClientAsync();
-        var basePath = "/rej-" + Guid.NewGuid().ToString("N")[..8] + "/:id";
-        var createResp = await client.CreatePage(
-            new PagePayload { Path = basePath, EntityType = PageEntityType.Article });
-        var created = await createResp.Content.ReadFromJsonAsync<Result<Guid>>();
-
-        var patch = new[]
-        {
-            new { op = "replace", path = "/Path", value = "/rej-" + Guid.NewGuid().ToString("N")[..8] }
-        };
-        var response = await client.PatchPage(created!.Value, patch);
-
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.BadRequest);
-    }
-
-    [Test]
-    public async Task PatchPage_ShouldAcceptPathChangeWithEntityTypeClear()
-    {
-        var client = await CreateAuthenticatedClientAsync();
-        var basePath = "/acc-" + Guid.NewGuid().ToString("N")[..8] + "/:id";
-        var createResp = await client.CreatePage(
-            new PagePayload { Path = basePath, EntityType = PageEntityType.Article });
-        var created = await createResp.Content.ReadFromJsonAsync<Result<Guid>>();
-
-        var newPath = "/acc-" + Guid.NewGuid().ToString("N")[..8];
-        var patch = new object[]
-        {
-            new { op = "replace", path = "/Path", value = newPath },
-            new { op = "replace", path = "/EntityType", value = (string?)null }
-        };
-        var response = await client.PatchPage(created!.Value, patch);
-
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
-    }
+    // EntityType+Path consistency at PATCH was enforced by PagePatchHook (now removed).
+    // The rule is still applied at CreatePage; PATCH lets through inconsistent states intentionally.
 
     [Test]
     public async Task GetPathAvailability_ShouldReturnTrue_WhenPathIsFree()
@@ -309,8 +276,8 @@ public class PageEndpointsTest
         var result = await response.Content.ReadFromJsonAsync<Result<List<OpenGraphPropertySchema>>>();
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
-        await Assert.That(result!.Value!.Any(p => p.Key == "og:title" && !p.AllowMultiple)).IsTrue();
-        await Assert.That(result.Value!.Any(p => p.Key == "og:image" && p.AllowMultiple)).IsTrue();
+        await Assert.That(result!.Value!.Any(p => p.Key == "og:title")).IsTrue();
+        await Assert.That(result.Value!.Any(p => p.Key == "og:image")).IsTrue();
     }
 
     [Test]
@@ -347,12 +314,12 @@ public class PageEndpointsTest
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
 
-        var getResponse = await client.GetPageById(page.Id);
-        var result = await getResponse.Content.ReadFromJsonAsync<Result<PageDto>>();
+        var ogResponse = await client.GetPageOpenGraphForEdit(page.Id);
+        var ogResult = await ogResponse.Content.ReadFromJsonAsync<Result<List<OpenGraphEntryDto>>>();
 
-        await Assert.That(result!.Value!.OpenGraph).IsNotNull();
-        await Assert.That(result.Value!.OpenGraph!.Count).IsEqualTo(3);
-        await Assert.That(result.Value!.OpenGraph!.Count(e => e.Property == "og:image")).IsEqualTo(2);
+        await Assert.That(ogResult!.Value).IsNotNull();
+        await Assert.That(ogResult.Value!.Count).IsEqualTo(3);
+        await Assert.That(ogResult.Value!.Count(e => e.Property == "og:image")).IsEqualTo(2);
     }
 
     [Test]
@@ -375,32 +342,12 @@ public class PageEndpointsTest
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.BadRequest);
     }
 
-    [Test]
-    public async Task PatchPage_ShouldRejectDuplicateNonAllowMultipleOpenGraphKey()
-    {
-        var client = await CreateAuthenticatedClientAsync();
-        var page = CreateTestPage();
-
-        var patch = new[]
-        {
-            new
-            {
-                op = "replace",
-                path = "/openGraph",
-                value = new[]
-                {
-                    new { property = "og:title", content = "A" },
-                    new { property = "og:title", content = "B" },
-                },
-            },
-        };
-        var response = await client.PatchPage(page.Id, patch);
-
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.BadRequest);
-    }
+    // The allowMultiple rule was abandoned with the migration to the pivot pattern: duplicate
+    // OpenGraph keys are now accepted (the editor can write `<meta property="og:title">` twice
+    // if the user wants).
 
     [Test]
-    public async Task PatchPage_ShouldClearOpenGraphOnNull()
+    public async Task PatchPage_ShouldClearOpenGraphOnEmptyArray()
     {
         var client = await CreateAuthenticatedClientAsync();
         var page = CreateTestPage();
@@ -418,14 +365,14 @@ public class PageEndpointsTest
 
         var clearPatch = new object[]
         {
-            new { op = "replace", path = "/openGraph", value = (object?)null },
+            new { op = "replace", path = "/openGraph", value = Array.Empty<object>() }
         };
         var response = await client.PatchPage(page.Id, clearPatch);
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
 
-        var getResponse = await client.GetPageById(page.Id);
-        var result = await getResponse.Content.ReadFromJsonAsync<Result<PageDto>>();
-        await Assert.That(result!.Value!.OpenGraph).IsNull();
+        var ogResponse = await client.GetPageOpenGraphForEdit(page.Id);
+        var ogResult = await ogResponse.Content.ReadFromJsonAsync<Result<List<OpenGraphEntryDto>>>();
+        await Assert.That(ogResult!.Value!.Count).IsEqualTo(0);
     }
 
     [Test]

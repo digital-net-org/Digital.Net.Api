@@ -10,7 +10,7 @@ using Digital.Net.Core.Services.Auditing;
 using Digital.Net.Core.Services.Authentication;
 using Digital.Net.Core.Services.Authentication.Filters;
 using Digital.Net.Core.Services.Authentication.Utils;
-using Digital.Net.Core.Services.Crud.Extensions;
+using Digital.Net.Core.Services.Crud;
 using Digital.Net.Core.Services.Pagination.Extensions;
 using Digital.Net.Core.Services.Users;
 using Digital.Net.Core.Services.Users.Events;
@@ -40,7 +40,7 @@ public static class AdministrationEndpoints
             .RequireAdmin();
 
         controller
-            .MapCrudGet<User, UserDto>("user")
+            .MapCrudGet<DigitalContext, User, UserDto>("user")
             .WithSummary("GetUserById")
             .WithDescription("Retrieves a user by their unique identifier.");
 

@@ -1,20 +1,16 @@
 using System.Linq.Expressions;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Endpoints.Dto;
 using Digital.Net.Cms.Endpoints.Events;
-using Digital.Net.Cms.Models;
+using Digital.Net.Cms.Models.Forms;
+using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.RateLimiter.Limiters;
 using Digital.Net.Core.Services.Auditing;
-using Digital.Net.Core.Services.Authentication;
 using Digital.Net.Core.Services.Authentication.Filters;
-using Digital.Net.Core.Services.Authentication.Options;
-using Digital.Net.Core.Services.Authentication.Types;
 using Digital.Net.Core.Services.Crud;
-using Digital.Net.Core.Services.Crud.Extensions;
 using Digital.Net.Core.Services.Pagination.Extensions;
-using Digital.Net.Core.Entities.Models.Events;
-using Digital.Net.Lib.Formatters;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.Predicates;
 using Digital.Net.Lib.String;
@@ -29,329 +25,50 @@ namespace Digital.Net.Cms.Endpoints;
 
 public static class FormEndpoints
 {
-    private static readonly string[] ValidFieldTypes =
-        ["text", "email", "textarea", "number", "select", "radio", "checkbox", "message"];
-
     public static IEndpointRouteBuilder MapCmsFormEndpoints(this IEndpointRouteBuilder app)
     {
-        var controller = app
+        var form = app
             .MapGroup("cms/forms")
-            .WithTags("CMS - Forms")
             .RequireRateLimiting(GlobalLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
-        controller
-            .MapCrudSchema<CmsContext, Form>("");
-
-        controller
-            .MapCrudGet<Form, FormDto>("");
-
-        controller
-            .MapPaginationGet<CmsContext, Form, FormDto, FormQuery>("", PaginationFilter);
-
-        controller
-            .MapPost("", CreateForm)
-            .WithSummary("Create")
-            .WithDescription("Creates a new form.");
-
-        controller
-            .MapPatch("{id:guid}", UpdateForm)
-            .WithSummary("Patch")
-            .WithDescription("Updates a form by its ID.");
-
-        controller
-            .MapDelete("{id:guid}", DeleteForm)
-            .WithSummary("Delete")
-            .WithDescription("Deletes a form by its ID.");
-
-        var fields = app
-            .MapGroup("cms/forms/{formId:guid}/fields")
-            .WithTags("CMS - Forms")
-            .RequireRateLimiting(GlobalLimiter.Policy)
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
-
-        fields
-            .MapGet("", GetFormFields)
-            .WithSummary("GetFormFields")
-            .WithDescription("Returns all fields of a form ordered by SortOrder.");
-
-        fields
-            .MapGet("{id:guid}", GetFormFieldById)
-            .WithSummary("GetFormFieldById")
-            .WithDescription("Returns a form field by its ID.");
-
-        fields
-            .MapPost("", CreateFormField)
-            .WithSummary("CreateFormField")
-            .WithDescription("Creates a new field for the specified form.");
-
-        fields
-            .MapPatch("{id:guid}", UpdateFormField)
-            .WithSummary("PatchFormField")
-            .WithDescription("Updates a form field by its ID.");
-
-        fields
-            .MapDelete("{id:guid}", DeleteFormField)
-            .WithSummary("DeleteFormField")
-            .WithDescription("Deletes a form field by its ID.");
-
+        form.MapCrudSchema<CmsContext, Form>();
+        form.MapCrudGet<CmsContext, Form, FormDto>();
+        form.MapPaginationGet<CmsContext, Form, FormDto, FormQuery>(filter: PaginationFilter);
+        form.MapCrudPost<CmsContext, Form, FormCreatePayload>(eventType: CmsEvents.CreateForm);
+        form.MapCrudDelete<CmsContext, Form>(eventType: CmsEvents.DeleteForm);
+        form.MapCrudPatch<CmsContext, Form>(eventType: CmsEvents.UpdateForm);
+            
         var submissions = app
             .MapGroup("cms/forms/submissions")
-            .WithTags("CMS - Forms")
             .RequireRateLimiting(GlobalLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
-        submissions
-            .MapCrudGet<FormSubmission, FormSubmissionDto>("");
+        submissions.MapCrudGet<CmsContext, FormSubmission, FormSubmissionDto>();
+        submissions.MapPaginationGet<CmsContext, FormSubmission, FormSubmissionDto, FormSubmissionQuery>(
+            filter: SubmissionPaginationFilter
+        );
+        submissions.MapCrudDelete<CmsContext, FormSubmission>(eventType: CmsEvents.DeleteFormSubmission);
 
-        submissions
-            .MapPaginationGet<CmsContext, FormSubmission, FormSubmissionDto, FormSubmissionQuery>(
-                "", SubmissionPaginationFilter);
-
-        submissions
-            .MapDelete("{id:guid}", DeleteSubmission)
-            .WithSummary("DeleteSubmission")
-            .WithDescription("Deletes a submission by its ID.");
-
-        app
+        var publicApi = app
             .MapGroup("cms/forms")
-            .WithTags("CMS - Forms")
             .RequireRateLimiting(GlobalLimiter.Policy)
-            .MapGet("{id:guid}/definition", GetFormDefinition)
-            .WithSummary("GetFormDefinition")
-            .WithDescription(
-                "Returns the full definition of a published form. "
-                + "Unpublished forms return 404 for Application auth but remain accessible via JWT and API Key.")
             .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
-        app
-            .MapGroup("cms/forms")
-            .WithTags("CMS - Forms")
-            .RequireRateLimiting(GlobalLimiter.Policy)
+        publicApi
+            .MapGet("{id:guid}/definition", GetFormDefinition)
+            .WithSummary("GetFormDefinition")
+            .WithDescription("Returns the full definition of a published form.");
+
+        publicApi
             .MapPost("{id:guid}/submit", SubmitForm)
             .WithSummary("SubmitForm")
             .WithDescription("Submits values for a published form. Validates all fields server-side.")
-            .RequireAuthentication(AuthorizeType.Application);
+            .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         return app;
     }
-
-
-    private static async Task<IResult> CreateForm(
-        [FromBody]
-        FormPayload payload,
-        ICrudService<Form> crudService,
-        IAuditService auditService,
-        IUserContextService userContextService
-    )
-    {
-        var entity = new Form { Name = payload.Name, Description = payload.Description };
-        if (payload.SubmitLabel is not null)
-            entity.SubmitLabel = payload.SubmitLabel;
-        var result = await crudService.Create(entity);
-        await auditService.RegisterEventAsync(
-            CmsEvents.CreateForm,
-            result.HasError ? EventState.Failed : EventState.Success,
-            result,
-            userContextService.GetUserId()
-        );
-        return result.HasError ? Results.BadRequest(result) : Results.Ok(result);
-    }
-
-    private static async Task<IResult> UpdateForm(
-        Guid id,
-        [FromBody]
-        JsonElement patch,
-        ICrudService<Form> crudService,
-        IAuditService auditService,
-        IUserContextService userContextService
-    )
-    {
-        var result = await crudService.Patch(patch.GetPatchDocument<Form>(), id);
-        await auditService.RegisterEventAsync(
-            CmsEvents.UpdateForm,
-            result.HasError ? EventState.Failed : EventState.Success,
-            result,
-            userContextService.GetUserId()
-        );
-        return result.HasError ? Results.BadRequest(result) : Results.Ok(result);
-    }
-
-    private static async Task<IResult> DeleteForm(
-        Guid id,
-        ICrudService<Form> crudService,
-        IAuditService auditService,
-        IUserContextService userContextService
-    )
-    {
-        var result = await crudService.Delete(id);
-        await auditService.RegisterEventAsync(
-            CmsEvents.DeleteForm,
-            result.HasError ? EventState.Failed : EventState.Success,
-            result,
-            userContextService.GetUserId()
-        );
-        return result.HasError ? Results.NotFound(result) : Results.Ok(result);
-    }
-
-
-    private static async Task<Results<Ok<Result<List<FormFieldDto>>>, NotFound>> GetFormFields(
-        Guid formId,
-        CmsContext context
-    )
-    {
-        var form = await context.Forms.FindAsync(formId);
-        if (form is null)
-            return TypedResults.NotFound();
-
-        var fields = await context.FormFields
-            .Where(f => f.FormId == formId)
-            .OrderBy(f => f.SortOrder)
-            .Select(f => new FormFieldDto(f))
-            .ToListAsync();
-
-        return TypedResults.Ok(new Result<List<FormFieldDto>>(fields));
-    }
-
-    private static async Task<Results<Ok<Result<FormFieldDto>>, NotFound>> GetFormFieldById(
-        Guid formId,
-        Guid id,
-        CmsContext context
-    )
-    {
-        var field = await context.FormFields.FirstOrDefaultAsync(f => f.Id == id && f.FormId == formId);
-        if (field is null)
-            return TypedResults.NotFound();
-
-        return TypedResults.Ok(new Result<FormFieldDto>(new FormFieldDto(field)));
-    }
-
-    private static async Task<IResult> CreateFormField(
-        Guid formId,
-        [FromBody]
-        FormFieldPayload payload,
-        ICrudService<FormField> crudService,
-        IAuditService auditService,
-        IUserContextService userContextService,
-        CmsContext context
-    )
-    {
-        if (!ValidFieldTypes.Contains(payload.Type))
-            return Results.BadRequest(
-                $"Invalid type '{payload.Type}'. Must be one of: {string.Join(", ", ValidFieldTypes)}.");
-
-        var form = await context.Forms.FindAsync(formId);
-        if (form is null)
-            return Results.NotFound("Form not found.");
-
-        var duplicate = await context.FormFields.AnyAsync(f => f.FormId == formId && f.Name == payload.Name);
-        if (duplicate)
-            return Results.Conflict($"A field named '{payload.Name}' already exists in this form.");
-
-        var entity = new FormField
-        {
-            FormId = formId,
-            Name = payload.Name,
-            Type = payload.Type,
-            Label = payload.Label,
-            Placeholder = payload.Placeholder,
-            DefaultValue = payload.DefaultValue,
-            Required = payload.Required,
-            SortOrder = payload.SortOrder,
-            ValidationJson = payload.ValidationJson,
-            OptionsJson = payload.OptionsJson
-        };
-        var result = await crudService.Create(entity);
-        await auditService.RegisterEventAsync(
-            CmsEvents.CreateFormField,
-            result.HasError ? EventState.Failed : EventState.Success,
-            result,
-            userContextService.GetUserId()
-        );
-        return result.HasError ? Results.BadRequest(result) : Results.Ok(result);
-    }
-
-    private static async Task<IResult> UpdateFormField(
-        Guid formId,
-        Guid id,
-        [FromBody]
-        JsonElement patch,
-        ICrudService<FormField> crudService,
-        IAuditService auditService,
-        IUserContextService userContextService,
-        CmsContext context
-    )
-    {
-        var field = await context.FormFields.FirstOrDefaultAsync(f => f.Id == id && f.FormId == formId);
-        if (field is null)
-            return Results.NotFound();
-
-        var patchedType = GetPatchValue(patch, "Type");
-        if (patchedType is not null && !ValidFieldTypes.Contains(patchedType))
-            return Results.BadRequest(
-                $"Invalid type '{patchedType}'. Must be one of: {string.Join(", ", ValidFieldTypes)}.");
-
-        var patchedName = GetPatchValue(patch, "Name");
-        if (patchedName is not null)
-        {
-            var duplicate =
-                await context.FormFields.AnyAsync(f => f.FormId == formId && f.Name == patchedName && f.Id != id);
-            if (duplicate)
-                return Results.Conflict($"A field named '{patchedName}' already exists in this form.");
-        }
-
-        var result = await crudService.Patch(patch.GetPatchDocument<FormField>(), id);
-        await auditService.RegisterEventAsync(
-            CmsEvents.UpdateFormField,
-            result.HasError ? EventState.Failed : EventState.Success,
-            result,
-            userContextService.GetUserId()
-        );
-        return result.HasError ? Results.BadRequest(result) : Results.Ok(result);
-    }
-
-    private static async Task<IResult> DeleteFormField(
-        Guid formId,
-        Guid id,
-        ICrudService<FormField> crudService,
-        IAuditService auditService,
-        IUserContextService userContextService,
-        CmsContext context
-    )
-    {
-        var field = await context.FormFields.FirstOrDefaultAsync(f => f.Id == id && f.FormId == formId);
-        if (field is null)
-            return Results.NotFound();
-
-        var result = await crudService.Delete(id);
-        await auditService.RegisterEventAsync(
-            CmsEvents.DeleteFormField,
-            result.HasError ? EventState.Failed : EventState.Success,
-            result,
-            userContextService.GetUserId()
-        );
-        return result.HasError ? Results.BadRequest(result) : Results.Ok(result);
-    }
-
-
-    private static async Task<IResult> DeleteSubmission(
-        Guid id,
-        ICrudService<FormSubmission> crudService,
-        IAuditService auditService,
-        IUserContextService userContextService
-    )
-    {
-        var result = await crudService.Delete(id);
-        await auditService.RegisterEventAsync(
-            CmsEvents.DeleteFormSubmission,
-            result.HasError ? EventState.Failed : EventState.Success,
-            result,
-            userContextService.GetUserId()
-        );
-        return result.HasError ? Results.NotFound(result) : Results.Ok(result);
-    }
-
-
+    
     private static async Task<Results<Ok<Result<FormDto>>, NotFound>> GetFormDefinition(
         Guid id,
         CmsContext context,
@@ -360,18 +77,10 @@ public static class FormEndpoints
     {
         var form = await context.Forms
             .Include(f => f.Fields)
-            .FirstOrDefaultAsync(f => f.Id == id);
-
-        if (form is null)
-            return TypedResults.NotFound();
-
-        var authResult =
-            httpContext.Items[AuthenticationStaticOptions.ApiContextAuthorizationKey] as AuthorizationResult;
-        var isApplicationAuth = authResult?.UserId == Guid.Empty;
-        if (isApplicationAuth && !form.Published)
-            return TypedResults.NotFound();
-
-        return TypedResults.Ok(new Result<FormDto>(new FormDto(form)));
+            .FirstOrDefaultAsync(f => f.Id == id && f.Published == true);
+        return form is null
+            ? TypedResults.NotFound()
+            : TypedResults.Ok(new Result<FormDto>(new FormDto(form)));
     }
 
     private static async Task<IResult> SubmitForm(
@@ -418,21 +127,6 @@ public static class FormEndpoints
         return Results.Ok(new Result());
     }
 
-
-    private static string? GetPatchValue(JsonElement patch, string propertyName)
-    {
-        if (patch.ValueKind != JsonValueKind.Array) return null;
-        foreach (var op in patch.EnumerateArray())
-        {
-            if (op.TryGetProperty("path", out var pathEl) &&
-                pathEl.GetString()?.Equals($"/{propertyName}", StringComparison.OrdinalIgnoreCase) == true &&
-                op.TryGetProperty("value", out var valueEl))
-                return valueEl.GetString();
-        }
-
-        return null;
-    }
-
     private static List<string> ValidateSubmission(
         List<FormField> fields,
         Dictionary<string, string?> values
@@ -455,7 +149,7 @@ public static class FormEndpoints
                 continue;
 
             if (field.Type == "email" &&
-                !System.Text.RegularExpressions.Regex.IsMatch(rawValue, RegularExpressions.EmailPattern))
+                !Regex.IsMatch(rawValue, RegularExpressions.EmailPattern))
             {
                 errors.Add($"{field.Name}: Invalid email address.");
                 continue;

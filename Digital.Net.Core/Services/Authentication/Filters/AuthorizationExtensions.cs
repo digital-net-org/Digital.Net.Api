@@ -1,8 +1,8 @@
+using Digital.Net.Core.Entities.Context;
+using Digital.Net.Core.Entities.Models.ApiKeys;
 using Digital.Net.Core.Services.Authentication.Exceptions;
 using Digital.Net.Core.Services.Authentication.Options;
 using Digital.Net.Core.Services.Authentication.Types;
-using Digital.Net.Core.Entities.Context;
-using Digital.Net.Core.Entities.Models.ApiKeys;
 using Digital.Net.Lib.Configuration;
 using Digital.Net.Lib.Settings;
 using Microsoft.AspNetCore.Builder;
@@ -111,9 +111,10 @@ public static class AuthorizationExtensions
             result.Merge(
                 AuthorizeApplication(
                     config,
-                    ctx.HttpContext.Request.Headers[AuthenticationStaticOptions.ApplicationKeyHeaderAccessor].FirstOrDefault()
+                    ctx.HttpContext.Request.Headers[AuthenticationStaticOptions.ApplicationKeyHeaderAccessor]
+                        .FirstOrDefault()
                 ));
-        
+
         if (!result.IsAuthorized)
             return Results.StatusCode(401);
         if (result.IsForbidden)

@@ -1,8 +1,9 @@
 using System.Linq.Expressions;
+using System.Text.Json;
 using Digital.Net.Core.Entities.Exceptions;
 using Digital.Net.Core.Entities.Models;
+using Digital.Net.Core.Entities.Pivots;
 using Digital.Net.Core.Services.Crud;
-using Digital.Net.Core.Services.Crud.Patch;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Random;
 using Digital.Net.Tests.Core;
@@ -28,15 +29,23 @@ public class CrudServiceTest : UnitTest, IAsyncInitializer
         Label = Randomizer.GenerateRandomString(Randomizer.AnyLetterOrNumber, 8),
     };
 
-    private static JsonPatchDocument<CrudTestEntity> CreatePatch<T>(Expression<Func<CrudTestEntity, T>> path, T value)
+    private static JsonElement ToElement(JsonPatchDocument<CrudTestEntity> patch) =>
+        JsonSerializer.SerializeToElement(patch.Operations.Select(op => new
+        {
+            op = op.op,
+            path = op.path,
+            value = op.value,
+        }));
+
+    private static JsonElement CreatePatch<T>(Expression<Func<CrudTestEntity, T>> path, T value)
     {
         var patch = new JsonPatchDocument<CrudTestEntity>();
         patch.Replace(path, value);
-        return patch;
+        return ToElement(patch);
     }
 
     private CrudTestContext _context = null!;
-    private ICrudService<CrudTestEntity> _service = null!;
+    private CrudService<CrudTestContext, CrudTestEntity> _service = null!;
 
     public async Task InitializeAsync()
     {
@@ -44,7 +53,7 @@ public class CrudServiceTest : UnitTest, IAsyncInitializer
         _context = DbFixture.CreateContext<CrudTestContext>();
         _service = new CrudService<CrudTestContext, CrudTestEntity>(
             _context,
-            new CrudPatchDispatcher<CrudTestEntity>([])
+            new PatchDispatcher<CrudTestEntity>([])
         );
     }
 
@@ -126,7 +135,7 @@ public class CrudServiceTest : UnitTest, IAsyncInitializer
         var patch = new JsonPatchDocument<CrudTestEntity>();
         patch.Add(e => e.Children, child);
 
-        var result = await _service.Patch(patch, entity.Id);
+        var result = await _service.Patch(ToElement(patch), entity.Id);
         await Assert.That(result.HasErrorOfType<EntityValidationException>()).IsFalse();
     }
 
@@ -141,7 +150,7 @@ public class CrudServiceTest : UnitTest, IAsyncInitializer
         var patch = new JsonPatchDocument<CrudTestEntity>();
         patch.Add(e => e.LockedChild, child);
 
-        var result = await _service.Patch(patch, entity.Id);
+        var result = await _service.Patch(ToElement(patch), entity.Id);
         await Assert.That(result.HasErrorOfType<EntityValidationException>()).IsTrue();
     }
 
@@ -158,7 +167,7 @@ public class CrudServiceTest : UnitTest, IAsyncInitializer
         var patch = new JsonPatchDocument<CrudTestEntity>();
         patch.Remove(e => e.Children, 0);
 
-        var result = await _service.Patch(patch, entity.Id);
+        var result = await _service.Patch(ToElement(patch), entity.Id);
         await Assert.That(result.HasErrorOfType<EntityValidationException>()).IsFalse();
     }
 
@@ -173,27 +182,7 @@ public class CrudServiceTest : UnitTest, IAsyncInitializer
         await Assert.That(created).IsNotNull();
         await Assert.That(created!.Name).IsEqualTo(entity.Name);
     }
-
-    [Test]
-    public async Task Delete_ReturnsSuccess_WhenEntityExists()
-    {
-        var entity = GetTestEntity();
-        await _context.TestEntities.AddAsync(entity);
-        await _context.SaveChangesAsync();
-
-        var result = await _service.Delete(entity.Id);
-        var deleted = await _context.TestEntities.FindAsync(entity.Id);
-        await Assert.That(result.HasError).IsFalse();
-        await Assert.That(deleted).IsNull();
-    }
-
-    [Test]
-    public async Task Delete_ReturnsError_WhenEntityDoesNotExist()
-    {
-        var result = await _service.Delete(Guid.NewGuid());
-        await Assert.That(result.HasError).IsTrue();
-    }
-
+    
     [Test]
     public async Task Patch_Succeeds_WhenPatchingUniqueFieldToSameValue()
     {

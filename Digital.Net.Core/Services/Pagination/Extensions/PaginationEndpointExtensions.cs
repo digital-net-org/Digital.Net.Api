@@ -29,7 +29,7 @@ public static class PaginationEndpointExtensions
     /// <returns>A RouteHandlerBuilder for further configuration</returns>
     public static RouteHandlerBuilder MapPaginationGet<TContext, T, TDto, TQuery>(
         this IEndpointRouteBuilder app,
-        string route,
+        string? route = null,
         Func<Expression<Func<T, bool>>, TQuery, Expression<Func<T, bool>>>? filter = null
     )
         where TContext : DbContext
@@ -37,7 +37,7 @@ public static class PaginationEndpointExtensions
         where TDto : class
         where TQuery : Query =>
         app
-            .MapGet($"{route}", (
+            .MapGet(route ?? "", (
                 [AsParameters]
                 TQuery query,
                 TContext context

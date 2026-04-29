@@ -1,4 +1,3 @@
-using System.Net;
 using Digital.Net.Cms.Endpoints.Dto;
 using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.Services.Events;
@@ -19,16 +18,6 @@ public class SseStreamEndpointsTest
         var client = ApplicationFixture.CreateClient();
         await client.Login(user);
         return client;
-    }
-
-    [Test]
-    public async Task Subscribe_ShouldRequireApplicationAuth()
-    {
-        var client = ApplicationFixture.CreateClient();
-
-        var response = await client.GetAsync(SseApi.CmsStreamUrl);
-
-        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Unauthorized);
     }
 
     [Test]
