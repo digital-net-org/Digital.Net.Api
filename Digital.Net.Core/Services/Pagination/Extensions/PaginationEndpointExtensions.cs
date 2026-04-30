@@ -74,11 +74,9 @@ public static class PaginationEndpointExtensions
             })
             .WithSummary("GetPaginated")
             .WithDescription(
-                "Retrieves a paginated list of entities based on the provided query parameters. Returns a QueryResult containing the paginated entities and metadata.");
+                "Retrieves a paginated list of entities based on the provided query parameters. Returns a QueryResult containing the paginated entities and metadata."
+            );
 
-    /// <summary>
-    ///     Builds the filter expression for the query, combining base filters with custom filters.
-    /// </summary>
     private static Expression<Func<T, bool>> BuildFilter<T, TQuery>(
         TQuery query,
         Func<Expression<Func<T, bool>>, TQuery, Expression<Func<T, bool>>>? filter
@@ -87,7 +85,6 @@ public static class PaginationEndpointExtensions
         where TQuery : Query
     {
         var predicate = PredicateBuilder.New<T>();
-
         if (query.CreatedFrom.HasValue)
             predicate = predicate.Add(x => x.CreatedAt >= query.CreatedFrom);
         if (query.UpdatedFrom.HasValue)
@@ -96,10 +93,8 @@ public static class PaginationEndpointExtensions
             predicate = predicate.Add(x => x.CreatedAt <= query.CreatedTo);
         if (query.UpdatedTo is not null)
             predicate = predicate.Add(x => x.UpdatedAt <= query.UpdatedTo);
-
         if (filter is not null)
             predicate = filter(predicate, query);
-
         return predicate;
     }
 }

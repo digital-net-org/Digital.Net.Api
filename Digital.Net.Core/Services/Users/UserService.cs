@@ -1,3 +1,8 @@
+using Digital.Net.Core.Entities.Context;
+using Digital.Net.Core.Entities.Models.Avatars;
+using Digital.Net.Core.Entities.Models.Documents;
+using Digital.Net.Core.Entities.Models.Events;
+using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Core.Services.Auditing;
 using Digital.Net.Core.Services.Authentication.Exceptions;
 using Digital.Net.Core.Services.Authentication.Utils;
@@ -6,11 +11,6 @@ using Digital.Net.Core.Services.Documents.Exceptions;
 using Digital.Net.Core.Services.Documents.Extensions;
 using Digital.Net.Core.Services.Users.Events;
 using Digital.Net.Core.Services.Users.Exceptions;
-using Digital.Net.Core.Entities.Context;
-using Digital.Net.Core.Entities.Models.Avatars;
-using Digital.Net.Core.Entities.Models.Documents;
-using Digital.Net.Core.Entities.Models.Events;
-using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.Settings;
@@ -24,7 +24,7 @@ public class UserService(
     IDocumentService documentService,
     IAuditService auditService,
     DigitalContext context
-) : IUserService
+)
 {
     public async Task<Result> UpdatePasswordAsync(User user, string currentPassword, string newPassword)
     {

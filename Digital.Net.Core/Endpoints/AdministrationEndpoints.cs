@@ -75,8 +75,8 @@ public static class AdministrationEndpoints
     private static async Task<Results<Ok<Result<Guid>>, BadRequest<Result<Guid>>>> CreateUser(
         [FromBody]
         UserPayload payload,
-        IUserService userService,
-        IUserContextService userContextService,
+        UserService userService,
+        UserContextService userContextService,
         IAuditService auditService
     )
     {
@@ -112,8 +112,8 @@ public static class AdministrationEndpoints
             Guid id,
             [FromBody]
             UserDeletePayload payload,
-            IUserService userService,
-            IUserContextService userContextService,
+            UserService userService,
+            UserContextService userContextService,
             IAuditService auditService
         )
     {
@@ -176,8 +176,8 @@ public static class AdministrationEndpoints
             Guid id,
             [FromBody]
             UserStatusPayload payload,
-            IUserService userService,
-            IUserContextService userContextService,
+            UserService userService,
+            UserContextService userContextService,
             IAuditService auditService
         )
     {
@@ -219,8 +219,8 @@ public static class AdministrationEndpoints
             Guid id,
             [FromBody]
             UserRolePayload payload,
-            IUserService userService,
-            IUserContextService userContextService,
+            UserService userService,
+            UserContextService userContextService,
             IAuditService auditService
         )
     {

@@ -57,8 +57,8 @@ public static class AuthenticationEndpoints
     private static async Task<Results<Ok<Result<string>>, UnauthorizedHttpResult, StatusCodeHttpResult>> Login(
         [FromBody]
         LoginPayload request,
-        IAuthenticationService service,
-        IAuthenticationOptionService opts,
+        AuthenticationService service,
+        AuthenticationOptionService opts,
         HttpContext ctx
     )
     {
@@ -88,7 +88,8 @@ public static class AuthenticationEndpoints
         return TypedResults.Ok(result);
     }
 
-    private static async Task<Results<Ok<Result<bool>>, StatusCodeHttpResult>> IsLocked(IAuthenticationService service, HttpContext ctx)
+    private static async Task<Results<Ok<Result<bool>>, StatusCodeHttpResult>> IsLocked(AuthenticationService service,
+        HttpContext ctx)
     {
         var result = new Result<bool>();
         var ipAddress = ctx.GetRemoteIpAddress();
@@ -101,8 +102,8 @@ public static class AuthenticationEndpoints
     }
 
     private static async Task<Results<Ok<Result<string>>, UnauthorizedHttpResult>> RefreshTokens(
-        IAuthenticationService service,
-        IAuthenticationOptionService opts,
+        AuthenticationService service,
+        AuthenticationOptionService opts,
         HttpContext ctx
     )
     {
@@ -133,9 +134,9 @@ public static class AuthenticationEndpoints
     }
 
     private static async Task<Results<NoContent, UnauthorizedHttpResult, BadRequest>> Logout(
-        IAuthenticationService service,
-        IAuthenticationOptionService opts,
-        IUserContextService userCtx,
+        AuthenticationService service,
+        AuthenticationOptionService opts,
+        UserContextService userCtx,
         HttpContext ctx
     )
     {
@@ -152,8 +153,8 @@ public static class AuthenticationEndpoints
     }
 
     private static async Task<Results<NoContent, UnauthorizedHttpResult>> LogoutAll(
-        IAuthenticationService service,
-        IAuthenticationOptionService opts,
+        AuthenticationService service,
+        AuthenticationOptionService opts,
         HttpContext ctx
     )
     {

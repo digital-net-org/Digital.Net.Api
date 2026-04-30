@@ -15,11 +15,11 @@ using Microsoft.EntityFrameworkCore;
 namespace Digital.Net.Core.Services.Authentication;
 
 public class AuthenticationService(
-    IAuthenticationOptionService authenticationOptionService,
-    IJwtService jwtService,
+    AuthenticationOptionService authenticationOptionService,
+    JwtService jwtService,
     IAuditService auditService,
     DigitalContext context
-) : IAuthenticationService
+)
 {
     public async Task<int> GetLoginAttemptCountAsync(string ipAddress)
     {

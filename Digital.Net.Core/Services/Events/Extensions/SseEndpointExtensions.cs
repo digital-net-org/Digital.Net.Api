@@ -11,9 +11,8 @@ public static class SseEndpointExtensions
         string path,
         string eventType,
         Func<EventSignal, bool> filter
-    )
-    {
-        return app.MapGet(
+    ) =>
+        app.MapGet(
             path,
             async (HttpContext context, ISseStreamService sseService) =>
                 await sseService.SubscribeAsync(
@@ -23,5 +22,4 @@ public static class SseEndpointExtensions
                     context.RequestAborted
                 )
         );
-    }
 }

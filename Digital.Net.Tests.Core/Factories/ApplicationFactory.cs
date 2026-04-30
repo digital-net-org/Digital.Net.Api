@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Net.Http;
-using Digital.Net.Core.Services.Authentication;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Core.Entities.Seeds;
+using Digital.Net.Core.Services.Authentication;
 using Digital.Net.Lib.Environment;
 using Digital.Net.Lib.Settings;
 using Digital.Net.Tests.Core.Factories.Data;
@@ -78,5 +78,5 @@ public class ApplicationFactory : WebApplicationFactory<DigitalProgram>
     ///     using the user's credentials.
     /// </summary>
     public void AsLogged(HttpClient client, User user) =>
-        client.AddAuthorization(GetService<IJwtService>().GenerateBearerToken(user.Id, string.Empty));
+        client.AddAuthorization(GetService<JwtService>().GenerateBearerToken(user.Id, string.Empty));
 }

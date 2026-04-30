@@ -1,7 +1,7 @@
-using Digital.Net.Core.Services.Authentication.Options;
-using Digital.Net.Core.Services.Authentication.Types;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Users;
+using Digital.Net.Core.Services.Authentication.Options;
+using Digital.Net.Core.Services.Authentication.Types;
 using Microsoft.AspNetCore.Http;
 
 namespace Digital.Net.Core.Services.Authentication;
@@ -9,7 +9,7 @@ namespace Digital.Net.Core.Services.Authentication;
 public class UserContextService(
     DigitalContext context,
     IHttpContextAccessor httpContextAccessor
-) : IUserContextService
+)
 {
     public Guid GetUserId()
     {

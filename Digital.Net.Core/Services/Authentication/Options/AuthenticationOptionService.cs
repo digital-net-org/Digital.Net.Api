@@ -10,7 +10,7 @@ namespace Digital.Net.Core.Services.Authentication.Options;
 public class AuthenticationOptionService(
     IConfiguration configuration,
     IOptions<AuthenticationOptions> options
-) : IAuthenticationOptionService
+)
 {
     public string CookieName => options.Value.CookieName;
 

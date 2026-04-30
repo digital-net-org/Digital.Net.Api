@@ -93,7 +93,7 @@ public static class CrudEndpointExtensions
                     TPayload payload,
                     CrudService<TContext, T> crudService,
                     IAuditService auditService,
-                    IUserContextService userContextService
+                    UserContextService userContextService
                 ) =>
                 {
                     var result = await crudService.Create(Mapper.TryMap<TPayload, T>(payload));
@@ -136,7 +136,7 @@ public static class CrudEndpointExtensions
                 JsonElement patch,
                 CrudService<TContext, T> crudService,
                 IAuditService auditService,
-                IUserContextService userContextService,
+                UserContextService userContextService,
                 CancellationToken ct
             ) =>
             {
@@ -183,7 +183,7 @@ public static class CrudEndpointExtensions
                     Guid id,
                     CrudService<TContext, T> crudService,
                     IAuditService auditService,
-                    IUserContextService userContextService
+                    UserContextService userContextService
                 ) =>
                 {
                     var result = await crudService.Delete(id);

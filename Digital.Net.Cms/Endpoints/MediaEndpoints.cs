@@ -90,7 +90,7 @@ public static class MediaEndpoints
         IDocumentService documentService,
         CrudService<CmsContext, Media> crudService,
         IAuditService auditService,
-        IUserContextService userContextService
+        UserContextService userContextService
     )
     {
         if (file.Length > MaxFileSize)
@@ -128,7 +128,7 @@ public static class MediaEndpoints
         Guid id,
         MediaService mediaService,
         IAuditService auditService,
-        IUserContextService userContextService
+        UserContextService userContextService
     )
     {
         var result = await mediaService.DeleteMediaAsync(id);
@@ -166,8 +166,8 @@ public static class MediaEndpoints
         [FromQuery] int? q,
         CmsContext context,
         MediaService mediaService,
-        IDocumentCacheService documentCacheService,
-        IUserContextService userContextService
+        DocumentCacheService documentCacheService,
+        UserContextService userContextService
     )
     {
         var media = await context.Media.FindAsync(id);

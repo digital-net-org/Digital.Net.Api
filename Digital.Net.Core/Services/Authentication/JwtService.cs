@@ -1,20 +1,20 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
+using Digital.Net.Core.Entities.Context;
+using Digital.Net.Core.Entities.Models.ApiTokens;
 using Digital.Net.Core.Services.Authentication.Exceptions;
 using Digital.Net.Core.Services.Authentication.Options;
 using Digital.Net.Core.Services.Authentication.Types;
 using Digital.Net.Core.Services.Authentication.Utils;
-using Digital.Net.Core.Entities.Context;
-using Digital.Net.Core.Entities.Models.ApiTokens;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Digital.Net.Core.Services.Authentication;
 
 public class JwtService(
-    IAuthenticationOptionService authenticationOptionService,
+    AuthenticationOptionService authenticationOptionService,
     DigitalContext context
-) : IJwtService
+)
 {
     public async Task RevokeTokenAsync(string token)
     {

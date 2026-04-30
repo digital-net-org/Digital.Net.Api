@@ -1,5 +1,5 @@
-using Digital.Net.Core.Services.Documents.Exceptions;
 using Digital.Net.Core.Entities.Models.Documents;
+using Digital.Net.Core.Services.Documents.Exceptions;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
 using Microsoft.AspNetCore.Http;
@@ -10,7 +10,7 @@ namespace Digital.Net.Core.Services.Documents;
 public class DocumentCacheService(
     IHttpContextAccessor httpContextAccessor,
     IDocumentService documentService
-) : IDocumentCacheService
+)
 {
     public Result<FileResult?> GetCachedDocumentFile(Document? document)
     {

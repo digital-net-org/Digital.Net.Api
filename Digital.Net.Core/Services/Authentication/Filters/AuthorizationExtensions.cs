@@ -80,7 +80,7 @@ public static class AuthorizationExtensions
         EndpointFilterDelegate next
     )
     {
-        var contextService = context.HttpContext.RequestServices.GetRequiredService<IUserContextService>();
+        var contextService = context.HttpContext.RequestServices.GetRequiredService<UserContextService>();
         var user = contextService.GetUser();
         return user.IsAdmin ? await next(context) : Results.StatusCode(403);
     }
@@ -92,7 +92,7 @@ public static class AuthorizationExtensions
     )
     {
         var dbCtx = ctx.HttpContext.RequestServices.GetRequiredService<DigitalContext>();
-        var jwtService = ctx.HttpContext.RequestServices.GetRequiredService<IJwtService>();
+        var jwtService = ctx.HttpContext.RequestServices.GetRequiredService<JwtService>();
         var config = ctx.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
         var result = new AuthorizationResult();
 

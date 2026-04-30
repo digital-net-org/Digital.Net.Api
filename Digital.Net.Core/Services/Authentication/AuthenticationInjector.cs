@@ -29,10 +29,10 @@ public static class AuthenticationInjector
             opts.CookieName = $"{domain}_refresh";
         });
         services
-            .AddScoped<IUserContextService, UserContextService>()
-            .AddScoped<IAuthenticationOptionService, AuthenticationOptionService>()
-            .AddScoped<IAuthenticationService, AuthenticationService>()
-            .AddScoped<IJwtService, JwtService>();
+            .AddScoped<UserContextService>()
+            .AddScoped<AuthenticationOptionService>()
+            .AddScoped<AuthenticationService>()
+            .AddScoped<JwtService>();
 
         return services;
     }

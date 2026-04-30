@@ -43,7 +43,7 @@ public static class ApiKeyEndpoints
     public static async Task<Results<Ok<Result<string>>, BadRequest<Result<string>>>> Create(
         [FromBody] ApiKeyCreatePayload payload,
         ApiKeyService apiKeyService,
-        IUserContextService userContextService
+        UserContextService userContextService
     )
     {
         var userId = userContextService.GetUserId();
@@ -55,7 +55,7 @@ public static class ApiKeyEndpoints
 
     public static async Task<Ok<Result<List<ApiKeyDto>>>> List(
         ApiKeyService apiKeyService,
-        IUserContextService userContextService
+        UserContextService userContextService
     )
     {
         var userId = userContextService.GetUserId();
@@ -70,7 +70,7 @@ public static class ApiKeyEndpoints
     public static async Task<Results<Ok<Result>, NotFound<Result>>> Delete(
         Guid id,
         ApiKeyService apiKeyService,
-        IUserContextService userContextService
+        UserContextService userContextService
     )
     {
         var userId = userContextService.GetUserId();

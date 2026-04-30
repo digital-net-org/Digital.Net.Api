@@ -160,7 +160,7 @@ public static class PageEndpoints
             [FromBody]
             PagePayload payload,
             PageCrudService pageCrudService,
-            IUserContextService userContextService
+            UserContextService userContextService
         )
     {
         var result = await pageCrudService.CreatePage(payload, userContextService.GetUserId());
@@ -178,7 +178,7 @@ public static class PageEndpoints
             [FromBody]
             JsonElement patch,
             PageCrudService pageCrudService,
-            IUserContextService userContextService
+            UserContextService userContextService
         )
     {
         var result = await pageCrudService.PatchPage(patch, id, userContextService.GetUserId());

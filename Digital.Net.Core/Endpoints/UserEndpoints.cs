@@ -77,7 +77,7 @@ public static class UserEndpoints
     }
 
     private static Results<Ok<Result<bool>>, UnauthorizedHttpResult> GetSelfIsAdmin(
-        IUserContextService userContextService
+        UserContextService userContextService
     )
     {
         if (userContextService.GetUser() is not { } user)
@@ -86,7 +86,7 @@ public static class UserEndpoints
         return TypedResults.Ok(new Result<bool>(user.IsAdmin));
     }
 
-    private static Results<Ok<Result<UserDto>>, UnauthorizedHttpResult> GetSelf(IUserContextService userContextService)
+    private static Results<Ok<Result<UserDto>>, UnauthorizedHttpResult> GetSelf(UserContextService userContextService)
     {
         if (userContextService.GetUser() is not { } user)
             return TypedResults.Unauthorized();
@@ -99,7 +99,7 @@ public static class UserEndpoints
         JsonElement patch,
         CrudService<DigitalContext, User> crudService,
         IAuditService auditService,
-        IUserContextService userContextService,
+        UserContextService userContextService,
         CancellationToken ct
     )
     {
@@ -127,8 +127,8 @@ public static class UserEndpoints
     private static async Task<Results<Ok<Result>, BadRequest<Result>, UnauthorizedHttpResult>> UpdatePassword(
         [FromBody]
         UserPasswordUpdatePayload request,
-        IUserService userService,
-        IUserContextService userContextService
+        UserService userService,
+        UserContextService userContextService
     )
     {
         var user = userContextService.GetUser();
@@ -144,8 +144,8 @@ public static class UserEndpoints
 
     private static async Task<Results<Ok, BadRequest<Result>, InternalServerError<Result>>> UpdateAvatar(
         IFormFile avatar,
-        IUserService userService,
-        IUserContextService userContextService
+        UserService userService,
+        UserContextService userContextService
     )
     {
         var user = userContextService.GetUser();
@@ -160,8 +160,8 @@ public static class UserEndpoints
     }
 
     private static async Task<Results<Ok, InternalServerError<Result>>> RemoveAvatar(
-        IUserService userService,
-        IUserContextService userContextService
+        UserService userService,
+        UserContextService userContextService
     )
     {
         var user = userContextService.GetUser();
@@ -176,8 +176,8 @@ public static class UserEndpoints
     private static async Task<Results<FileContentHttpResult, NotFound, InternalServerError, StatusCodeHttpResult>>
         GetUserAvatar(
             Guid id,
-            IUserService userService,
-            IDocumentCacheService documentCacheService
+            UserService userService,
+            DocumentCacheService documentCacheService
         )
     {
         var result = await userService.GetUserAvatarDocumentAsync(id);
