@@ -9,7 +9,8 @@ using Microsoft.EntityFrameworkCore;
 namespace Digital.Net.Core.Entities.Models.Users;
 
 [Table("User")]
-[Index(nameof(Username), nameof(Email), IsUnique = true)]
+[Index(nameof(Username), IsUnique = true)]
+[Index(nameof(Email), IsUnique = true)]
 public class User : Entity
 {
     [Column("Username")]

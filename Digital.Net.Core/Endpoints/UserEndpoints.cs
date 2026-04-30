@@ -44,7 +44,8 @@ public static class UserEndpoints
             .MapPatch("/self", PatchSelf)
             .WithSummary("PatchSelf")
             .WithDescription(
-                "Updates the authenticated user's information using a JSON patch. Use the *User Schema* to get the available fields.");
+                "Updates the authenticated user's information using a JSON patch. Use the *User Schema* to get the available fields."
+            );
 
         group
             .MapPut("/self/password", UpdatePassword)
@@ -114,7 +115,8 @@ public static class UserEndpoints
             UserEvents.UpdateProfile,
             result.HasError ? EventState.Failed : EventState.Success,
             result,
-            userContextService.GetUserId()
+            userContextService.GetUserId(),
+            patch.GetRawText()
         );
 
         return result.HasError

@@ -89,6 +89,7 @@ public class CrudService<TContext, T>(TContext context, PatchDispatcher<T> patch
             catch (Exception e)
             {
                 await tx.RollbackAsync(ct);
+                context.ChangeTracker.Clear();
                 return result.AddError(e);
             }
         });
