@@ -16,7 +16,7 @@ public static class SitemapEndpoints
     {
         var controller = app
             .MapGroup("cms/sitemaps")
-            .WithTags("CMS - Sitemaps")
+            .WithTags("CMS.Sitemaps")
             .RequireRateLimiting(GlobalLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
 

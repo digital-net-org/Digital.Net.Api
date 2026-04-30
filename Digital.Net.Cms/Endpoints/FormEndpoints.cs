@@ -29,6 +29,7 @@ public static class FormEndpoints
     {
         var form = app
             .MapGroup("cms/forms")
+            .WithTags("CMS.Forms")
             .RequireRateLimiting(GlobalLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
@@ -41,6 +42,7 @@ public static class FormEndpoints
             
         var submissions = app
             .MapGroup("cms/forms/submissions")
+            .WithTags("CMS.FormsSubmissions")
             .RequireRateLimiting(GlobalLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
@@ -52,6 +54,7 @@ public static class FormEndpoints
 
         var publicApi = app
             .MapGroup("cms/forms")
+            .WithTags("CMS.FormsPublic")
             .RequireRateLimiting(GlobalLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
 

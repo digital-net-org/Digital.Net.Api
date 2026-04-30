@@ -3,7 +3,6 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Digital.Net.Cms.Services.Pages.Dto;
-using Digital.Net.Tests.Core.Http;
 
 namespace Digital.Net.Tests.Core.Sdk;
 
@@ -14,22 +13,13 @@ public static class PageApi
     public static async Task<HttpResponseMessage> GetPageById(this HttpClient client, Guid pageId) =>
         await client.GetAsync($"{BaseUrl}/{pageId}");
 
-    public static async Task<HttpResponseMessage> GetPages(this HttpClient client, PageQuery? query = null) =>
-        await client.GetAsync($"{BaseUrl}{query?.ToQueryString()}");
-
     public static async Task<HttpResponseMessage> CreatePage(this HttpClient client, PagePayload payload) =>
         await client.PostAsJsonAsync(BaseUrl, payload);
 
     public static async Task<HttpResponseMessage> PatchPage(this HttpClient client, Guid pageId, object patch) =>
         await client.PatchAsJsonAsync($"{BaseUrl}/{pageId}", patch);
 
-    public static async Task<HttpResponseMessage> GetOpenGraphSchema(this HttpClient client) =>
-        await client.GetAsync($"{BaseUrl}/schema/open-graph");
-
-    public static async Task<HttpResponseMessage> DeletePage(this HttpClient client, Guid pageId) =>
-        await client.DeleteAsync($"{BaseUrl}/{pageId}");
-
-    public static async Task<HttpResponseMessage> GetPageByPath(this HttpClient client, string path) =>
+    public static async Task<HttpResponseMessage> GetPublicPageByPath(this HttpClient client, string path) =>
         await client.GetAsync($"{BaseUrl}/public/path?path={Uri.EscapeDataString(path)}");
 
     public static async Task<HttpResponseMessage> GetPathAvailability(
@@ -44,18 +34,8 @@ public static class PageApi
     }
 
     public static async Task<HttpResponseMessage> GetPageSheets(this HttpClient client, Guid pageId) =>
-        await client.GetAsync($"{BaseUrl}/public/{pageId}/sheets");
-
-    public static async Task<HttpResponseMessage> GetPageSheetResource(
-        this HttpClient client,
-        Guid pageId,
-        Guid sheetId
-    ) =>
-        await client.GetAsync($"{BaseUrl}/public/{pageId}/sheets/{sheetId}");
-
-    public static async Task<HttpResponseMessage> GetPageSheetsForEdit(this HttpClient client, Guid pageId) =>
         await client.GetAsync($"{BaseUrl}/{pageId}/sheets");
 
-    public static async Task<HttpResponseMessage> GetPageOpenGraphForEdit(this HttpClient client, Guid pageId) =>
+    public static async Task<HttpResponseMessage> GetPageOpenGraph(this HttpClient client, Guid pageId) =>
         await client.GetAsync($"{BaseUrl}/{pageId}/openGraph");
 }

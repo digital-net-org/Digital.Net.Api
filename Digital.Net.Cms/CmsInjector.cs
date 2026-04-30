@@ -52,7 +52,7 @@ public static class CmsInjector
                 "mutation",
                 signal => signal.Name.StartsWith("CMS_") && signal.State == EventState.Success
             )
-            .WithTags("CMS - Events")
+            .WithTags("CMS.Events")
             .WithSummary("SSE Stream")
             .WithDescription("Subscribe to CMS mutation events via Server-Sent Events.")
             .RequireRateLimiting(GlobalLimiter.Policy)

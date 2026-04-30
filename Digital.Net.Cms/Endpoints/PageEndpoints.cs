@@ -31,7 +31,7 @@ public static class PageEndpoints
     {
         var controller = app
             .MapGroup("cms/pages")
-            .WithTags("CMSPages")
+            .WithTags("CMS.Pages")
             .RequireRateLimiting(GlobalLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
@@ -78,7 +78,7 @@ public static class PageEndpoints
 
         var publicController = app
             .MapGroup("cms/pages/public")
-            .WithTags("CMS - Pages")
+            .WithTags("CMS.Pages")
             .RequireRateLimiting(GlobalLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
 

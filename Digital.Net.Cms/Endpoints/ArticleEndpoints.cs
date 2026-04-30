@@ -23,7 +23,7 @@ public static class ArticleEndpoints
     {
         var controller = app
             .MapGroup("cms/articles")
-            .WithTags("CMSArticles")
+            .WithTags("CMS.Articles")
             .RequireRateLimiting(GlobalLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
@@ -36,7 +36,7 @@ public static class ArticleEndpoints
 
         var publicController = app
             .MapGroup("cms/articles")
-            .WithTags("CMSArticles")
+            .WithTags("CMS.Articles")
             .RequireRateLimiting(GlobalLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
 

@@ -20,7 +20,7 @@ public static class TagEndpoints
     {
         var controller = app
             .MapGroup("cms/tags")
-            .WithTags("CMS - Tags")
+            .WithTags("CMS.Tags")
             .RequireRateLimiting(GlobalLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 

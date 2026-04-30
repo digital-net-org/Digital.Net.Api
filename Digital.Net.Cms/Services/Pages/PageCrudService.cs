@@ -69,10 +69,25 @@ public class PageCrudService(
 
     private async Task ValidatePatch(JsonElement patch, Guid id)
     {
-        var entityTypeValue = patch.GetProperty("EntityType").GetString();
+        if (patch.ValueKind != JsonValueKind.Array)
+            return;
+
+        string? entityTypeValue = null;
+        string? entityPathValue = null;
+
+        foreach (var op in patch.EnumerateArray())
+        {
+            if (!op.TryGetProperty("path", out var pathEl)) continue;
+            var opPath = pathEl.GetString();
+            if (opPath == "/EntityType" && op.TryGetProperty("value", out var valEl))
+                entityTypeValue = valEl.GetString();
+            else if (opPath == "/Path" && op.TryGetProperty("value", out var pathValEl))
+                entityPathValue = pathValEl.GetString();
+        }
+
         if (string.IsNullOrEmpty(entityTypeValue))
             return;
-        var entityPathValue = patch.GetProperty("Path").GetString() ?? (await context.Set<Page>().FindAsync(id))?.Path;
+        entityPathValue ??= (await context.Set<Page>().FindAsync(id))?.Path;
         if (string.IsNullOrEmpty(entityPathValue))
             return;
 

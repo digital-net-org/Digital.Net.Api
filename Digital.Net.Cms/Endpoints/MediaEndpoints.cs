@@ -34,7 +34,7 @@ public static class MediaEndpoints
     {
         var userRoutes = app
             .MapGroup("cms/media")
-            .WithTags("CMS - Media")
+            .WithTags("CMS.Media")
             .RequireRateLimiting(GlobalLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
@@ -70,7 +70,7 @@ public static class MediaEndpoints
 
         app
             .MapGroup("cms/media")
-            .WithTags("CMS - Media")
+            .WithTags("CMS.Media")
             .RequireRateLimiting(GlobalLimiter.Policy)
             .MapGet("image/{id:guid}.{ext}", GetMediaImage)
             .WithSummary("GetMediaImage")

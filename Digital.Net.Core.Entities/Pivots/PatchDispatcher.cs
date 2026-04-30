@@ -19,6 +19,7 @@ public class PatchDispatcher<TParent>(IEnumerable<IPivotPatchResolver<TParent>> 
     /// </summary>
     public (JsonElement SanitizedPatch, Result Validation) ExtractAndValidate(JsonElement patch, Guid parentId)
     {
+        _pending.Clear();
         var validation = new Result();
         if (patch.ValueKind != JsonValueKind.Array)
             return (patch, validation);
@@ -45,6 +46,7 @@ public class PatchDispatcher<TParent>(IEnumerable<IPivotPatchResolver<TParent>> 
     {
         foreach (var (resolver, value) in _pending)
             await resolver.ApplyAsync(value, parentId, ct);
+        _pending.Clear();
     }
 
     private bool TryMatchResolver(JsonElement op, out IPivotPatchResolver<TParent>? resolver)
