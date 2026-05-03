@@ -43,9 +43,11 @@ public static class PageEndpoints
             );
 
         controller.MapCrudSchema<CmsContext, Page>();
+        controller.MapCrudSchema<CmsContext, Sheet>("sheet");
+        controller.MapCrudSchema<CmsContext, OpenGraphEntry>("open-graph-entry");
         controller
-            .MapGet("schema/open-graph", GetOpenGraphSchema)
-            .WithSummary("GetOpenGraphSchema")
+            .MapGet("open-graph-values/schema", GetOpenGraphSchema)
+            .WithSummary("GetOpenGraphValuesSchema")
             .WithDescription("Returns the list of valid OpenGraph property keys.");
 
         controller.MapCrudGet<CmsContext, Page, PageDto>();
@@ -70,12 +72,10 @@ public static class PageEndpoints
             .WithDescription("Retrieves every sheet owned by the page, ordered by load order.");
 
         controller
-            .MapGet("{id:guid}/openGraph", GetPageOpenGraph)
+            .MapGet("{id:guid}/open-graph", GetPageOpenGraph)
             .WithSummary("GetPageOpenGraph")
             .WithDescription("Retrieves every OpenGraph entry owned by the page, ordered by index.");
-
-
-
+        
         var publicController = app
             .MapGroup("cms/pages/public")
             .WithTags("CMS.Pages")

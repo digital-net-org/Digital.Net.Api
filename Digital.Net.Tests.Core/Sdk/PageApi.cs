@@ -37,5 +37,5 @@ public static class PageApi
         await client.GetAsync($"{BaseUrl}/{pageId}/sheets");
 
     public static async Task<HttpResponseMessage> GetPageOpenGraph(this HttpClient client, Guid pageId) =>
-        await client.GetAsync($"{BaseUrl}/{pageId}/openGraph");
+        await client.GetAsync($"{BaseUrl}/{pageId}/open-graph");
 }
