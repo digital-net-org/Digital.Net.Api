@@ -33,11 +33,11 @@ public static partial class RegularExpressions
     public const string PagePathPattern = @"^(/|(/(:[a-zA-Z_][a-zA-Z0-9_]*|[a-zA-Z0-9_\-.~]+))+)$";
     public static Regex PagePath => PagePathRegex();
 
-    [GeneratedRegex(ArticlePathPattern)]
-    private static partial Regex ArticlePathRegex();
+    [GeneratedRegex(ArticleSlugPattern)]
+    private static partial Regex ArticleSlugRegex();
 
-    public const string ArticlePathPattern = @"^(/|(/[a-zA-Z0-9_\-~]+)+)$";
-    public static Regex ArticlePath => ArticlePathRegex();
+    public const string ArticleSlugPattern = @"^[a-zA-Z0-9_\-~]+$";
+    public static Regex ArticleSlug => ArticleSlugRegex();
     
     [GeneratedRegex("(?<!^)([A-Z])")]
     public static partial Regex PascalCase();

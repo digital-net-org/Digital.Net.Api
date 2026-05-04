@@ -26,6 +26,6 @@ public static class ArticleApi
     public static async Task<HttpResponseMessage> DeleteArticle(this HttpClient client, Guid articleId) =>
         await client.DeleteAsync($"{BaseUrl}/{articleId}");
 
-    public static async Task<HttpResponseMessage> GetArticleByPath(this HttpClient client, string path) =>
-        await client.GetAsync($"{BaseUrl}/path/{path}");
+    public static async Task<HttpResponseMessage> GetArticleBySlug(this HttpClient client, string slug) =>
+        await client.GetAsync($"{BaseUrl}/slug/{slug}");
 }

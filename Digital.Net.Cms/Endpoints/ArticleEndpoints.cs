@@ -45,17 +45,17 @@ public static class ArticleEndpoints
             .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         publicController
-            .MapGet("path/{*path}", GetArticleByPath)
-            .WithSummary("GetByPath")
-            .WithDescription("Retrieves a published article by its path. Requires Application authentication.");
+            .MapGet("slug/{slug}", GetArticleBySlug)
+            .WithSummary("GetBySlug")
+            .WithDescription("Retrieves a published article by its slug. Requires Application authentication.");
 
         return app;
     }
 
     private static async
         Task<Results<Ok<Result<ArticleDto>>, NotFound<Result<ArticleDto>>, InternalServerError<Result<ArticleDto>>>>
-        GetArticleByPath(
-            string path,
+        GetArticleBySlug(
+            string slug,
             CmsContext context
         )
     {
@@ -65,7 +65,7 @@ public static class ArticleEndpoints
             var article = await context.Articles
                 .AsNoTracking()
                 .Include(a => a.Tags)
-                .FirstOrDefaultAsync(a => a.Path == path && a.PublishedAt != null);
+                .FirstOrDefaultAsync(a => a.Slug == slug && a.PublishedAt != null);
 
             if (article is null)
                 throw new ResourceNotFoundException();

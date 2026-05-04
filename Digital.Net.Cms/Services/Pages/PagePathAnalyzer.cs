@@ -8,4 +8,7 @@ public static partial class PagePathAnalyzer
     private static partial Regex DynamicSlugRegex();
 
     public static bool HasDynamicSlug(string? path) => !string.IsNullOrEmpty(path) && DynamicSlugRegex().IsMatch(path);
+
+    public static string ResolveDynamicPath(string pattern, string value)
+        => DynamicSlugRegex().Replace(pattern, value);
 }

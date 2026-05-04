@@ -27,4 +27,15 @@ public class PagePathAnalyzerTest : UnitTest
         var result = PagePathAnalyzer.HasDynamicSlug(null);
         await Assert.That(result).IsFalse();
     }
+
+    [Test]
+    [Arguments("/articles/:slug", "my-article", "/articles/my-article")]
+    [Arguments("/:id", "42", "/42")]
+    [Arguments("/static", "x", "/static")]
+    [Arguments("/blog/:cat/:slug", "shared", "/blog/shared/shared")]
+    public async Task ResolveDynamicPath_SubstitutesParams(string pattern, string value, string expected)
+    {
+        var result = PagePathAnalyzer.ResolveDynamicPath(pattern, value);
+        await Assert.That(result).IsEqualTo(expected);
+    }
 }

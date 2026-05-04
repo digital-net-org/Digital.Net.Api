@@ -2,6 +2,7 @@ using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Endpoints;
 using Digital.Net.Cms.Services.Medias;
 using Digital.Net.Cms.Services.Pages;
+using Digital.Net.Cms.Services.Sitemaps;
 using Digital.Net.Core.Bootstrap;
 using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.Entities.Pivots;
@@ -27,6 +28,7 @@ public static class CmsInjector
 
         builder.Services
             .AddPageDependencies()
+            .AddSitemapDependencies()
             .AddScoped<MediaService>()
             .AddPivotsFromAssemblies<CmsContext>(typeof(CmsInjector).Assembly);
 

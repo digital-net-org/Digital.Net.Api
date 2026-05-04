@@ -1,12 +1,11 @@
-using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Endpoints.Dto;
+using Digital.Net.Cms.Services.Sitemaps;
 using Digital.Net.Core.RateLimiter.Limiters;
 using Digital.Net.Core.Services.Authentication.Filters;
 using Digital.Net.Lib.Messages;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Cms.Endpoints;
 
@@ -28,17 +27,9 @@ public static class SitemapEndpoints
         return app;
     }
 
-    private static async Task<IResult> GetSitemapData(CmsContext context)
+    private static async Task<IResult> GetSitemapData(SitemapService sitemapService)
     {
-        var entries = await context.Pages
-            .Where(p => p.Published && p.Indexed)
-            .Select(p => new SitemapEntryDto
-            {
-                Path = p.Path,
-                UpdatedAt = p.UpdatedAt
-            })
-            .ToListAsync();
-
+        var entries = await sitemapService.GetEntriesAsync();
         return Results.Ok(new Result<List<SitemapEntryDto>>(entries));
     }
 }

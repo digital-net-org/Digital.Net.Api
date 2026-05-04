@@ -23,11 +23,11 @@ public class Article : Entity
     [Required]
     public required string Content { get; set; }
 
-    [Column("Path")]
+    [Column("Slug")]
     [Required]
     [MaxLength(256)]
-    [RegexValidation(RegularExpressions.ArticlePathPattern)]
-    public required string Path { get; set; }
+    [RegexValidation(RegularExpressions.ArticleSlugPattern)]
+    public required string Slug { get; set; }
 
     [Column("PublishedAt")]
     public DateTime? PublishedAt { get; set; }

@@ -17,12 +17,12 @@ public static class TestArticleDataFactory
         return tag;
     }
 
-    public static Article BuildTestArticle(this CmsContext context, string? path = null, bool published = false, List<Tag>? tags = null)
+    public static Article BuildTestArticle(this CmsContext context, string? slug = null, bool published = false, List<Tag>? tags = null)
     {
         var title = Randomizer.GenerateRandomString(Randomizer.AnyLetterOrNumber, 8);
         var article = new Article
         {
-            Path = path ?? $"/{Randomizer.GenerateRandomString(Randomizer.AnyLetterOrNumber, 10)}",
+            Slug = slug ?? Randomizer.GenerateRandomString(Randomizer.AnyLetterOrNumber, 10),
             PublishedAt = published ? DateTime.UtcNow : null,
             Title = title,
             Description = title,

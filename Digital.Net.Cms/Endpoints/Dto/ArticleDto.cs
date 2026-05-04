@@ -14,7 +14,7 @@ public class ArticleDto
         Title = article.Title;
         Description = article.Description;
         Content = article.Content;
-        Path = article.Path;
+        Slug = article.Slug;
         PublishedAt = article.PublishedAt;
         CreatedAt = article.CreatedAt;
         UpdatedAt = article.UpdatedAt;
@@ -25,7 +25,7 @@ public class ArticleDto
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string Content { get; set; } = string.Empty;
-    public string Path { get; set; } = string.Empty;
+    public string Slug { get; set; } = string.Empty;
     public DateTime? PublishedAt { get; set; }
     public List<TagDto> Tags { get; set; } = [];
     public DateTime CreatedAt { get; init; }

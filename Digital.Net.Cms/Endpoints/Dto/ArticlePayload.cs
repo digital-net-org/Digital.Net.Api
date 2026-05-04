@@ -5,7 +5,7 @@ namespace Digital.Net.Cms.Endpoints.Dto;
 public class ArticlePayload
 {
     [Required]
-    public required string Path { get; set; }
+    public required string Slug { get; set; }
 
     [Required]
     public required string Name { get; set; }
