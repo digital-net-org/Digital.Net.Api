@@ -16,6 +16,4 @@ public class Tag : Entity
     [Column("Color")]
     [MaxLength(32)]
     public string? Color { get; set; }
-
-    public virtual List<Article> Articles { get; set; } = [];
 }

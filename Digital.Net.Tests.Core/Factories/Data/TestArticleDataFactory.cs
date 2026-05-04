@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Models;
@@ -18,11 +19,13 @@ public static class TestArticleDataFactory
 
     public static Article BuildTestArticle(this CmsContext context, string? path = null, bool published = false, List<Tag>? tags = null)
     {
+        var title = Randomizer.GenerateRandomString(Randomizer.AnyLetterOrNumber, 8);
         var article = new Article
         {
             Path = path ?? $"/{Randomizer.GenerateRandomString(Randomizer.AnyLetterOrNumber, 10)}",
-            Published = published,
-            Name = Randomizer.GenerateRandomString(Randomizer.AnyLetterOrNumber, 8),
+            PublishedAt = published ? DateTime.UtcNow : null,
+            Title = title,
+            Description = title,
             Content = Randomizer.GenerateRandomString(Randomizer.AnyLetterOrNumber, 16),
             Tags = tags ?? []
         };

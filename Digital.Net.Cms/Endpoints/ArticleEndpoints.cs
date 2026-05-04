@@ -7,6 +7,7 @@ using Digital.Net.Core.RateLimiter.Limiters;
 using Digital.Net.Core.Services.Authentication.Filters;
 using Digital.Net.Core.Services.Crud;
 using Digital.Net.Core.Services.Pagination.Extensions;
+using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.Predicates;
 using Microsoft.AspNetCore.Builder;
@@ -29,7 +30,10 @@ public static class ArticleEndpoints
 
         controller.MapCrudSchema<CmsContext, Article>();
         controller.MapCrudGet<CmsContext, Article, ArticleDto>();
-        controller.MapPaginationGet<CmsContext, Article, ArticleDto, ArticleQuery>(filter: PaginationFilter);
+        controller.MapPaginationGet<CmsContext, Article, ArticleDto, ArticleQuery>(
+            filter: PaginationFilter,
+            include: [e => e.Tags]
+        );
         controller.MapCrudPost<CmsContext, Article, ArticlePayload>(eventType: CmsEvents.CreateArticle);
         controller.MapCrudPatch<CmsContext, Article>(eventType: CmsEvents.UpdateArticle);
         controller.MapCrudDelete<CmsContext, Article>(eventType: CmsEvents.DeleteArticle);
@@ -48,18 +52,37 @@ public static class ArticleEndpoints
         return app;
     }
 
-    private static async Task<Results<Ok<Result<ArticleDto>>, NotFound>> GetArticleByPath(
-        string path,
-        CmsContext context
-    )
+    private static async
+        Task<Results<Ok<Result<ArticleDto>>, NotFound<Result<ArticleDto>>, InternalServerError<Result<ArticleDto>>>>
+        GetArticleByPath(
+            string path,
+            CmsContext context
+        )
     {
-        var article = await context.Articles
-            .Include(a => a.Tags)
-            .FirstOrDefaultAsync(a => a.Path == path && a.Published);
+        var result = new Result<ArticleDto>();
+        try
+        {
+            var article = await context.Articles
+                .AsNoTracking()
+                .Include(a => a.Tags)
+                .FirstOrDefaultAsync(a => a.Path == path && a.PublishedAt != null);
 
-        return article is null
-            ? TypedResults.NotFound()
-            : TypedResults.Ok(new Result<ArticleDto>(new ArticleDto(article)));
+            if (article is null)
+                throw new ResourceNotFoundException();
+
+            result.Value = new ArticleDto(article);
+        }
+        catch (Exception ex)
+        {
+            result.AddError(ex);
+        }
+
+        if (result.HasErrorOfType<ResourceNotFoundException>())
+            return TypedResults.NotFound(result);
+        if (result.HasError)
+            return TypedResults.InternalServerError(result);
+
+        return TypedResults.Ok(result);
     }
 
     private static Expression<Func<Article, bool>> PaginationFilter(
@@ -68,9 +91,9 @@ public static class ArticleEndpoints
     )
     {
         if (!string.IsNullOrEmpty(query.Name))
-            predicate = predicate.Add(x => x.Name.StartsWith(query.Name));
+            predicate = predicate.Add(x => x.Title.StartsWith(query.Name));
         if (query.Published.HasValue)
-            predicate = predicate.Add(x => x.Published == query.Published);
+            predicate = predicate.Add(x => x.PublishedAt != null == query.Published);
         if (query.TagId.HasValue)
             predicate = predicate.Add(x => x.Tags.Any(t => t.Id == query.TagId));
         return predicate;

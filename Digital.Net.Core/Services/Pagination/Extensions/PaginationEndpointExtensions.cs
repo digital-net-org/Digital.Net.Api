@@ -10,27 +10,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Core.Services.Pagination.Extensions;
 
-/// <summary>
-///     Extension methods to map pagination endpoints for entities to Minimal API routes.
-/// </summary>
 public static class PaginationEndpointExtensions
 {
-    /// <summary>
-    ///     Maps a GET endpoint to retrieve a paginated list of entities with optional filtering,
-    ///     using a generic <typeparamref name="TContext" /> database context.
-    /// </summary>
-    /// <typeparam name="TContext">The DbContext type to use</typeparam>
-    /// <typeparam name="T">The entity type</typeparam>
-    /// <typeparam name="TDto">The DTO type to return</typeparam>
-    /// <typeparam name="TQuery">The query type containing pagination and filter parameters</typeparam>
-    /// <param name="app">The endpoint route builder</param>
-    /// <param name="route">The base route for the pagination endpoint</param>
-    /// <param name="filter">Optional function to add custom filters to the query predicate</param>
-    /// <returns>A RouteHandlerBuilder for further configuration</returns>
     public static RouteHandlerBuilder MapPaginationGet<TContext, T, TDto, TQuery>(
         this IEndpointRouteBuilder app,
         string? route = null,
-        Func<Expression<Func<T, bool>>, TQuery, Expression<Func<T, bool>>>? filter = null
+        Func<Expression<Func<T, bool>>, TQuery, Expression<Func<T, bool>>>? filter = null,
+        Expression<Func<T, object?>>[]? include = null
     )
         where TContext : DbContext
         where T : Entity
@@ -59,6 +45,8 @@ public static class PaginationEndpointExtensions
                     items = items.AsNoTracking();
                     items = items.OrderBy(config, orderBy + direction);
                     items = items.Skip((query.Index - 1) * query.Size).Take(query.Size);
+                    if (include is not null)
+                        items = include.Aggregate(items, (current, nav) => current.Include(nav));
 
                     result.Value = Mapper.TryMap<T, TDto>(items.ToList());
                     result.Total = rowCount;

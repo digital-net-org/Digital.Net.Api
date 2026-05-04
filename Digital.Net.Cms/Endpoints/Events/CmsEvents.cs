@@ -2,10 +2,6 @@ namespace Digital.Net.Cms.Endpoints.Events;
 
 public static class CmsEvents
 {
-    public const string CreateTag = "CMS_CREATE_TAG";
-    public const string UpdateTag = "CMS_UPDATE_TAG";
-    public const string DeleteTag = "CMS_DELETE_TAG";
-
     public const string CreatePage = "CMS_CREATE_PAGE";
     public const string UpdatePage = "CMS_UPDATE_PAGE";
     public const string DeletePage = "CMS_DELETE_PAGE";
@@ -21,9 +17,6 @@ public static class CmsEvents
     public const string CreateForm = "CMS_CREATE_FORM";
     public const string UpdateForm = "CMS_UPDATE_FORM";
     public const string DeleteForm = "CMS_DELETE_FORM";
-    public const string CreateFormField = "CMS_CREATE_FORM_FIELD";
-    public const string UpdateFormField = "CMS_UPDATE_FORM_FIELD";
-    public const string DeleteFormField = "CMS_DELETE_FORM_FIELD";
     public const string DeleteFormSubmission = "CMS_DELETE_FORM_SUBMISSION";
     public const string FormSubmission = "CMS_FORM_SUBMISSION";
 }

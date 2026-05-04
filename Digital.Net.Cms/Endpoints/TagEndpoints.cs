@@ -1,7 +1,6 @@
 using System.Linq.Expressions;
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Endpoints.Dto;
-using Digital.Net.Cms.Endpoints.Events;
 using Digital.Net.Cms.Models;
 using Digital.Net.Core.RateLimiter.Limiters;
 using Digital.Net.Core.Services.Authentication.Filters;
@@ -27,9 +26,9 @@ public static class TagEndpoints
         controller.MapCrudSchema<CmsContext, Tag>();
         controller.MapCrudGet<CmsContext, Tag, TagDto>();
         controller.MapPaginationGet<CmsContext, Tag, TagDto, TagQuery>(filter: PaginationFilter);
-        controller.MapCrudPost<CmsContext, Tag, TagPayload>(eventType: CmsEvents.CreateTag);
-        controller.MapCrudPatch<CmsContext, Tag>(eventType: CmsEvents.UpdateTag);
-        controller.MapCrudDelete<CmsContext, Tag>(eventType: CmsEvents.DeleteTag);
+        controller.MapCrudPost<CmsContext, Tag, TagPayload>();
+        controller.MapCrudPatch<CmsContext, Tag>();
+        controller.MapCrudDelete<CmsContext, Tag>();
 
         return app;
     }

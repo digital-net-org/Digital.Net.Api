@@ -15,6 +15,7 @@ public class CmsContext(DbContextOptions<CmsContext> options) : DbContext(option
 
     public DbSet<Page> Pages { get; init; }
     public DbSet<Article> Articles { get; init; }
+    public DbSet<ArticleTag> ArticleTags { get; init; }
     public DbSet<Tag> Tags { get; init; }
     public DbSet<Sheet> Sheets { get; init; }
     public DbSet<PageSheet> PageSheets { get; init; }
@@ -33,7 +34,6 @@ public class CmsContext(DbContextOptions<CmsContext> options) : DbContext(option
     {
         builder.HasDefaultSchema(Schema);
         builder.BuildPage();
-        builder.BuildArticle();
         builder.BuildMediaVariant();
         builder.BuildFormField();
         builder.BuildFormSubmission();
