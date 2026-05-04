@@ -26,22 +26,75 @@ namespace Digital.Net.Cms.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("ArticleTag", b =>
+            modelBuilder.Entity("Digital.Net.Cms.Models.Articles.Article", b =>
                 {
-                    b.Property<Guid>("ArticlesId")
-                        .HasColumnType("uuid");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("Id");
 
-                    b.Property<Guid>("TagsId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("Content");
 
-                    b.HasKey("ArticlesId", "TagsId");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedAt");
 
-                    b.HasIndex("TagsId");
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)")
+                        .HasColumnName("Description");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("Path");
+
+                    b.Property<DateTime?>("PublishedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("PublishedAt");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("Title");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("UpdatedAt");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Article", "digital_net_cms");
+                });
+
+            modelBuilder.Entity("Digital.Net.Cms.Models.Articles.ArticleTag", b =>
+                {
+                    b.Property<Guid>("ParentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("ParentId");
+
+                    b.Property<Guid>("ChildId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("ChildId");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer")
+                        .HasColumnName("Order");
+
+                    b.HasKey("ParentId", "ChildId");
+
+                    b.HasIndex("ChildId");
 
                     b.ToTable("ArticleTag", "digital_net_cms");
                 });
 
-            modelBuilder.Entity("Digital.Net.Cms.Models.Form", b =>
+            modelBuilder.Entity("Digital.Net.Cms.Models.Forms.Form", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -82,7 +135,7 @@ namespace Digital.Net.Cms.Migrations
                     b.ToTable("Form", "digital_net_cms");
                 });
 
-            modelBuilder.Entity("Digital.Net.Cms.Models.FormField", b =>
+            modelBuilder.Entity("Digital.Net.Cms.Models.Forms.FormField", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -152,7 +205,7 @@ namespace Digital.Net.Cms.Migrations
                     b.ToTable("FormField", "digital_net_cms");
                 });
 
-            modelBuilder.Entity("Digital.Net.Cms.Models.FormSubmission", b =>
+            modelBuilder.Entity("Digital.Net.Cms.Models.Forms.FormSubmission", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -193,7 +246,7 @@ namespace Digital.Net.Cms.Migrations
                     b.ToTable("FormSubmission", "digital_net_cms");
                 });
 
-            modelBuilder.Entity("Digital.Net.Cms.Models.Media", b =>
+            modelBuilder.Entity("Digital.Net.Cms.Models.Medias.Media", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -232,7 +285,7 @@ namespace Digital.Net.Cms.Migrations
                     b.ToTable("Media", "digital_net_cms");
                 });
 
-            modelBuilder.Entity("Digital.Net.Cms.Models.MediaVariant", b =>
+            modelBuilder.Entity("Digital.Net.Cms.Models.Medias.MediaVariant", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -307,7 +360,7 @@ namespace Digital.Net.Cms.Migrations
                     b.ToTable("OpenGraphEntry", "digital_net_cms");
                 });
 
-            modelBuilder.Entity("Digital.Net.Cms.Models.Page", b =>
+            modelBuilder.Entity("Digital.Net.Cms.Models.Pages.Page", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -367,11 +420,9 @@ namespace Digital.Net.Cms.Migrations
                         .IsUnique();
 
                     b.ToTable("Page", "digital_net_cms");
-
-                    b.UseTptMappingStrategy();
                 });
 
-            modelBuilder.Entity("Digital.Net.Cms.Models.PageOpenGraph", b =>
+            modelBuilder.Entity("Digital.Net.Cms.Models.Pages.PageOpenGraph", b =>
                 {
                     b.Property<Guid>("ParentId")
                         .HasColumnType("uuid")
@@ -392,7 +443,7 @@ namespace Digital.Net.Cms.Migrations
                     b.ToTable("PageOpenGraph", "digital_net_cms");
                 });
 
-            modelBuilder.Entity("Digital.Net.Cms.Models.PageSheet", b =>
+            modelBuilder.Entity("Digital.Net.Cms.Models.Pages.PageSheet", b =>
                 {
                     b.Property<Guid>("ParentId")
                         .HasColumnType("uuid")
@@ -485,42 +536,28 @@ namespace Digital.Net.Cms.Migrations
                     b.ToTable("Tag", "digital_net_cms");
                 });
 
-            modelBuilder.Entity("Digital.Net.Cms.Models.Article", b =>
+            modelBuilder.Entity("Digital.Net.Cms.Models.Articles.ArticleTag", b =>
                 {
-                    b.HasBaseType("Digital.Net.Cms.Models.Page");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("Content");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("Name");
-
-                    b.ToTable("Article", "digital_net_cms");
-                });
-
-            modelBuilder.Entity("ArticleTag", b =>
-                {
-                    b.HasOne("Digital.Net.Cms.Models.Article", null)
+                    b.HasOne("Digital.Net.Cms.Models.Tag", "Child")
                         .WithMany()
-                        .HasForeignKey("ArticlesId")
+                        .HasForeignKey("ChildId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Digital.Net.Cms.Models.Tag", null)
+                    b.HasOne("Digital.Net.Cms.Models.Articles.Article", "Parent")
                         .WithMany()
-                        .HasForeignKey("TagsId")
+                        .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Child");
+
+                    b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("Digital.Net.Cms.Models.FormField", b =>
+            modelBuilder.Entity("Digital.Net.Cms.Models.Forms.FormField", b =>
                 {
-                    b.HasOne("Digital.Net.Cms.Models.Form", "Form")
+                    b.HasOne("Digital.Net.Cms.Models.Forms.Form", "Form")
                         .WithMany("Fields")
                         .HasForeignKey("FormId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -529,9 +566,9 @@ namespace Digital.Net.Cms.Migrations
                     b.Navigation("Form");
                 });
 
-            modelBuilder.Entity("Digital.Net.Cms.Models.FormSubmission", b =>
+            modelBuilder.Entity("Digital.Net.Cms.Models.Forms.FormSubmission", b =>
                 {
-                    b.HasOne("Digital.Net.Cms.Models.Form", "Form")
+                    b.HasOne("Digital.Net.Cms.Models.Forms.Form", "Form")
                         .WithMany("Submissions")
                         .HasForeignKey("FormId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -540,9 +577,9 @@ namespace Digital.Net.Cms.Migrations
                     b.Navigation("Form");
                 });
 
-            modelBuilder.Entity("Digital.Net.Cms.Models.MediaVariant", b =>
+            modelBuilder.Entity("Digital.Net.Cms.Models.Medias.MediaVariant", b =>
                 {
-                    b.HasOne("Digital.Net.Cms.Models.Media", "Media")
+                    b.HasOne("Digital.Net.Cms.Models.Medias.Media", "Media")
                         .WithMany("Variants")
                         .HasForeignKey("MediaId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -551,7 +588,7 @@ namespace Digital.Net.Cms.Migrations
                     b.Navigation("Media");
                 });
 
-            modelBuilder.Entity("Digital.Net.Cms.Models.PageOpenGraph", b =>
+            modelBuilder.Entity("Digital.Net.Cms.Models.Pages.PageOpenGraph", b =>
                 {
                     b.HasOne("Digital.Net.Cms.Models.OpenGraphEntry", "Child")
                         .WithMany()
@@ -559,7 +596,7 @@ namespace Digital.Net.Cms.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Digital.Net.Cms.Models.Page", "Parent")
+                    b.HasOne("Digital.Net.Cms.Models.Pages.Page", "Parent")
                         .WithMany()
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -570,7 +607,7 @@ namespace Digital.Net.Cms.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("Digital.Net.Cms.Models.PageSheet", b =>
+            modelBuilder.Entity("Digital.Net.Cms.Models.Pages.PageSheet", b =>
                 {
                     b.HasOne("Digital.Net.Cms.Models.Sheet", "Child")
                         .WithMany()
@@ -578,7 +615,7 @@ namespace Digital.Net.Cms.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Digital.Net.Cms.Models.Page", "Parent")
+                    b.HasOne("Digital.Net.Cms.Models.Pages.Page", "Parent")
                         .WithMany()
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -589,23 +626,14 @@ namespace Digital.Net.Cms.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("Digital.Net.Cms.Models.Article", b =>
-                {
-                    b.HasOne("Digital.Net.Cms.Models.Page", null)
-                        .WithOne()
-                        .HasForeignKey("Digital.Net.Cms.Models.Article", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Digital.Net.Cms.Models.Form", b =>
+            modelBuilder.Entity("Digital.Net.Cms.Models.Forms.Form", b =>
                 {
                     b.Navigation("Fields");
 
                     b.Navigation("Submissions");
                 });
 
-            modelBuilder.Entity("Digital.Net.Cms.Models.Media", b =>
+            modelBuilder.Entity("Digital.Net.Cms.Models.Medias.Media", b =>
                 {
                     b.Navigation("Variants");
                 });
