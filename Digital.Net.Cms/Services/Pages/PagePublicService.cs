@@ -45,28 +45,15 @@ public class PagePublicService(
         return result;
     }
 
-    public async Task<Result<(string contentType, string content)>> GetPageSheetResource(Guid id, Guid sheetId)
+    public async Task<Result<PagePublicDto>> BuildPublicPage(PageBuildPayload payload, CancellationToken ct = default)
     {
-        var result = new Result<(string contentType, string content)>();
+        var result = new Result<PagePublicDto>();
         try
         {
-            var pageSheet = await context.PageSheets
-                .AsNoTracking()
-                .Include(ps => ps.Child)
-                .FirstOrDefaultAsync(ps => ps.ParentId == id && ps.ChildId == sheetId);
-
-            if (pageSheet is null || !pageSheet.Child.Published)
-                throw new ResourceNotFoundException();
-
-            var contentType = pageSheet.Child.Type switch
-            {
-                "css" => "text/css",
-                "js" => "application/javascript",
-                "html" => "text/html",
-                _ => "text/plain"
-            };
-
-            result.Value = (contentType, pageSheet.Child.Content);
+            var (page, sources) = await ResolvePageAndSourcesAsync(payload, ct);
+            if (sources is not null)
+                TemplateInterpolator.HydrateInPlace(page, sources);
+            result.Value = new PagePublicDto(page);
         }
         catch (Exception ex)
         {
@@ -76,34 +63,38 @@ public class PagePublicService(
         return result;
     }
 
-    public async Task<Result<PagePublicDto>> BuildPublicPage(PageBuildPayload payload, CancellationToken ct = default)
+    public async Task<Result<(string contentType, string content)>> BuildPublicPageSheetResource(
+        PageSheetBuildPayload payload,
+        CancellationToken ct = default
+    )
     {
-        var result = new Result<PagePublicDto>();
+        var result = new Result<(string contentType, string content)>();
         try
         {
-            if (string.IsNullOrWhiteSpace(payload.Path))
-                throw new InvalidPagePathException();
-            
-            var page = await context.Pages
+            var (page, sources) = await ResolvePageAndSourcesAsync(payload, ct);
+            var pageSheet = await context.PageSheets
                 .AsNoTracking()
-                .Where(p => p.Path == payload.Path && p.Published)
-                .FirstOrDefaultAsync(ct);
+                .Include(ps => ps.Child)
+                .FirstOrDefaultAsync(
+                    ps => ps.ParentId == page.Id
+                          && ps.ChildId == payload.SheetId
+                          && ps.Child.Published,
+                    ct
+                ) ?? throw new InvalidPagePathException();
 
-            if (page is null) throw new InvalidPagePathException();
-            if (payload.PageType != page.EntityType) throw new InvalidPageTypeException();
-            if (page.EntityType is not null && !string.IsNullOrEmpty(payload.PageSlug))
+            var sheet = pageSheet.Child;
+            if (sources is not null)
+                TemplateInterpolator.HydrateInPlace(sheet, sources);
+
+            var contentType = sheet.Type switch
             {
-                var source = await ResolveSourceAsync(page.EntityType.Value, payload.PageSlug, ct) ??
-                             throw new InvalidPagePathException();
-                TemplateInterpolator.HydrateInPlace(
-                    page,
-                    new Dictionary<string, object>
-                    {
-                        [EfCoreUtils.GetCanonicalType(source).Name.ToLowerInvariant()] = source
-                    });
-            }
+                "css" => "text/css",
+                "js" => "application/javascript",
+                "html" => "text/html",
+                _ => "text/plain"
+            };
 
-            result.Value = new PagePublicDto(page);
+            result.Value = (contentType, sheet.Content);
         }
         catch (Exception ex)
         {
@@ -111,6 +102,36 @@ public class PagePublicService(
         }
 
         return result;
+    }
+
+    private async Task<(Page page, IReadOnlyDictionary<string, object>? sources)> ResolvePageAndSourcesAsync(
+        PageBuildPayload payload,
+        CancellationToken ct
+    )
+    {
+        if (string.IsNullOrWhiteSpace(payload.Path))
+            throw new InvalidPagePathException();
+
+        var page = await context.Pages
+            .AsNoTracking()
+            .Where(p => p.Path == payload.Path && p.Published)
+            .FirstOrDefaultAsync(ct) ?? throw new InvalidPagePathException();
+
+        if (payload.PageType != page.EntityType)
+            throw new InvalidPageTypeException();
+
+        IReadOnlyDictionary<string, object>? sources = null;
+        if (page.EntityType is not null && !string.IsNullOrEmpty(payload.PageSlug))
+        {
+            var source = await ResolveSourceAsync(page.EntityType.Value, payload.PageSlug, ct)
+                         ?? throw new InvalidPagePathException();
+            sources = new Dictionary<string, object>
+            {
+                [EfCoreUtils.GetCanonicalType(source).Name.ToLowerInvariant()] = source
+            };
+        }
+
+        return (page, sources);
     }
 
     private async Task<Entity?> ResolveSourceAsync(
@@ -128,10 +149,4 @@ public class PagePublicService(
         };
         return result ?? throw new InvalidPagePathException();
     }
-
-    private static IReadOnlyDictionary<string, object> BuildSources(Entity source) =>
-        new Dictionary<string, object>
-        {
-            [EfCoreUtils.GetCanonicalType(source).Name.ToLowerInvariant()] = source
-        };
 }

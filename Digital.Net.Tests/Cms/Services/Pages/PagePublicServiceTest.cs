@@ -1,4 +1,5 @@
 using Digital.Net.Cms.Context;
+using Digital.Net.Cms.Models;
 using Digital.Net.Cms.Models.Articles;
 using Digital.Net.Cms.Models.Pages;
 using Digital.Net.Cms.Services.Pages;
@@ -226,5 +227,192 @@ public class PagePublicServiceTest : UnitTest, IAsyncInitializer
         await Assert.That(result.HasError).IsFalse();
         await Assert.That(result.Value!.Title).IsEqualTo("Plain {{ article.title }} text");
         await Assert.That(result.Value!.Description).IsEqualTo("No hydration");
+    }
+
+    private static PageSheetBuildPayload BuildSheet(
+        Guid sheetId, string path, PageEntityType? type = null, string? slug = null
+    ) => new() { SheetId = sheetId, Path = path, PageType = type, PageSlug = slug };
+
+    private (Page page, Sheet sheet) SeedPageWithSheet(
+        string sheetType = "css",
+        string sheetContent = "body { color: red; }",
+        bool sheetPublished = true,
+        bool pagePublished = true,
+        PageEntityType? pageEntityType = null,
+        string? path = null
+    )
+    {
+        var page = new Page
+        {
+            Path = path ?? $"/sheet-{TestId}-{Guid.NewGuid().ToString("N")[..6]}" +
+                (pageEntityType is null ? string.Empty : "/:slug"),
+            Published = pagePublished,
+            Indexed = true,
+            EntityType = pageEntityType
+        };
+        var sheet = new Sheet
+        {
+            Name = "test-sheet-" + Guid.NewGuid().ToString("N")[..6],
+            Type = sheetType,
+            Content = sheetContent,
+            Published = sheetPublished
+        };
+        _context.Pages.Add(page);
+        _context.Sheets.Add(sheet);
+        _context.SaveChanges();
+        _context.PageSheets.Add(new PageSheet { ParentId = page.Id, ChildId = sheet.Id, Order = 0 });
+        _context.SaveChanges();
+        return (page, sheet);
+    }
+
+    [Test]
+    public async Task BuildPageSheet_HydratesContent_FromMatchingArticle()
+    {
+        var slug = "art-" + Guid.NewGuid().ToString("N")[..8];
+        var (page, sheet) = SeedPageWithSheet(
+            "css",
+            ".author::before { content: '{{ article.title }}'; }",
+            pageEntityType: PageEntityType.Article
+        );
+        _context.Articles.Add(new Article
+        {
+            Slug = slug,
+            Title = "Hello World",
+            Description = "D",
+            Content = "C",
+            PublishedAt = DateTime.UtcNow
+        });
+        _context.SaveChanges();
+
+        var result = await _service.BuildPublicPageSheetResource(
+            BuildSheet(sheet.Id, page.Path, PageEntityType.Article, slug));
+
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(result.Value.contentType).IsEqualTo("text/css");
+        await Assert.That(result.Value.content).IsEqualTo(".author::before { content: 'Hello World'; }");
+    }
+
+    [Test]
+    [Arguments("css", "text/css")]
+    [Arguments("js", "application/javascript")]
+    [Arguments("html", "text/html")]
+    public async Task BuildPageSheet_ReturnsCorrectContentType(string type, string expectedContentType)
+    {
+        var (page, sheet) = SeedPageWithSheet(type, "raw");
+
+        var result = await _service.BuildPublicPageSheetResource(BuildSheet(sheet.Id, page.Path));
+
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(result.Value.contentType).IsEqualTo(expectedContentType);
+        await Assert.That(result.Value.content).IsEqualTo("raw");
+    }
+
+    [Test]
+    public async Task BuildPageSheet_NotTemplated_DoesNotAlterContent()
+    {
+        var (page, sheet) = SeedPageWithSheet(
+            "html",
+            "<p>{{ article.title }}</p>"
+        );
+
+        var result = await _service.BuildPublicPageSheetResource(BuildSheet(sheet.Id, page.Path));
+
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(result.Value.content).IsEqualTo("<p>{{ article.title }}</p>");
+    }
+
+    [Test]
+    public async Task BuildPageSheet_LeavesPlaceholdersUnchanged_WhenPayloadMissesSlug()
+    {
+        var (page, sheet) = SeedPageWithSheet(
+            "html",
+            "<p>{{ article.title }}</p>",
+            pageEntityType: PageEntityType.Article
+        );
+
+        var result = await _service.BuildPublicPageSheetResource(
+            BuildSheet(sheet.Id, page.Path, PageEntityType.Article));
+
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(result.Value.content).IsEqualTo("<p>{{ article.title }}</p>");
+    }
+
+    [Test]
+    public async Task BuildPageSheet_ReturnsInvalidPagePath_WhenSheetIdUnknown()
+    {
+        var (page, _) = SeedPageWithSheet();
+
+        var result = await _service.BuildPublicPageSheetResource(BuildSheet(Guid.NewGuid(), page.Path));
+
+        await Assert.That(result.HasErrorOfType<InvalidPagePathException>()).IsTrue();
+    }
+
+    [Test]
+    public async Task BuildPageSheet_ReturnsInvalidPagePath_WhenSheetNotPublished()
+    {
+        var (page, sheet) = SeedPageWithSheet(sheetPublished: false);
+
+        var result = await _service.BuildPublicPageSheetResource(BuildSheet(sheet.Id, page.Path));
+
+        await Assert.That(result.HasErrorOfType<InvalidPagePathException>()).IsTrue();
+    }
+
+    [Test]
+    public async Task BuildPageSheet_ReturnsInvalidPagePath_WhenSheetNotLinkedToPage()
+    {
+        // Page A + Page B + Sheet liée seulement à A. On demande la sheet sur le path de B.
+        var (_, sheetA) = SeedPageWithSheet();
+        var pageB = new Page
+        {
+            Path = $"/other-{TestId}-{Guid.NewGuid().ToString("N")[..6]}",
+            Published = true,
+            Indexed = true
+        };
+        _context.Pages.Add(pageB);
+        _context.SaveChanges();
+
+        var result = await _service.BuildPublicPageSheetResource(BuildSheet(sheetA.Id, pageB.Path));
+
+        await Assert.That(result.HasErrorOfType<InvalidPagePathException>()).IsTrue();
+    }
+
+    [Test]
+    public async Task BuildPageSheet_ReturnsInvalidPagePath_WhenPageNotPublished()
+    {
+        var (page, sheet) = SeedPageWithSheet(pagePublished: false);
+
+        var result = await _service.BuildPublicPageSheetResource(BuildSheet(sheet.Id, page.Path));
+
+        await Assert.That(result.HasErrorOfType<InvalidPagePathException>()).IsTrue();
+    }
+
+    [Test]
+    public async Task BuildPageSheet_ReturnsInvalidPagePath_WhenPathEmpty()
+    {
+        var result = await _service.BuildPublicPageSheetResource(BuildSheet(Guid.NewGuid(), string.Empty));
+
+        await Assert.That(result.HasErrorOfType<InvalidPagePathException>()).IsTrue();
+    }
+
+    [Test]
+    public async Task BuildPageSheet_ReturnsInvalidPageType_WhenTypeMismatch()
+    {
+        var (page, sheet) = SeedPageWithSheet(pageEntityType: PageEntityType.Article);
+
+        var result = await _service.BuildPublicPageSheetResource(
+            BuildSheet(sheet.Id, page.Path, PageEntityType.Form));
+
+        await Assert.That(result.HasErrorOfType<InvalidPageTypeException>()).IsTrue();
+    }
+
+    [Test]
+    public async Task BuildPageSheet_ReturnsInvalidPagePath_WhenArticleNotFound()
+    {
+        var (page, sheet) = SeedPageWithSheet(pageEntityType: PageEntityType.Article);
+
+        var result = await _service.BuildPublicPageSheetResource(
+            BuildSheet(sheet.Id, page.Path, PageEntityType.Article, "ghost-" + Guid.NewGuid().ToString("N")[..8]));
+
+        await Assert.That(result.HasErrorOfType<InvalidPagePathException>()).IsTrue();
     }
 }

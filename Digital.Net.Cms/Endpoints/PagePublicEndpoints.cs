@@ -33,16 +33,18 @@ public static class PagePublicEndpoints
             );
 
         publicController
+            .MapPost("build/sheet", BuildPublicPageSheet)
+            .WithSummary("BuildSheet")
+            .WithDescription(
+                "Builds the published sheet identified by SheetId for the page declared by the client, " +
+                "interpolating Sheet.Content with the entity instance identified by (PageType, PageSlug). " +
+                "Returns the raw content with its matching Content-Type."
+            );
+
+        publicController
             .MapGet("{id:guid}/sheets", GetPublicPageSheets)
             .WithSummary("GetPageSheets")
             .WithDescription("Retrieves every published sheet owned by the page, ordered by load order.");
-
-        publicController
-            .MapGet("{id:guid}/sheets/{sheetId:guid}", GetPublicPageSheetResource)
-            .WithSummary("GetPageSheetResource")
-            .WithDescription(
-                "Serves the raw content of a published sheet scoped to its page, with the matching Content-Type."
-            );
 
         return app;
     }
@@ -68,6 +70,27 @@ public static class PagePublicEndpoints
         return TypedResults.Ok(result);
     }
 
+    private static async Task<Results<
+            ContentHttpResult,
+            BadRequest<Result<(string contentType, string content)>>,
+            InternalServerError<Result<(string contentType, string content)>>
+        >>
+        BuildPublicPageSheet(
+            [FromBody]
+            PageSheetBuildPayload payload,
+            PagePublicService pagePublicService,
+            CancellationToken ct
+        )
+    {
+        var result = await pagePublicService.BuildPublicPageSheetResource(payload, ct);
+        if (result.HasErrorOfType<InvalidPagePathException>() || result.HasErrorOfType<InvalidPageTypeException>())
+            return TypedResults.BadRequest(result);
+        if (result.HasError)
+            return TypedResults.InternalServerError(result);
+
+        return TypedResults.Content(result.Value.content, result.Value.contentType);
+    }
+
     private static async
         Task<Results<Ok<Result<List<PageSheetInfoDto>>>, InternalServerError<Result<List<PageSheetInfoDto>>>, NotFound>>
         GetPublicPageSheets(
@@ -82,20 +105,5 @@ public static class PagePublicEndpoints
             return TypedResults.InternalServerError(result);
 
         return TypedResults.Ok(result);
-    }
-
-    private static async Task<Results<ContentHttpResult, InternalServerError, NotFound>> GetPublicPageSheetResource(
-        Guid id,
-        Guid sheetId,
-        PagePublicService pagePublicService
-    )
-    {
-        var result = await pagePublicService.GetPageSheetResource(id, sheetId);
-        if (result.HasErrorOfType<ResourceNotFoundException>())
-            return TypedResults.NotFound();
-        if (result.HasError)
-            return TypedResults.InternalServerError();
-
-        return TypedResults.Content(result.Value.content, result.Value.contentType);
     }
 }
