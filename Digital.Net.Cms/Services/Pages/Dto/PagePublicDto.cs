@@ -24,4 +24,5 @@ public class PagePublicDto
     public string? Description { get; set; }
     public string? JsonLd { get; set; }
     public string? Redirect { get; set; }
+    public List<OpenGraphEntryPublicDto> OpenGraph { get; set; } = [];
 }

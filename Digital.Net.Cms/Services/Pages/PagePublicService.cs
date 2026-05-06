@@ -53,7 +53,25 @@ public class PagePublicService(
             var (page, sources) = await ResolvePageAndSourcesAsync(payload, ct);
             if (sources is not null)
                 TemplateInterpolator.HydrateInPlace(page, sources);
-            result.Value = new PagePublicDto(page);
+
+            var openGraph = await context.PageOpenGraphs
+                .AsNoTracking()
+                .Include(po => po.Child)
+                .Where(po => po.ParentId == page.Id)
+                .OrderBy(po => po.Order)
+                .Select(po => po.Child)
+                .ToListAsync(ct);
+
+            if (sources is not null)
+                foreach (var entry in openGraph)
+                    TemplateInterpolator.HydrateInPlace(entry, sources);
+
+            result.Value = new PagePublicDto(page)
+            {
+                OpenGraph = openGraph
+                    .Select(e => new OpenGraphEntryPublicDto { Property = e.Property, Content = e.Content })
+                    .ToList()
+            };
         }
         catch (Exception ex)
         {

@@ -16,7 +16,7 @@ public class PagePublicServiceTest : UnitTest, IAsyncInitializer
 {
     [ClassDataSource<DatabaseFixture>]
     public required DatabaseFixture DbFixture { get; init; }
-
+    
     private CmsContext _context = null!;
     private PagePublicService _service = null!;
 
@@ -227,6 +227,94 @@ public class PagePublicServiceTest : UnitTest, IAsyncInitializer
         await Assert.That(result.HasError).IsFalse();
         await Assert.That(result.Value!.Title).IsEqualTo("Plain {{ article.title }} text");
         await Assert.That(result.Value!.Description).IsEqualTo("No hydration");
+    }
+
+    private void SeedOpenGraphEntries(Guid pageId, params (string Property, string Content)[] entries)
+    {
+        var index = 0;
+        foreach (var (property, content) in entries)
+        {
+            var entry = new OpenGraphEntry { Property = property, Content = content };
+            _context.OpenGraphEntries.Add(entry);
+            _context.SaveChanges();
+            _context.PageOpenGraphs.Add(new PageOpenGraph
+            {
+                ParentId = pageId,
+                ChildId = entry.Id,
+                Order = index++
+            });
+            _context.SaveChanges();
+        }
+    }
+
+    [Test]
+    public async Task BuildPage_IncludesEmptyOpenGraph_WhenNoneAttached()
+    {
+        var path = "/og-empty-" + Guid.NewGuid().ToString("N")[..8];
+        _context.BuildTestPage(path, true);
+
+        var result = await _service.BuildPublicPage(Build(path));
+
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(result.Value!.OpenGraph).IsEmpty();
+    }
+
+    [Test]
+    public async Task BuildPage_IncludesOpenGraphEntries_OrderedByPivot()
+    {
+        var path = "/og-list-" + Guid.NewGuid().ToString("N")[..8];
+        var page = _context.BuildTestPage(path, true);
+        SeedOpenGraphEntries(page.Id,
+            ("og:title", "First title"),
+            ("og:description", "Second desc")
+        );
+
+        var result = await _service.BuildPublicPage(Build(path));
+
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(result.Value!.OpenGraph.Count).IsEqualTo(2);
+        await Assert.That(result.Value!.OpenGraph[0].Property).IsEqualTo("og:title");
+        await Assert.That(result.Value!.OpenGraph[0].Content).IsEqualTo("First title");
+        await Assert.That(result.Value!.OpenGraph[1].Property).IsEqualTo("og:description");
+        await Assert.That(result.Value!.OpenGraph[1].Content).IsEqualTo("Second desc");
+    }
+
+    [Test]
+    public async Task BuildPage_HydratesOpenGraphContent_FromMatchingArticle()
+    {
+        var (pattern, slug) = SeedArticleAndTemplatedPage();
+        var page = _context.Pages.Single(p => p.Path == pattern);
+        SeedOpenGraphEntries(page.Id,
+            ("og:title", "{{ article.title }}"),
+            ("og:description", "About {{ article.description }}")
+        );
+
+        var result = await _service.BuildPublicPage(Build(pattern, PageEntityType.Article, slug));
+
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(result.Value!.OpenGraph[0].Content).IsEqualTo("Hello World");
+        await Assert.That(result.Value!.OpenGraph[1].Content).IsEqualTo("About Greetings from prod");
+    }
+
+    [Test]
+    public async Task BuildPage_LeavesOpenGraphPlaceholders_WhenPayloadMissesSlug()
+    {
+        var pattern = $"/og-no-slug-{TestId}/:slug";
+        _context.Pages.Add(new Page
+        {
+            Path = pattern,
+            Published = true,
+            Indexed = true,
+            EntityType = PageEntityType.Article
+        });
+        _context.SaveChanges();
+        var page = _context.Pages.Single(p => p.Path == pattern);
+        SeedOpenGraphEntries(page.Id, ("og:title", "{{ article.title }}"));
+
+        var result = await _service.BuildPublicPage(Build(pattern, PageEntityType.Article));
+
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(result.Value!.OpenGraph[0].Content).IsEqualTo("{{ article.title }}");
     }
 
     private static PageSheetBuildPayload BuildSheet(
