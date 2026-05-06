@@ -28,15 +28,17 @@ public class Page : Entity
     public bool Indexed { get; set; } = true;
 
     [Column("Title")]
+    [Templatable]
     [MaxLength(256)]
     public string? Title { get; set; }
 
     [Column("Description")]
+    [Templatable]
     [MaxLength(512)]
     public string? Description { get; set; }
 
     [Column("JsonLd")]
-    [DataFlag("json")]
+    [Templatable]
     [MaxLength(65535)]
     public string? JsonLd { get; set; }
 

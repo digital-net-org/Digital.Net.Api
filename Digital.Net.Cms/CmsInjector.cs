@@ -43,6 +43,7 @@ public static class CmsInjector
         app
             .MapCmsTagEndpoints()
             .MapCmsPageEndpoints()
+            .MapCmsPagePublicEndpoints()
             .MapCmsArticleEndpoints()
             .MapCmsMediaEndpoints()
             .MapCmsSitemapEndpoints()

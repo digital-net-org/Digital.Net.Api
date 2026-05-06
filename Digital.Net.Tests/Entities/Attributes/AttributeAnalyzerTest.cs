@@ -22,7 +22,7 @@ public class AttributeAnalyzerTest : UnitTest
 
         public string UniqueProperty { get; set; }
 
-        [MaxLength(50)]
+        [MaxLength(50), Templatable]
         public string MaxLengthProperty { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -31,7 +31,7 @@ public class AttributeAnalyzerTest : UnitTest
         [ForeignKey("ForeignKeyProperty")]
         public int ForeignKeyProperty { get; set; }
 
-        [Column("form_property"), DataFlag("test_flag"), ReadOnly]
+        [Column("form_property"), ReadOnly]
         public DateTime FormProperty { get; set; }
 
         [Secret, RegexValidation("^[a-zA-Z0-9.'@_-]{6,24}$")]
@@ -91,12 +91,12 @@ public class AttributeAnalyzerTest : UnitTest
         await Assert.That(AttributeAnalyzer<TestEntity>.GetPath("RequiredProperty")).IsEqualTo("RequiredProperty");
 
     [Test]
-    public async Task GetDataFlag_ReturnsCorrectFlag_ForFormProperty() =>
-        await Assert.That(AttributeAnalyzer<TestEntity>.GetDataFlag("FormProperty")).IsEqualTo("test_flag");
+    public async Task IsTemplatable_ReturnsTrue_ForTemplatableProperty() =>
+        await Assert.That(AttributeAnalyzer<TestEntity>.IsTemplatable("MaxLengthProperty")).IsTrue();
 
     [Test]
-    public async Task GetDataFlag_ReturnsNull_ForNonFormProperty() =>
-        await Assert.That(AttributeAnalyzer<TestEntity>.GetDataFlag("RequiredProperty")).IsNull();
+    public async Task IsTemplatable_ReturnsFalse_ForNonTemplatableProperty() =>
+        await Assert.That(AttributeAnalyzer<TestEntity>.IsTemplatable("RequiredProperty")).IsFalse();
 
     [Test]
     public async Task IsReadOnly_ReturnsFalse_ForNonReadOnlyProperty() =>
@@ -180,12 +180,12 @@ public class AttributeAnalyzerTest : UnitTest
         await Assert.That(AttributeAnalyzer<TestEntity>.GetPath(typeof(TestEntity).GetProperty("RequiredProperty")!)).IsEqualTo("RequiredProperty");
 
     [Test]
-    public async Task GetDataFlag_ReturnsFlag_ForFlaggedProperty_ViaPropertyInfo() =>
-        await Assert.That(AttributeAnalyzer<TestEntity>.GetDataFlag(typeof(TestEntity).GetProperty("FormProperty")!)).IsEqualTo("test_flag");
+    public async Task IsTemplatable_ReturnsTrue_ForTemplatableProperty_ViaPropertyInfo() =>
+        await Assert.That(AttributeAnalyzer<TestEntity>.IsTemplatable(typeof(TestEntity).GetProperty("MaxLengthProperty")!)).IsTrue();
 
     [Test]
-    public async Task GetDataFlag_ReturnsNull_ForUnflaggedProperty_ViaPropertyInfo() =>
-        await Assert.That(AttributeAnalyzer<TestEntity>.GetDataFlag(typeof(TestEntity).GetProperty("RequiredProperty")!)).IsNull();
+    public async Task IsTemplatable_ReturnsFalse_ForNonTemplatableProperty_ViaPropertyInfo() =>
+        await Assert.That(AttributeAnalyzer<TestEntity>.IsTemplatable(typeof(TestEntity).GetProperty("RequiredProperty")!)).IsFalse();
 
     [Test]
     public async Task GetRegex_ReturnsNotNull_ForRegexProperty_ViaPropertyInfo() =>

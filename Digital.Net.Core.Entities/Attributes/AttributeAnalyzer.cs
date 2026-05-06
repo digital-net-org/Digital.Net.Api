@@ -72,11 +72,11 @@ public static class AttributeAnalyzer<T>
     public static string GetPath(PropertyInfo property) =>
         property.GetCustomAttribute<ColumnAttribute>()?.Name ?? property.Name;
 
-    public static string? GetDataFlag(string propertyName) =>
-        typeof(T).GetProperty(propertyName)?.GetCustomAttribute<DataFlagAttribute>()?.Flag;
+    public static bool IsTemplatable(string propertyName) =>
+        typeof(T).GetProperty(propertyName)?.GetCustomAttribute<TemplatableAttribute>() is not null;
 
-    public static string? GetDataFlag(PropertyInfo property) =>
-        property.GetCustomAttribute<DataFlagAttribute>()?.Flag;
+    public static bool IsTemplatable(PropertyInfo property) =>
+        property.GetCustomAttribute<TemplatableAttribute>() is not null;
 
     public static Regex? GetRegex(string propertyName) =>
         typeof(T).GetProperty(propertyName)?.GetCustomAttribute<RegexValidationAttribute>()?.Regex;

@@ -21,6 +21,7 @@ public class Sheet : Entity
 
     [Column("Content")]
     [Required]
+    [Templatable]
     public required string Content { get; set; }
 
     [Column("Published")]

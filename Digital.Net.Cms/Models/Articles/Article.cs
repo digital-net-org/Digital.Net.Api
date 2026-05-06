@@ -11,11 +11,13 @@ public class Article : Entity
 {
     [Column("Title")]
     [Required]
+    [Templatable]
     [MaxLength(256)]
     public required string Title { get; set; }
 
     [Column("Description")]
     [Required]
+    [Templatable]
     [MaxLength(512)]
     public required string Description { get; set; }
 
@@ -25,6 +27,7 @@ public class Article : Entity
 
     [Column("Slug")]
     [Required]
+    [Templatable]
     [MaxLength(256)]
     [RegexValidation(RegularExpressions.ArticleSlugPattern)]
     public required string Slug { get; set; }

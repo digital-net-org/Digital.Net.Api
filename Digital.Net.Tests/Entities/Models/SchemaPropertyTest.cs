@@ -18,7 +18,7 @@ public class SchemaPropertyTest : UnitTest
 
     private class TestEntity : Entity
     {
-        [Column("required_property"), DataFlag("test_flag"), Required, ReadOnly]
+        [Column("required_property"), Templatable, Required, ReadOnly]
         public string RequiredProperty { get; set; }
 
         [RegexValidation(@"^[a-z]+$")]
@@ -54,7 +54,7 @@ public class SchemaPropertyTest : UnitTest
         await Assert.That(schemaProperty.Name).IsEqualTo("RequiredProperty");
         await Assert.That(schemaProperty.Path).IsEqualTo("required_property");
         await Assert.That(schemaProperty.Type).IsEqualTo(propertyInfo!.PropertyType.Name);
-        await Assert.That(schemaProperty.DataFlag).IsEqualTo("test_flag");
+        await Assert.That(schemaProperty.IsTemplatable).IsTrue();
         await Assert.That(schemaProperty.RegexValidation).IsNull();
         await Assert.That(schemaProperty.IsRequired).IsTrue();
         await Assert.That(schemaProperty.IsReadOnly).IsTrue();
@@ -64,6 +64,13 @@ public class SchemaPropertyTest : UnitTest
         await Assert.That(schemaProperty.IsForeignKey).IsFalse();
         await Assert.That(schemaProperty.MaxLength).IsNull();
         await Assert.That(schemaProperty.EnumValues).IsNull();
+    }
+
+    [Test]
+    public async Task SchemaProperty_IsTemplatable_IsFalse_ForUnflaggedProperty()
+    {
+        var schema = SchemaFor("RegexProperty");
+        await Assert.That(schema.IsTemplatable).IsFalse();
     }
 
     [Test]

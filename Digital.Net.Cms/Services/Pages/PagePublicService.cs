@@ -1,5 +1,10 @@
 using Digital.Net.Cms.Context;
+using Digital.Net.Cms.Models.Pages;
 using Digital.Net.Cms.Services.Pages.Dto;
+using Digital.Net.Cms.Services.Pages.Exceptions;
+using Digital.Net.Core.Entities;
+using Digital.Net.Core.Entities.Models;
+using Digital.Net.Core.Entities.Templating;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
 using Microsoft.EntityFrameworkCore;
@@ -71,19 +76,34 @@ public class PagePublicService(
         return result;
     }
 
-    public async Task<Result<PagePublicDto>> GetPageByPath(string path)
+    public async Task<Result<PagePublicDto>> BuildPublicPage(PageBuildPayload payload, CancellationToken ct = default)
     {
         var result = new Result<PagePublicDto>();
         try
         {
-            result.Value = await context.Pages
+            if (string.IsNullOrWhiteSpace(payload.Path))
+                throw new InvalidPagePathException();
+            
+            var page = await context.Pages
                 .AsNoTracking()
-                .Where(p => p.Path == path && p.Published)
-                .Select(p => new PagePublicDto(p))
-                .FirstOrDefaultAsync();
+                .Where(p => p.Path == payload.Path && p.Published)
+                .FirstOrDefaultAsync(ct);
 
-            if (result.Value is null)
-                throw new ResourceNotFoundException();
+            if (page is null) throw new InvalidPagePathException();
+            if (payload.PageType != page.EntityType) throw new InvalidPageTypeException();
+            if (page.EntityType is not null && !string.IsNullOrEmpty(payload.PageSlug))
+            {
+                var source = await ResolveSourceAsync(page.EntityType.Value, payload.PageSlug, ct) ??
+                             throw new InvalidPagePathException();
+                TemplateInterpolator.HydrateInPlace(
+                    page,
+                    new Dictionary<string, object>
+                    {
+                        [EfCoreUtils.GetCanonicalType(source).Name.ToLowerInvariant()] = source
+                    });
+            }
+
+            result.Value = new PagePublicDto(page);
         }
         catch (Exception ex)
         {
@@ -92,4 +112,26 @@ public class PagePublicService(
 
         return result;
     }
+
+    private async Task<Entity?> ResolveSourceAsync(
+        PageEntityType entityType,
+        string slug,
+        CancellationToken ct = default
+    )
+    {
+        var result = entityType switch
+        {
+            PageEntityType.Article => await context.Articles
+                .AsNoTracking()
+                .FirstOrDefaultAsync(a => a.Slug == slug && a.PublishedAt != null, ct),
+            _ => null
+        };
+        return result ?? throw new InvalidPagePathException();
+    }
+
+    private static IReadOnlyDictionary<string, object> BuildSources(Entity source) =>
+        new Dictionary<string, object>
+        {
+            [EfCoreUtils.GetCanonicalType(source).Name.ToLowerInvariant()] = source
+        };
 }

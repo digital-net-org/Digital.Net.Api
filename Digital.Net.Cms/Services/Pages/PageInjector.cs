@@ -8,7 +8,6 @@ public static class PageInjector
     {
         services.AddScoped<PageCrudService>();
         services.AddScoped<PagePublicService>();
-
         return services;
     }
 }

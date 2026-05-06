@@ -3,11 +3,13 @@ using System.Text.Json;
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Endpoints.Events;
 using Digital.Net.Cms.Models;
+using Digital.Net.Cms.Models.Articles;
 using Digital.Net.Cms.Models.Pages;
 using Digital.Net.Cms.Services.Pages;
 using Digital.Net.Cms.Services.Pages.Dto;
 using Digital.Net.Cms.Services.Pages.OpenGraph;
 using Digital.Net.Core.Entities.Exceptions;
+using Digital.Net.Core.Entities.Templating;
 using Digital.Net.Core.RateLimiter.Limiters;
 using Digital.Net.Core.Services.Authentication;
 using Digital.Net.Core.Services.Authentication.Filters;
@@ -39,7 +41,8 @@ public static class PageEndpoints
             .MapGet("path/availability", GetPathAvailability)
             .WithSummary("CheckPathAvailability")
             .WithDescription(
-                "Returns true if the path is not yet used by any page. ExcludeId scopes out a specific id (edition case)."
+                "Returns true if the path is not yet used by any page. " +
+                "ExcludeId scopes out a specific id (edition case)."
             );
 
         controller.MapCrudSchema<CmsContext, Page>();
@@ -50,6 +53,14 @@ public static class PageEndpoints
             .WithSummary("GetOpenGraphValuesSchema")
             .WithDescription("Returns the list of valid OpenGraph property keys.");
 
+        controller
+            .MapGet("template-variables/{entityType}", GetTemplateVariables)
+            .WithSummary("GetTemplateVariables")
+            .WithDescription(
+                "Lists template placeholders ({{ source.field }}) available for the given PageEntityType. " +
+                "Returns an empty list if the entity type does not expose any [Templatable] field."
+            );
+
         controller.MapCrudGet<CmsContext, Page, PageDto>();
         controller.MapPaginationGet<CmsContext, Page, PageDto, PageQuery>(filter: PaginationFilter);
         controller.MapCrudDelete<CmsContext, Page>(eventType: CmsEvents.DeletePage);
@@ -57,7 +68,8 @@ public static class PageEndpoints
             .MapPatch("{id:guid}", UpdatePage)
             .WithSummary("Patch")
             .WithDescription(
-                "Applies a JSON Patch to an entity identified by its ID. Returns the patched entity as the specified DTO type. Use the *Schema* endpoint to get the available fields."
+                "Applies a JSON Patch to an entity identified by its ID. Returns the patched entity as the " +
+                "specified DTO type. Use the *Schema* endpoint to get the available fields."
             );
         controller
             .MapPost("", CreatePage)
@@ -65,7 +77,7 @@ public static class PageEndpoints
             .WithDescription(
                 "Creates a new entity with the provided payload. Returns the created entity as the specified DTO type."
             );
-        
+
         controller
             .MapGet("{id:guid}/sheets", GetPageSheets)
             .WithSummary("GetPageSheets")
@@ -75,45 +87,8 @@ public static class PageEndpoints
             .MapGet("{id:guid}/open-graph", GetPageOpenGraph)
             .WithSummary("GetPageOpenGraph")
             .WithDescription("Retrieves every OpenGraph entry owned by the page, ordered by index.");
-        
-        var publicController = app
-            .MapGroup("cms/pages/public")
-            .WithTags("CMS.Pages")
-            .RequireRateLimiting(GlobalLimiter.Policy)
-            .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
-
-        publicController
-            .MapGet("path", GetPublicPageByPath)
-            .WithSummary("GetByPath")
-            .WithDescription(
-                "Retrieves a published page by its path (passed as a query string). Requires Application authentication."
-            );
-
-        publicController
-            .MapGet("{id:guid}/sheets", GetPublicPageSheets)
-            .WithSummary("GetPageSheets")
-            .WithDescription("Retrieves every published sheet owned by the page, ordered by load order.");
-
-        publicController
-            .MapGet("{id:guid}/sheets/{sheetId:guid}", GetPublicPageSheetResource)
-            .WithSummary("GetPageSheetResource")
-            .WithDescription(
-                "Serves the raw content of a published sheet scoped to its page, with the matching Content-Type."
-            );
 
         return app;
-    }
-
-    private static async Task<Results<Ok<Result<PagePublicDto>>, NotFound<Result<PagePublicDto>>>> GetPublicPageByPath(
-        [FromQuery]
-        string path,
-        PagePublicService pagePublicService
-    )
-    {
-        var result = await pagePublicService.GetPageByPath(path);
-        return result.HasErrorOfType<ResourceNotFoundException>()
-            ? TypedResults.NotFound(result)
-            : TypedResults.Ok(result);
     }
 
     private static async Task<Ok<Result<bool>>> GetPathAvailability(
@@ -127,7 +102,7 @@ public static class PageEndpoints
         var taken = await context.Pages.AnyAsync(p => p.Path == path && (excludeId == null || p.Id != excludeId));
         return TypedResults.Ok(new Result<bool>(!taken));
     }
-    
+
     private static async
         Task<Results<Ok<Result<List<PageSheetDto>>>, NotFound<Result<List<PageSheetDto>>>>>
         GetPageSheets(
@@ -168,7 +143,7 @@ public static class PageEndpoints
             return TypedResults.BadRequest(result);
         if (result.HasError)
             return TypedResults.InternalServerError(result);
-        
+
         return TypedResults.Ok(result);
     }
 
@@ -195,35 +170,16 @@ public static class PageEndpoints
     private static Ok<Result<IReadOnlyList<OpenGraphPropertySchema>>> GetOpenGraphSchema() =>
         TypedResults.Ok(new Result<IReadOnlyList<OpenGraphPropertySchema>>(OpenGraphProperties.Schema));
 
-    private static async
-        Task<Results<Ok<Result<List<PageSheetInfoDto>>>, InternalServerError<Result<List<PageSheetInfoDto>>>, NotFound>>
-        GetPublicPageSheets(
-        Guid id,
-        PagePublicService pagePublicService
+    private static Ok<Result<IReadOnlyList<TemplateVariableDescriptor>>> GetTemplateVariables(
+        PageEntityType entityType
     )
     {
-        var result = await pagePublicService.GetPageSheetInfos(id);
-        if (result.HasErrorOfType<ResourceNotFoundException>())
-            return TypedResults.NotFound();
-        if (result.HasError)
-            return TypedResults.InternalServerError(result);
+        var sourceType = entityType switch { PageEntityType.Article => typeof(Article), _ => null };
+        var variables = sourceType is null
+            ? Array.Empty<TemplateVariableDescriptor>()
+            : TemplateInterpolator.GetVariables(sourceType);
 
-        return TypedResults.Ok(result);
-    }
-
-    private static async Task<Results<ContentHttpResult, InternalServerError, NotFound>> GetPublicPageSheetResource(
-        Guid id,
-        Guid sheetId,
-        PagePublicService pagePublicService
-    )
-    {
-        var result = await pagePublicService.GetPageSheetResource(id, sheetId);
-        if (result.HasErrorOfType<ResourceNotFoundException>())
-            return TypedResults.NotFound();
-        if (result.HasError)
-            return TypedResults.InternalServerError();
-
-        return TypedResults.Content(result.Value.content, result.Value.contentType);
+        return TypedResults.Ok(new Result<IReadOnlyList<TemplateVariableDescriptor>>(variables));
     }
 
     private static Expression<Func<Page, bool>> PaginationFilter(

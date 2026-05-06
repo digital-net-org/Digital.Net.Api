@@ -20,11 +20,11 @@ public class SchemaProperty<T>
     {
         Name = propertyInfo.Name;
         Path = AttributeAnalyzer<T>.GetPath(propertyInfo);
-        DataFlag = propertyInfo.GetCustomAttribute<DataFlagAttribute>()?.Flag;
         IsReadOnly = AttributeAnalyzer<T>.IsReadOnly(propertyInfo);
         IsSecret = AttributeAnalyzer<T>.IsSecret(propertyInfo);
         IsRequired = AttributeAnalyzer<T>.IsRequired(propertyInfo);
         IsUnique = AttributeAnalyzer<T>.IsUnique(propertyInfo);
+        IsTemplatable = AttributeAnalyzer<T>.IsTemplatable(propertyInfo);
         MaxLength = AttributeAnalyzer<T>.MaxLength(propertyInfo);
         IsIdentity = AttributeAnalyzer<T>.IsIdentity(propertyInfo);
         IsForeignKey = AttributeAnalyzer<T>.IsForeignKey(propertyInfo);
@@ -47,11 +47,11 @@ public class SchemaProperty<T>
     public string Name { get; }
     public string Path { get; }
     public string Type { get; }
-    public string? DataFlag { get; }
     public bool IsReadOnly { get; }
     public bool IsSecret { get; }
     public bool IsRequired { get; }
     public bool IsUnique { get; }
+    public bool IsTemplatable { get; }
     public int? MaxLength { get; }
     public bool IsIdentity { get; }
     public bool IsForeignKey { get; }
