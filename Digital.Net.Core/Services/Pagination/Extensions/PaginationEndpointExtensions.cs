@@ -40,7 +40,9 @@ public static class PaginationEndpointExtensions
 
                     var config = new ParsingConfig { IsCaseSensitive = false };
                     var orderBy = string.IsNullOrWhiteSpace(query.OrderBy) ? "CreatedAt" : query.OrderBy;
-                    var direction = string.Equals(query.Order, "desc", StringComparison.OrdinalIgnoreCase) ? " descending" : "";
+                    var direction = string.Equals(query.Order, "desc", StringComparison.OrdinalIgnoreCase)
+                        ? " descending"
+                        : "";
 
                     items = items.AsNoTracking();
                     items = items.OrderBy(config, orderBy + direction);
@@ -60,9 +62,10 @@ public static class PaginationEndpointExtensions
 
                 return TypedResults.Ok(result);
             })
-            .WithSummary("GetPaginated")
+            .WithSummary($"GetPaginated: {typeof(T).Name}")
             .WithDescription(
-                "Retrieves a paginated list of entities based on the provided query parameters. Returns a QueryResult containing the paginated entities and metadata."
+                $"Retrieves a paginated list of {typeof(T).Name}s based on the provided query parameters. " +
+                $"Returns a QueryResult containing the paginated {typeof(T).Name}s and metadata."
             );
 
     private static Expression<Func<T, bool>> BuildFilter<T, TQuery>(

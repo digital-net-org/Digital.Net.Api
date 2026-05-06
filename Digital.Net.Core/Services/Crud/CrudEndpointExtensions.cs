@@ -32,9 +32,10 @@ public static class CrudEndpointExtensions
                 var result = new Result<List<SchemaProperty<T>>>(SchemaProperty<T>.Get());
                 return TypedResults.Ok(result);
             })
-            .WithSummary("GetSchema")
+            .WithSummary($"GetSchema: {typeof(T).Name}")
             .WithDescription(
-                "Get the schema for the entity. The schema includes all properties, their types, accessibility, and validation rules."
+                $"Get the schema for the {typeof(T).Name}. " +
+                $"The schema includes all properties, their types, accessibility, and validation rules."
             );
     }
 
@@ -71,8 +72,10 @@ public static class CrudEndpointExtensions
                         return TypedResults.InternalServerError(result.AddError(ex));
                     }
                 })
-            .WithSummary("GetById")
-            .WithDescription("Retrieves a single entity by its ID. Returns the entity as the specified DTO type.");
+            .WithSummary($"GetById: {typeof(T).Name}")
+            .WithDescription(
+                $"Retrieves a single {typeof(T).Name} by its ID. Returns the entity as the specified DTO type."
+            );
     }
 
     public static RouteHandlerBuilder MapCrudPost<TContext, T, TPayload>(
@@ -112,9 +115,10 @@ public static class CrudEndpointExtensions
                         ? TypedResults.BadRequest(result)
                         : TypedResults.Ok(result);
                 })
-            .WithSummary("Create")
+            .WithSummary($"Create: {typeof(T).Name}")
             .WithDescription(
-                "Creates a new entity with the provided payload. Returns the created entity as the specified DTO type."
+                $"Creates a new {typeof(T).Name} with the provided payload. " +
+                $"Returns the created {typeof(T).Name} as the specified DTO type."
             );
     }
     
@@ -161,9 +165,11 @@ public static class CrudEndpointExtensions
                     ? TypedResults.BadRequest(result)
                     : TypedResults.Ok(result);
             })
-            .WithSummary("Patch")
+            .WithSummary($"Patch: {typeof(T).Name}")
             .WithDescription(
-                "Applies a JSON Patch to an entity identified by its ID. Returns the patched entity as the specified DTO type. Use the *Schema* endpoint to get the available fields."
+                $"Applies a JSON Patch to a {typeof(T).Name} identified by its ID. " +
+                $"Returns the patched {typeof(T).Name} as the specified DTO type. " +
+                $"Use the *Schema* endpoint to get the available fields."
             );
     }
     
@@ -203,9 +209,10 @@ public static class CrudEndpointExtensions
                     return TypedResults.Ok(result);
                 }
             )
-            .WithSummary("Delete")
+            .WithSummary($"Delete: {typeof(T).Name}")
             .WithDescription(
-                "Removes an entity identified by its ID. Returns the deleted entity as the specified DTO type."
+                $"Removes an {typeof(T).Name} identified by its ID. " +
+                $"Returns the deleted {typeof(T).Name} as the specified DTO type."
             );
     }
 }
