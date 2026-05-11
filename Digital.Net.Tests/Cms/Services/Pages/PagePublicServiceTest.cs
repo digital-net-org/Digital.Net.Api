@@ -40,15 +40,7 @@ public class PagePublicServiceTest : UnitTest, IAsyncInitializer
         var slug = "tpl-" + Guid.NewGuid().ToString("N")[..8];
         var pattern = $"/blog-{TestId}-{Guid.NewGuid().ToString("N")[..6]}/:slug";
 
-        _context.Articles.Add(new Article
-        {
-            Slug = slug,
-            Title = articleTitle,
-            Description = articleDescription,
-            Content = "body",
-            PublishedAt = DateTime.UtcNow
-        });
-        _context.Pages.Add(new Page
+        var page = new Page
         {
             Path = pattern,
             Published = true,
@@ -56,6 +48,17 @@ public class PagePublicServiceTest : UnitTest, IAsyncInitializer
             EntityType = PageEntityType.Article,
             Title = pageTitle,
             Description = pageDescription
+        };
+        _context.Pages.Add(page);
+        _context.SaveChanges();
+        _context.Articles.Add(new Article
+        {
+            Slug = slug,
+            Title = articleTitle,
+            Description = articleDescription,
+            Content = "body",
+            PublishedAt = DateTime.UtcNow,
+            PageId = page.Id
         });
         _context.SaveChanges();
         return (pattern, slug);
@@ -170,31 +173,72 @@ public class PagePublicServiceTest : UnitTest, IAsyncInitializer
     }
 
     [Test]
-    public async Task BuildPage_ReturnsInvalidPageType_WhenPayloadEntityTypeMismatchesPage()
+    public async Task BuildPage_ReturnsPage_WhenArticlePageIdMatches()
     {
-        var slug = "mis-" + Guid.NewGuid().ToString("N")[..8];
-        var pattern = $"/mismatch-{TestId}/:slug";
-        _context.Articles.Add(new Article
-        {
-            Slug = slug,
-            Title = "T",
-            Description = "D",
-            Content = "C",
-            PublishedAt = DateTime.UtcNow
-        });
-        _context.Pages.Add(new Page
-        {
-            Path = pattern,
-            Published = true,
-            Indexed = true,
-            EntityType = PageEntityType.Article,
-            Title = "Blog: {{ article.title }}"
-        });
-        _context.SaveChanges();
+        var slug = "match-" + Guid.NewGuid().ToString("N")[..8];
+        var page = _context.BuildTestPage(
+            path: $"/m-{TestId}-{Guid.NewGuid().ToString("N")[..6]}/:slug",
+            published: true,
+            entityType: PageEntityType.Article
+        );
+        _context.BuildTestArticle(slug: slug, published: true, pageId: page.Id);
 
-        var result = await _service.BuildPublicPage(Build(pattern, PageEntityType.Form, slug));
+        var result = await _service.BuildPublicPage(Build(page.Path, PageEntityType.Article, slug));
 
-        await Assert.That(result.HasErrorOfType<InvalidPageTypeException>()).IsTrue();
+        await Assert.That(result.HasError).IsFalse();
+    }
+
+    [Test]
+    public async Task BuildPage_ReturnsInvalidPagePath_WhenArticlePageIdMismatches()
+    {
+        var slug = "shared-" + Guid.NewGuid().ToString("N")[..8];
+        var pageA = _context.BuildTestPage(
+            path: $"/a-{TestId}-{Guid.NewGuid().ToString("N")[..6]}/:slug",
+            published: true,
+            entityType: PageEntityType.Article
+        );
+        var pageB = _context.BuildTestPage(
+            path: $"/b-{TestId}-{Guid.NewGuid().ToString("N")[..6]}/:slug",
+            published: true,
+            entityType: PageEntityType.Article
+        );
+        _context.BuildTestArticle(slug: slug, published: true, pageId: pageA.Id);
+
+        var result = await _service.BuildPublicPage(Build(pageB.Path, PageEntityType.Article, slug));
+
+        await Assert.That(result.HasErrorOfType<InvalidPagePathException>()).IsTrue();
+    }
+
+    [Test]
+    public async Task BuildPage_ReturnsInvalidPagePath_WhenArticleIsOrphan()
+    {
+        var slug = "orphan-" + Guid.NewGuid().ToString("N")[..8];
+        var page = _context.BuildTestPage(
+            path: $"/o-{TestId}-{Guid.NewGuid().ToString("N")[..6]}/:slug",
+            published: true,
+            entityType: PageEntityType.Article
+        );
+        _context.BuildTestArticle(slug: slug, published: true, pageId: null);
+
+        var result = await _service.BuildPublicPage(Build(page.Path, PageEntityType.Article, slug));
+
+        await Assert.That(result.HasErrorOfType<InvalidPagePathException>()).IsTrue();
+    }
+
+    [Test]
+    public async Task BuildPage_ReturnsInvalidPagePath_WhenArticleNotPublished()
+    {
+        var slug = "draft-" + Guid.NewGuid().ToString("N")[..8];
+        var page = _context.BuildTestPage(
+            path: $"/d-{TestId}-{Guid.NewGuid().ToString("N")[..6]}/:slug",
+            published: true,
+            entityType: PageEntityType.Article
+        );
+        _context.BuildTestArticle(slug: slug, published: false, pageId: page.Id);
+
+        var result = await _service.BuildPublicPage(Build(page.Path, PageEntityType.Article, slug));
+
+        await Assert.That(result.HasErrorOfType<InvalidPagePathException>()).IsTrue();
     }
 
     [Test]
@@ -368,7 +412,8 @@ public class PagePublicServiceTest : UnitTest, IAsyncInitializer
             Title = "Hello World",
             Description = "D",
             Content = "C",
-            PublishedAt = DateTime.UtcNow
+            PublishedAt = DateTime.UtcNow,
+            PageId = page.Id
         });
         _context.SaveChanges();
 
@@ -480,17 +525,6 @@ public class PagePublicServiceTest : UnitTest, IAsyncInitializer
         var result = await _service.BuildPublicPageSheetResource(BuildSheet(Guid.NewGuid(), string.Empty));
 
         await Assert.That(result.HasErrorOfType<InvalidPagePathException>()).IsTrue();
-    }
-
-    [Test]
-    public async Task BuildPageSheet_ReturnsInvalidPageType_WhenTypeMismatch()
-    {
-        var (page, sheet) = SeedPageWithSheet(pageEntityType: PageEntityType.Article);
-
-        var result = await _service.BuildPublicPageSheetResource(
-            BuildSheet(sheet.Id, page.Path, PageEntityType.Form));
-
-        await Assert.That(result.HasErrorOfType<InvalidPageTypeException>()).IsTrue();
     }
 
     [Test]

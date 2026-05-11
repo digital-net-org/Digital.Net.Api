@@ -141,7 +141,7 @@ public class PagePublicService(
         IReadOnlyDictionary<string, object>? sources = null;
         if (page.EntityType is not null && !string.IsNullOrEmpty(payload.PageSlug))
         {
-            var source = await ResolveSourceAsync(page.EntityType.Value, payload.PageSlug, ct)
+            var source = await ResolveSourceAsync(page, payload.PageSlug, ct)
                          ?? throw new InvalidPagePathException();
             sources = new Dictionary<string, object>
             {
@@ -153,16 +153,20 @@ public class PagePublicService(
     }
 
     private async Task<Entity?> ResolveSourceAsync(
-        PageEntityType entityType,
+        Page page,
         string slug,
         CancellationToken ct = default
     )
     {
-        var result = entityType switch
+        var result = page.EntityType switch
         {
             PageEntityType.Article => await context.Articles
                 .AsNoTracking()
-                .FirstOrDefaultAsync(a => a.Slug == slug && a.PublishedAt != null, ct),
+                .FirstOrDefaultAsync(
+                    a => a.Slug == slug
+                         && a.PublishedAt != null
+                         && a.PageId == page.Id,
+                    ct),
             _ => null
         };
         return result ?? throw new InvalidPagePathException();

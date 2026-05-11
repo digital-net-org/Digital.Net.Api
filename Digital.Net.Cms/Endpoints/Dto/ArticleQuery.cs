@@ -7,4 +7,5 @@ public class ArticleQuery : Query
     public string? Name { get; set; }
     public bool? Published { get; set; }
     public Guid? TagId { get; set; }
+    public Guid? PageId { get; set; }
 }

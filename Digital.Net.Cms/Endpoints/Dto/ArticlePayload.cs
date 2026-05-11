@@ -12,4 +12,6 @@ public class ArticlePayload
 
     [Required]
     public required string Content { get; set; }
+
+    public Guid? PageId { get; set; }
 }

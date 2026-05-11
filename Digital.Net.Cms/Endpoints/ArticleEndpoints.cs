@@ -96,6 +96,8 @@ public static class ArticleEndpoints
             predicate = predicate.Add(x => x.PublishedAt != null == query.Published);
         if (query.TagId.HasValue)
             predicate = predicate.Add(x => x.Tags.Any(t => t.Id == query.TagId));
+        if (query.PageId.HasValue)
+            predicate = predicate.Add(x => x.PageId == query.PageId);
         return predicate;
     }
 }

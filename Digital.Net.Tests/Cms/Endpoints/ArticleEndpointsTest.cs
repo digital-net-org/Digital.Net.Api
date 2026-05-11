@@ -1,11 +1,13 @@
 using System.Net;
 using System.Net.Http.Json;
 using Digital.Net.Cms.Endpoints.Dto;
+using Digital.Net.Cms.Models.Pages;
 using Digital.Net.Core.Services.Pagination;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data;
 using Digital.Net.Tests.Core.Factories.Data.Records;
 using Digital.Net.Tests.Core.Sdk;
+using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Tests.Cms.Endpoints;
 
@@ -56,5 +58,90 @@ public class ArticleEndpointsTest
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         await Assert.That(result!.Value.All(a => a.Tags.Any(t => t.Id == targetTag.Id))).IsTrue();
         await Assert.That(result.Value.Any(a => a.Id == taggedArticle.Id)).IsTrue();
+    }
+
+    [Test]
+    public async Task GetArticles_ShouldFilterByPageId()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var ctx = ApplicationFixture.GetCmsContext();
+        var pageA = ctx.BuildTestPage(entityType: PageEntityType.Article);
+        var pageB = ctx.BuildTestPage(entityType: PageEntityType.Article);
+        var matched = ctx.BuildTestArticle(pageId: pageA.Id);
+        ctx.BuildTestArticle(pageId: pageB.Id);
+
+        var response = await client.GetArticles(new ArticleQuery { PageId = pageA.Id, Size = 50, Index = 1 });
+        var result = await response.Content.ReadFromJsonAsync<QueryResult<ArticleDto>>();
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(result!.Value.Any(a => a.Id == matched.Id)).IsTrue();
+        await Assert.That(result.Value.All(a => a.PageId == pageA.Id)).IsTrue();
+    }
+
+    [Test]
+    public async Task GetArticleById_ShouldExposePageId()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var ctx = ApplicationFixture.GetCmsContext();
+        var page = ctx.BuildTestPage(entityType: PageEntityType.Article);
+        var article = ctx.BuildTestArticle(pageId: page.Id);
+
+        var response = await client.GetArticleById(article.Id);
+        var result = await response.Content.ReadFromJsonAsync<Digital.Net.Lib.Messages.Result<ArticleDto>>();
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(result!.Value!.PageId).IsEqualTo(page.Id);
+    }
+
+    [Test]
+    public async Task PatchArticle_ShouldUpdatePageId()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var ctx = ApplicationFixture.GetCmsContext();
+        var page = ctx.BuildTestPage(entityType: PageEntityType.Article);
+        var article = ctx.BuildTestArticle();
+        var patch = new object[]
+        {
+            new { op = "replace", path = "/PageId", value = page.Id }
+        };
+
+        var response = await client.PatchArticle(article.Id, patch);
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        var freshCtx = ApplicationFixture.GetCmsContext();
+        var refreshed = freshCtx.Articles.AsNoTracking().First(a => a.Id == article.Id);
+        await Assert.That(refreshed.PageId).IsEqualTo(page.Id);
+    }
+
+    [Test]
+    public async Task PatchArticle_ShouldReturn400_WhenPageIdDoesNotExist()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var ctx = ApplicationFixture.GetCmsContext();
+        var article = ctx.BuildTestArticle();
+        var patch = new object[]
+        {
+            new { op = "replace", path = "/PageId", value = Guid.NewGuid() }
+        };
+
+        var response = await client.PatchArticle(article.Id, patch);
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task DeletePage_ShouldSetArticlePageIdToNull()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var ctx = ApplicationFixture.GetCmsContext();
+        var page = ctx.BuildTestPage(entityType: PageEntityType.Article);
+        var article = ctx.BuildTestArticle(pageId: page.Id);
+
+        var response = await client.DeleteAsync($"/cms/pages/{page.Id}");
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
+
+        var freshCtx = ApplicationFixture.GetCmsContext();
+        var refreshed = freshCtx.Articles.AsNoTracking().First(a => a.Id == article.Id);
+        await Assert.That(refreshed.PageId).IsNull();
     }
 }

@@ -41,7 +41,7 @@ public class SitemapService(CmsContext context)
     {
         var articles = await context.Articles
             .AsNoTracking()
-            .Where(a => a.PublishedAt != null)
+            .Where(a => a.PublishedAt != null && a.PageId == page.Id)
             .Select(a => new { a.Slug, a.UpdatedAt })
             .ToListAsync();
 

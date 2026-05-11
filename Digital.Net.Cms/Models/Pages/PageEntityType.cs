@@ -5,6 +5,5 @@ namespace Digital.Net.Cms.Models.Pages;
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum PageEntityType
 {
-    Article,
-    Form
+    Article
 }

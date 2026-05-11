@@ -34,6 +34,7 @@ public class CmsContext(DbContextOptions<CmsContext> options) : DbContext(option
     {
         builder.HasDefaultSchema(Schema);
         builder.BuildPage();
+        builder.BuildArticle();
         builder.BuildMediaVariant();
         builder.BuildFormField();
         builder.BuildFormSubmission();

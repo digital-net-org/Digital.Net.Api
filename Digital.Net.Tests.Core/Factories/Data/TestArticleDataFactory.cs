@@ -17,7 +17,13 @@ public static class TestArticleDataFactory
         return tag;
     }
 
-    public static Article BuildTestArticle(this CmsContext context, string? slug = null, bool published = false, List<Tag>? tags = null)
+    public static Article BuildTestArticle(
+        this CmsContext context,
+        string? slug = null,
+        bool published = false,
+        List<Tag>? tags = null,
+        Guid? pageId = null
+    )
     {
         var title = Randomizer.GenerateRandomString(Randomizer.AnyLetterOrNumber, 8);
         var article = new Article
@@ -27,7 +33,8 @@ public static class TestArticleDataFactory
             Title = title,
             Description = title,
             Content = Randomizer.GenerateRandomString(Randomizer.AnyLetterOrNumber, 16),
-            Tags = tags ?? []
+            Tags = tags ?? [],
+            PageId = pageId
         };
         context.Articles.Add(article);
         context.SaveChanges();
