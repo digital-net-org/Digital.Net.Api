@@ -30,7 +30,7 @@ public static class ArticleEndpoints
 
         controller.MapCrudSchema<CmsContext, Article>();
         controller.MapCrudGet<CmsContext, Article, ArticleDto>();
-        controller.MapPaginationGet<CmsContext, Article, ArticleDto, ArticleQuery>(
+        controller.MapPaginationGet<CmsContext, Article, ArticleListDto, ArticleQuery>(
             filter: PaginationFilter,
             include: [e => e.Tags]
         );
@@ -47,7 +47,7 @@ public static class ArticleEndpoints
         publicController
             .MapGet("slug/{slug}", GetArticleBySlug)
             .WithSummary("GetBySlug")
-            .WithDescription("Retrieves a published article by its slug. Requires Application authentication.");
+            .WithDescription("Retrieves a published article by its slug.");
 
         return app;
     }

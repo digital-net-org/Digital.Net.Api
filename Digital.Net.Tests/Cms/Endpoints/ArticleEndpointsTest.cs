@@ -34,7 +34,7 @@ public class ArticleEndpointsTest
         var article = ctx.BuildTestArticle(tags: [tag1, tag2]);
 
         var response = await client.GetArticles(new ArticleQuery { Size = 50, Index = 1 });
-        var result = await response.Content.ReadFromJsonAsync<QueryResult<ArticleDto>>();
+        var result = await response.Content.ReadFromJsonAsync<QueryResult<ArticleListDto>>();
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         var dto = result!.Value.First(a => a.Id == article.Id);
@@ -53,7 +53,7 @@ public class ArticleEndpointsTest
         ctx.BuildTestArticle();
 
         var response = await client.GetArticles(new ArticleQuery { TagId = targetTag.Id, Size = 50, Index = 1 });
-        var result = await response.Content.ReadFromJsonAsync<QueryResult<ArticleDto>>();
+        var result = await response.Content.ReadFromJsonAsync<QueryResult<ArticleListDto>>();
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         await Assert.That(result!.Value.All(a => a.Tags.Any(t => t.Id == targetTag.Id))).IsTrue();
@@ -71,7 +71,7 @@ public class ArticleEndpointsTest
         ctx.BuildTestArticle(pageId: pageB.Id);
 
         var response = await client.GetArticles(new ArticleQuery { PageId = pageA.Id, Size = 50, Index = 1 });
-        var result = await response.Content.ReadFromJsonAsync<QueryResult<ArticleDto>>();
+        var result = await response.Content.ReadFromJsonAsync<QueryResult<ArticleListDto>>();
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         await Assert.That(result!.Value.Any(a => a.Id == matched.Id)).IsTrue();
