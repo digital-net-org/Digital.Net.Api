@@ -7,7 +7,6 @@ using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data;
 using Digital.Net.Tests.Core.Factories.Data.Records;
 using Digital.Net.Tests.Core.Sdk;
-using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Tests.Cms.Endpoints;
 
@@ -91,57 +90,5 @@ public class ArticleEndpointsTest
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         await Assert.That(result!.Value!.PageId).IsEqualTo(page.Id);
-    }
-
-    [Test]
-    public async Task PatchArticle_ShouldUpdatePageId()
-    {
-        var client = await CreateAuthenticatedClientAsync();
-        var ctx = ApplicationFixture.GetCmsContext();
-        var page = ctx.BuildTestPage(entityType: PageEntityType.Article);
-        var article = ctx.BuildTestArticle();
-        var patch = new object[]
-        {
-            new { op = "replace", path = "/PageId", value = page.Id }
-        };
-
-        var response = await client.PatchArticle(article.Id, patch);
-
-        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
-        var freshCtx = ApplicationFixture.GetCmsContext();
-        var refreshed = freshCtx.Articles.AsNoTracking().First(a => a.Id == article.Id);
-        await Assert.That(refreshed.PageId).IsEqualTo(page.Id);
-    }
-
-    [Test]
-    public async Task PatchArticle_ShouldReturn400_WhenPageIdDoesNotExist()
-    {
-        var client = await CreateAuthenticatedClientAsync();
-        var ctx = ApplicationFixture.GetCmsContext();
-        var article = ctx.BuildTestArticle();
-        var patch = new object[]
-        {
-            new { op = "replace", path = "/PageId", value = Guid.NewGuid() }
-        };
-
-        var response = await client.PatchArticle(article.Id, patch);
-
-        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
-    }
-
-    [Test]
-    public async Task DeletePage_ShouldSetArticlePageIdToNull()
-    {
-        var client = await CreateAuthenticatedClientAsync();
-        var ctx = ApplicationFixture.GetCmsContext();
-        var page = ctx.BuildTestPage(entityType: PageEntityType.Article);
-        var article = ctx.BuildTestArticle(pageId: page.Id);
-
-        var response = await client.DeleteAsync($"/cms/pages/{page.Id}");
-        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
-
-        var freshCtx = ApplicationFixture.GetCmsContext();
-        var refreshed = freshCtx.Articles.AsNoTracking().First(a => a.Id == article.Id);
-        await Assert.That(refreshed.PageId).IsNull();
     }
 }

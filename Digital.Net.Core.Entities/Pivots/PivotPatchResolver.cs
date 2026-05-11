@@ -83,9 +83,22 @@ public class PivotPatchResolver<TContext, TParent, TChild, TPivot, TDto>(TContex
 
             if (match is null)
             {
-                var child = dto.ToChild();
-                context.Set<TChild>().Add(child);
-                context.Set<TPivot>().Add(new TPivot { ParentId = parentId, ChildId = child.Id, Order = index });
+                if (Mode == Ownership.Dissociate && id is not null)
+                {
+                    var childExists = await context.Set<TChild>().AnyAsync(c => c.Id == id.Value, ct);
+                    if (!childExists)
+                        throw new EntityValidationException(
+                            $"{VirtualPath}[{index}]: Child with id {id} does not exist."
+                        );
+                    context.Set<TPivot>()
+                        .Add(new TPivot { ParentId = parentId, ChildId = id.Value, Order = index });
+                }
+                else
+                {
+                    var child = dto.ToChild();
+                    context.Set<TChild>().Add(child);
+                    context.Set<TPivot>().Add(new TPivot { ParentId = parentId, ChildId = child.Id, Order = index });
+                }
             }
             else
             {
