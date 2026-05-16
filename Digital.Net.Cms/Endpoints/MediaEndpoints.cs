@@ -13,9 +13,11 @@ using Digital.Net.Core.Services.Crud;
 using Digital.Net.Core.Services.Documents;
 using Digital.Net.Core.Services.Documents.Exceptions;
 using Digital.Net.Core.Services.Pagination.Extensions;
+using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.Predicates;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
@@ -23,13 +25,6 @@ namespace Digital.Net.Cms.Endpoints;
 
 public static class MediaEndpoints
 {
-    private const long MaxFileSize = 10 * 1024 * 1024; // 10 MB
-
-    private static readonly string[] SupportedMimeTypes =
-    [
-        "image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"
-    ];
-
     public static IEndpointRouteBuilder MapCmsMediaEndpoints(this IEndpointRouteBuilder app)
     {
         var userRoutes = app
@@ -40,6 +35,16 @@ public static class MediaEndpoints
 
         userRoutes.MapCrudGet<CmsContext, Media, MediaDto>();
         userRoutes.MapPaginationGet<CmsContext, Media, MediaDto, MediaQuery>(filter: PaginationFilter);
+
+        userRoutes
+            .MapGet("content-types", GetSupportedContentTypes)
+            .WithSummary("GetContentTypes")
+            .WithDescription("Returns the list of MIME types accepted by the media upload endpoint.");
+
+        userRoutes
+            .MapGet("max-size", GetMaxFileSize)
+            .WithSummary("GetMaxFileSize")
+            .WithDescription("Returns the maximum file size (in bytes) accepted by the media upload endpoint.");
 
         userRoutes
             .MapPost("", UploadMedia)
@@ -83,6 +88,12 @@ public static class MediaEndpoints
         return app;
     }
 
+    private static Ok<Result<IReadOnlyList<string>>> GetSupportedContentTypes() =>
+        TypedResults.Ok(new Result<IReadOnlyList<string>>(MediaUploadConstraints.SupportedMimeTypes));
+
+    private static Ok<Result<long>> GetMaxFileSize() =>
+        TypedResults.Ok(new Result<long>(MediaUploadConstraints.MaxFileSize));
+
     private static async Task<IResult> UploadMedia(
         IFormFile file,
         [FromForm] string name,
@@ -93,10 +104,11 @@ public static class MediaEndpoints
         UserContextService userContextService
     )
     {
-        if (file.Length > MaxFileSize)
-            return Results.BadRequest("File exceeds the maximum size of 10 MB.");
+        if (file.Length > MediaUploadConstraints.MaxFileSize)
+            return Results.BadRequest(
+                $"File exceeds the maximum size of {MediaUploadConstraints.MaxFileSize / (1024 * 1024)} MB.");
 
-        if (!SupportedMimeTypes.Contains(file.ContentType, StringComparer.OrdinalIgnoreCase))
+        if (!MediaUploadConstraints.SupportedMimeTypes.Contains(file.ContentType, StringComparer.OrdinalIgnoreCase))
             return Results.BadRequest($"Unsupported file type '{file.ContentType}'.");
 
         var user = userContextService.GetUser();
