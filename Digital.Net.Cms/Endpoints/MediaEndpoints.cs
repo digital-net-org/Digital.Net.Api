@@ -1,9 +1,11 @@
+using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Endpoints.Dto;
 using Digital.Net.Cms.Endpoints.Events;
 using Digital.Net.Cms.Models.Medias;
 using Digital.Net.Cms.Services.Medias;
+using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.RateLimiter.Limiters;
 using Digital.Net.Core.Services.Auditing;
@@ -12,7 +14,7 @@ using Digital.Net.Core.Services.Authentication.Filters;
 using Digital.Net.Core.Services.Crud;
 using Digital.Net.Core.Services.Documents;
 using Digital.Net.Core.Services.Documents.Exceptions;
-using Digital.Net.Core.Services.Pagination.Extensions;
+using Digital.Net.Core.Services.Pagination;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.Predicates;
 using Microsoft.AspNetCore.Builder;
@@ -20,6 +22,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Cms.Endpoints;
 
@@ -33,8 +36,21 @@ public static class MediaEndpoints
             .RequireRateLimiting(GlobalLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
-        userRoutes.MapCrudGet<CmsContext, Media, MediaDto>();
-        userRoutes.MapPaginationGet<CmsContext, Media, MediaDto, MediaQuery>(filter: PaginationFilter);
+        userRoutes
+            .MapGet("{id:guid}", GetMediaById)
+            .WithSummary("GetById: Media")
+            .WithDescription(
+                "Retrieves a media by its ID. Cross-context join: " +
+                "the Media (CmsContext) is loaded with its Variants, then their Documents are batch-loaded from DigitalContext."
+            );
+
+        userRoutes
+            .MapGet("", GetMediaList)
+            .WithSummary("GetPaginated: Media")
+            .WithDescription(
+                "Retrieves a paginated list of Media with their original Document metadata. " +
+                "Variants are not loaded in the list view for performance — only on GetById."
+            );
 
         userRoutes
             .MapGet("content-types", GetSupportedContentTypes)
@@ -93,7 +109,7 @@ public static class MediaEndpoints
 
     private static Ok<Result<long>> GetMaxFileSize() =>
         TypedResults.Ok(new Result<long>(MediaUploadConstraints.MaxFileSize));
-
+    
     private static async Task<IResult> UploadMedia(
         IFormFile file,
         [FromForm] string name,
@@ -212,11 +228,93 @@ public static class MediaEndpoints
         );
     }
 
-    private static Expression<Func<Media, bool>> PaginationFilter(
-        Expression<Func<Media, bool>> predicate,
-        MediaQuery query
-    )
+    private static async Task<Results<Ok<Result<MediaDto>>, NotFound<Result<MediaDto>>>> GetMediaById(
+        Guid id,
+        CmsContext cmsContext,
+        DigitalContext digitalContext)
     {
+        var result = new Result<MediaDto>();
+        var media = await cmsContext.Media
+            .Include(m => m.Variants)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(m => m.Id == id);
+        if (media is null)
+            return TypedResults.NotFound(result);
+
+        // Cross-context join: Document lives in DigitalContext, not in CmsContext.
+        // We batch-load every Document referenced by the Media and its Variants in one query.
+        var documentIds = new HashSet<Guid> { media.DocumentId };
+        foreach (var variant in media.Variants)
+            documentIds.Add(variant.DocumentId);
+
+        var documents = await digitalContext.Documents
+            .AsNoTracking()
+            .Where(d => documentIds.Contains(d.Id))
+            .ToDictionaryAsync(d => d.Id);
+
+        if (!documents.TryGetValue(media.DocumentId, out var mediaDocument))
+            return TypedResults.NotFound(result);
+
+        result.Value = new MediaDto(media, mediaDocument, documents);
+        return TypedResults.Ok(result);
+    }
+
+    private static async Task<Ok<QueryResult<MediaDto>>> GetMediaList(
+        [AsParameters]
+        MediaQuery query,
+        CmsContext cmsContext,
+        DigitalContext digitalContext)
+    {
+        query.ValidateParameters();
+        var result = new QueryResult<MediaDto>();
+
+        var predicate = BuildMediaPredicate(query);
+        var items = cmsContext.Media.Where(predicate);
+        var rowCount = await items.CountAsync();
+
+        var config = new ParsingConfig { IsCaseSensitive = false };
+        var orderBy = string.IsNullOrWhiteSpace(query.OrderBy) ? "CreatedAt" : query.OrderBy;
+        var direction = string.Equals(query.Order, "desc", StringComparison.OrdinalIgnoreCase)
+            ? " descending"
+            : "";
+
+        var entities = await items
+            .AsNoTracking()
+            .OrderBy(config, orderBy + direction)
+            .Skip((query.Index - 1) * query.Size)
+            .Take(query.Size)
+            .ToListAsync();
+
+        // Cross-context join (batch): one query for all root Documents of the page.
+        // Variants are not loaded here — only on GetById.
+        var documentIds = entities.Select(m => m.DocumentId).Distinct().ToList();
+        var documents = await digitalContext.Documents
+            .AsNoTracking()
+            .Where(d => documentIds.Contains(d.Id))
+            .ToDictionaryAsync(d => d.Id);
+
+        result.Value = entities
+            .Where(m => documents.ContainsKey(m.DocumentId))
+            .Select(m => new MediaDto(m, documents[m.DocumentId]))
+            .ToList();
+        result.Total = rowCount;
+        result.Index = query.Index;
+        result.Size = query.Size;
+
+        return TypedResults.Ok(result);
+    }
+
+    private static Expression<Func<Media, bool>> BuildMediaPredicate(MediaQuery query)
+    {
+        var predicate = PredicateBuilder.New<Media>();
+        if (query.CreatedFrom.HasValue)
+            predicate = predicate.Add(x => x.CreatedAt >= query.CreatedFrom);
+        if (query.UpdatedFrom.HasValue)
+            predicate = predicate.Add(x => x.UpdatedAt >= query.UpdatedFrom);
+        if (query.CreatedTo is not null)
+            predicate = predicate.Add(x => x.CreatedAt <= query.CreatedTo);
+        if (query.UpdatedTo is not null)
+            predicate = predicate.Add(x => x.UpdatedAt <= query.UpdatedTo);
         if (!string.IsNullOrEmpty(query.Name))
             predicate = predicate.Add(x => x.Name.StartsWith(query.Name));
         if (query.Published.HasValue)
