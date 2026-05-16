@@ -15,7 +15,8 @@ namespace Digital.Net.Core.Services.Documents;
 
 public class DocumentService(
     DigitalContext context,
-    IConfiguration configuration
+    IConfiguration configuration,
+    IDocumentDimensionExtractor dimensionExtractor
 ) : IDocumentService
 {
     public string GetDocumentPath(Document document) => Path.Combine(
@@ -82,6 +83,14 @@ public class DocumentService(
             file = await SvgSanitizer.SanitizeAsync(file);
 
         result.Value = new Document(uploader, file);
+
+        await using (var dimensionStream = file.OpenReadStream())
+        {
+            var (width, height) = dimensionExtractor.Extract(dimensionStream, file.ContentType);
+            result.Value.Width = width;
+            result.Value.Height = height;
+        }
+
         await context.Documents.AddAsync(result.Value);
 
         var fullPath = Path.GetFullPath(GetDocumentPath(result.Value));

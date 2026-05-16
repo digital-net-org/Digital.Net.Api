@@ -38,6 +38,14 @@ public class Document : Entity
     [ReadOnly]
     public long FileSize { get; set; }
 
+    [Column("Width")]
+    [ReadOnly]
+    public int? Width { get; set; }
+
+    [Column("Height")]
+    [ReadOnly]
+    public int? Height { get; set; }
+
     [Column("UploaderId")]
     [ForeignKey("User")]
     public Guid? UploaderId { get; set; }
