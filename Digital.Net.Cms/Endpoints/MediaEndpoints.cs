@@ -36,6 +36,8 @@ public static class MediaEndpoints
             .RequireRateLimiting(GlobalLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
+        userRoutes.MapCrudSchema<CmsContext, Media>();
+        
         userRoutes
             .MapGet("{id:guid}", GetMediaById)
             .WithSummary("GetById: Media")
