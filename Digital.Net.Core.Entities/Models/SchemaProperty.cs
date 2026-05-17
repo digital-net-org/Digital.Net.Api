@@ -39,7 +39,7 @@ public class SchemaProperty<T>
         }
         else
         {
-            Type = propertyInfo.PropertyType.Name;
+            Type = underlying.Name;
             EnumValues = null;
         }
     }
