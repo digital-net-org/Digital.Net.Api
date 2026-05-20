@@ -193,6 +193,8 @@ public static class PageEndpoints
             predicate = predicate.Add(x => x.Published == query.Published);
         if (query.Indexed.HasValue)
             predicate = predicate.Add(x => x.Indexed == query.Indexed);
+        if (query.EntityType.HasValue)
+            predicate = predicate.Add(x => x.EntityType == query.EntityType);
         return predicate;
     }
 }
