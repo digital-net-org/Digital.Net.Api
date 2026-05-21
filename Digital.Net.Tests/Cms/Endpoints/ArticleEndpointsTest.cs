@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using Digital.Net.Cms.Endpoints.Dto;
 using Digital.Net.Cms.Models.Pages;
 using Digital.Net.Core.Services.Pagination;
+using Digital.Net.Lib.Messages;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data;
 using Digital.Net.Tests.Core.Factories.Data.Records;
@@ -90,5 +91,68 @@ public class ArticleEndpointsTest
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         await Assert.That(result!.Value!.PageId).IsEqualTo(page.Id);
+    }
+
+    [Test]
+    public async Task GetSlugAvailability_ShouldReturnTrue_WhenSlugIsFree()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var freeSlug = "free-" + Guid.NewGuid().ToString("N")[..8];
+
+        var response = await client.GetSlugAvailability(freeSlug);
+        var result = await response.Content.ReadFromJsonAsync<Result<bool>>();
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(result!.Value).IsTrue();
+    }
+
+    [Test]
+    public async Task GetSlugAvailability_ShouldReturnFalse_WhenSlugIsTaken()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var ctx = ApplicationFixture.GetCmsContext();
+        var takenSlug = "taken-" + Guid.NewGuid().ToString("N")[..8];
+        ctx.BuildTestArticle(slug: takenSlug);
+
+        var response = await client.GetSlugAvailability(takenSlug);
+        var result = await response.Content.ReadFromJsonAsync<Result<bool>>();
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(result!.Value).IsFalse();
+    }
+
+    [Test]
+    public async Task GetSlugAvailability_ShouldReturnTrue_WhenExcludeIdOwnsSlug()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var ctx = ApplicationFixture.GetCmsContext();
+        var ownSlug = "self-" + Guid.NewGuid().ToString("N")[..8];
+        var article = ctx.BuildTestArticle(slug: ownSlug);
+
+        var response = await client.GetSlugAvailability(ownSlug, article.Id);
+        var result = await response.Content.ReadFromJsonAsync<Result<bool>>();
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(result!.Value).IsTrue();
+    }
+
+    [Test]
+    public async Task CreateArticle_ShouldReturn400_WhenSlugIsDuplicate()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var ctx = ApplicationFixture.GetCmsContext();
+        var slug = "dup-" + Guid.NewGuid().ToString("N")[..8];
+        ctx.BuildTestArticle(slug: slug);
+
+        var payload = new ArticlePayload
+        {
+            Title = "Dup",
+            Description = "Dup",
+            Content = "Dup",
+            Slug = slug,
+        };
+        var response = await client.CreateArticle(payload);
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
     }
 }

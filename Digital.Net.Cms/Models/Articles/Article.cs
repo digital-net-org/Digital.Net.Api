@@ -4,10 +4,12 @@ using Digital.Net.Cms.Models.Pages;
 using Digital.Net.Core.Entities.Attributes;
 using Digital.Net.Core.Entities.Models;
 using Digital.Net.Lib.String;
+using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Cms.Models.Articles;
 
 [Table("Article")]
+[Index(nameof(Slug), IsUnique = true)]
 public class Article : Entity
 {
     [Column("Title")]

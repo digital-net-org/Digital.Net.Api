@@ -28,4 +28,15 @@ public static class ArticleApi
 
     public static async Task<HttpResponseMessage> GetArticleBySlug(this HttpClient client, string slug) =>
         await client.GetAsync($"{BaseUrl}/slug/{slug}");
+
+    public static async Task<HttpResponseMessage> GetSlugAvailability(
+        this HttpClient client,
+        string slug,
+        Guid? excludeId = null
+    )
+    {
+        var url = $"{BaseUrl}/slug/availability?slug={Uri.EscapeDataString(slug)}";
+        if (excludeId.HasValue) url += $"&excludeId={excludeId.Value}";
+        return await client.GetAsync(url);
+    }
 }

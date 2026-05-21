@@ -13,6 +13,7 @@ using Digital.Net.Lib.Predicates;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,6 +28,14 @@ public static class ArticleEndpoints
             .WithTags("CMS.Articles")
             .RequireRateLimiting(GlobalLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
+
+        controller
+            .MapGet("slug/availability", GetSlugAvailability)
+            .WithSummary("CheckSlugAvailability")
+            .WithDescription(
+                "Returns true if the slug is not yet used by any article. " +
+                "ExcludeId scopes out a specific id (edition case)."
+            );
 
         controller.MapCrudSchema<CmsContext, Article>();
         controller.MapCrudGet<CmsContext, Article, ArticleDto>();
@@ -50,6 +59,18 @@ public static class ArticleEndpoints
             .WithDescription("Retrieves a published article by its slug.");
 
         return app;
+    }
+
+    private static async Task<Ok<Result<bool>>> GetSlugAvailability(
+        [FromQuery]
+        string slug,
+        [FromQuery]
+        Guid? excludeId,
+        CmsContext context
+    )
+    {
+        var taken = await context.Articles.AnyAsync(a => a.Slug == slug && (excludeId == null || a.Id != excludeId));
+        return TypedResults.Ok(new Result<bool>(!taken));
     }
 
     private static async
