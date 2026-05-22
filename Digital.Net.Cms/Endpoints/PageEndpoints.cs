@@ -48,6 +48,7 @@ public static class PageEndpoints
         controller.MapCrudSchema<CmsContext, Page>();
         controller.MapCrudSchema<CmsContext, Sheet>("sheet");
         controller.MapCrudSchema<CmsContext, OpenGraphEntry>("open-graph-entry");
+        controller.MapCrudSchema<CmsContext, PageMedia>("media");
         controller
             .MapGet("open-graph-values/schema", GetOpenGraphSchema)
             .WithSummary("GetOpenGraphValuesSchema")

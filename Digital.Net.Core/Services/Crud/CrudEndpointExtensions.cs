@@ -23,7 +23,7 @@ public static class CrudEndpointExtensions
         string? route = null
     )
         where TContext : DbContext
-        where T : Entity
+        where T : class, IEntity
     {
         route = string.IsNullOrWhiteSpace(route) ? "" : $"{route}/";
         return app

@@ -39,6 +39,7 @@ public static class ArticleEndpoints
             );
 
         controller.MapCrudSchema<CmsContext, Article>();
+        controller.MapCrudSchema<CmsContext, ArticleMedia>("media");
         controller.MapCrudGet<CmsContext, Article, ArticleDto>();
         controller.MapPaginationGet<CmsContext, Article, ArticleListDto, ArticleQuery>(
             filter: PaginationFilter,
