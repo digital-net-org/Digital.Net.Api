@@ -7,7 +7,7 @@ namespace Digital.Net.Core.Entities.Models;
 ///     All pivots share the same shape: (ParentId, ChildId) composite key plus an <see cref="Order" />
 ///     column managed by the framework.
 /// </summary>
-public abstract class Pivot<TParent, TChild>
+public abstract class Pivot<TParent, TChild> : IEntity
     where TParent : Entity
     where TChild : Entity
 {

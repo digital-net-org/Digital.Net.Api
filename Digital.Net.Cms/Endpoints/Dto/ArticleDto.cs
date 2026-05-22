@@ -30,6 +30,7 @@ public class ArticleDto
     public DateTime? PublishedAt { get; set; }
     public Guid? PageId { get; set; }
     public List<TagDto> Tags { get; set; } = [];
+    public List<ArticleMediaDto> Media { get; set; } = [];
     public DateTime CreatedAt { get; init; }
     public DateTime? UpdatedAt { get; init; }
 }

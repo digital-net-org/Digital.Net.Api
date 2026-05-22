@@ -55,6 +55,15 @@ public static class MediaEndpoints
             );
 
         userRoutes
+            .MapGet("labels", GetMediaLabels)
+            .WithSummary("GetMediaLabels")
+            .WithDescription(
+                "Returns the distinct, alphabetically-sorted list of labels currently in use across all " +
+                "ArticleMedia and PageMedia pivots. Optional 'search' querystring narrows the result with a " +
+                "case-insensitive LIKE filter."
+            );
+
+        userRoutes
             .MapGet("content-types", GetSupportedContentTypes)
             .WithSummary("GetContentTypes")
             .WithDescription("Returns the list of MIME types accepted by the media upload endpoint.");
@@ -104,6 +113,31 @@ public static class MediaEndpoints
             .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         return app;
+    }
+
+    private static async Task<Ok<Result<List<string>>>> GetMediaLabels(
+        [FromQuery]
+        string? search,
+        CmsContext context,
+        CancellationToken ct
+    )
+    {
+        var articleLabels = context.ArticleMedia
+            .Where(p => p.Label != null && p.Label != "")
+            .Select(p => p.Label!);
+        var pageLabels = context.PageMedia
+            .Where(p => p.Label != null && p.Label != "")
+            .Select(p => p.Label!);
+
+        var query = articleLabels.Union(pageLabels);
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var needle = search.Trim().ToLowerInvariant();
+            query = query.Where(l => l.Contains(needle));
+        }
+
+        var labels = await query.Distinct().OrderBy(l => l).ToListAsync(ct);
+        return TypedResults.Ok(new Result<List<string>>(labels));
     }
 
     private static Ok<Result<IReadOnlyList<string>>> GetSupportedContentTypes() =>

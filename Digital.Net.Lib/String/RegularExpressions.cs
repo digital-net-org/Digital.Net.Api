@@ -38,7 +38,13 @@ public static partial class RegularExpressions
 
     public const string ArticleSlugPattern = @"^[a-zA-Z0-9_\-~]+$";
     public static Regex ArticleSlug => ArticleSlugRegex();
-    
+
+    [GeneratedRegex(MediaLabelPattern)]
+    private static partial Regex MediaLabelRegex();
+
+    public const string MediaLabelPattern = @"^[a-z0-9-]+$";
+    public static Regex MediaLabel => MediaLabelRegex();
+
     [GeneratedRegex("(?<!^)([A-Z])")]
     public static partial Regex PascalCase();
 

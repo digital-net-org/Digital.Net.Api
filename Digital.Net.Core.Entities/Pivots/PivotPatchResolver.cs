@@ -27,6 +27,18 @@ public class PivotPatchResolver<TContext, TParent, TChild, TPivot, TDto>(TContex
     public string VirtualPath => Resolution.VirtualPath;
     protected Ownership Mode => Resolution.Mode;
 
+    /// <summary>
+    ///     Schema for the pivot's own custom columns — i.e. properties declared on the pivot
+    ///     subclass, excluding those inherited from <see cref="Pivot{TParent,TChild}" />. Built once
+    ///     from <see cref="SchemaProperty{T}.Get" /> and reused on every validation pass so declarative attributes
+    ///     on pivot columns flow through the same pipeline as Entity columns.
+    /// </summary>
+    private static readonly IReadOnlyList<SchemaProperty<TPivot>> PivotCustomSchema =
+        SchemaProperty<TPivot>
+            .Get()
+            .Where(s => typeof(TPivot).GetProperty(s.Name)?.DeclaringType != typeof(Pivot<TParent, TChild>))
+            .ToList();
+
     public Result ValidateValue(JsonElement value, Guid parentId)
     {
         var result = new Result();
@@ -50,6 +62,20 @@ public class PivotPatchResolver<TContext, TParent, TChild, TPivot, TDto>(TContex
             catch (EntityValidationException ex)
             {
                 result.AddError(new EntityValidationException($"{VirtualPath}[{i}].{ex.Message}"));
+            }
+
+            foreach (var pivotSchema in PivotCustomSchema)
+            {
+                var dtoProp = typeof(TDto).GetProperty(pivotSchema.Name);
+                if (dtoProp is null) continue;
+                try
+                {
+                    pivotSchema.ValidatePath(dtoProp.GetValue(items[i]), pivotSchema.Name);
+                }
+                catch (EntityValidationException ex)
+                {
+                    result.AddError(new EntityValidationException($"{VirtualPath}[{i}].{ex.Message}"));
+                }
             }
         }
 
@@ -90,20 +116,24 @@ public class PivotPatchResolver<TContext, TParent, TChild, TPivot, TDto>(TContex
                         throw new EntityValidationException(
                             $"{VirtualPath}[{index}]: Child with id {id} does not exist."
                         );
-                    context.Set<TPivot>()
-                        .Add(new TPivot { ParentId = parentId, ChildId = id.Value, Order = index });
+                    var newPivot = new TPivot { ParentId = parentId, ChildId = id.Value, Order = index };
+                    dto.ApplyToPivot(newPivot);
+                    context.Set<TPivot>().Add(newPivot);
                 }
                 else
                 {
                     var child = dto.ToChild();
                     context.Set<TChild>().Add(child);
-                    context.Set<TPivot>().Add(new TPivot { ParentId = parentId, ChildId = child.Id, Order = index });
+                    var newPivot = new TPivot { ParentId = parentId, ChildId = child.Id, Order = index };
+                    dto.ApplyToPivot(newPivot);
+                    context.Set<TPivot>().Add(newPivot);
                 }
             }
             else
             {
                 dto.ApplyTo(match.Child);
                 match.Order = index;
+                dto.ApplyToPivot(match);
             }
         }
 

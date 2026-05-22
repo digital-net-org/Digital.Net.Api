@@ -32,6 +32,7 @@ public class PageDto
     public string? Description { get; set; }
     public string? JsonLd { get; set; }
     public string? Redirect { get; set; }
+    public List<PageMediaDto> Media { get; set; } = [];
     public DateTime CreatedAt { get; init; }
     public DateTime? UpdatedAt { get; init; }
 }

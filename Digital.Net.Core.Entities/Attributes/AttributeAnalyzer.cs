@@ -11,9 +11,8 @@ namespace Digital.Net.Core.Entities.Attributes;
 ///     EF Core Attribute analyzer.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-// ReSharper disable once InconsistentNaming
 public static class AttributeAnalyzer<T>
-    where T : Entity
+    where T : class, IEntity
 {
     public static bool IsRequired(string propertyName) =>
         typeof(T).GetProperty(propertyName)?.GetCustomAttribute<RequiredAttribute>() is not null;

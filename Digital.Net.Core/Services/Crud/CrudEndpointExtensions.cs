@@ -51,19 +51,27 @@ public static class CrudEndpointExtensions
         return app
             .MapGet(
                 $"{route}{{id:guid}}",
-                Results<Ok<Result<TDto>>, NotFound<Result<TDto>>, InternalServerError<Result<TDto>>> (
+                async Task<Results<Ok<Result<TDto>>, NotFound<Result<TDto>>, InternalServerError<Result<TDto>>>> (
                     Guid id,
-                    TContext context
+                    TContext context,
+                    IEnumerable<IDtoEnricher<T, TDto>> enrichers,
+                    CancellationToken ct
                 ) =>
                 {
                     var result = new Result<TDto>();
                     try
                     {
-                        var entity = context.Set<T>().Find(id) ?? throw new ResourceNotFoundException();
-                        result.Value = Mapper.TryMap<T, TDto>(entity);
+                        var entity = await context.Set<T>().FindAsync([id], ct) ??
+                                     throw new ResourceNotFoundException();
+
+                        var dto = Mapper.TryMap<T, TDto>(entity);
+                        foreach (var enricher in enrichers)
+                            await enricher.EnrichAsync(entity, dto, ct);
+
+                        result.Value = dto;
                         return TypedResults.Ok(result);
                     }
-                    catch (ResourceNotFoundException ex)
+                    catch (ResourceNotFoundException)
                     {
                         return TypedResults.NotFound(result);
                     }

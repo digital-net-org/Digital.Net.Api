@@ -77,21 +77,26 @@ public static class ArticleEndpoints
         Task<Results<Ok<Result<ArticleDto>>, NotFound<Result<ArticleDto>>, InternalServerError<Result<ArticleDto>>>>
         GetArticleBySlug(
             string slug,
-            CmsContext context
+            CmsContext cmsContext,
+            IEnumerable<IDtoEnricher<Article, ArticleDto>> enrichers,
+            CancellationToken ct
         )
     {
         var result = new Result<ArticleDto>();
         try
         {
-            var article = await context.Articles
+            var article = await cmsContext.Articles
                 .AsNoTracking()
                 .Include(a => a.Tags)
-                .FirstOrDefaultAsync(a => a.Slug == slug && a.PublishedAt != null);
+                .FirstOrDefaultAsync(a => a.Slug == slug && a.PublishedAt != null, ct);
 
             if (article is null)
                 throw new ResourceNotFoundException();
 
-            result.Value = new ArticleDto(article);
+            var dto = new ArticleDto(article);
+            foreach (var enricher in enrichers)
+                await enricher.EnrichAsync(article, dto, ct);
+            result.Value = dto;
         }
         catch (Exception ex)
         {

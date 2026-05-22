@@ -8,6 +8,7 @@ using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.Entities.Pivots;
 using Digital.Net.Core.RateLimiter.Limiters;
 using Digital.Net.Core.Services.Authentication.Filters;
+using Digital.Net.Core.Services.Crud;
 using Digital.Net.Core.Services.Events.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -30,7 +31,8 @@ public static class CmsInjector
             .AddPageDependencies()
             .AddSitemapDependencies()
             .AddScoped<MediaService>()
-            .AddPivotsFromAssemblies<CmsContext>(typeof(CmsInjector).Assembly);
+            .AddPivotsFromAssemblies<CmsContext>(typeof(CmsInjector).Assembly)
+            .AddDtoEnrichersFromAssemblies(typeof(CmsInjector).Assembly);
 
         return builder;
     }

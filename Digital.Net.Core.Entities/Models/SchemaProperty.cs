@@ -14,7 +14,7 @@ namespace Digital.Net.Core.Entities.Models;
 /// </summary>
 /// <typeparam name="T">The model of the entity</typeparam>
 public class SchemaProperty<T>
-    where T : Entity
+    where T : class, IEntity
 {
     public SchemaProperty(PropertyInfo propertyInfo)
     {
