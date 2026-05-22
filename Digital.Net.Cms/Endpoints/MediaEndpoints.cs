@@ -5,6 +5,7 @@ using Digital.Net.Cms.Endpoints.Dto;
 using Digital.Net.Cms.Endpoints.Events;
 using Digital.Net.Cms.Models.Medias;
 using Digital.Net.Cms.Services.Medias;
+using Digital.Net.Cms.Services.Medias.Dto;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.RateLimiter.Limiters;
@@ -115,29 +116,18 @@ public static class MediaEndpoints
         return app;
     }
 
-    private static async Task<Ok<Result<List<string>>>> GetMediaLabels(
-        [FromQuery]
-        string? search,
-        CmsContext context,
-        CancellationToken ct
+    private static async Task<Results<Ok<Result<List<string>>>, InternalServerError<Result<List<string>>>>>
+        GetMediaLabels(
+            [FromQuery]
+            string? search,
+            CancellationToken ct,
+            MediaLabelService mediaLabelService
     )
     {
-        var articleLabels = context.ArticleMedia
-            .Where(p => p.Label != null && p.Label != "")
-            .Select(p => p.Label!);
-        var pageLabels = context.PageMedia
-            .Where(p => p.Label != null && p.Label != "")
-            .Select(p => p.Label!);
-
-        var query = articleLabels.Union(pageLabels);
-        if (!string.IsNullOrWhiteSpace(search))
-        {
-            var needle = search.Trim().ToLowerInvariant();
-            query = query.Where(l => l.Contains(needle));
-        }
-
-        var labels = await query.Distinct().OrderBy(l => l).ToListAsync(ct);
-        return TypedResults.Ok(new Result<List<string>>(labels));
+        var result = await mediaLabelService.GetExistingLabels(search, ct);
+        return result.HasError
+            ? TypedResults.InternalServerError(result)
+            : TypedResults.Ok(result);
     }
 
     private static Ok<Result<IReadOnlyList<string>>> GetSupportedContentTypes() =>

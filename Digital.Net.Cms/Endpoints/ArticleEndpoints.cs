@@ -3,6 +3,8 @@ using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Endpoints.Dto;
 using Digital.Net.Cms.Endpoints.Events;
 using Digital.Net.Cms.Models.Articles;
+using Digital.Net.Cms.Services.Articles;
+using Digital.Net.Cms.Services.Articles.Dto;
 using Digital.Net.Core.RateLimiter.Limiters;
 using Digital.Net.Core.Services.Authentication.Filters;
 using Digital.Net.Core.Services.Crud;
@@ -15,7 +17,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Cms.Endpoints;
 
@@ -61,48 +62,31 @@ public static class ArticleEndpoints
         return app;
     }
 
-    private static async Task<Ok<Result<bool>>> GetSlugAvailability(
-        [FromQuery]
-        string slug,
-        [FromQuery]
-        Guid? excludeId,
-        CmsContext context
-    )
+    private static async Task<Results<Ok<Result<bool>>, InternalServerError<Result<bool>>>>
+        GetSlugAvailability(
+            [FromQuery]
+            string slug,
+            [FromQuery]
+            Guid? excludeId,
+            ArticleService articleService,
+            CancellationToken ct
+        )
     {
-        var taken = await context.Articles.AnyAsync(a => a.Slug == slug && (excludeId == null || a.Id != excludeId));
-        return TypedResults.Ok(new Result<bool>(!taken));
+        var result = await articleService.GetSlugAvailability(slug, excludeId, ct);
+        return result.HasError
+            ? TypedResults.InternalServerError(result)
+            : TypedResults.Ok(result);
     }
 
     private static async
         Task<Results<Ok<Result<ArticleDto>>, NotFound<Result<ArticleDto>>, InternalServerError<Result<ArticleDto>>>>
         GetArticleBySlug(
             string slug,
-            CmsContext cmsContext,
-            IEnumerable<IDtoEnricher<Article, ArticleDto>> enrichers,
+            ArticleService articleService,
             CancellationToken ct
         )
     {
-        var result = new Result<ArticleDto>();
-        try
-        {
-            var article = await cmsContext.Articles
-                .AsNoTracking()
-                .Include(a => a.Tags)
-                .FirstOrDefaultAsync(a => a.Slug == slug && a.PublishedAt != null, ct);
-
-            if (article is null)
-                throw new ResourceNotFoundException();
-
-            var dto = new ArticleDto(article);
-            foreach (var enricher in enrichers)
-                await enricher.EnrichAsync(article, dto, ct);
-            result.Value = dto;
-        }
-        catch (Exception ex)
-        {
-            result.AddError(ex);
-        }
-
+        var result = await articleService.GetArticleBySlug(slug, ct);
         if (result.HasErrorOfType<ResourceNotFoundException>())
             return TypedResults.NotFound(result);
         if (result.HasError)

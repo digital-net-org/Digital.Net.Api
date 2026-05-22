@@ -1,6 +1,7 @@
+using Digital.Net.Cms.Endpoints.Dto;
 using Digital.Net.Cms.Models.Articles;
 
-namespace Digital.Net.Cms.Endpoints.Dto;
+namespace Digital.Net.Cms.Services.Articles.Dto;
 
 public class ArticleListDto
 {

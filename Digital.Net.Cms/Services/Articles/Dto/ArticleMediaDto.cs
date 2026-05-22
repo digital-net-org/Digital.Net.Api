@@ -1,6 +1,7 @@
 using Digital.Net.Cms.Models.Articles;
+using Digital.Net.Cms.Services.Medias.Dto;
 
-namespace Digital.Net.Cms.Endpoints.Dto;
+namespace Digital.Net.Cms.Services.Articles.Dto;
 
 public class ArticleMediaDto : MediaDto
 {

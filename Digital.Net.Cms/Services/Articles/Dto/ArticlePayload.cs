@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Digital.Net.Cms.Endpoints.Dto;
+namespace Digital.Net.Cms.Services.Articles.Dto;
 
 public class ArticlePayload
 {

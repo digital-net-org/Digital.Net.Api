@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Digital.Net.Cms.Endpoints.Dto;
+using Digital.Net.Cms.Services.Articles.Dto;
 using Digital.Net.Tests.Core.Http;
 
 namespace Digital.Net.Tests.Core.Sdk;

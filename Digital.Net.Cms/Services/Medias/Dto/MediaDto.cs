@@ -1,7 +1,7 @@
 using Digital.Net.Cms.Models.Medias;
 using Digital.Net.Core.Entities.Models.Documents;
 
-namespace Digital.Net.Cms.Endpoints.Dto;
+namespace Digital.Net.Cms.Services.Medias.Dto;
 
 public class MediaDto
 {

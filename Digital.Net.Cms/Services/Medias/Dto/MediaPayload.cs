@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Digital.Net.Cms.Endpoints.Dto;
+namespace Digital.Net.Cms.Services.Medias.Dto;
 
 public class MediaPayload
 {

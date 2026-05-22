@@ -3,7 +3,7 @@ using Digital.Net.Cms.Models.Medias;
 using Digital.Net.Core.Entities.Exceptions;
 using Digital.Net.Core.Entities.Pivots;
 
-namespace Digital.Net.Cms.Endpoints.Dto;
+namespace Digital.Net.Cms.Services.Articles.Dto;
 
 public class ArticleMediaPayloadDto : IPivotPayload<ArticleMediaPayloadDto, ArticleMedia, Media>
 {

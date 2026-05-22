@@ -1,5 +1,6 @@
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Endpoints;
+using Digital.Net.Cms.Services.Articles;
 using Digital.Net.Cms.Services.Medias;
 using Digital.Net.Cms.Services.Pages;
 using Digital.Net.Cms.Services.Sitemaps;
@@ -12,7 +13,6 @@ using Digital.Net.Core.Services.Crud;
 using Digital.Net.Core.Services.Events.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Digital.Net.Cms;
 
@@ -28,9 +28,10 @@ public static class CmsInjector
             .ApplyMigrations<CmsContext>();
 
         builder.Services
+            .AddArticleDependencies()
             .AddPageDependencies()
             .AddSitemapDependencies()
-            .AddScoped<MediaService>()
+            .AddMediaDependencies()
             .AddPivotsFromAssemblies<CmsContext>(typeof(CmsInjector).Assembly)
             .AddDtoEnrichersFromAssemblies(typeof(CmsInjector).Assembly);
 
