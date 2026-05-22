@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Digital.Net.Cms.Models.Articles;
 using Digital.Net.Cms.Models.Medias;
 using Digital.Net.Core.Entities.Exceptions;
@@ -18,7 +19,9 @@ public class ArticleMediaPayloadDto : IPivotPayload<ArticleMediaPayloadDto, Arti
     }
 
     public Guid? Id { get; set; }
-    public string? Label { get; set; }
+
+    [Required]
+    public required string Label { get; set; }
 
     public Media ToChild() =>
         throw new EntityValidationException(
@@ -30,6 +33,5 @@ public class ArticleMediaPayloadDto : IPivotPayload<ArticleMediaPayloadDto, Arti
             "/media: Media cannot be mutated from here; use the \"cms/media\" API."
         );
 
-    public void ApplyToPivot(ArticleMedia pivot) =>
-        pivot.Label = string.IsNullOrWhiteSpace(Label) ? null : Label.Trim();
+    public void ApplyToPivot(ArticleMedia pivot) => pivot.Label = Label.Trim();
 }

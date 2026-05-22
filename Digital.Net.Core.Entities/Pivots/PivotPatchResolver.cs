@@ -50,18 +50,23 @@ public class PivotPatchResolver<TContext, TParent, TChild, TPivot, TDto>(TContex
         var items = PivotJson.Deserialize<TDto>(value);
         for (var i = 0; i < items.Count; i++)
         {
-            try
+            var dto = items[i];
+            var hasValidId = dto.Id is { } v && v != Guid.Empty;
+            if (Mode == Ownership.Cascade || !hasValidId)
             {
-                var entity = items[i].ToChild();
-                var schema = SchemaProperty<TChild>.Get();
-                foreach (var property in entity.GetType().GetProperties())
-                    schema
-                        .FirstOrDefault(x => x.Name == property.Name)?
-                        .ValidatePath(property.GetValue(entity), property.Name);
-            }
-            catch (EntityValidationException ex)
-            {
-                result.AddError(new EntityValidationException($"{VirtualPath}[{i}].{ex.Message}"));
+                try
+                {
+                    var entity = dto.ToChild();
+                    var schema = SchemaProperty<TChild>.Get();
+                    foreach (var property in entity.GetType().GetProperties())
+                        schema
+                            .FirstOrDefault(x => x.Name == property.Name)?
+                            .ValidatePath(property.GetValue(entity), property.Name);
+                }
+                catch (EntityValidationException ex)
+                {
+                    result.AddError(new EntityValidationException($"{VirtualPath}[{i}].{ex.Message}"));
+                }
             }
 
             foreach (var pivotSchema in PivotCustomSchema)
@@ -70,7 +75,7 @@ public class PivotPatchResolver<TContext, TParent, TChild, TPivot, TDto>(TContex
                 if (dtoProp is null) continue;
                 try
                 {
-                    pivotSchema.ValidatePath(dtoProp.GetValue(items[i]), pivotSchema.Name);
+                    pivotSchema.ValidatePath(dtoProp.GetValue(dto), pivotSchema.Name);
                 }
                 catch (EntityValidationException ex)
                 {
@@ -131,7 +136,7 @@ public class PivotPatchResolver<TContext, TParent, TChild, TPivot, TDto>(TContex
             }
             else
             {
-                dto.ApplyTo(match.Child);
+                if (Mode == Ownership.Cascade) dto.ApplyTo(match.Child);
                 match.Order = index;
                 dto.ApplyToPivot(match);
             }

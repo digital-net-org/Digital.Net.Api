@@ -26,5 +26,5 @@ public class PageMediaDto : MediaDto
         UpdatedAt = media.UpdatedAt;
     }
 
-    public string? Label { get; set; }
+    public string Label { get; set; } = string.Empty;
 }

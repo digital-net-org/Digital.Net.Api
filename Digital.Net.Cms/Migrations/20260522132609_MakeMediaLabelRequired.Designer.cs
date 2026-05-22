@@ -3,6 +3,7 @@ using System;
 using Digital.Net.Cms.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Digital.Net.Cms.Migrations
 {
     [DbContext(typeof(CmsContext))]
-    partial class CmsContextModelSnapshot : ModelSnapshot
+    [Migration("20260522132609_MakeMediaLabelRequired")]
+    partial class MakeMediaLabelRequired
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -105,9 +108,6 @@ namespace Digital.Net.Cms.Migrations
                     b.HasKey("ParentId", "ChildId");
 
                     b.HasIndex("ChildId");
-
-                    b.HasIndex("ParentId", "Label")
-                        .IsUnique();
 
                     b.ToTable("ArticleMedia", "digital_net_cms");
                 });
@@ -484,9 +484,6 @@ namespace Digital.Net.Cms.Migrations
                     b.HasKey("ParentId", "ChildId");
 
                     b.HasIndex("ChildId");
-
-                    b.HasIndex("ParentId", "Label")
-                        .IsUnique();
 
                     b.ToTable("PageMedia", "digital_net_cms");
                 });
