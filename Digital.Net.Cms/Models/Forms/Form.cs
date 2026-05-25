@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Digital.Net.Core.Entities.Attributes;
 using Digital.Net.Core.Entities.Models;
+using Digital.Net.Lib.String;
 
 namespace Digital.Net.Cms.Models.Forms;
 
@@ -22,6 +24,11 @@ public class Form : Entity
     [Column("SubmitLabel")]
     [MaxLength(128)]
     public string SubmitLabel { get; set; } = "Submit";
+
+    [Column("Path")]
+    [MaxLength(2068)]
+    [RegexValidation(RegularExpressions.PagePathPattern)]
+    public string? Path { get; set; }
 
     public virtual List<FormField> Fields { get; set; } = [];
     public virtual List<FormSubmission> Submissions { get; set; } = [];

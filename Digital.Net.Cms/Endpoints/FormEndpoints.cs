@@ -7,7 +7,10 @@ using Digital.Net.Cms.Endpoints.Events;
 using Digital.Net.Cms.Models.Forms;
 using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.RateLimiter.Limiters;
+using Digital.Net.Core.Entities.Exceptions;
+using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Core.Services.Auditing;
+using Digital.Net.Core.Services.Authentication;
 using Digital.Net.Core.Services.Authentication.Filters;
 using Digital.Net.Core.Services.Crud;
 using Digital.Net.Core.Services.Pagination.Extensions;
@@ -39,7 +42,25 @@ public static class FormEndpoints
         form.MapCrudPost<CmsContext, Form, FormCreatePayload>(eventType: CmsEvents.CreateForm);
         form.MapCrudDelete<CmsContext, Form>(eventType: CmsEvents.DeleteForm);
         form.MapCrudPatch<CmsContext, Form>(eventType: CmsEvents.UpdateForm);
-            
+
+        form.MapCrudSchema<CmsContext, FormField>("fields");
+
+        form
+            .MapPost("{formId:guid}/fields", CreateFormField)
+            .WithSummary("CreateFormField")
+            .WithDescription("Creates a new field attached to the form identified by formId.");
+
+        form
+            .MapPatch("{formId:guid}/fields/{fieldId:guid}", PatchFormField)
+            .WithSummary("PatchFormField")
+            .WithDescription("Applies a JSON Patch to a field owned by the form. Returns 404 if the field does not belong to the form.");
+
+        form
+            .MapDelete("{formId:guid}/fields/{fieldId:guid}", DeleteFormField)
+            .WithSummary("DeleteFormField")
+            .WithDescription("Deletes a field owned by the form. Returns 404 if the field does not belong to the form.");
+
+
         var submissions = app
             .MapGroup("cms/forms/submissions")
             .WithTags("CMS.FormsSubmissions")
@@ -137,7 +158,7 @@ public static class FormEndpoints
     {
         var errors = new List<string>();
 
-        foreach (var field in fields.Where(f => f.Type != "message"))
+        foreach (var field in fields.Where(f => f.Type != FormFieldTypes.Message))
         {
             var hasValue = values.TryGetValue(field.Name, out var rawValue) &&
                            !string.IsNullOrWhiteSpace(rawValue);
@@ -151,20 +172,20 @@ public static class FormEndpoints
             if (!hasValue || rawValue is null)
                 continue;
 
-            if (field.Type == "email" &&
+            if (field.Type == FormFieldTypes.Email &&
                 !Regex.IsMatch(rawValue, RegularExpressions.EmailPattern))
             {
                 errors.Add($"{field.Name}: Invalid email address.");
                 continue;
             }
 
-            if (field.Type == "checkbox" && rawValue is not "true" and not "false")
+            if (field.Type == FormFieldTypes.Checkbox && rawValue is not "true" and not "false")
             {
                 errors.Add($"{field.Name}: Must be 'true' or 'false'.");
                 continue;
             }
 
-            if (field.Type is "select" or "radio" && field.OptionsJson is not null)
+            if (field.Type is FormFieldTypes.Select or FormFieldTypes.Radio && field.OptionsJson is not null)
             {
                 try
                 {
@@ -197,7 +218,7 @@ public static class FormEndpoints
                     rawValue.Length > maxLength)
                     errors.Add($"{field.Name}: Must be at most {maxLength} characters.");
 
-                if (field.Type == "number")
+                if (field.Type == FormFieldTypes.Number)
                 {
                     if (double.TryParse(rawValue, out var numericValue))
                     {
@@ -226,6 +247,143 @@ public static class FormEndpoints
         return errors;
     }
 
+    private static async Task<Results<Ok<Result<Guid>>, BadRequest<Result<Guid>>, NotFound<Result<Guid>>, InternalServerError<Result<Guid>>>>
+        CreateFormField(
+            Guid formId,
+            [FromBody]
+            FormFieldPayload payload,
+            CmsContext context,
+            CrudService<CmsContext, FormField> crudService,
+            IAuditService auditService,
+            UserContextService userContextService
+        )
+    {
+        var formExists = await context.Forms.AsNoTracking().AnyAsync(f => f.Id == formId);
+        if (!formExists)
+            return TypedResults.NotFound(new Result<Guid>().AddError(new ResourceNotFoundException()));
+
+        var entity = new FormField
+        {
+            FormId = formId,
+            Name = payload.Name,
+            Type = payload.Type,
+            Label = payload.Label,
+            Placeholder = payload.Placeholder,
+            DefaultValue = payload.DefaultValue,
+            Required = payload.Required,
+            SortOrder = payload.SortOrder,
+            ValidationJson = payload.ValidationJson,
+            OptionsJson = payload.OptionsJson
+        };
+
+        var result = await crudService.Create(entity);
+        var isBadRequest = result.HasErrorOfType<EntityValidationException>();
+        if (result.HasError && !isBadRequest)
+            return TypedResults.InternalServerError(result);
+
+        await auditService.RegisterEventAsync(
+            CmsEvents.CreateFormField,
+            result.HasError ? EventState.Failed : EventState.Success,
+            result,
+            userContextService.GetUserId()
+        );
+
+        return result.HasError
+            ? TypedResults.BadRequest(result)
+            : TypedResults.Ok(result);
+    }
+
+    private static async Task<Results<Ok<Result>, BadRequest<Result>, NotFound<Result>, InternalServerError<Result>>>
+        PatchFormField(
+            Guid formId,
+            Guid fieldId,
+            [FromBody]
+            JsonElement patch,
+            CmsContext context,
+            CrudService<CmsContext, FormField> crudService,
+            IAuditService auditService,
+            UserContextService userContextService,
+            CancellationToken ct
+        )
+    {
+        var field = await context.FormFields.AsNoTracking().FirstOrDefaultAsync(f => f.Id == fieldId, ct);
+        if (field is null || field.FormId != formId)
+            return TypedResults.NotFound(new Result().AddError(new ResourceNotFoundException()));
+
+        if (PatchTargetsFormId(patch))
+            return TypedResults.BadRequest(
+                new Result().AddError(new EntityValidationException("FormId cannot be patched."))
+            );
+
+        var result = await crudService.Patch(patch, fieldId, ct);
+        var isBadRequest = result.HasErrorOfType<EntityValidationException>() ||
+                           result.HasErrorOfType<InvalidOperationException>();
+
+        if (result.HasErrorOfType<ResourceNotFoundException>())
+            return TypedResults.NotFound(result);
+        if (result.HasError && !isBadRequest)
+            return TypedResults.InternalServerError(result);
+
+        await auditService.RegisterEventAsync(
+            CmsEvents.UpdateFormField,
+            result.HasError ? EventState.Failed : EventState.Success,
+            result,
+            userContextService.GetUserId()
+        );
+
+        return result.HasError
+            ? TypedResults.BadRequest(result)
+            : TypedResults.Ok(result);
+    }
+
+    private static async Task<Results<Ok<Result>, NotFound<Result>, InternalServerError<Result>>>
+        DeleteFormField(
+            Guid formId,
+            Guid fieldId,
+            CmsContext context,
+            CrudService<CmsContext, FormField> crudService,
+            IAuditService auditService,
+            UserContextService userContextService
+        )
+    {
+        var field = await context.FormFields.AsNoTracking().FirstOrDefaultAsync(f => f.Id == fieldId);
+        if (field is null || field.FormId != formId)
+            return TypedResults.NotFound(new Result().AddError(new ResourceNotFoundException()));
+
+        var result = await crudService.Delete(fieldId);
+        if (result.HasErrorOfType<ResourceNotFoundException>())
+            return TypedResults.NotFound(result);
+        if (result.HasError)
+            return TypedResults.InternalServerError(result);
+
+        await auditService.RegisterEventAsync(
+            CmsEvents.DeleteFormField,
+            EventState.Success,
+            result,
+            userContextService.GetUserId()
+        );
+
+        return TypedResults.Ok(result);
+    }
+
+    private static bool PatchTargetsFormId(JsonElement patch)
+    {
+        if (patch.ValueKind != JsonValueKind.Array)
+            return false;
+        foreach (var operation in patch.EnumerateArray())
+        {
+            if (operation.ValueKind != JsonValueKind.Object)
+                continue;
+            if (!operation.TryGetProperty("path", out var pathEl) || pathEl.ValueKind != JsonValueKind.String)
+                continue;
+            var path = pathEl.GetString();
+            if (string.Equals(path, "/formId", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(path, "/FormId", StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+        return false;
+    }
+
     private static Expression<Func<Form, bool>> PaginationFilter(
         Expression<Func<Form, bool>> predicate,
         FormQuery query
@@ -235,6 +393,8 @@ public static class FormEndpoints
             predicate = predicate.Add(x => x.Name.StartsWith(query.Name));
         if (query.Published.HasValue)
             predicate = predicate.Add(x => x.Published == query.Published);
+        if (!string.IsNullOrEmpty(query.Path))
+            predicate = predicate.Add(x => x.Path == query.Path);
         return predicate;
     }
 

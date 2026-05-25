@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Digital.Net.Core.Entities.Attributes;
 using Digital.Net.Core.Entities.Models;
 
 namespace Digital.Net.Cms.Models.Forms;
@@ -18,6 +19,16 @@ public class FormField : Entity
     [Column("Type")]
     [Required]
     [MaxLength(16)]
+    [OneOf(
+        FormFieldTypes.Text,
+        FormFieldTypes.Textarea,
+        FormFieldTypes.Email,
+        FormFieldTypes.Number,
+        FormFieldTypes.Checkbox,
+        FormFieldTypes.Select,
+        FormFieldTypes.Radio,
+        FormFieldTypes.Message
+    )]
     public required string Type { get; set; }
 
     [Column("Label")]

@@ -6,4 +6,5 @@ public class FormQuery : Query
 {
     public string? Name { get; set; }
     public bool? Published { get; set; }
+    public string? Path { get; set; }
 }

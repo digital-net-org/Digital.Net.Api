@@ -27,12 +27,6 @@ public static class FormApi
     public static async Task<HttpResponseMessage> DeleteForm(this HttpClient client, Guid id) =>
         await client.DeleteAsync($"{BaseUrl}/{id}");
 
-    public static async Task<HttpResponseMessage> GetFormFields(this HttpClient client, Guid formId) =>
-        await client.GetAsync($"{BaseUrl}/{formId}/fields");
-
-    public static async Task<HttpResponseMessage> GetFormFieldById(this HttpClient client, Guid formId, Guid fieldId) =>
-        await client.GetAsync($"{BaseUrl}/{formId}/fields/{fieldId}");
-
     public static async Task<HttpResponseMessage> CreateFormField(
         this HttpClient client,
         Guid formId,

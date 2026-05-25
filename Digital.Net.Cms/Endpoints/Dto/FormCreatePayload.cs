@@ -9,5 +9,7 @@ public class FormCreatePayload
 
     public string? Description { get; set; }
 
-    public string? SubmitLabel { get; set; }
+    public string SubmitLabel { get; set; } = "Submit";
+
+    public string? Path { get; set; }
 }

@@ -138,10 +138,10 @@ public static class CrudEndpointExtensions
         where TContext : DbContext
         where T : Entity
     {
-    route = string.IsNullOrWhiteSpace(route) ? "" : $"{route}";
+    route = string.IsNullOrWhiteSpace(route) ? "" : $"{route}/";
     return app
             .MapPatch(
-                $"{route}{{id:guid}}", 
+                $"{route}{{id:guid}}",
                 async Task<Results<Ok<Result>, NotFound<Result>, BadRequest<Result>, InternalServerError<Result>>> (
                 Guid id,
                 [FromBody]
