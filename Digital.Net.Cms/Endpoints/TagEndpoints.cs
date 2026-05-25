@@ -10,6 +10,7 @@ using Digital.Net.Lib.Predicates;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Cms.Endpoints;
 
@@ -39,7 +40,7 @@ public static class TagEndpoints
     )
     {
         if (!string.IsNullOrEmpty(query.Name))
-            predicate = predicate.Add(x => x.Name.StartsWith(query.Name));
+            predicate = predicate.Add(x => EF.Functions.ILike(x.Name, $"{query.Name}%"));
         return predicate;
     }
 }

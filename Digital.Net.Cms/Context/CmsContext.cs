@@ -17,6 +17,7 @@ public class CmsContext(DbContextOptions<CmsContext> options) : DbContext(option
     public DbSet<Article> Articles { get; init; }
     public DbSet<ArticleTag> ArticleTags { get; init; }
     public DbSet<ArticleMedia> ArticleMedia { get; init; }
+    public DbSet<ArticleRelated> ArticleRelated { get; init; }
     public DbSet<Tag> Tags { get; init; }
     public DbSet<Sheet> Sheets { get; init; }
     public DbSet<PageSheet> PageSheets { get; init; }

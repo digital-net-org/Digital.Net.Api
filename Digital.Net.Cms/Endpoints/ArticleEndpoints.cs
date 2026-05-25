@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Cms.Endpoints;
 
@@ -102,7 +103,7 @@ public static class ArticleEndpoints
     )
     {
         if (!string.IsNullOrEmpty(query.Name))
-            predicate = predicate.Add(x => x.Title.StartsWith(query.Name));
+            predicate = predicate.Add(x => EF.Functions.ILike(x.Title, $"{query.Name}%"));
         if (query.Published.HasValue)
             predicate = predicate.Add(x => x.PublishedAt != null == query.Published);
         if (query.TagId.HasValue)

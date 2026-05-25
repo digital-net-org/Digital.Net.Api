@@ -32,6 +32,7 @@ public class ArticleDto
     public Guid? PageId { get; set; }
     public List<TagDto> Tags { get; set; } = [];
     public List<ArticleMediaDto> Media { get; set; } = [];
+    public List<ArticleRefDto> Related { get; set; } = [];
     public DateTime CreatedAt { get; init; }
     public DateTime? UpdatedAt { get; init; }
 }
