@@ -71,7 +71,7 @@ public class ArticleCrudServiceTest : UnitTest, IAsyncInitializer
         var patch = BuildPatch(new
         {
             op = "replace",
-            path = "/tag",
+            path = "/tags",
             value = new[]
             {
                 new { id = tag1.Id, name = tag1.Name, color = tag1.Color },
@@ -97,7 +97,7 @@ public class ArticleCrudServiceTest : UnitTest, IAsyncInitializer
         var patch = BuildPatch(new
         {
             op = "replace",
-            path = "/tag",
+            path = "/tags",
             value = new[] { new { id = kept.Id, name = kept.Name, color = kept.Color } }
         });
 
@@ -115,7 +115,7 @@ public class ArticleCrudServiceTest : UnitTest, IAsyncInitializer
     {
         var tag = _context.BuildTestTag("clear-" + Guid.NewGuid().ToString("N")[..6]);
         var article = _context.BuildTestArticle(tags: [tag]);
-        var patch = BuildPatch(new { op = "replace", path = "/tag", value = Array.Empty<object>() });
+        var patch = BuildPatch(new { op = "replace", path = "/tags", value = Array.Empty<object>() });
 
         var result = await _service.Patch(patch, article.Id);
 
@@ -136,7 +136,7 @@ public class ArticleCrudServiceTest : UnitTest, IAsyncInitializer
             new
             {
                 op = "replace",
-                path = "/tag",
+                path = "/tags",
                 value = new[] { new { id = tag.Id, name = tag.Name, color = tag.Color } }
             }
         );
@@ -158,7 +158,7 @@ public class ArticleCrudServiceTest : UnitTest, IAsyncInitializer
         var patch = BuildPatch(new
         {
             op = "replace",
-            path = "/tag",
+            path = "/tags",
             value = new[] { new { name = newName, color = "#ff00aa" } }
         });
 
@@ -180,7 +180,7 @@ public class ArticleCrudServiceTest : UnitTest, IAsyncInitializer
         var patch = BuildPatch(new
         {
             op = "replace",
-            path = "/tag",
+            path = "/tags",
             value = new[] { new { id = Guid.NewGuid(), name = "ghost", color = (string?)null } }
         });
 
@@ -196,7 +196,7 @@ public class ArticleCrudServiceTest : UnitTest, IAsyncInitializer
         var patch = BuildPatch(new
         {
             op = "replace",
-            path = "/tag",
+            path = "/tags",
             value = new[] { new { name = "" } }
         });
 
