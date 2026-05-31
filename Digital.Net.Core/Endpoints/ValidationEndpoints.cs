@@ -28,7 +28,7 @@ public static class ValidationEndpoints
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey)
             .WithSummary("GetUsernamePattern")
             .WithDescription("Get the username pattern as a string. This is designed to validate usernames.");
-
+    
         controller
             .MapGet("/pattern/password", () => TypedResults.Ok(new Result<string>(RegularExpressions.PasswordPattern)))
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey)
