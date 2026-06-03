@@ -3,7 +3,6 @@ using Digital.Net.Core.Endpoints;
 using Digital.Net.Core.Entities;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.RateLimiter.Limiters;
-using Digital.Net.Core.Seeds;
 using Digital.Net.Core.Services.ApiKeys;
 using Digital.Net.Core.Services.Auditing;
 using Digital.Net.Core.Services.Authentication;
@@ -49,8 +48,7 @@ public static class DigitalNetCoreInjector
 
         builder
             .SetForwardedHeaders()
-            .AddDefaultCorsPolicy()
-            .AddDataSeeds();
+            .AddDefaultCorsPolicy();
 
         return builder;
     }

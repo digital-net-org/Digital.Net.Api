@@ -3,7 +3,6 @@ using System.Net.Http;
 using Digital.Net.Core;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Users;
-using Digital.Net.Core.Entities.Seeds;
 using Digital.Net.Core.Services.Authentication;
 using Digital.Net.Lib.Configuration;
 using Digital.Net.Lib.Environment;
@@ -46,7 +45,6 @@ public class ApplicationFactory : WebApplicationFactory<DigitalProgram>
             .Build();
 
         builder.UseConfiguration(configuration);
-        builder.ConfigureServices(s => { s.AddScoped<ISeed, TestSeed>(); });
     }
 
     /// <summary>
