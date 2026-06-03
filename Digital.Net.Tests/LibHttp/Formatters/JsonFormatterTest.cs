@@ -1,8 +1,8 @@
 using System.Text.Json;
-using Digital.Net.Lib.Formatters;
+using Digital.Net.Lib.Http.Formatters;
 using Digital.Net.Tests.Core;
 
-namespace Digital.Net.Tests.Lib.Formatters;
+namespace Digital.Net.Tests.LibHttp.Formatters;
 
 public class JsonFormatterTest : UnitTest
 {

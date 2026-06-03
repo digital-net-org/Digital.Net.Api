@@ -1,7 +1,6 @@
 using Digital.Net.Core.RateLimiter.Limiters;
-using Digital.Net.Lib.Messages;
 using Digital.Net.Core.Services.Authentication.Filters;
-using Digital.Net.Lib.Settings;
+using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.String;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -36,7 +35,7 @@ public static class ValidationEndpoints
             .WithDescription("Get the password pattern as a string. This is designed to validate passwords.");
 
         controller
-            .MapGet("/size/avatar", () => TypedResults.Ok(new Result<long>(AppSettings.DefaultMaxAvatarSize)))
+            .MapGet("/size/avatar", () => TypedResults.Ok(new Result<long>(CoreSettings.DefaultMaxAvatarSize)))
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey)
             .WithSummary("GetAvatarSizeLimit")
             .WithDescription("Get the maximum allowed size for avatar images in bytes.");

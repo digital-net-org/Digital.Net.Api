@@ -32,7 +32,7 @@ public static class CmsInjector
             .AddPageDependencies()
             .AddSitemapDependencies()
             .AddMediaDependencies()
-            .AddPivotsFromAssemblies<CmsContext>(typeof(CmsInjector).Assembly)
+            .AddEntitiesPivots<CmsContext>(typeof(CmsInjector).Assembly)
             .AddDtoEnrichersFromAssemblies(typeof(CmsInjector).Assembly);
 
         return builder;

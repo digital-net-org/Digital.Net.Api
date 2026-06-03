@@ -27,6 +27,14 @@
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.1" />
+        <!-- TODO REF-03: ASP.NET deps were inherited transitively from Lib (now HTTP-agnostic).
+             Required by the 3 polluted files (IFormFile, JsonPatchDocument, WebApplicationBuilder).
+             Remove this FrameworkReference + NewtonsoftJson once those files are cleaned up. -->
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.3"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
     </ItemGroup>
 
     <ItemGroup>

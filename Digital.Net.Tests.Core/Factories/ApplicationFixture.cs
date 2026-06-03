@@ -2,10 +2,10 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Digital.Net.Cms.Context;
+using Digital.Net.Core;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Core.Services.Authentication.Options;
-using Digital.Net.Lib.Settings;
 using Digital.Net.Tests.Core.Factories.Data;
 using Digital.Net.Tests.Core.Factories.Data.Records;
 using Microsoft.Extensions.Configuration;
@@ -81,7 +81,7 @@ public class ApplicationFixture : IAsyncInitializer, IAsyncDisposable
         var client = Factory.CreateClient();
         client.DefaultRequestHeaders.Add(
             AuthenticationStaticOptions.ApplicationKeyHeaderAccessor,
-            GetConfiguration<string>(AppSettings.ApplicationKeyKey)
+            GetConfiguration<string>(CoreSettings.ApplicationKeyKey)
         );
         return client;
     }

@@ -10,6 +10,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Digital.Net.Lib\Digital.Net.Lib.csproj"/>
+        <ProjectReference Include="..\Digital.Net.Lib.Http\Digital.Net.Lib.Http.csproj"/>
         <ProjectReference Include="..\Digital.Net.Core\Digital.Net.Core.csproj"/>
         <ProjectReference Include="..\Digital.Net.Core.Entities\Digital.Net.Core.Entities.csproj"/>
         <ProjectReference Include="..\Digital.Net.Cms\Digital.Net.Cms.csproj"/>
@@ -18,6 +19,7 @@
 
     <ItemGroup>
       <Folder Include="Cms\" />
+        <Folder Include="LibHttp\"/>
     </ItemGroup>
 
 </Project>

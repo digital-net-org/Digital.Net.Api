@@ -1,12 +1,11 @@
-using Digital.Net.Core.Services.Documents.Exceptions;
-using Digital.Net.Core.Services.Documents.Extensions;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Documents;
 using Digital.Net.Core.Entities.Models.Users;
+using Digital.Net.Core.Services.Documents.Exceptions;
+using Digital.Net.Core.Services.Documents.Extensions;
 using Digital.Net.Lib.Configuration;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
-using Digital.Net.Lib.Settings;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -20,7 +19,7 @@ public class DocumentService(
 ) : IDocumentService
 {
     public string GetDocumentPath(Document document) => Path.Combine(
-        configuration.Get<string>(AppSettings.FileSystemPathKey) ?? AppSettings.DefaultFileSystemPath,
+        configuration.Get<string>(CoreSettings.FileSystemPathKey) ?? CoreSettings.DefaultFileSystemPath,
         document.FileName
     );
 

@@ -1,6 +1,5 @@
 using Digital.Net.Core.Services.Authentication.Options;
 using Digital.Net.Lib.Configuration;
-using Digital.Net.Lib.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,7 +19,7 @@ public static class AuthenticationInjector
         var domain = services
             .BuildServiceProvider()
             .GetRequiredService<IConfiguration>()
-            .GetOrThrow<string>(AppSettings.DomainKey);
+            .GetOrThrow<string>(CoreSettings.DomainKey);
 
         services.Configure<AuthenticationOptions>(opts =>
         {

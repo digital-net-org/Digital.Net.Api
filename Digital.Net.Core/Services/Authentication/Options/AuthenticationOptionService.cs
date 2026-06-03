@@ -1,6 +1,5 @@
 using System.Text;
 using Digital.Net.Lib.Configuration;
-using Digital.Net.Lib.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -19,14 +18,14 @@ public class AuthenticationOptionService(
 
     public DateTime GetRefreshTokenExpirationDate(DateTime? from = null) =>
         (from ?? DateTime.UtcNow).AddMilliseconds(
-            configuration.Get<long?>(AppSettings.JwtRefreshExpirationKey)
-            ?? AppSettings.DefaultAuthJwtRefreshExpiration
+            configuration.Get<long?>(CoreSettings.JwtRefreshExpirationKey)
+            ?? CoreSettings.DefaultAuthJwtRefreshExpiration
         );
 
     public DateTime GetBearerTokenExpirationDate(DateTime? from = null) =>
         (from ?? DateTime.UtcNow).AddMilliseconds(
-            configuration.Get<long?>(AppSettings.JwtBearerExpirationKey)
-            ?? AppSettings.DefaultAuthJwtBearerExpiration
+            configuration.Get<long?>(CoreSettings.JwtBearerExpirationKey)
+            ?? CoreSettings.DefaultAuthJwtBearerExpiration
         );
 
     public TokenValidationParameters GetTokenParameters() => new()
@@ -36,7 +35,7 @@ public class AuthenticationOptionService(
         ValidAudience = options.Value.Audience,
         IssuerSigningKey =
             new SymmetricSecurityKey(Encoding.ASCII.GetBytes(
-                configuration.Get<string>(AppSettings.JwtSecretKey) ?? AppSettings.DefaultAuthJwtSecret
+                configuration.Get<string>(CoreSettings.JwtSecretKey) ?? CoreSettings.DefaultAuthJwtSecret
             )),
         ClockSkew = TimeSpan.Zero
     };

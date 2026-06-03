@@ -4,7 +4,6 @@ using Digital.Net.Core.Services.Authentication.Exceptions;
 using Digital.Net.Core.Services.Authentication.Options;
 using Digital.Net.Core.Services.Authentication.Types;
 using Digital.Net.Lib.Configuration;
-using Digital.Net.Lib.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -128,7 +127,7 @@ public static class AuthorizationExtensions
     private static AuthorizationResult AuthorizeApplication(IConfiguration config, string? key)
     {
         var result = new AuthorizationResult();
-        var configuredKey = config.Get<string>(AppSettings.ApplicationKeyKey);
+        var configuredKey = config.Get<string>(CoreSettings.ApplicationKeyKey);
         if (string.IsNullOrWhiteSpace(configuredKey) || !string.Equals(key, configuredKey, StringComparison.Ordinal))
             return result.AddError(new InvalidTokenException());
         result.Authorize(Guid.Empty);

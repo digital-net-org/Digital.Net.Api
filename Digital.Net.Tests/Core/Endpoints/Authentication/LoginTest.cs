@@ -1,10 +1,9 @@
 using System.Net;
+using Digital.Net.Core;
 using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Core.Services.Authentication.Events;
 using Digital.Net.Core.Services.Authentication.Options;
-using Digital.Net.Lib.Settings;
-using Digital.Net.Lib.String;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data.Records;
 using Digital.Net.Tests.Core.Http;
@@ -111,7 +110,7 @@ public class LoginTest
     }
 
     private string CookieName =>
-        $"{ApplicationFixture.GetConfiguration<string>(AppSettings.DomainKey) ?? throw new Exception()}_refresh";
+        $"{ApplicationFixture.GetConfiguration<string>(CoreSettings.DomainKey) ?? throw new Exception()}_refresh";
 
     private async Task ExecuteTestAsync(
         User user,
@@ -141,8 +140,8 @@ public class LoginTest
 
         foreach (var token in tokens)
             await Assert.That(expectedState == EventState.Success
-                ? (token ?? string.Empty).IsJsonWebToken()
-                : !(token ?? string.Empty).IsJsonWebToken()
+                ? IsJsonWebToken(token ?? string.Empty)
+                : !IsJsonWebToken(token ?? string.Empty)
             ).IsTrue();
 
         if (expectedState == EventState.Success)
@@ -150,4 +149,7 @@ public class LoginTest
         else
             await Assert.That(storedToken).IsNull();
     }
+
+    private static bool IsJsonWebToken(string? token = null) =>
+        !string.IsNullOrWhiteSpace(token) && token.Split('.').Length == 3;
 }

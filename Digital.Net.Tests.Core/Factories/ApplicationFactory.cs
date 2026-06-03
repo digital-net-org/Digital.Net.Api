@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using System.Net.Http;
+using Digital.Net.Core;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Core.Entities.Seeds;
 using Digital.Net.Core.Services.Authentication;
+using Digital.Net.Lib.Configuration;
 using Digital.Net.Lib.Environment;
-using Digital.Net.Lib.Settings;
 using Digital.Net.Tests.Core.Factories.Data;
 using Digital.Net.Tests.Core.Factories.Data.Records;
 using Digital.Net.Tests.Core.Http;
@@ -27,10 +28,10 @@ public class ApplicationFactory : WebApplicationFactory<DigitalProgram>
 
         _testSettings = new Dictionary<string, string?>
         {
-            { AppSettings.DomainKey, "domain.test" },
-            { AppSettings.ConnectionStringKey, connectionString },
-            { AppSettings.FileSystemPathKey, ".test_storage" },
-            { AppSettings.ApplicationKeyKey, "test-application-secret-key-for-integration-tests" },
+            { CoreSettings.DomainKey, "domain.test" },
+            { CoreSettings.ConnectionStringKey, connectionString },
+            { CoreSettings.FileSystemPathKey, ".test_storage" },
+            { CoreSettings.ApplicationKeyKey, "test-application-secret-key-for-integration-tests" },
             { "Logging:LogLevel:Default", "None" },
             { "Logging:LogLevel:Microsoft", "None" }
         };

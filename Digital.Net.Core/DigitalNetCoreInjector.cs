@@ -4,16 +4,22 @@ using Digital.Net.Core.Entities;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.RateLimiter.Limiters;
 using Digital.Net.Core.Seeds;
+using Digital.Net.Core.Services.ApiKeys;
+using Digital.Net.Core.Services.Auditing;
+using Digital.Net.Core.Services.Authentication;
 using Digital.Net.Core.Services.Crud;
+using Digital.Net.Core.Services.Documents;
+using Digital.Net.Core.Services.Events;
+using Digital.Net.Core.Services.Users;
+using Digital.Net.Lib.Configuration;
 using Digital.Net.Lib.Environment;
-using Digital.Net.Lib.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Scalar.AspNetCore;
 
 namespace Digital.Net.Core;
 
-public static class DigitalSdkInjector
+public static class DigitalNetCoreInjector
 {
     /// <summary>
     ///     Add the Digital.Net core modules and endpoints to the application.
@@ -30,9 +36,14 @@ public static class DigitalSdkInjector
 
         builder.Services
             .AddHttpContextAccessor()
-            .AddEntitiesServices()
             .AddCrudServices()
-            .AddDigitalServices()
+            .AddDigitalApiKeyServices()
+            .AddDigitalAuditingServices()
+            .AddDigitalAuthenticationServices()
+            .AddDigitalEventServices()
+            .AddDigitalUserServices()
+            .AddDigitalDocumentServices()
+            .AddHostedService<ExpiredTokenPurgeService>()
             .AddRateLimiter(GlobalLimiter.Options)
             .AddOpenApi();
 
@@ -78,5 +89,23 @@ public static class DigitalSdkInjector
         }
 
         return app;
+    }
+
+    private static WebApplicationBuilder ValidateApplicationSettings(this WebApplicationBuilder builder)
+    {
+        var mandatorySettings = new[]
+        {
+            CoreSettings.DomainKey,
+            CoreSettings.ConnectionStringKey
+        };
+
+        foreach (var setting in mandatorySettings)
+        {
+            var value = builder.Configuration.GetSection(setting).Value;
+            if (string.IsNullOrWhiteSpace(value))
+                throw new NullReferenceException($"Missing mandatory configuration section: {setting}");
+        }
+
+        return builder;
     }
 }

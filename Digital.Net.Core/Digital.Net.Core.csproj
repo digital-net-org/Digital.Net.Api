@@ -24,6 +24,11 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Digital.Net.Lib\Digital.Net.Lib.csproj"/>
+        <ProjectReference Include="..\Digital.Net.Lib.Http\Digital.Net.Lib.Http.csproj"/>
         <ProjectReference Include="..\Digital.Net.Core.Entities\Digital.Net.Core.Entities.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Entities\"/>
     </ItemGroup>
 </Project>

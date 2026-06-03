@@ -3,14 +3,12 @@ using Digital.Net.Core.Entities.Attributes;
 using Digital.Net.Core.Entities.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Digital.Net.Core.Entities.Pivots;
 
 public static class PivotsInjector
 {
-    public static IServiceCollection AddPivotsDependencies(this IServiceCollection services) =>
-        services.AddScoped(typeof(PatchDispatcher<>));
-    
     /// <summary>
     ///     Scans <paramref name="assemblies" /> for every concrete <see cref="Pivot{TParent,TChild}" />
     ///     class carrying <see cref="PivotResolutionAttribute" />, finds the matching DTO, and registers
@@ -21,11 +19,13 @@ public static class PivotsInjector
     ///         and validation service are registered.
     ///     </para>
     /// </summary>
-    public static IServiceCollection AddPivotsFromAssemblies<TContext>(
+    public static IServiceCollection AddEntitiesPivots<TContext>(
         this IServiceCollection services,
         params Assembly[] assemblies
     ) where TContext : DbContext
     {
+        services.TryAddScoped(typeof(PatchDispatcher<>));
+        
         if (assemblies.Length == 0)
             throw new ArgumentException("At least one assembly is required.", nameof(assemblies));
 

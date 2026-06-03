@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
+using Digital.Net.Core;
 using Digital.Net.Lib.Messages;
-using Digital.Net.Lib.Settings;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data;
 using Digital.Net.Tests.Core.Factories.Data.Records;
@@ -23,7 +23,7 @@ public class MediaEndpointsTest
     }
 
     private string GetStoragePath() =>
-        ApplicationFixture.GetConfiguration<string>(AppSettings.FileSystemPathKey) ?? ".test_storage";
+        ApplicationFixture.GetConfiguration<string>(CoreSettings.FileSystemPathKey) ?? ".test_storage";
 
 
     [Test]

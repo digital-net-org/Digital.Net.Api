@@ -1,8 +1,8 @@
+using Digital.Net.Core;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Services.Documents;
 using Digital.Net.Core.Services.Documents.Exceptions;
 using Digital.Net.Lib.Exceptions.types;
-using Digital.Net.Lib.Settings;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data;
 using Microsoft.AspNetCore.Http;
@@ -126,7 +126,7 @@ public class DocumentServiceTest : UnitTest, IAsyncInitializer
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                [AppSettings.FileSystemPathKey] = storagePath
+                [CoreSettings.FileSystemPathKey] = storagePath
             })
             .Build();
         return new DocumentService(_context, config, new DocumentDimensionExtractor());

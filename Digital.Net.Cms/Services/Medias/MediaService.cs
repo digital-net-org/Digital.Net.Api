@@ -1,12 +1,12 @@
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Models.Medias;
+using Digital.Net.Core;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Documents;
 using Digital.Net.Core.Services.Documents;
 using Digital.Net.Lib.Configuration;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
-using Digital.Net.Lib.Settings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using SixLabors.ImageSharp;
@@ -189,8 +189,8 @@ public class MediaService(
 
             await digitalContext.Documents.AddAsync(document);
 
-            var storagePath = configuration.Get<string>(AppSettings.FileSystemPathKey)
-                              ?? AppSettings.DefaultFileSystemPath;
+            var storagePath = configuration.Get<string>(CoreSettings.FileSystemPathKey)
+                              ?? CoreSettings.DefaultFileSystemPath;
             var fullPath = Path.GetFullPath(Path.Combine(storagePath, variantFileName));
             var dir = Path.GetDirectoryName(fullPath);
             if (dir is not null && !Directory.Exists(dir))

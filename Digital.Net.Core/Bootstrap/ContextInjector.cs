@@ -1,6 +1,5 @@
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Lib.Configuration;
-using Digital.Net.Lib.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +11,7 @@ public static class ContextInjector
     public static WebApplicationBuilder AddDatabaseContext<T>(this WebApplicationBuilder builder)
         where T : DbContext
     {
-        var connectionString = builder.Configuration.GetOrThrow<string>($"{AppSettings.ConnectionStringKey}");
+        var connectionString = builder.Configuration.GetOrThrow<string>($"{CoreSettings.ConnectionStringKey}");
         builder.Services.AddDbContext<T>(options => options.UseDigitalNpgsql<T>(connectionString));
         return builder;
     }

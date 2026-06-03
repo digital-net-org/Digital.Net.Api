@@ -1,7 +1,6 @@
 using Digital.Net.Core.Endpoints.Dto;
 using Digital.Net.Core.RateLimiter.Limiters;
 using Digital.Net.Lib.Messages;
-using Digital.Net.Lib.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -34,10 +33,10 @@ public static class RootEndpoints
 
     private static Ok<Result<ApplicationVersion>> GetApplicationVersion(IConfiguration configuration) => TypedResults.Ok(
         new Result<ApplicationVersion>(new ApplicationVersion(
-            configuration[AppSettings.ApplicationNameKey] ?? string.Empty,
+            configuration[CoreSettings.ApplicationNameKey] ?? string.Empty,
             "Digital.Net",
-            configuration[AppSettings.GitOriginKey] ?? string.Empty,
-            configuration[AppSettings.GitCommitShaKey] ?? string.Empty,
-            configuration[AppSettings.GitReleaseKey] ?? string.Empty
+            configuration[CoreSettings.GitOriginKey] ?? string.Empty,
+            configuration[CoreSettings.GitCommitShaKey] ?? string.Empty,
+            configuration[CoreSettings.GitReleaseKey] ?? string.Empty
         )));
 }

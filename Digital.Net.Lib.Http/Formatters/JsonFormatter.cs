@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.JsonPatch;
 using Newtonsoft.Json;
 
-namespace Digital.Net.Lib.Formatters;
+namespace Digital.Net.Lib.Http.Formatters;
 
 public static class JsonFormatter
 {

@@ -1,5 +1,4 @@
 using Digital.Net.Lib.Configuration;
-using Digital.Net.Lib.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,7 +14,7 @@ public static class CorsPolicyInjector
     /// <returns></returns>
     public static WebApplicationBuilder AddDefaultCorsPolicy(this WebApplicationBuilder builder)
     {
-        var domain = builder.Configuration.GetOrThrow<string>(AppSettings.DomainKey);
+        var domain = builder.Configuration.GetOrThrow<string>(CoreSettings.DomainKey);
         var allowedOrigins = new List<string>
         {
             $"https://{domain}",
@@ -23,7 +22,7 @@ public static class CorsPolicyInjector
         };
 
         allowedOrigins.AddRange(
-            builder.Configuration.Get<string[]>(AppSettings.CorsAllowedOriginsKey)
+            builder.Configuration.Get<string[]>(CoreSettings.CorsAllowedOriginsKey)
             ?? []
         );
 

@@ -3,7 +3,7 @@ using Digital.Net.Core.Entities.Extensions;
 using Digital.Net.Core.Entities.Models;
 using Digital.Net.Core.Entities.Pivots;
 using Digital.Net.Lib.Exceptions.types;
-using Digital.Net.Lib.Formatters;
+using Digital.Net.Lib.Http.Formatters;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.Models;
 using Microsoft.EntityFrameworkCore;

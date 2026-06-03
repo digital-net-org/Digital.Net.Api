@@ -13,7 +13,6 @@ using Digital.Net.Core.Services.Users.Events;
 using Digital.Net.Core.Services.Users.Exceptions;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
-using Digital.Net.Lib.Settings;
 using Digital.Net.Lib.String;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -63,7 +62,7 @@ public class UserService(
     public async Task<Result> UpdateAvatar(User user, IFormFile form)
     {
         var result = new Result();
-        if (form.Length > AppSettings.DefaultMaxAvatarSize)
+        if (form.Length > CoreSettings.DefaultMaxAvatarSize)
             return result.AddError(new TooHeavyException());
         if (!form.IsImage())
             return result.AddError(new UnsupportedFormatException());
