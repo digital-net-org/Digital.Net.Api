@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 using Digital.Net.Core.Entities.Attributes;
 using Digital.Net.Core.Entities.Models;
 
-namespace Digital.Net.Core.Entities.Templating;
+namespace Digital.Net.Core.Services.Templating;
 
 /// <summary>
 ///     Hydrates string templates of the form <c>{{ source.field }}</c> using
@@ -32,12 +32,10 @@ public static partial class TemplateInterpolator
     ///     Keys of <paramref name="sources" /> must be the lowercased source aliases (e.g. <c>"article"</c>).
     ///     Unknown tokens are left untouched; null source fields are replaced by an empty string.
     /// </summary>
-    public static string? Interpolate(string? template, IReadOnlyDictionary<string, object> sources)
-    {
-        if (string.IsNullOrEmpty(template))
-            return template;
-        return TokenRegex().Replace(template, match => ResolveToken(match, sources));
-    }
+    public static string? Interpolate(string? template, IReadOnlyDictionary<string, object> sources) =>
+        string.IsNullOrEmpty(template)
+            ? template
+            : TokenRegex().Replace(template, match => ResolveToken(match, sources));
 
     /// <summary>
     ///     Walks all <see cref="TemplatableAttribute" /> string properties of <paramref name="target" />
@@ -46,9 +44,6 @@ public static partial class TemplateInterpolator
     public static void HydrateInPlace<TTarget>(TTarget target, IReadOnlyDictionary<string, object> sources)
         where TTarget : class
     {
-        if (target is null)
-            return;
-
         foreach (var property in GetTargetProperties(target.GetType()))
         {
             var current = (string?)property.GetValue(target);
@@ -63,7 +58,7 @@ public static partial class TemplateInterpolator
         var sourceKey = match.Groups[1].Value;
         var fieldName = match.Groups[2].Value;
 
-        if (!sources.TryGetValue(sourceKey, out var sourceInstance) || sourceInstance is null)
+        if (!sources.TryGetValue(sourceKey, out var sourceInstance))
             return match.Value;
 
         var fields = GetSourceFields(sourceInstance.GetType());

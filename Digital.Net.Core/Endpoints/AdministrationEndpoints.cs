@@ -154,9 +154,7 @@ public static class AdministrationEndpoints
     )
     {
         if (!string.IsNullOrEmpty(query.Username))
-            predicate = predicate.Add(x =>
-                EF.Functions.Like(x.Username, $"{EfCoreUtils.EscapeLike(query.Username)}%")
-            );
+            predicate = predicate.Add(x => EF.Functions.Like(x.Username, $"{EFCoreUtils.EscapeLike(query.Username)}%"));
         if (!string.IsNullOrEmpty(query.Email))
             predicate = predicate.Add(x => x.Email.StartsWith(query.Email));
         if (query.IsActive.HasValue)

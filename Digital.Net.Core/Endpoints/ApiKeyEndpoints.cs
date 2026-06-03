@@ -40,7 +40,7 @@ public static class ApiKeyEndpoints
         return app;
     }
 
-    public static async Task<Results<Ok<Result<string>>, BadRequest<Result<string>>>> Create(
+    private static async Task<Results<Ok<Result<string>>, BadRequest<Result<string>>>> Create(
         [FromBody] ApiKeyCreatePayload payload,
         ApiKeyService apiKeyService,
         UserContextService userContextService
@@ -53,7 +53,7 @@ public static class ApiKeyEndpoints
             : TypedResults.Ok(result);
     }
 
-    public static async Task<Ok<Result<List<ApiKeyDto>>>> List(
+    private static async Task<Ok<Result<List<ApiKeyDto>>>> List(
         ApiKeyService apiKeyService,
         UserContextService userContextService
     )
@@ -67,7 +67,7 @@ public static class ApiKeyEndpoints
         return TypedResults.Ok(dtoResult);
     }
 
-    public static async Task<Results<Ok<Result>, NotFound<Result>>> Delete(
+    private static async Task<Results<Ok<Result>, NotFound<Result>>> Delete(
         Guid id,
         ApiKeyService apiKeyService,
         UserContextService userContextService

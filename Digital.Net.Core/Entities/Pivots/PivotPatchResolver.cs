@@ -26,13 +26,7 @@ public class PivotPatchResolver<TContext, TParent, TChild, TPivot, TDto>(TContex
 
     public string VirtualPath => Resolution.VirtualPath;
     protected Ownership Mode => Resolution.Mode;
-
-    /// <summary>
-    ///     Schema for the pivot's own custom columns — i.e. properties declared on the pivot
-    ///     subclass, excluding those inherited from <see cref="Pivot{TParent,TChild}" />. Built once
-    ///     from <see cref="SchemaProperty{T}.Get" /> and reused on every validation pass so declarative attributes
-    ///     on pivot columns flow through the same pipeline as Entity columns.
-    /// </summary>
+    
     private static readonly IReadOnlyList<SchemaProperty<TPivot>> PivotCustomSchema =
         SchemaProperty<TPivot>
             .Get()

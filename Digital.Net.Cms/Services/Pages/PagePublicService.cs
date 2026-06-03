@@ -2,9 +2,8 @@ using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Models.Pages;
 using Digital.Net.Cms.Services.Pages.Dto;
 using Digital.Net.Cms.Services.Pages.Exceptions;
-using Digital.Net.Core.Entities;
 using Digital.Net.Core.Entities.Models;
-using Digital.Net.Core.Entities.Templating;
+using Digital.Net.Core.Services.Templating;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
 using Microsoft.EntityFrameworkCore;
@@ -145,7 +144,7 @@ public class PagePublicService(
                          ?? throw new InvalidPagePathException();
             sources = new Dictionary<string, object>
             {
-                [EfCoreUtils.GetCanonicalType(source).Name.ToLowerInvariant()] = source
+                [source.GetCanonicalType().Name.ToLowerInvariant()] = source
             };
         }
 

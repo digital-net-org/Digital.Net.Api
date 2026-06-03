@@ -28,19 +28,19 @@ public class TimestampInterceptor : SaveChangesInterceptor
         if (context == null) return;
 
         var now = DateTime.UtcNow;
-        var entries = context.ChangeTracker.Entries()
+        var entries = context.ChangeTracker
+            .Entries()
             .Where(e => e.Entity is Entity && e.State is EntityState.Added or EntityState.Modified);
 
         foreach (var entry in entries)
-        {
-            if (entry.State == EntityState.Added)
+            switch (entry.State)
             {
-                entry.Property("CreatedAt").CurrentValue = now;
+                case EntityState.Added:
+                    entry.Property("CreatedAt").CurrentValue = now;
+                    break;
+                case EntityState.Modified:
+                    entry.Property("UpdatedAt").CurrentValue = now;
+                    break;
             }
-            else if (entry.State == EntityState.Modified)
-            {
-                entry.Property("UpdatedAt").CurrentValue = now;
-            }
-        }
     }
 }

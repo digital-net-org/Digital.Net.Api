@@ -13,9 +13,6 @@ public interface IPivotPayload<TSelf, in TPivot, TChild>
 
     void ApplyTo(TChild child);
 
-    /// <summary>
-    ///     Apply the payload values to the pivot row itself (e.g. for join tables that carry custom columns).
-    /// </summary>
     void ApplyToPivot(TPivot pivot)
     {
     }

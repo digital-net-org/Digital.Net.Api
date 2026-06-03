@@ -11,7 +11,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $contextMap = @{
-    "digital" = "Digital.Net.Core.Entities"
+    "digital" = "Digital.Net.Core"
     "cms"     = "Digital.Net.Cms"
 }
 

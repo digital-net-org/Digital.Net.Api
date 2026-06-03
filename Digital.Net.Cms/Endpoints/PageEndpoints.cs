@@ -9,7 +9,7 @@ using Digital.Net.Cms.Services.Pages;
 using Digital.Net.Cms.Services.Pages.Dto;
 using Digital.Net.Cms.Services.Pages.OpenGraph;
 using Digital.Net.Core.Entities.Exceptions;
-using Digital.Net.Core.Entities.Templating;
+using Digital.Net.Core.Services.Templating;
 using Digital.Net.Core.RateLimiter.Limiters;
 using Digital.Net.Core.Services.Authentication;
 using Digital.Net.Core.Services.Authentication.Filters;

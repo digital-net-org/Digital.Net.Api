@@ -10,7 +10,6 @@ namespace Digital.Net.Core.Entities.Attributes;
 /// <summary>
 ///     EF Core Attribute analyzer.
 /// </summary>
-/// <typeparam name="T"></typeparam>
 public static class AttributeAnalyzer<T>
     where T : class, IEntity
 {

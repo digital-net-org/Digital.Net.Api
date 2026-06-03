@@ -1,4 +1,4 @@
-namespace Digital.Net.Core.Entities.Templating;
+namespace Digital.Net.Core.Services.Templating;
 
 /// <summary>
 ///     Describes a single template variable exposed by a source entity type.

@@ -4,7 +4,7 @@ namespace Digital.Net.Core.Entities.Pivots;
 
 public static class PivotJson
 {
-    public static readonly JsonSerializerOptions JsonOptions = new()
+    private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
     };

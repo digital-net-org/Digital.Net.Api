@@ -13,10 +13,6 @@ public class PatchDispatcher<TParent>(IEnumerable<IPivotPatchResolver<TParent>> 
 
     private readonly List<(IPivotPatchResolver<TParent> Resolver, JsonElement Value)> _pending = [];
 
-    /// <summary>
-    ///     Walks <paramref name="patch"/>, extracts ops whose <c>path</c> matches a registered resolver,
-    ///     validates their <c>value</c>, and returns the remainder so it can be fed to the parent patch.
-    /// </summary>
     public (JsonElement SanitizedPatch, Result Validation) ExtractAndValidate(JsonElement patch, Guid parentId)
     {
         _pending.Clear();
@@ -41,7 +37,6 @@ public class PatchDispatcher<TParent>(IEnumerable<IPivotPatchResolver<TParent>> 
         return (JsonSerializer.SerializeToElement(remaining), validation);
     }
 
-    /// <summary>Applies every op that <see cref="ExtractAndValidate"/> has captured.</summary>
     public async Task ApplyPendingAsync(Guid parentId, CancellationToken ct)
     {
         foreach (var (resolver, value) in _pending)

@@ -1,7 +1,7 @@
 namespace Digital.Net.Core.Entities.Attributes;
 
 /// <summary>
-///     Indicates that the property should be treated as a secret and should not be logged or serialized.
+///     Indicates that the property should be treated as a secret.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property)]
 public class SecretAttribute : Attribute;

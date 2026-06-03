@@ -23,12 +23,23 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Digital.Net.Lib\Digital.Net.Lib.csproj"/>
-        <ProjectReference Include="..\Digital.Net.Lib.Http\Digital.Net.Lib.Http.csproj"/>
-        <ProjectReference Include="..\Digital.Net.Core.Entities\Digital.Net.Core.Entities.csproj" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="10.0.3"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.3"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3"/>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.3">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.1" />
+        <!-- TODO REF-03: requis par SchemaProperty.cs (JsonPatchDocument). À retirer une fois ce fichier nettoyé. -->
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.3"/>
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Entities\"/>
+        <ProjectReference Include="..\Digital.Net.Lib\Digital.Net.Lib.csproj"/>
+        <ProjectReference Include="..\Digital.Net.Lib.Http\Digital.Net.Lib.Http.csproj"/>
     </ItemGroup>
+
 </Project>
