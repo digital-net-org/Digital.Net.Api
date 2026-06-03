@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace Digital.Net.Lib.Http;
+namespace Digital.Net.Lib.Http.Accessors;
 
 public static class ClientHeaders
 {

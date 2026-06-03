@@ -13,7 +13,7 @@ public sealed class DigitalProgram
     private static async Task Main(string[] args)
     {
         var app = WebApplication.CreateBuilder(args)
-            .AddDigitalNet()
+            .AddDigitalNetCore()
             .AddDigitalCms()
             .Build();
 

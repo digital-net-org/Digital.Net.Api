@@ -6,6 +6,7 @@ using Digital.Net.Core.Services.Authentication.Filters;
 using Digital.Net.Core.Services.Authentication.Options;
 using Digital.Net.Lib.Exceptions;
 using Digital.Net.Lib.Http;
+using Digital.Net.Lib.Http.Accessors;
 using Digital.Net.Lib.Messages;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;

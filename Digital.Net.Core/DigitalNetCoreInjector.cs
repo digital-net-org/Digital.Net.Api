@@ -1,6 +1,5 @@
 using Digital.Net.Core.Bootstrap;
 using Digital.Net.Core.Endpoints;
-using Digital.Net.Core.Entities;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.RateLimiter.Limiters;
 using Digital.Net.Core.Services.ApiKeys;
@@ -12,6 +11,9 @@ using Digital.Net.Core.Services.Events;
 using Digital.Net.Core.Services.Users;
 using Digital.Net.Lib.Configuration;
 using Digital.Net.Lib.Environment;
+using Digital.Net.Lib.Http;
+using Digital.Net.Lib.Origin;
+using Digital.Net.Lib.Validation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Scalar.AspNetCore;
@@ -25,7 +27,7 @@ public static class DigitalNetCoreInjector
     /// </summary>
     /// <param name="builder"></param>
     /// <returns></returns>
-    public static WebApplicationBuilder AddDigitalNet(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder AddDigitalNetCore(this WebApplicationBuilder builder)
     {
         builder.Configuration.AddAppSettings();
         builder
@@ -34,7 +36,7 @@ public static class DigitalNetCoreInjector
             .ApplyMigrations<DigitalContext>();
 
         builder.Services
-            .AddHttpContextAccessor()
+            .AddDigitalNetLibHttp()
             .AddCrudServices()
             .AddDigitalApiKeyServices()
             .AddDigitalAuditingServices()
@@ -45,6 +47,8 @@ public static class DigitalNetCoreInjector
             .AddHostedService<ExpiredTokenPurgeService>()
             .AddRateLimiter(GlobalLimiter.Options)
             .AddOpenApi();
+
+        builder.Services.RequireContract<IOriginAccessor>(nameof(AddDigitalNetCore));
 
         builder
             .SetForwardedHeaders()
@@ -60,6 +64,9 @@ public static class DigitalNetCoreInjector
     /// <returns></returns>
     public static WebApplication UseDigitalNet(this WebApplication app)
     {
+        // Fail-fast strategy, should always be called first
+        app.Services.ValidateRequiredContracts();
+
         app.Use(async (context, next) =>
         {
             context.Response.Headers.XContentTypeOptions = "nosniff";
