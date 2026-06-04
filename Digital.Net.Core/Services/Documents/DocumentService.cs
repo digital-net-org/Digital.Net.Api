@@ -5,6 +5,7 @@ using Digital.Net.Core.Services.Documents.Exceptions;
 using Digital.Net.Core.Services.Documents.Extensions;
 using Digital.Net.Lib.Configuration;
 using Digital.Net.Lib.Exceptions.types;
+using Digital.Net.Lib.Files;
 using Digital.Net.Lib.Messages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -81,7 +82,12 @@ public class DocumentService(
         if (DocumentTypes.SvgMimeTypes.Contains(file.ContentType, StringComparer.OrdinalIgnoreCase))
             file = await SvgSanitizer.SanitizeAsync(file);
 
-        result.Value = new Document(uploader, file);
+        result.Value = new Document(uploader, new FileDefinition
+        {
+            FileName = file.FileName,
+            MimeType = file.ContentType,
+            FileSize = file.Length
+        });
 
         await using (var dimensionStream = file.OpenReadStream())
         {

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Digital.Net.Core.Entities.Attributes;
 using Digital.Net.Core.Entities.Models.Users;
-using Microsoft.AspNetCore.Http;
+using Digital.Net.Lib.Files;
 using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Core.Entities.Models.Documents;
@@ -13,11 +13,11 @@ public class Document : Entity
 {
     public Document() {}
 
-    public Document(User? uploader, IFormFile file)
+    public Document(User? uploader, FileDefinition fileDefinition)
     {
-        FileName = GenerateAnonymousFileName(file.FileName);
-        MimeType = file.ContentType;
-        FileSize = file.Length;
+        FileName = fileDefinition.GenerateAnonymousFileName();
+        MimeType = fileDefinition.MimeType;
+        FileSize = fileDefinition.FileSize;
         UploaderId = uploader?.Id;
     }
 
@@ -51,12 +51,6 @@ public class Document : Entity
     public Guid? UploaderId { get; set; }
 
     public virtual User? Uploader { get; set; }
-
-    private static string GenerateAnonymousFileName(string originalFileName)
-    {
-        var extension = Path.GetExtension(originalFileName);
-        return $"{Guid.NewGuid()}{extension}";
-    }
 
     public bool IsSvg() => DocumentTypes.SvgMimeTypes.Contains(MimeType, StringComparer.OrdinalIgnoreCase);
 }
