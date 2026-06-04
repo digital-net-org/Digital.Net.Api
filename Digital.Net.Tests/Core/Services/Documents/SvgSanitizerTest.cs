@@ -1,28 +1,19 @@
 using System.Text;
 using System.Xml.Linq;
 using Digital.Net.Core.Services.Documents.Extensions;
-using Microsoft.AspNetCore.Http;
 
 namespace Digital.Net.Tests.Core.Services.Documents;
 
 public class SvgSanitizerTest : UnitTest
 {
-    private static IFormFile CreateSvgFile(string svgContent)
-    {
-        var bytes = Encoding.UTF8.GetBytes(svgContent);
-        var stream = new MemoryStream(bytes);
-        return new FormFile(stream, 0, bytes.Length, "file", "test.svg")
-        {
-            Headers = new HeaderDictionary(),
-            ContentType = "image/svg+xml"
-        };
-    }
+    private static Stream CreateSvgStream(string svgContent) =>
+        new MemoryStream(Encoding.UTF8.GetBytes(svgContent));
 
     private static async Task<string> SanitizeAndRead(string svgContent)
     {
-        var file = CreateSvgFile(svgContent);
-        var result = await SvgSanitizer.SanitizeAsync(file);
-        using var reader = new StreamReader(result.OpenReadStream());
+        await using var input = CreateSvgStream(svgContent);
+        var result = await SvgSanitizer.SanitizeAsync(input);
+        using var reader = new StreamReader(result);
         return await reader.ReadToEndAsync();
     }
 
@@ -194,16 +185,6 @@ public class SvgSanitizerTest : UnitTest
         await Assert.That(doc.Descendants().Any(e => e.Name.LocalName == "embed")).IsFalse();
         await Assert.That(doc.Descendants().Any(e => e.Name.LocalName == "object")).IsFalse();
         await Assert.That(doc.Descendants().Any(e => e.Name.LocalName == "rect")).IsTrue();
-    }
-
-    [Test]
-    public async Task SanitizeAsync_ShouldPreserveFileMetadata()
-    {
-        var svg = "<svg xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"10\" height=\"10\"/></svg>";
-        var file = CreateSvgFile(svg);
-        var result = await SvgSanitizer.SanitizeAsync(file);
-        await Assert.That(result.FileName).IsEqualTo("test.svg");
-        await Assert.That(result.ContentType).IsEqualTo("image/svg+xml");
     }
 
     [Test]

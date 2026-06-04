@@ -25,7 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Digital.Net.Core\Digital.Net.Core.csproj"/>
+        <ProjectReference Include="..\Digital.Net.Core.Http\Digital.Net.Core.Http.csproj"/>
         <ProjectReference Include="..\Digital.Net.Cms\Digital.Net.Cms.csproj"/>
         <ProjectReference Include="..\Digital.Net.Lib\Digital.Net.Lib.csproj"/>
         <ProjectReference Include="..\Digital.Net.Tests.Program\Digital.Net.Tests.Program.csproj" />

@@ -7,10 +7,10 @@ using Digital.Net.Cms.Services.Sitemaps;
 using Digital.Net.Core.Bootstrap;
 using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.Entities.Pivots;
-using Digital.Net.Core.RateLimiter.Limiters;
-using Digital.Net.Core.Services.Authentication.Filters;
-using Digital.Net.Core.Services.Crud;
-using Digital.Net.Core.Services.Events.Extensions;
+using Digital.Net.Core.Http.RateLimiters;
+using Digital.Net.Core.Http.Services.Authentication.Filters;
+using Digital.Net.Core.Http.Services.Crud;
+using Digital.Net.Core.Http.Services.Events.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 

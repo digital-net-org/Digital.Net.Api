@@ -3,7 +3,7 @@ using System.Net.Http;
 using Digital.Net.Core;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Users;
-using Digital.Net.Core.Services.Authentication;
+using Digital.Net.Core.Http.Services.Authentication;
 using Digital.Net.Lib.Configuration;
 using Digital.Net.Lib.Environment;
 using Digital.Net.Tests.Core.Factories.Data;

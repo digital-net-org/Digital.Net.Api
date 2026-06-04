@@ -1,6 +1,5 @@
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using Microsoft.AspNetCore.Http;
 
 namespace Digital.Net.Core.Services.Documents.Extensions;
 
@@ -25,9 +24,9 @@ public static partial class SvgSanitizer
     [GeneratedRegex(@"^\s*(javascript|data|vbscript):", RegexOptions.IgnoreCase)]
     private static partial Regex DangerousUriScheme();
 
-    public static async Task<IFormFile> SanitizeAsync(IFormFile file)
+    public static async Task<Stream> SanitizeAsync(Stream input)
     {
-        using var reader = new StreamReader(file.OpenReadStream());
+        using var reader = new StreamReader(input);
         var content = await reader.ReadToEndAsync();
 
         var doc = XDocument.Parse(content);
@@ -36,12 +35,7 @@ public static partial class SvgSanitizer
         var sanitized = new MemoryStream();
         await doc.SaveAsync(sanitized, SaveOptions.DisableFormatting, CancellationToken.None);
         sanitized.Position = 0;
-
-        return new FormFile(sanitized, 0, sanitized.Length, file.Name, file.FileName)
-        {
-            Headers = file.Headers,
-            ContentType = file.ContentType
-        };
+        return sanitized;
     }
 
     private static void SanitizeElement(XElement element)

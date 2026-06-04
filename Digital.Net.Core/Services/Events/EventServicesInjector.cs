@@ -6,9 +6,7 @@ public static class EventServicesInjector
 {
     public static IServiceCollection AddDigitalEventServices(this IServiceCollection services)
     {
-        services
-            .AddSingleton<IEventSignalService, EventSignalService>()
-            .AddSingleton<ISseStreamService, SseStreamService>();
+        services.AddSingleton<IEventSignalService, EventSignalService>();
         return services;
     }
 }

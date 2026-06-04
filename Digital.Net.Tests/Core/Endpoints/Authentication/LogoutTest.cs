@@ -1,7 +1,7 @@
 using System.Net;
 using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.Entities.Models.Users;
-using Digital.Net.Core.Services.Authentication.Events;
+using Digital.Net.Core.Http.Services.Authentication.Events;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Sdk;
 

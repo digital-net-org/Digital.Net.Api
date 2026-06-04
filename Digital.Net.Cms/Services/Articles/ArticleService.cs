@@ -1,8 +1,7 @@
 using Digital.Net.Cms.Context;
-using Digital.Net.Cms.Endpoints.Dto;
 using Digital.Net.Cms.Models.Articles;
 using Digital.Net.Cms.Services.Articles.Dto;
-using Digital.Net.Core.Services.Crud;
+using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
 using Microsoft.EntityFrameworkCore;

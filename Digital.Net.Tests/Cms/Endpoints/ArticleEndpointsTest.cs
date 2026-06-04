@@ -1,9 +1,8 @@
 using System.Net;
 using System.Net.Http.Json;
-using Digital.Net.Cms.Endpoints.Dto;
 using Digital.Net.Cms.Models.Pages;
 using Digital.Net.Cms.Services.Articles.Dto;
-using Digital.Net.Core.Services.Pagination;
+using Digital.Net.Core.Http.Services.Pagination;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data;
@@ -88,7 +87,7 @@ public class ArticleEndpointsTest
         var article = ctx.BuildTestArticle(pageId: page.Id);
 
         var response = await client.GetArticleById(article.Id);
-        var result = await response.Content.ReadFromJsonAsync<Digital.Net.Lib.Messages.Result<ArticleDto>>();
+        var result = await response.Content.ReadFromJsonAsync<Result<ArticleDto>>();
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         await Assert.That(result!.Value!.PageId).IsEqualTo(page.Id);

@@ -1,4 +1,4 @@
-using Digital.Net.Core.Services.Pagination;
+using Digital.Net.Core.Http.Services.Pagination;
 
 namespace Digital.Net.Cms.Services.Medias.Dto;
 

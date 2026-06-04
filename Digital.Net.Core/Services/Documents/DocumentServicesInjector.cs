@@ -8,7 +8,6 @@ public static class DocumentServicesInjector
     {
         services.AddScoped<IDocumentDimensionExtractor, DocumentDimensionExtractor>();
         services.AddScoped<IDocumentService, DocumentService>();
-        services.AddScoped<DocumentCacheService>();
         return services;
     }
 }

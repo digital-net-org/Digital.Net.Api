@@ -3,7 +3,7 @@ using System.Text.Json;
 using Digital.Net.Core.Entities.Exceptions;
 using Digital.Net.Core.Entities.Models;
 using Digital.Net.Core.Entities.Pivots;
-using Digital.Net.Core.Services.Crud;
+using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Random;
 using Digital.Net.Tests.Core.Factories;

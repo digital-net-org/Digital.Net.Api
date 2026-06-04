@@ -1,10 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Digital.Net.Core.Endpoints.Dto;
+using Digital.Net.Core.Http.Endpoints.Dto;
 using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.Entities.Models.Users;
-using Digital.Net.Core.Services.Pagination;
+using Digital.Net.Core.Http.Services.Pagination;
 using Digital.Net.Core.Services.Users.Events;
 using Digital.Net.Core.Services.Users.Events.Types;
 using Digital.Net.Lib.Messages;

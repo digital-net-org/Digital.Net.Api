@@ -16,7 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Digital.Net.Core\Digital.Net.Core.csproj"/>
+        <ProjectReference Include="..\Digital.Net.Core.Http\Digital.Net.Core.Http.csproj"/>
     </ItemGroup>
 
 </Project>

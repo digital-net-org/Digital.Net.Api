@@ -1,21 +1,22 @@
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using Digital.Net.Cms.Context;
-using Digital.Net.Cms.Endpoints.Dto;
 using Digital.Net.Cms.Endpoints.Events;
 using Digital.Net.Cms.Models.Medias;
 using Digital.Net.Cms.Services.Medias;
 using Digital.Net.Cms.Services.Medias.Dto;
+using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Events;
-using Digital.Net.Core.RateLimiter.Limiters;
+using Digital.Net.Core.Http.RateLimiters;
+using Digital.Net.Core.Http.Services.Authentication.Filters;
+using Digital.Net.Core.Http.Services.Crud;
+using Digital.Net.Core.Http.Services.Documents;
+using Digital.Net.Core.Http.Services.Pagination;
 using Digital.Net.Core.Services.Auditing;
-using Digital.Net.Core.Services.Authentication;
-using Digital.Net.Core.Services.Authentication.Filters;
-using Digital.Net.Core.Services.Crud;
 using Digital.Net.Core.Services.Documents;
 using Digital.Net.Core.Services.Documents.Exceptions;
-using Digital.Net.Core.Services.Pagination;
+using Digital.Net.Lib.Files;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.Predicates;
 using Microsoft.AspNetCore.Builder;
@@ -143,7 +144,7 @@ public static class MediaEndpoints
         IDocumentService documentService,
         CrudService<CmsContext, Media> crudService,
         IAuditService auditService,
-        UserContextService userContextService
+        IUserAccessor userContextService
     )
     {
         if (file.Length > MediaUploadConstraints.MaxFileSize)
@@ -154,7 +155,14 @@ public static class MediaEndpoints
             return Results.BadRequest($"Unsupported file type '{file.ContentType}'.");
 
         var user = userContextService.GetUser();
-        var docResult = await documentService.SaveDocumentAsync(file, user);
+        await using var stream = file.OpenReadStream();
+        var definition = new FileDefinition
+        {
+            FileName = file.FileName,
+            MimeType = file.ContentType,
+            FileSize = file.Length
+        };
+        var docResult = await documentService.SaveDocumentAsync(stream, definition, user);
         if (docResult.HasError || docResult.Value is null)
             return Results.BadRequest(docResult);
 
@@ -182,7 +190,7 @@ public static class MediaEndpoints
         Guid id,
         MediaService mediaService,
         IAuditService auditService,
-        UserContextService userContextService
+        IUserAccessor userContextService
     )
     {
         var result = await mediaService.DeleteMediaAsync(id);
@@ -221,7 +229,7 @@ public static class MediaEndpoints
         CmsContext context,
         MediaService mediaService,
         DocumentCacheService documentCacheService,
-        UserContextService userContextService
+        IUserAccessor userContextService
     )
     {
         var media = await context.Media.FindAsync(id);

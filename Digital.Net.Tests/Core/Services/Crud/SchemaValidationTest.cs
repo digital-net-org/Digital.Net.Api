@@ -1,3 +1,4 @@
+using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Core.Entities.Exceptions;
 using Digital.Net.Core.Entities.Models;
 using Digital.Net.Lib.Random;
@@ -75,7 +76,7 @@ public class SchemaValidationTest : UnitTest
     {
         var patch = new JsonPatchDocument<CrudTestEntity>();
         patch.Replace(e => e.OneOfField, null);
-        await Assert.That(() => SchemaProperty<CrudTestEntity>.Validate(patch)).ThrowsNothing();
+        await Assert.That(() => SchemaPatchValidator.Validate(patch)).ThrowsNothing();
     }
 
     [Test]
@@ -86,7 +87,7 @@ public class SchemaValidationTest : UnitTest
         {
             op = "test", path = "/Name", value = "ab",
         });
-        await Assert.That(() => SchemaProperty<CrudTestEntity>.Validate(patch)).ThrowsNothing();
+        await Assert.That(() => SchemaPatchValidator.Validate(patch)).ThrowsNothing();
     }
 
     [Test]
@@ -97,7 +98,7 @@ public class SchemaValidationTest : UnitTest
         {
             op = "replace", path = "/Children/0/Label", value = "ab",
         });
-        await Assert.That(() => SchemaProperty<CrudTestEntity>.Validate(patch)).ThrowsNothing();
+        await Assert.That(() => SchemaPatchValidator.Validate(patch)).ThrowsNothing();
     }
 
     [Test]
@@ -108,7 +109,7 @@ public class SchemaValidationTest : UnitTest
         {
             op = "replace", path = "/UnknownField", value = "x",
         });
-        await Assert.That(() => SchemaProperty<CrudTestEntity>.Validate(patch)).ThrowsNothing();
+        await Assert.That(() => SchemaPatchValidator.Validate(patch)).ThrowsNothing();
     }
 
     [Test]
@@ -116,7 +117,7 @@ public class SchemaValidationTest : UnitTest
     {
         var patch = new JsonPatchDocument<CrudTestEntity>();
         patch.Replace(e => e.Name, Randomizer.GenerateRandomString(Randomizer.AnyLetterOrNumber, 8));
-        await Assert.That(() => SchemaProperty<CrudTestEntity>.Validate(patch)).ThrowsNothing();
+        await Assert.That(() => SchemaPatchValidator.Validate(patch)).ThrowsNothing();
     }
 
     [Test]
@@ -126,7 +127,7 @@ public class SchemaValidationTest : UnitTest
         patch.Replace(e => e.ReadOnlyField, "blocked");
         await Assert.ThrowsAsync<EntityValidationException>(async () =>
         {
-            SchemaProperty<CrudTestEntity>.Validate(patch);
+            SchemaPatchValidator.Validate(patch);
             await Task.CompletedTask;
         });
     }
@@ -138,7 +139,7 @@ public class SchemaValidationTest : UnitTest
         patch.Replace(e => e.OneOfField, "delta");
         await Assert.ThrowsAsync<EntityValidationException>(async () =>
         {
-            SchemaProperty<CrudTestEntity>.Validate(patch);
+            SchemaPatchValidator.Validate(patch);
             await Task.CompletedTask;
         });
     }
@@ -148,7 +149,7 @@ public class SchemaValidationTest : UnitTest
     {
         var patch = new JsonPatchDocument<CrudTestEntity>();
         patch.Add(e => e.Children, GetValidChild());
-        await Assert.That(() => SchemaProperty<CrudTestEntity>.Validate(patch)).ThrowsNothing();
+        await Assert.That(() => SchemaPatchValidator.Validate(patch)).ThrowsNothing();
     }
 
     [Test]
@@ -158,7 +159,7 @@ public class SchemaValidationTest : UnitTest
         patch.Add(e => e.Children, new CrudTestChild { Label = "" });
         await Assert.ThrowsAsync<EntityValidationException>(async () =>
         {
-            SchemaProperty<CrudTestEntity>.Validate(patch);
+            SchemaPatchValidator.Validate(patch);
             await Task.CompletedTask;
         });
     }
@@ -172,7 +173,7 @@ public class SchemaValidationTest : UnitTest
         patch.Add(e => e.LockedChild, GetValidChild());
         await Assert.ThrowsAsync<EntityValidationException>(async () =>
         {
-            SchemaProperty<CrudTestEntity>.Validate(patch);
+            SchemaPatchValidator.Validate(patch);
             await Task.CompletedTask;
         });
     }
@@ -188,7 +189,7 @@ public class SchemaValidationTest : UnitTest
         });
         await Assert.ThrowsAsync<EntityValidationException>(async () =>
         {
-            SchemaProperty<CrudTestEntity>.Validate(patch);
+            SchemaPatchValidator.Validate(patch);
             await Task.CompletedTask;
         });
     }
@@ -207,7 +208,7 @@ public class SchemaValidationTest : UnitTest
         patch.Replace(e => e.OneOfField, "delta");
         await Assert.ThrowsAsync<EntityValidationException>(async () =>
         {
-            SchemaProperty<CrudTestEntity>.Validate(patch);
+            SchemaPatchValidator.Validate(patch);
             await Task.CompletedTask;
         });
     }

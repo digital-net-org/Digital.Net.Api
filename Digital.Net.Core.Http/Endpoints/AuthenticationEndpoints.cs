@@ -1,0 +1,182 @@
+using Digital.Net.Core.Accessors;
+using Digital.Net.Core.Http.Accessors;
+using Digital.Net.Core.Http.Endpoints.Dto;
+using Digital.Net.Core.Http.RateLimiters;
+using Digital.Net.Core.Http.Services.Authentication;
+using Digital.Net.Core.Http.Services.Authentication.Exceptions;
+using Digital.Net.Core.Http.Services.Authentication.Filters;
+using Digital.Net.Core.Http.Services.Authentication.Options;
+using Digital.Net.Lib.Exceptions;
+using Digital.Net.Lib.Messages;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+
+namespace Digital.Net.Core.Http.Endpoints;
+
+public static class AuthenticationEndpoints
+{
+    public static IEndpointRouteBuilder MapAuthenticationEndpoints(this IEndpointRouteBuilder app)
+    {
+        var controller = app
+            .MapGroup("authentication/user")
+            .WithTags("Authentication")
+            .RequireRateLimiting(GlobalLimiter.Policy);
+
+        controller
+            .MapPost("login", Login)
+            .WithSummary("Login")
+            .WithDescription("Login user with login and password.");
+
+        controller
+            .MapGet("is-locked", IsLocked)
+            .WithSummary("IsLocked")
+            .WithDescription("Check if the client IP has reached the max login attempts.");
+
+        controller
+            .MapPost("logout", Logout)
+            .RequireAuthentication(AuthorizeType.Jwt)
+            .WithSummary("Logout")
+            .WithDescription("Logout user's current session.");
+
+        controller
+            .MapPost("logout-all", LogoutAll)
+            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey)
+            .WithSummary("LogoutAll")
+            .WithDescription("Logout all user sessions on all devices.");
+
+        controller
+            .MapPost("refresh", RefreshTokens)
+            .WithSummary("RefreshTokens")
+            .WithDescription("Refreshes JWT and refresh token.");
+
+        return app;
+    }
+
+    private static async Task<Results<Ok<Result<string>>, UnauthorizedHttpResult, StatusCodeHttpResult>> Login(
+        [FromBody]
+        LoginPayload request,
+        AuthenticationService service,
+        AuthenticationOptionService opts,
+        HttpContext ctx
+    )
+    {
+        var result = new Result<string>();
+        var userAgent = ctx.GetUserAgent() ?? string.Empty;
+        var ipAddress = ctx.GetRemoteIpAddress();
+
+        if (ipAddress is null)
+            return TypedResults.Unauthorized();
+        if (request.Login.Length is > 48 or < 1 || request.Password.Length is > 256 or < 1)
+            return TypedResults.Unauthorized();
+
+        var loginRes = await service.LoginAsync(request.Login, request.Password, ipAddress, userAgent);
+        result.Merge(loginRes);
+
+        if (result.Errors.Any(e => e.Reference == new TooManyAttemptsException().GetReference()))
+            return TypedResults.StatusCode(429);
+        if (result.HasError || string.IsNullOrEmpty(loginRes.Value.bearer))
+            return TypedResults.Unauthorized();
+
+        ctx.Response.Cookies.Append(
+            opts.CookieName,
+            loginRes.Value.refresh,
+            BuildCookieOptions(opts.GetRefreshTokenExpirationDate())
+        );
+        result.Value = loginRes.Value.bearer;
+        return TypedResults.Ok(result);
+    }
+
+    private static async Task<Results<Ok<Result<bool>>, StatusCodeHttpResult>> IsLocked(AuthenticationService service,
+        HttpContext ctx)
+    {
+        var result = new Result<bool>();
+        var ipAddress = ctx.GetRemoteIpAddress();
+        if (ipAddress is null)
+            result.Value = false;
+        else
+            result.Value = await service.GetLoginAttemptCountAsync(ipAddress) >=
+                           AuthenticationStaticOptions.MaxLoginAttempts;
+
+        return TypedResults.Ok(result);
+    }
+
+    private static async Task<Results<Ok<Result<string>>, UnauthorizedHttpResult>> RefreshTokens(
+        AuthenticationService service,
+        AuthenticationOptionService opts,
+        HttpContext ctx
+    )
+    {
+        var result = new Result<string>();
+        var userAgent = ctx.GetUserAgent() ?? string.Empty;
+        var cookie = ctx.Request.Cookies[opts.CookieName];
+
+        if (string.IsNullOrEmpty(cookie))
+            return TypedResults.Unauthorized();
+
+        var refreshRes = await service.RefreshTokensAsync(cookie, userAgent);
+
+        result.Merge(refreshRes);
+        var (bearerToken, refresh) = refreshRes.Value;
+
+        if (result.HasError || string.IsNullOrEmpty(bearerToken))
+            return TypedResults.Unauthorized();
+
+        if (refresh is not null)
+            ctx.Response.Cookies.Append(
+                opts.CookieName,
+                refresh,
+                BuildCookieOptions(opts.GetRefreshTokenExpirationDate())
+            );
+
+        result.Value = bearerToken;
+        return TypedResults.Ok(result);
+    }
+
+    private static async Task<Results<NoContent, UnauthorizedHttpResult, BadRequest>> Logout(
+        AuthenticationService service,
+        AuthenticationOptionService opts,
+        IUserAccessor userCtx,
+        HttpContext ctx
+    )
+    {
+        var userAgent = ctx.GetUserAgent() ?? string.Empty;
+        var ipAddress = ctx.GetRemoteIpAddress() ?? string.Empty;
+        var cookie = ctx.Request.Cookies[opts.CookieName];
+
+        if (string.IsNullOrEmpty(cookie))
+            return TypedResults.BadRequest();
+
+        await service.LogoutAsync(cookie, userCtx.GetUserId(), userAgent, ipAddress);
+        ctx.Response.Cookies.Delete(opts.CookieName);
+        return TypedResults.NoContent();
+    }
+
+    private static async Task<Results<NoContent, UnauthorizedHttpResult>> LogoutAll(
+        AuthenticationService service,
+        AuthenticationOptionService opts,
+        HttpContext ctx
+    )
+    {
+        var userAgent = ctx.GetUserAgent() ?? string.Empty;
+        var ipAddress = ctx.GetRemoteIpAddress() ?? string.Empty;
+        var cookie = ctx.Request.Cookies[opts.CookieName];
+
+        if (string.IsNullOrEmpty(cookie))
+            return TypedResults.Unauthorized();
+
+        await service.LogoutAllAsync(cookie, userAgent, ipAddress);
+        ctx.Response.Cookies.Delete(opts.CookieName);
+        return TypedResults.NoContent();
+    }
+
+    private static CookieOptions BuildCookieOptions(DateTime expiration) => new()
+    {
+        HttpOnly = true,
+        Secure = true,
+        SameSite = SameSiteMode.None,
+        Expires = expiration
+    };
+}

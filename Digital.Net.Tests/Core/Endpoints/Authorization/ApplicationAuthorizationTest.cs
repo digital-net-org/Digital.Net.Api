@@ -1,5 +1,5 @@
 using System.Net;
-using Digital.Net.Core.Services.Authentication.Options;
+using Digital.Net.Core.Http.Services.Authentication.Options;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Sdk;
 

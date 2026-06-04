@@ -1,8 +1,8 @@
 using Digital.Net.Cms.Services.Pages;
 using Digital.Net.Cms.Services.Pages.Dto;
 using Digital.Net.Cms.Services.Pages.Exceptions;
-using Digital.Net.Core.RateLimiter.Limiters;
-using Digital.Net.Core.Services.Authentication.Filters;
+using Digital.Net.Core.Http.RateLimiters;
+using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
 using Microsoft.AspNetCore.Builder;

@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using Digital.Net.Cms.Context;
-using Digital.Net.Cms.Models;
 using Digital.Net.Cms.Models.Medias;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Documents;

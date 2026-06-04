@@ -5,15 +5,15 @@ using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Endpoints.Dto;
 using Digital.Net.Cms.Endpoints.Events;
 using Digital.Net.Cms.Models.Forms;
-using Digital.Net.Core.Entities.Models.Events;
-using Digital.Net.Core.RateLimiter.Limiters;
+using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities.Exceptions;
-using Digital.Net.Lib.Exceptions.types;
+using Digital.Net.Core.Entities.Models.Events;
+using Digital.Net.Core.Http.RateLimiters;
+using Digital.Net.Core.Http.Services.Authentication.Filters;
+using Digital.Net.Core.Http.Services.Crud;
+using Digital.Net.Core.Http.Services.Pagination.Extensions;
 using Digital.Net.Core.Services.Auditing;
-using Digital.Net.Core.Services.Authentication;
-using Digital.Net.Core.Services.Authentication.Filters;
-using Digital.Net.Core.Services.Crud;
-using Digital.Net.Core.Services.Pagination.Extensions;
+using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.Predicates;
 using Digital.Net.Lib.String;
@@ -255,7 +255,7 @@ public static class FormEndpoints
             CmsContext context,
             CrudService<CmsContext, FormField> crudService,
             IAuditService auditService,
-            UserContextService userContextService
+            IUserAccessor userContextService
         )
     {
         var formExists = await context.Forms.AsNoTracking().AnyAsync(f => f.Id == formId);
@@ -302,7 +302,7 @@ public static class FormEndpoints
             CmsContext context,
             CrudService<CmsContext, FormField> crudService,
             IAuditService auditService,
-            UserContextService userContextService,
+            IUserAccessor userContextService,
             CancellationToken ct
         )
     {
@@ -343,7 +343,7 @@ public static class FormEndpoints
             CmsContext context,
             CrudService<CmsContext, FormField> crudService,
             IAuditService auditService,
-            UserContextService userContextService
+            IUserAccessor userContextService
         )
     {
         var field = await context.FormFields.AsNoTracking().FirstOrDefaultAsync(f => f.Id == fieldId);

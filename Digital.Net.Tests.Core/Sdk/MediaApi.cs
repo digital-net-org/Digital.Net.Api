@@ -1,10 +1,8 @@
 using System;
-using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using Digital.Net.Cms.Endpoints.Dto;
 using Digital.Net.Cms.Services.Medias.Dto;
 using Digital.Net.Tests.Core.Http;
 

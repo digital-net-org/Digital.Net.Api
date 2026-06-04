@@ -3,9 +3,9 @@ using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Services.Documents;
 using Digital.Net.Core.Services.Documents.Exceptions;
 using Digital.Net.Lib.Exceptions.types;
+using Digital.Net.Lib.Files;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -50,8 +50,10 @@ public class DocumentServiceTest : UnitTest, IAsyncInitializer
     [Test]
     public async Task SaveDocumentAsync_Should_Return_Error_When_Uploader_Is_Null()
     {
-        var formFileMock = new Mock<IFormFile>();
-        var result = await _service.SaveDocumentAsync(formFileMock.Object, null);
+        var result = await _service.SaveDocumentAsync(
+            Stream.Null,
+            new FileDefinition { FileName = "test.txt", MimeType = "text/plain" },
+            null);
         await Assert.That(result.HasErrorOfType<NoUploaderException>()).IsTrue();
     }
 
@@ -65,13 +67,10 @@ public class DocumentServiceTest : UnitTest, IAsyncInitializer
         {
             var user = _context.BuildTestUser();
             var (bytes, fileName, contentType) = TestMediaDataFactory.GenerateTestImage(120, 80);
-            var file = new FormFile(new MemoryStream(bytes), 0, bytes.Length, "file", fileName)
-            {
-                Headers = new HeaderDictionary(),
-                ContentType = contentType
-            };
+            using var stream = new MemoryStream(bytes);
+            var definition = new FileDefinition { FileName = fileName, MimeType = contentType, FileSize = bytes.Length };
 
-            var result = await service.SaveDocumentAsync(file, user);
+            var result = await service.SaveDocumentAsync(stream, definition, user);
 
             await Assert.That(result.HasError).IsFalse();
             await Assert.That(result.Value).IsNotNull();
@@ -98,13 +97,10 @@ public class DocumentServiceTest : UnitTest, IAsyncInitializer
         {
             var user = _context.BuildTestUser();
             var bytes = "not an image"u8.ToArray();
-            var file = new FormFile(new MemoryStream(bytes), 0, bytes.Length, "file", "test.txt")
-            {
-                Headers = new HeaderDictionary(),
-                ContentType = "text/plain"
-            };
+            using var stream = new MemoryStream(bytes);
+            var definition = new FileDefinition { FileName = "test.txt", MimeType = "text/plain", FileSize = bytes.Length };
 
-            var result = await service.SaveDocumentAsync(file, user);
+            var result = await service.SaveDocumentAsync(stream, definition, user);
 
             await Assert.That(result.HasError).IsFalse();
             await Assert.That(result.Value).IsNotNull();

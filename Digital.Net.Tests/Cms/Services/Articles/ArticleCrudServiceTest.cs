@@ -6,7 +6,7 @@ using Digital.Net.Cms.Models.Articles;
 using Digital.Net.Cms.Models.Pages;
 using Digital.Net.Core.Entities.Exceptions;
 using Digital.Net.Core.Entities.Pivots;
-using Digital.Net.Core.Services.Crud;
+using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Tests.Core;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data;

@@ -1,6 +1,6 @@
-using Digital.Net.Core.Services.Authentication.Utils;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Users;
+using Digital.Net.Core.Services.Users;
 using Digital.Net.Lib.Random;
 using Digital.Net.Tests.Core.Factories.Data.Records;
 
@@ -19,7 +19,7 @@ public static class TestUserFactory
         {
             Username = userDto?.Username ?? Randomizer.GenerateRandomString(Randomizer.AnyLetter, 20),
             Login = userDto?.Login ?? Randomizer.GenerateRandomString(Randomizer.AnyLetterOrNumber, 12),
-            Password = PasswordUtils.HashPassword(TestUserPassword),
+            Password = UserPassword.Hash(TestUserPassword),
             Email = userDto?.Email ?? Randomizer.GenerateRandomEmail(),
             IsActive = userDto?.IsActive ?? true,
             IsAdmin = userDto?.IsAdmin ?? false

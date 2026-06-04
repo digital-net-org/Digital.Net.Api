@@ -2,15 +2,15 @@ using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Documents;
 using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.Services.Auditing;
-using Digital.Net.Core.Services.Authentication.Exceptions;
 using Digital.Net.Core.Services.Documents;
 using Digital.Net.Core.Services.Documents.Exceptions;
 using Digital.Net.Core.Services.Users;
 using Digital.Net.Core.Services.Users.Events;
+using Digital.Net.Core.Services.Users.Exceptions;
+using Digital.Net.Lib.Files;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data;
-using Microsoft.AspNetCore.Http;
 using Moq;
 using TUnit.Core.Interfaces;
 
@@ -130,10 +130,11 @@ public class UserServiceTest : UnitTest, IAsyncInitializer
     public async Task UpdateAvatar_Should_Return_Error_When_File_Too_Heavy()
     {
         var user = _context.BuildTestUser();
-        var formFileMock = new Mock<IFormFile>();
-        formFileMock.Setup(f => f.Length).Returns(long.MaxValue);
 
-        var result = await _service.UpdateAvatar(user, formFileMock.Object);
+        var result = await _service.UpdateAvatar(
+            user,
+            Stream.Null,
+            new FileDefinition { FileName = "avatar.jpg", MimeType = "image/jpeg", FileSize = long.MaxValue });
         await Assert.That(result.HasErrorOfType<TooHeavyException>()).IsTrue();
     }
 
@@ -141,10 +142,11 @@ public class UserServiceTest : UnitTest, IAsyncInitializer
     public async Task UpdateAvatar_Should_Return_Error_When_Unsupported_Format()
     {
         var user = _context.BuildTestUser();
-        var formFileMock = new Mock<IFormFile>();
-        formFileMock.Setup(f => f.ContentType).Returns("application/json");
 
-        var result = await _service.UpdateAvatar(user, formFileMock.Object);
+        var result = await _service.UpdateAvatar(
+            user,
+            Stream.Null,
+            new FileDefinition { FileName = "avatar.json", MimeType = "application/json", FileSize = 100 });
         await Assert.That(result.HasErrorOfType<UnsupportedFormatException>()).IsTrue();
     }
 
@@ -161,14 +163,15 @@ public class UserServiceTest : UnitTest, IAsyncInitializer
         await _context.Documents.AddAsync(document);
         await _context.SaveChangesAsync();
 
-        var formFileMock = new Mock<IFormFile>();
-        formFileMock.Setup(f => f.Length).Returns(100);
-        formFileMock.Setup(f => f.ContentType).Returns("image/jpeg");
         _documentServiceMock
-            .Setup(d => d.SaveImageDocumentAsync(formFileMock.Object, user))
+            .Setup(d => d.SaveImageDocumentAsync(It.IsAny<Stream>(), It.IsAny<FileDefinition>(), user,
+                It.IsAny<int?>()))
             .ReturnsAsync(new Result<Document> { Value = document });
 
-        var result = await _service.UpdateAvatar(user, formFileMock.Object);
+        var result = await _service.UpdateAvatar(
+            user,
+            Stream.Null,
+            new FileDefinition { FileName = "avatar.jpg", MimeType = "image/jpeg", FileSize = 100 });
         await Assert.That(result.HasError).IsFalse();
         await Assert.That(user.AvatarId).IsNotNull();
     }

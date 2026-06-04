@@ -5,7 +5,7 @@ using Digital.Net.Cms.Context;
 using Digital.Net.Core;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Users;
-using Digital.Net.Core.Services.Authentication.Options;
+using Digital.Net.Core.Http.Services.Authentication.Options;
 using Digital.Net.Tests.Core.Factories.Data;
 using Digital.Net.Tests.Core.Factories.Data.Records;
 using Microsoft.Extensions.Configuration;

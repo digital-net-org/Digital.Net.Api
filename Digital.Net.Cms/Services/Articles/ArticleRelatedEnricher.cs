@@ -1,7 +1,7 @@
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Models.Articles;
 using Digital.Net.Cms.Services.Articles.Dto;
-using Digital.Net.Core.Services.Crud;
+using Digital.Net.Core.Http.Services.Crud;
 using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Cms.Services.Articles;

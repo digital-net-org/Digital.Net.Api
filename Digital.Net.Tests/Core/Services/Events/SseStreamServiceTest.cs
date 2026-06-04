@@ -1,3 +1,4 @@
+using Digital.Net.Core.Http.Services.Events;
 using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.Services.Events;
 using Microsoft.Extensions.Logging;

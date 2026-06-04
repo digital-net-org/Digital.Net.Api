@@ -8,13 +8,13 @@ using Digital.Net.Cms.Models.Pages;
 using Digital.Net.Cms.Services.Pages;
 using Digital.Net.Cms.Services.Pages.Dto;
 using Digital.Net.Cms.Services.Pages.OpenGraph;
+using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities.Exceptions;
+using Digital.Net.Core.Http.RateLimiters;
+using Digital.Net.Core.Http.Services.Authentication.Filters;
+using Digital.Net.Core.Http.Services.Crud;
+using Digital.Net.Core.Http.Services.Pagination.Extensions;
 using Digital.Net.Core.Services.Templating;
-using Digital.Net.Core.RateLimiter.Limiters;
-using Digital.Net.Core.Services.Authentication;
-using Digital.Net.Core.Services.Authentication.Filters;
-using Digital.Net.Core.Services.Crud;
-using Digital.Net.Core.Services.Pagination.Extensions;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.Predicates;
@@ -136,7 +136,7 @@ public static class PageEndpoints
             [FromBody]
             PagePayload payload,
             PageCrudService pageCrudService,
-            UserContextService userContextService
+            IUserAccessor userContextService
         )
     {
         var result = await pageCrudService.CreatePage(payload, userContextService.GetUserId());
@@ -154,7 +154,7 @@ public static class PageEndpoints
             [FromBody]
             JsonElement patch,
             PageCrudService pageCrudService,
-            UserContextService userContextService
+            IUserAccessor userContextService
         )
     {
         var result = await pageCrudService.PatchPage(patch, id, userContextService.GetUserId());

@@ -7,9 +7,8 @@ using Digital.Net.Lib.Configuration;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Files;
 using Digital.Net.Lib.Messages;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using SixLabors.ImageSharp;
 
 namespace Digital.Net.Core.Services.Documents;
 
@@ -24,9 +23,9 @@ public class DocumentService(
         document.FileName
     );
 
-    public Result<FileResult?> GetDocumentFile(Guid documentId, string? contentType = null)
+    public Result<FileContent?> GetDocumentFile(Guid documentId, string? contentType = null)
     {
-        var result = new Result<FileResult?>();
+        var result = new Result<FileContent?>();
         var document = context.Documents.Find(documentId);
         if (document is null)
             return result.AddError(new ResourceNotFoundException());
@@ -35,26 +34,47 @@ public class DocumentService(
             return result.AddError(new ResourceNotFoundException());
 
         var fileBytes = File.ReadAllBytes(path);
-        result.Value = new FileContentResult(fileBytes, contentType ?? "application/octet-stream")
-        {
-            FileDownloadName = document.FileName,
-            LastModified = document.UpdatedAt ?? document.CreatedAt,
-        };
-        if (result.Value is null)
-            result.AddError(new ResourceNotFoundException());
-
+        result.Value = new FileContent(
+            fileBytes,
+            document.FileName,
+            contentType ?? "application/octet-stream",
+            document.UpdatedAt ?? document.CreatedAt
+        );
         return result;
     }
 
-    public async Task<Result<Document>> SaveImageDocumentAsync(IFormFile form, User? uploader, int? quality = null)
+    public async Task<Result<Document>> SaveImageDocumentAsync(
+        Stream content,
+        FileDefinition definition,
+        User? uploader,
+        int? quality = null
+    )
     {
         var result = new Result<Document>();
-        var compressed = await form.CompressImageAsync(quality: quality);
-        if (compressed.HasError || compressed.Value is null)
-            return result.Merge(compressed);
+        MemoryStream compressed;
+        string fileName;
+        try
+        {
+            using var image = await Image.LoadAsync(content);
+            compressed = new MemoryStream();
+            await image.SaveAsync(compressed, FormFileHelper.GetJpegEncoder(quality));
+            compressed.Position = 0;
+            fileName = $"{FormFileHelper.GenerateFileName()}.jpg";
+        }
+        catch (Exception ex)
+        {
+            return result.AddError(ex);
+        }
 
-        result = await SaveDocumentAsync(compressed.Value, uploader);
-        return result;
+        var imageDefinition = new FileDefinition
+        {
+            FileName = fileName,
+            MimeType = "image/jpeg",
+            FileSize = compressed.Length
+        };
+
+        await using (compressed)
+            return await SaveDocumentAsync(compressed, imageDefinition, uploader);
     }
 
     public async Task<Result> RemoveDocumentAsync(Guid id)
@@ -73,28 +93,28 @@ public class DocumentService(
         return result;
     }
 
-    public async Task<Result<Document>> SaveDocumentAsync(IFormFile file, User? uploader)
+    public async Task<Result<Document>> SaveDocumentAsync(Stream content, FileDefinition definition, User? uploader)
     {
         var result = new Result<Document>();
         if (uploader is null)
             return result.AddError(new NoUploaderException());
 
-        if (DocumentTypes.SvgMimeTypes.Contains(file.ContentType, StringComparer.OrdinalIgnoreCase))
-            file = await SvgSanitizer.SanitizeAsync(file);
+        var payload = content;
+        if (DocumentTypes.SvgMimeTypes.Contains(definition.MimeType, StringComparer.OrdinalIgnoreCase))
+            payload = await SvgSanitizer.SanitizeAsync(content);
 
-        result.Value = new Document(uploader, new FileDefinition
-        {
-            FileName = file.FileName,
-            MimeType = file.ContentType,
-            FileSize = file.Length
-        });
+        // Buffer once so the bytes can be read twice (dimension extraction + disk write)
+        // and to support non-seekable source streams.
+        using var buffer = new MemoryStream();
+        await payload.CopyToAsync(buffer);
+        buffer.Position = 0;
 
-        await using (var dimensionStream = file.OpenReadStream())
-        {
-            var (width, height) = dimensionExtractor.Extract(dimensionStream, file.ContentType);
-            result.Value.Width = width;
-            result.Value.Height = height;
-        }
+        result.Value = new Document(uploader, definition);
+
+        var (width, height) = dimensionExtractor.Extract(buffer, definition.MimeType);
+        result.Value.Width = width;
+        result.Value.Height = height;
+        buffer.Position = 0;
 
         await context.Documents.AddAsync(result.Value);
 
@@ -103,8 +123,8 @@ public class DocumentService(
         if (dir is not null && !Directory.Exists(dir))
             Directory.CreateDirectory(dir);
 
-        await using var stream = new FileStream(fullPath, FileMode.Create);
-        await file.CopyToAsync(stream);
+        await using (var stream = new FileStream(fullPath, FileMode.Create))
+            await buffer.CopyToAsync(stream);
 
         await context.SaveChangesAsync();
         return result;

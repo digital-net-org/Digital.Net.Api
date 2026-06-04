@@ -1,4 +1,3 @@
-using Digital.Net.Cms.Models.Pages;
 using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Cms.Models.Articles;

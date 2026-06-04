@@ -4,17 +4,14 @@ using Digital.Net.Core.Entities.Models.Documents;
 using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Core.Services.Auditing;
-using Digital.Net.Core.Services.Authentication.Exceptions;
-using Digital.Net.Core.Services.Authentication.Utils;
 using Digital.Net.Core.Services.Documents;
 using Digital.Net.Core.Services.Documents.Exceptions;
-using Digital.Net.Core.Services.Documents.Extensions;
 using Digital.Net.Core.Services.Users.Events;
 using Digital.Net.Core.Services.Users.Exceptions;
 using Digital.Net.Lib.Exceptions.types;
+using Digital.Net.Lib.Files;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.String;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Core.Services.Users;
@@ -38,7 +35,7 @@ public class UserService(
             );
         };
 
-        if (!PasswordUtils.VerifyPassword(user, currentPassword))
+        if (!UserPassword.Verify(user, currentPassword))
         {
             result.AddError(new InvalidCredentialsException());
             await registerEvent(EventState.Failed);
@@ -52,22 +49,22 @@ public class UserService(
             return result;
         }
 
-        user.Password = PasswordUtils.HashPassword(newPassword);
+        user.Password = UserPassword.Hash(newPassword);
         context.Users.Update(user);
         await context.SaveChangesAsync();
         await registerEvent(EventState.Success);
         return result;
     }
 
-    public async Task<Result> UpdateAvatar(User user, IFormFile form)
+    public async Task<Result> UpdateAvatar(User user, Stream content, FileDefinition definition)
     {
         var result = new Result();
-        if (form.Length > CoreSettings.DefaultMaxAvatarSize)
+        if (definition.FileSize > CoreSettings.DefaultMaxAvatarSize)
             return result.AddError(new TooHeavyException());
-        if (!form.IsImage())
+        if (!definition.MimeType.Contains("image"))
             return result.AddError(new UnsupportedFormatException());
 
-        var documentResult = await documentService.SaveImageDocumentAsync(form, user);
+        var documentResult = await documentService.SaveImageDocumentAsync(content, definition, user);
         result.Merge(documentResult);
         if (result.HasError || documentResult.Value is null)
             return result;
@@ -122,7 +119,7 @@ public class UserService(
             Username = username,
             Login = login,
             Email = email,
-            Password = PasswordUtils.HashPassword(password),
+            Password = UserPassword.Hash(password),
             IsActive = false,
             IsAdmin = false
         };

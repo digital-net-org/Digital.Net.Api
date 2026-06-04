@@ -1,5 +1,3 @@
-using Digital.Net.Core.Endpoints.Dto;
-
 namespace Digital.Net.Core.Services.Users.Events.Types;
 
 public class AdminUserMutationEvent
@@ -8,11 +6,11 @@ public class AdminUserMutationEvent
     {
     }
 
-    public AdminUserMutationEvent(UserPayload payload, Guid userId)
+    public AdminUserMutationEvent(string username, string login, string email, Guid userId)
     {
-        Username = payload.Username;
-        Login = payload.Login;
-        Email = payload.Email;
+        Username = username;
+        Login = login;
+        Email = email;
         Id = userId;
     }
 

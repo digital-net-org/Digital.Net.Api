@@ -6,7 +6,7 @@ using Digital.Net.Cms.Services.Pages.Dto;
 using Digital.Net.Core.Entities.Exceptions;
 using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.Services.Auditing;
-using Digital.Net.Core.Services.Crud;
+using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Lib.Messages;
 
 namespace Digital.Net.Cms.Services.Pages;

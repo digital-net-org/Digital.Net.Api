@@ -1,10 +1,9 @@
 using Digital.Net.Cms.Context;
-using Digital.Net.Cms.Endpoints.Dto;
 using Digital.Net.Cms.Models.Pages;
 using Digital.Net.Cms.Services.Medias.Dto;
 using Digital.Net.Cms.Services.Pages.Dto;
 using Digital.Net.Core.Entities.Context;
-using Digital.Net.Core.Services.Crud;
+using Digital.Net.Core.Http.Services.Crud;
 using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Cms.Services.Pages;

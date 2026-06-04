@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
@@ -6,20 +6,12 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>true</IsPackable>
-        <InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.AspNetCore.OpenApi.Generated</InterceptorsNamespaces>
     </PropertyGroup>
-    
+
     <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
-    </ItemGroup>
-    
-    <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.3"/>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.3"/>
-        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.16.0"/>
         <PackageReference Include="BCrypt.Net-Next" Version="4.0.3"/>
         <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12"/>
-        <PackageReference Include="Scalar.AspNetCore" Version="2.12.46"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.3"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -33,13 +25,10 @@
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.1" />
-        <!-- TODO REF-03: requis par SchemaProperty.cs (JsonPatchDocument). À retirer une fois ce fichier nettoyé. -->
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.3"/>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Digital.Net.Lib\Digital.Net.Lib.csproj"/>
-        <ProjectReference Include="..\Digital.Net.Lib.Http\Digital.Net.Lib.Http.csproj"/>
     </ItemGroup>
 
 </Project>

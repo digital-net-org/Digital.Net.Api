@@ -1,7 +1,7 @@
 using Digital.Net.Cms.Endpoints.Dto;
 using Digital.Net.Cms.Services.Sitemaps;
-using Digital.Net.Core.RateLimiter.Limiters;
-using Digital.Net.Core.Services.Authentication.Filters;
+using Digital.Net.Core.Http.RateLimiters;
+using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Lib.Messages;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;

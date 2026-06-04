@@ -16,11 +16,14 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.3"/>
         <PackageReference Include="Scalar.AspNetCore" Version="2.12.46"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.3"/>
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.16.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.3"/>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Digital.Net.Core\Digital.Net.Core.csproj"/>
-        <ProjectReference Include="..\Digital.Net.Lib.Http\Digital.Net.Lib.Http.csproj"/>
+        <ProjectReference Include="..\Digital.Net.Lib\Digital.Net.Lib.csproj"/>
     </ItemGroup>
 
 </Project>
