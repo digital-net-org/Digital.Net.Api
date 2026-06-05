@@ -1,6 +1,6 @@
 using System.Text.Json;
 using Digital.Net.Cms.Context;
-using Digital.Net.Cms.Endpoints.Dto;
+using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Models;
 using Digital.Net.Cms.Models.Articles;
 using Digital.Net.Cms.Models.Pages;

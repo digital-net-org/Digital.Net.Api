@@ -1,9 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using Digital.Net.Cms.Services.Medias.Dto;
+using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Tests.Core.Http;
 
 namespace Digital.Net.Tests.Core.Sdk;
@@ -62,7 +63,7 @@ public static class MediaApi
     )
     {
         var url = $"{BaseUrl}/image/{mediaId}.{ext}";
-        var queryParams = new System.Collections.Generic.List<string>();
+        var queryParams = new List<string>();
         if (w.HasValue) queryParams.Add($"w={w.Value}");
         if (q.HasValue) queryParams.Add($"q={q.Value}");
         if (queryParams.Count > 0) url += "?" + string.Join("&", queryParams);

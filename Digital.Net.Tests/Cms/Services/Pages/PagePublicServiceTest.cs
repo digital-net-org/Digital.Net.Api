@@ -1,10 +1,10 @@
 using Digital.Net.Cms.Context;
+using Digital.Net.Cms.Http.Dto;
+using Digital.Net.Cms.Http.Exceptions;
+using Digital.Net.Cms.Http.Services;
 using Digital.Net.Cms.Models;
 using Digital.Net.Cms.Models.Articles;
 using Digital.Net.Cms.Models.Pages;
-using Digital.Net.Cms.Services.Pages;
-using Digital.Net.Cms.Services.Pages.Dto;
-using Digital.Net.Cms.Services.Pages.Exceptions;
 using Digital.Net.Tests.Core;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data;

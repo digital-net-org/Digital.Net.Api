@@ -1,69 +1,27 @@
 using Digital.Net.Cms.Context;
-using Digital.Net.Cms.Endpoints;
-using Digital.Net.Cms.Services.Articles;
-using Digital.Net.Cms.Services.Medias;
-using Digital.Net.Cms.Services.Pages;
-using Digital.Net.Cms.Services.Sitemaps;
+using Digital.Net.Cms.Services;
 using Digital.Net.Core.Bootstrap;
-using Digital.Net.Core.Entities.Models.Events;
-using Digital.Net.Core.Entities.Pivots;
-using Digital.Net.Core.Http.RateLimiters;
-using Digital.Net.Core.Http.Services.Authentication.Filters;
-using Digital.Net.Core.Http.Services.Crud;
-using Digital.Net.Core.Http.Services.Events.Extensions;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Digital.Net.Cms;
 
 public static class CmsInjector
 {
     /// <summary>
-    ///     Add the optional Digital.Net CMS module to the application.
+    ///     Registers the Digital.Net CMS business layer (CmsContext, migrations, domain services).
+    ///     HTTP wiring lives in Digital.Net.Cms.Http (AddDigitalNetCmsHttp / UseDigitalNetCmsHttp).
     /// </summary>
-    public static WebApplicationBuilder AddDigitalCms(this WebApplicationBuilder builder)
+    public static TBuilder AddDigitalNetCms<TBuilder>(this TBuilder builder)
+        where TBuilder : IHostApplicationBuilder
     {
         builder
             .AddDatabaseContext<CmsContext>()
             .ApplyMigrations<CmsContext>();
 
         builder.Services
-            .AddArticleDependencies()
-            .AddPageDependencies()
-            .AddSitemapDependencies()
-            .AddMediaDependencies()
-            .AddEntitiesPivots<CmsContext>(typeof(CmsInjector).Assembly)
-            .AddDtoEnrichersFromAssemblies(typeof(CmsInjector).Assembly);
+            .AddScoped<MediaService>();
 
         return builder;
-    }
-
-    /// <summary>
-    ///     Use the optional Digital.Net CMS module.
-    /// </summary>
-    public static WebApplication UseDigitalCms(this WebApplication app)
-    {
-        app
-            .MapCmsTagEndpoints()
-            .MapCmsPageEndpoints()
-            .MapCmsPagePublicEndpoints()
-            .MapCmsArticleEndpoints()
-            .MapCmsMediaEndpoints()
-            .MapCmsSitemapEndpoints()
-            .MapCmsFormEndpoints();
-
-        app
-            .MapSseStream(
-                "cms/events/stream",
-                "mutation",
-                signal => signal.Name.StartsWith("CMS_") && signal.State == EventState.Success
-            )
-            .WithTags("CMS.Events")
-            .WithSummary("SSE Stream")
-            .WithDescription("Subscribe to CMS mutation events via Server-Sent Events.")
-            .RequireRateLimiting(GlobalLimiter.Policy)
-            .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
-
-        return app;
     }
 }

@@ -2,7 +2,7 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using Digital.Net.Cms.Services.Pages.Dto;
+using Digital.Net.Cms.Http.Dto;
 
 namespace Digital.Net.Tests.Core.Sdk;
 

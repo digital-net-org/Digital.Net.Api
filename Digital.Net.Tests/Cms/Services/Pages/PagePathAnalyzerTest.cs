@@ -1,4 +1,4 @@
-using Digital.Net.Cms.Services.Pages;
+using Digital.Net.Cms.Http.Services;
 using Digital.Net.Tests.Core;
 
 namespace Digital.Net.Tests.Cms.Services.Pages;

@@ -1,6 +1,6 @@
 using Digital.Net.Cms.Context;
+using Digital.Net.Cms.Http.Services;
 using Digital.Net.Cms.Models.Pages;
-using Digital.Net.Cms.Services.Sitemaps;
 using Digital.Net.Tests.Core;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data;

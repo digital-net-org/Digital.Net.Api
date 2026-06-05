@@ -1,6 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using Digital.Net.Cms.Endpoints.Dto;
+using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Models.Forms;
 using Digital.Net.Core.Http.Services.Pagination;
 using Digital.Net.Lib.Messages;

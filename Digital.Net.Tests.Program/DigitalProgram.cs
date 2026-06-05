@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Digital.Net.Cms;
+using Digital.Net.Cms.Http;
 using Digital.Net.Core;
 using Digital.Net.Core.Http;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
@@ -16,11 +17,12 @@ public sealed class DigitalProgram
         var app = WebApplication.CreateBuilder(args)
             .AddDigitalNetCore()
             .AddDigitalNetCoreHttp()
-            .AddDigitalCms()
+            .AddDigitalNetCms()
+            .AddDigitalNetCmsHttp()
             .Build();
 
         app.UseDigitalNetCoreHttp();
-        app.UseDigitalCms();
+        app.UseDigitalNetCmsHttp();
         MapTestEndpoints(app);
 
 

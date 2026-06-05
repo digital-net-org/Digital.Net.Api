@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
+using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Models.Pages;
-using Digital.Net.Cms.Services.Articles.Dto;
 using Digital.Net.Core.Http.Services.Pagination;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Tests.Core.Factories;
