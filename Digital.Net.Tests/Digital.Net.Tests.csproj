@@ -16,8 +16,4 @@
         <ProjectReference Include="..\Digital.Net.Tests.Core\Digital.Net.Tests.Core.csproj"/>
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Cms\" />
-    </ItemGroup>
-
 </Project>

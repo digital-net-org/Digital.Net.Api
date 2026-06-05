@@ -1,0 +1,195 @@
+using Digital.Net.Cms.Context;
+using Digital.Net.Cms.Http.Services;
+using Digital.Net.Cms.Models.Pages;
+using Digital.Net.Tests.Core;
+using Digital.Net.Tests.Core.Factories;
+using Digital.Net.Tests.Core.Factories.Data;
+using Microsoft.EntityFrameworkCore;
+using TUnit.Core.Interfaces;
+
+namespace Digital.Net.Tests.Cms.Http.Services.Sitemaps;
+
+public class SitemapServiceTest : UnitTest, IAsyncInitializer
+{
+    [ClassDataSource<DatabaseFixture>]
+    public required DatabaseFixture DbFixture { get; init; }
+
+    private CmsContext _context = null!;
+    private SitemapService _service = null!;
+
+    public async Task InitializeAsync()
+    {
+        await DbFixture.EnsureCreatedAsync<CmsContext>();
+        _context = DbFixture.CreateContext<CmsContext>();
+        _service = new SitemapService(_context);
+    }
+
+    private static string Unique(string prefix) => $"{prefix}-{Guid.NewGuid():N}"[..(prefix.Length + 9)];
+
+    [Test]
+    public async Task GetEntries_ShouldIncludeStaticPublishedAndIndexedPage()
+    {
+        var path = "/" + Unique("static");
+        _context.BuildTestPage(path: path, published: true, indexed: true);
+
+        var entries = await _service.GetEntriesAsync();
+
+        await Assert.That(entries.Any(e => e.Path == path)).IsTrue();
+    }
+
+    [Test]
+    public async Task GetEntries_ShouldExcludeUnpublishedPage()
+    {
+        var path = "/" + Unique("unpub");
+        _context.BuildTestPage(path: path, published: false, indexed: true);
+
+        var entries = await _service.GetEntriesAsync();
+
+        await Assert.That(entries.Any(e => e.Path == path)).IsFalse();
+    }
+
+    [Test]
+    public async Task GetEntries_ShouldExcludeNonIndexedPage()
+    {
+        var path = "/" + Unique("noindex");
+        _context.BuildTestPage(path: path, published: true, indexed: false);
+
+        var entries = await _service.GetEntriesAsync();
+
+        await Assert.That(entries.Any(e => e.Path == path)).IsFalse();
+    }
+
+    [Test]
+    public async Task GetEntries_ShouldExpandDynamicArticlePage()
+    {
+        var prefix = "/" + Unique("art-pub");
+        var pattern = $"{prefix}/:slug";
+        var page = _context.BuildTestPage(path: pattern, published: true, indexed: true, entityType: PageEntityType.Article);
+
+        var slugA = Unique("a");
+        var slugB = Unique("b");
+        _context.BuildTestArticle(slug: slugA, published: true, pageId: page.Id);
+        _context.BuildTestArticle(slug: slugB, published: true, pageId: page.Id);
+
+        var entries = await _service.GetEntriesAsync();
+
+        await Assert.That(entries.Any(e => e.Path == $"{prefix}/{slugA}")).IsTrue();
+        await Assert.That(entries.Any(e => e.Path == $"{prefix}/{slugB}")).IsTrue();
+        await Assert.That(entries.Any(e => e.Path == pattern)).IsFalse();
+    }
+
+    [Test]
+    public async Task GetEntries_ShouldExcludeUnpublishedArticlesFromDynamicExpansion()
+    {
+        var prefix = "/" + Unique("art-unp");
+        var pattern = $"{prefix}/:slug";
+        var page = _context.BuildTestPage(path: pattern, published: true, indexed: true, entityType: PageEntityType.Article);
+
+        var draftSlug = Unique("draft");
+        _context.BuildTestArticle(slug: draftSlug, published: false, pageId: page.Id);
+
+        var entries = await _service.GetEntriesAsync();
+
+        await Assert.That(entries.Any(e => e.Path == $"{prefix}/{draftSlug}")).IsFalse();
+    }
+
+    [Test]
+    public async Task GetEntries_ShouldExcludeOrphanArticlesFromDynamicExpansion()
+    {
+        var prefix = "/" + Unique("art-orph");
+        var pattern = $"{prefix}/:slug";
+        _context.BuildTestPage(path: pattern, published: true, indexed: true, entityType: PageEntityType.Article);
+
+        var orphanSlug = Unique("orph");
+        _context.BuildTestArticle(slug: orphanSlug, published: true, pageId: null);
+
+        var entries = await _service.GetEntriesAsync();
+
+        await Assert.That(entries.Any(e => e.Path == $"{prefix}/{orphanSlug}")).IsFalse();
+    }
+
+    [Test]
+    public async Task GetEntries_ShouldExcludeArticlesAttachedToOtherPage()
+    {
+        var prefixA = "/" + Unique("art-a");
+        var prefixB = "/" + Unique("art-b");
+        var patternA = $"{prefixA}/:slug";
+        var patternB = $"{prefixB}/:slug";
+        var pageA = _context.BuildTestPage(path: patternA, published: true, indexed: true, entityType: PageEntityType.Article);
+        _context.BuildTestPage(path: patternB, published: true, indexed: true, entityType: PageEntityType.Article);
+
+        var slug = Unique("only-a");
+        _context.BuildTestArticle(slug: slug, published: true, pageId: pageA.Id);
+
+        var entries = await _service.GetEntriesAsync();
+
+        await Assert.That(entries.Any(e => e.Path == $"{prefixA}/{slug}")).IsTrue();
+        await Assert.That(entries.Any(e => e.Path == $"{prefixB}/{slug}")).IsFalse();
+    }
+
+    [Test]
+    public async Task GetEntries_ShouldNotExpandDynamicPage_WhenPageIsNotPublished()
+    {
+        var prefix = "/" + Unique("dyn-unp");
+        var pattern = $"{prefix}/:slug";
+        var page = _context.BuildTestPage(path: pattern, published: false, indexed: true, entityType: PageEntityType.Article);
+
+        var slug = Unique("hidden");
+        _context.BuildTestArticle(slug: slug, published: true, pageId: page.Id);
+
+        var entries = await _service.GetEntriesAsync();
+
+        await Assert.That(entries.Any(e => e.Path == $"{prefix}/{slug}")).IsFalse();
+    }
+
+    [Test]
+    public async Task GetEntries_ShouldNotExpandDynamicPage_WhenPageIsNotIndexed()
+    {
+        var prefix = "/" + Unique("dyn-nox");
+        var pattern = $"{prefix}/:slug";
+        var page = _context.BuildTestPage(path: pattern, published: true, indexed: false, entityType: PageEntityType.Article);
+
+        var slug = Unique("masked");
+        _context.BuildTestArticle(slug: slug, published: true, pageId: page.Id);
+
+        var entries = await _service.GetEntriesAsync();
+
+        await Assert.That(entries.Any(e => e.Path == $"{prefix}/{slug}")).IsFalse();
+    }
+
+    [Test]
+    public async Task GetEntries_ShouldUseMaxUpdatedAtBetweenPageAndArticle()
+    {
+        var prefix = "/" + Unique("upd");
+        var pattern = $"{prefix}/:slug";
+        var page = _context.BuildTestPage(path: pattern, published: true, indexed: true, entityType: PageEntityType.Article);
+
+        var slug = Unique("entry");
+        var article = _context.BuildTestArticle(slug: slug, published: true, pageId: page.Id);
+
+        var pageDate = DateTime.UtcNow.AddDays(2);
+        var articleDate = DateTime.UtcNow.AddDays(1);
+        await _context.Pages.Where(p => p.Id == page.Id)
+            .ExecuteUpdateAsync(s => s.SetProperty(p => p.UpdatedAt, pageDate));
+        await _context.Articles.Where(a => a.Id == article.Id)
+            .ExecuteUpdateAsync(s => s.SetProperty(a => a.UpdatedAt, articleDate));
+
+        var entries = await _service.GetEntriesAsync();
+        var entry = entries.FirstOrDefault(e => e.Path == $"{prefix}/{slug}");
+
+        await Assert.That(entry).IsNotNull();
+        await Assert.That(entry!.UpdatedAt > articleDate).IsTrue();
+    }
+
+    [Test]
+    public async Task GetEntries_ShouldIgnoreDynamicPage_WhenEntityTypeIsNotSet()
+    {
+        var prefix = "/" + Unique("noent");
+        var pattern = $"{prefix}/:slug";
+        _context.BuildTestPage(path: pattern, published: true, indexed: true, entityType: null);
+
+        var entries = await _service.GetEntriesAsync();
+
+        await Assert.That(entries.Any(e => e.Path.StartsWith(prefix))).IsFalse();
+    }
+}
