@@ -3,10 +3,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Security.Cryptography;
 using System.Text;
 using Digital.Net.Core.Entities.Models.Users;
+using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Core.Entities.Models.ApiTokens;
 
 [Table("ApiToken")]
+[Index(nameof(Key), IsUnique = true)]
 public class ApiToken : Entity, IUntrackedEntity
 {
     public static string Hash(string token)
