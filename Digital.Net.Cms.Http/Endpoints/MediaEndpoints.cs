@@ -1,20 +1,17 @@
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using Digital.Net.Cms.Context;
-using Digital.Net.Cms.Events;
 using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Http.Services;
 using Digital.Net.Cms.Models.Medias;
 using Digital.Net.Cms.Services;
 using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities.Context;
-using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.Http.RateLimiters;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Core.Http.Services.Documents;
 using Digital.Net.Core.Http.Services.Pagination;
-using Digital.Net.Core.Services.Auditing;
 using Digital.Net.Core.Services.Documents;
 using Digital.Net.Core.Services.Documents.Exceptions;
 using Digital.Net.Lib.Files;
@@ -82,7 +79,7 @@ public static class MediaEndpoints
             .WithSummary("Upload")
             .WithDescription("Uploads a new media image.");
 
-        userRoutes.MapCrudPatch<CmsContext, Media>(eventType: CmsEvents.UpdateMedia);
+        userRoutes.MapCrudPatch<CmsContext, Media>();
         userRoutes
             .MapDelete("{id:guid}", DeleteMedia)
             .WithSummary("Delete")
@@ -146,7 +143,6 @@ public static class MediaEndpoints
         string? alt,
         IDocumentService documentService,
         CrudService<CmsContext, Media> crudService,
-        IAuditService auditService,
         IUserAccessor userContextService
     )
     {
@@ -177,32 +173,14 @@ public static class MediaEndpoints
         };
         var result = await crudService.Create(media);
 
-        await auditService.RegisterEventAsync(
-            CmsEvents.CreateMedia,
-            result.HasError ? EventState.Failed : EventState.Success,
-            result,
-            userContextService.GetUserId()
-        );
-
         return result.HasError
             ? Results.BadRequest(result)
             : Results.Ok(result);
     }
 
-    private static async Task<IResult> DeleteMedia(
-        Guid id,
-        MediaService mediaService,
-        IAuditService auditService,
-        IUserAccessor userContextService
-    )
+    private static async Task<IResult> DeleteMedia(Guid id, MediaService mediaService)
     {
         var result = await mediaService.DeleteMediaAsync(id);
-        await auditService.RegisterEventAsync(
-            CmsEvents.DeleteMedia,
-            result.HasError ? EventState.Failed : EventState.Success,
-            result,
-            userContextService.GetUserId()
-        );
         return result.HasError
             ? Results.NotFound(result)
             : Results.Ok(result);

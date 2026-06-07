@@ -1,11 +1,10 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using Digital.Net.Core.Http.Endpoints.Dto;
-using Digital.Net.Core.Entities.Models.Events;
+using Digital.Net.Core.Entities.Models.Auth;
 using Digital.Net.Core.Entities.Models.Users;
+using Digital.Net.Core.Http.Endpoints.Dto;
 using Digital.Net.Core.Services.Documents;
-using Digital.Net.Core.Services.Users.Events;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data;
@@ -109,61 +108,6 @@ public class UserEndpointsTest
     }
 
     [Test]
-    public async Task PatchSelf_ShouldCreateAuditEvent_WhenUsernameUpdated()
-    {
-        var (user, client) = await CreateAuthenticatedUserAsync();
-
-        var patch = new[] { new { op = "replace", path = "/Username", value = "AuditUser" } };
-        var response = await client.PatchSelf(patch);
-
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
-
-        var auditEvent = await ApplicationFixture.GetContext().Events
-            .Where(e => e.UserId == user.Id && e.Name == UserEvents.UpdateProfile)
-            .OrderByDescending(e => e.CreatedAt)
-            .FirstAsync();
-
-        await Assert.That(auditEvent.State).EqualTo(EventState.Success);
-        await Assert.That(auditEvent.Payload).Contains("Username");
-    }
-
-    [Test]
-    public async Task PatchSelf_ShouldCreateAuditEvent_WhenEmailUpdated()
-    {
-        var (user, client) = await CreateAuthenticatedUserAsync();
-
-        var patch = new[] { new { op = "replace", path = "/Email", value = "auditemail@test.com" } };
-        var response = await client.PatchSelf(patch);
-
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
-
-        var auditEvent = await ApplicationFixture.GetContext().Events
-            .Where(e => e.UserId == user.Id && e.Name == UserEvents.UpdateProfile)
-            .OrderByDescending(e => e.CreatedAt)
-            .FirstAsync();
-
-        await Assert.That(auditEvent.State).EqualTo(EventState.Success);
-        await Assert.That(auditEvent.Payload).Contains("Email");
-    }
-
-    [Test]
-    public async Task PatchSelf_ShouldCreateFailedAuditEvent_WhenReadOnlyFieldPatched()
-    {
-        var (user, client) = await CreateAuthenticatedUserAsync();
-
-        var patch = new[] { new { op = "replace", path = "/IsAdmin", value = "true" } };
-        await client.PatchSelf(patch);
-
-        var auditEvent = await ApplicationFixture.GetContext().Events
-            .Where(e => e.UserId == user.Id && e.Name == UserEvents.UpdateProfile)
-            .OrderByDescending(e => e.CreatedAt)
-            .FirstAsync();
-
-        await Assert.That(auditEvent.State).EqualTo(EventState.Failed);
-        await Assert.That(auditEvent.HasError).IsTrue();
-    }
-
-    [Test]
     [Skip(
         "Pre-existing — translator now produces a different error reference on Postgres than the one this assertion was written against on SQLite. See follow-up.")]
     public async Task PatchSelf_ShouldRejectReadOnlyAvatarMutation()
@@ -243,7 +187,7 @@ public class UserEndpointsTest
     }
 
     [Test]
-    public async Task UpdatePassword_ShouldCreateAuditEvent_WhenSuccessful()
+    public async Task UpdatePassword_ShouldRecordAuthEvent_WhenSuccessful()
     {
         var (user, client) = await CreateAuthenticatedUserAsync();
         const string newPassword = "NewPassword123!";
@@ -251,30 +195,28 @@ public class UserEndpointsTest
         var response = await client.UpdatePassword(TestUserFactory.TestUserPassword, newPassword);
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
 
-        var auditEvent = await ApplicationFixture.GetContext().Events
-            .Where(e => e.UserId == user.Id && e.Name == UserEvents.UpdatePassword)
+        var authEvent = await ApplicationFixture.GetContext().AuthEvents
+            .Where(e => e.UserId == user.Id && e.Type == AuthEventType.PasswordChange)
             .OrderByDescending(e => e.CreatedAt)
             .FirstAsync();
 
-        await Assert.That(auditEvent.State).EqualTo(EventState.Success);
-        await Assert.That(auditEvent.HasError).IsFalse();
+        await Assert.That(authEvent.Success).IsTrue();
     }
 
     [Test]
-    public async Task UpdatePassword_ShouldCreateAuditEvent_WhenFailed()
+    public async Task UpdatePassword_ShouldRecordAuthEvent_WhenFailed()
     {
         var (user, client) = await CreateAuthenticatedUserAsync();
 
         var response = await client.UpdatePassword("WrongPassword!", "NewPassword123!");
         await Assert.That(response.StatusCode).IsNotEqualTo(HttpStatusCode.OK);
 
-        var auditEvent = await ApplicationFixture.GetContext().Events
-            .Where(e => e.UserId == user.Id && e.Name == UserEvents.UpdatePassword)
+        var authEvent = await ApplicationFixture.GetContext().AuthEvents
+            .Where(e => e.UserId == user.Id && e.Type == AuthEventType.PasswordChange)
             .OrderByDescending(e => e.CreatedAt)
             .FirstAsync();
 
-        await Assert.That(auditEvent.State).EqualTo(EventState.Failed);
-        await Assert.That(auditEvent.HasError).IsTrue();
+        await Assert.That(authEvent.Success).IsFalse();
     }
 
     [Test]

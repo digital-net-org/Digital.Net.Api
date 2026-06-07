@@ -1,12 +1,8 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
-using Digital.Net.Core.Http.Endpoints.Dto;
-using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.Entities.Models.Users;
+using Digital.Net.Core.Http.Endpoints.Dto;
 using Digital.Net.Core.Http.Services.Pagination;
-using Digital.Net.Core.Services.Users.Events;
-using Digital.Net.Core.Services.Users.Events.Types;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data;
@@ -98,36 +94,6 @@ public class AdministrationEndpointsTest
     }
 
     [Test]
-    public async Task CreateUser_ShouldGenerateAuditEvent()
-    {
-        var (admin, client) = await CreateTestAdminAsync();
-        var payload = new UserPayload
-        {
-            Username = "AuditTestUser",
-            Login = "audittestuser",
-            Email = "audit@test.com",
-            Password = "ValidPassword123!"
-        };
-
-        var response = await client.CreateUser(payload);
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
-
-        var auditEvent = await ApplicationFixture.GetContext().Events
-            .Where(e => e.UserId == admin.Id && e.Name == UserEvents.CreateUser)
-            .OrderByDescending(e => e.CreatedAt)
-            .FirstAsync();
-
-        await Assert.That(auditEvent.State).EqualTo(EventState.Success);
-        await Assert.That(auditEvent.Payload).IsNotNull();
-
-        var eventPayload = JsonSerializer.Deserialize<AdminUserMutationEvent>(auditEvent.Payload!);
-        await Assert.That(eventPayload).IsNotNull();
-        await Assert.That(eventPayload!.Username).IsEqualTo("AuditTestUser");
-        await Assert.That(eventPayload.Email).IsEqualTo("audit@test.com");
-        await Assert.That(eventPayload.Login).IsEqualTo("audittestuser");
-    }
-
-    [Test]
     public async Task DeleteUser_ShouldDeleteUser()
     {
         var (_, client) = await CreateTestAdminAsync();
@@ -166,52 +132,6 @@ public class AdministrationEndpointsTest
         var response = await client.DeleteUser(adminTarget.Id, deletePayload);
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Forbidden);
-    }
-
-    [Test]
-    public async Task DeleteUser_ShouldGenerateAuditEvent()
-    {
-        var (admin, client) = await CreateTestAdminAsync();
-        var targetUser = ApplicationFixture.CreateUser();
-        var deletePayload = new UserDeletePayload { Password = TestUserFactory.TestUserPassword };
-
-        var response = await client.DeleteUser(targetUser.Id, deletePayload);
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
-
-        var auditEvent = await ApplicationFixture.GetContext().Events
-            .Where(e => e.UserId == admin.Id && e.Name == UserEvents.DeleteUser)
-            .OrderByDescending(e => e.CreatedAt)
-            .FirstAsync();
-
-        await Assert.That(auditEvent.State).EqualTo(EventState.Success);
-        await Assert.That(auditEvent.Payload).IsNotNull();
-
-        var eventPayload = JsonSerializer.Deserialize<AdminUserMutationEvent>(auditEvent.Payload!);
-        await Assert.That(eventPayload).IsNotNull();
-        await Assert.That(eventPayload!.Id).IsEqualTo(targetUser.Id);
-    }
-
-    [Test]
-    public async Task DeleteUser_ShouldGenerateSecurityEvent_WhenTargetIsAdmin()
-    {
-        var (admin, client) = await CreateTestAdminAsync();
-        var adminTarget = ApplicationFixture.CreateUser(new TestUserPayload { IsActive = true, IsAdmin = true });
-        var deletePayload = new UserDeletePayload { Password = TestUserFactory.TestUserPassword };
-
-        var response = await client.DeleteUser(adminTarget.Id, deletePayload);
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Forbidden);
-
-        var securityEvent = await ApplicationFixture.GetContext().Events
-            .Where(e => e.UserId == admin.Id && e.Name == UserEvents.DeleteUser && e.HasError)
-            .OrderByDescending(e => e.CreatedAt)
-            .FirstAsync();
-
-        await Assert.That(securityEvent.State).EqualTo(EventState.Failed);
-        await Assert.That(securityEvent.Payload).IsNotNull();
-
-        var eventPayload = JsonSerializer.Deserialize<AdminUserMutationEvent>(securityEvent.Payload!);
-        await Assert.That(eventPayload).IsNotNull();
-        await Assert.That(eventPayload!.Id).IsEqualTo(adminTarget.Id);
     }
 
     [Test]
@@ -306,50 +226,6 @@ public class AdministrationEndpointsTest
     }
 
     [Test]
-    public async Task UpdateUserStatus_ShouldGenerateAuditEvent()
-    {
-        var (admin, client) = await CreateTestAdminAsync();
-        var targetUser = ApplicationFixture.CreateUser(new TestUserPayload { IsActive = false });
-
-        var response = await client.UpdateUserStatus(targetUser.Id, new UserStatusPayload { IsActive = true });
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
-
-        var auditEvent = await ApplicationFixture.GetContext().Events
-            .Where(e => e.UserId == admin.Id && e.Name == UserEvents.UpdateUserStatus && !e.HasError)
-            .OrderByDescending(e => e.CreatedAt)
-            .FirstAsync();
-
-        await Assert.That(auditEvent.State).EqualTo(EventState.Success);
-        await Assert.That(auditEvent.Payload).IsNotNull();
-
-        var eventPayload = JsonSerializer.Deserialize<AdminUserMutationEvent>(auditEvent.Payload!);
-        await Assert.That(eventPayload).IsNotNull();
-        await Assert.That(eventPayload!.Id).IsEqualTo(targetUser.Id);
-    }
-
-    [Test]
-    public async Task UpdateUserStatus_ShouldGenerateSecurityEvent_WhenDeactivatingAdmin()
-    {
-        var (admin, client) = await CreateTestAdminAsync();
-        var adminTarget = ApplicationFixture.CreateUser(new TestUserPayload { IsActive = true, IsAdmin = true });
-
-        var response = await client.UpdateUserStatus(adminTarget.Id, new UserStatusPayload { IsActive = false });
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Forbidden);
-
-        var securityEvent = await ApplicationFixture.GetContext().Events
-            .Where(e => e.UserId == admin.Id && e.Name == UserEvents.UpdateUserStatus && e.HasError)
-            .OrderByDescending(e => e.CreatedAt)
-            .FirstAsync();
-
-        await Assert.That(securityEvent.State).EqualTo(EventState.Failed);
-        await Assert.That(securityEvent.Payload).IsNotNull();
-
-        var eventPayload = JsonSerializer.Deserialize<AdminUserMutationEvent>(securityEvent.Payload!);
-        await Assert.That(eventPayload).IsNotNull();
-        await Assert.That(eventPayload!.Id).IsEqualTo(adminTarget.Id);
-    }
-
-    [Test]
     public async Task UpdateUserRole_ShouldPromoteToAdmin()
     {
         var (_, client) = await CreateTestAdminAsync();
@@ -388,51 +264,5 @@ public class AdministrationEndpointsTest
         var response = await client.UpdateUserRole(targetUser.Id, payload);
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Unauthorized);
-    }
-
-    [Test]
-    public async Task UpdateUserRole_ShouldGenerateAuditEvent()
-    {
-        var (admin, client) = await CreateTestAdminAsync();
-        var targetUser = ApplicationFixture.CreateUser(new TestUserPayload { IsActive = true });
-        var payload = new UserRolePayload { IsAdmin = true, Password = TestUserFactory.TestUserPassword };
-
-        var response = await client.UpdateUserRole(targetUser.Id, payload);
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
-
-        var auditEvent = await ApplicationFixture.GetContext().Events
-            .Where(e => e.UserId == admin.Id && e.Name == UserEvents.UpdateUserRole && !e.HasError)
-            .OrderByDescending(e => e.CreatedAt)
-            .FirstAsync();
-
-        await Assert.That(auditEvent.State).EqualTo(EventState.Success);
-        await Assert.That(auditEvent.Payload).IsNotNull();
-
-        var eventPayload = JsonSerializer.Deserialize<AdminUserMutationEvent>(auditEvent.Payload!);
-        await Assert.That(eventPayload).IsNotNull();
-        await Assert.That(eventPayload!.Id).IsEqualTo(targetUser.Id);
-    }
-
-    [Test]
-    public async Task UpdateUserRole_ShouldGenerateSecurityEvent_WhenDemotingAdmin()
-    {
-        var (admin, client) = await CreateTestAdminAsync();
-        var adminTarget = ApplicationFixture.CreateUser(new TestUserPayload { IsActive = true, IsAdmin = true });
-        var payload = new UserRolePayload { IsAdmin = false, Password = TestUserFactory.TestUserPassword };
-
-        var response = await client.UpdateUserRole(adminTarget.Id, payload);
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Forbidden);
-
-        var securityEvent = await ApplicationFixture.GetContext().Events
-            .Where(e => e.UserId == admin.Id && e.Name == UserEvents.UpdateUserRole && e.HasError)
-            .OrderByDescending(e => e.CreatedAt)
-            .FirstAsync();
-
-        await Assert.That(securityEvent.State).EqualTo(EventState.Failed);
-        await Assert.That(securityEvent.Payload).IsNotNull();
-
-        var eventPayload = JsonSerializer.Deserialize<AdminUserMutationEvent>(securityEvent.Payload!);
-        await Assert.That(eventPayload).IsNotNull();
-        await Assert.That(eventPayload!.Id).IsEqualTo(adminTarget.Id);
     }
 }

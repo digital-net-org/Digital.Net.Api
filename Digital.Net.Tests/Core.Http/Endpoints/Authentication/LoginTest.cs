@@ -1,12 +1,10 @@
 using System.Net;
 using Digital.Net.Core;
-using Digital.Net.Core.Entities.Models.Events;
+using Digital.Net.Core.Entities.Models.Auth;
 using Digital.Net.Core.Entities.Models.Users;
-using Digital.Net.Core.Http.Services.Authentication.Events;
 using Digital.Net.Core.Http.Services.Authentication.Options;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data.Records;
-using Digital.Net.Tests.Core.Http;
 using Digital.Net.Tests.Core.Sdk;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,18 +14,13 @@ public class LoginTest
 {
     [ClassDataSource<ApplicationFixture>]
     public required ApplicationFixture ApplicationFixture { get; init; }
-    
+
     [Test]
-    public async Task Login_OnSuccess_ShouldReturnTokensAndGenerateEvents()
+    public async Task Login_OnSuccess_ShouldReturnTokensAndRecordAuthEvent()
     {
         var client = ApplicationFixture.CreateClient();
         var user = ApplicationFixture.CreateUser();
-        await ExecuteTestAsync(
-            user,
-            await client.Login(user),
-            EventState.Success,
-            HttpStatusCode.OK
-        );
+        await ExecuteTestAsync(user, await client.Login(user), true, HttpStatusCode.OK);
     }
 
     [Test]
@@ -38,23 +31,17 @@ public class LoginTest
         await ExecuteTestAsync(
             user,
             await client.Login(user.Login, "wrong password"),
-            EventState.Failed,
+            false,
             HttpStatusCode.Unauthorized
         );
     }
-
 
     [Test]
     public async Task Login_OnInactiveUser_ShouldReturnUnauthorized()
     {
         var client = ApplicationFixture.CreateClient();
         var user = ApplicationFixture.CreateUser(new TestUserPayload { IsActive = false });
-        await ExecuteTestAsync(
-            user,
-            await client.Login(user),
-            EventState.Failed,
-            HttpStatusCode.Unauthorized
-        );
+        await ExecuteTestAsync(user, await client.Login(user), false, HttpStatusCode.Unauthorized);
     }
 
     [Test]
@@ -77,7 +64,7 @@ public class LoginTest
         await ExecuteTestAsync(
             user,
             await client.Login(user.Login, "wrongPassword"),
-            EventState.Failed,
+            false,
             HttpStatusCode.TooManyRequests
         );
     }
@@ -97,11 +84,8 @@ public class LoginTest
         }
 
         var successCount = await ApplicationFixture
-            .GetContext().Events
-            .CountAsync(e => e.UserId == user.Id
-                             && e.Name == AuthenticationEvents.Login
-                             && e.State == EventState.Success
-            );
+            .GetContext().AuthEvents
+            .CountAsync(e => e.UserId == user.Id && e.Type == AuthEventType.Login && e.Success);
 
         await Assert.That(successCount).EqualTo(maxSessions + 1);
 
@@ -115,19 +99,19 @@ public class LoginTest
     private async Task ExecuteTestAsync(
         User user,
         HttpResponseMessage result,
-        EventState expectedState,
+        bool expectedSuccess,
         HttpStatusCode expectedStatus
     )
     {
         var loginEvent = ApplicationFixture
-            .GetContext().Events
+            .GetContext().AuthEvents
             .Where(x => x.UserId == user.Id)
             .OrderByDescending(x => x.CreatedAt)
             .First();
         var storedToken = ApplicationFixture
             .GetContext().ApiTokens
             .FirstOrDefault(x => x.UserId == user.Id);
-        
+
         var tokens = new List<string?>
         {
             result.TryGetCookie()?.Split(';').FirstOrDefault()?.Split($"{CookieName}=")[1],
@@ -135,16 +119,16 @@ public class LoginTest
         };
 
         await Assert.That(result.StatusCode).EqualTo(expectedStatus);
-        await Assert.That(loginEvent.Name == AuthenticationEvents.Login).IsTrue();
-        await Assert.That(loginEvent.State == expectedState).IsTrue();
+        await Assert.That(loginEvent.Type == AuthEventType.Login).IsTrue();
+        await Assert.That(loginEvent.Success == expectedSuccess).IsTrue();
 
         foreach (var token in tokens)
-            await Assert.That(expectedState == EventState.Success
+            await Assert.That(expectedSuccess
                 ? IsJsonWebToken(token ?? string.Empty)
                 : !IsJsonWebToken(token ?? string.Empty)
             ).IsTrue();
 
-        if (expectedState == EventState.Success)
+        if (expectedSuccess)
             await Assert.That(storedToken).IsNotNull();
         else
             await Assert.That(storedToken).IsNull();

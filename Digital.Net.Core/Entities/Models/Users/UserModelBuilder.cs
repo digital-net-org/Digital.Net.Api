@@ -1,6 +1,5 @@
 using Digital.Net.Core.Entities.Models.ApiTokens;
 using Digital.Net.Core.Entities.Models.Documents;
-using Digital.Net.Core.Entities.Models.Events;
 using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Core.Entities.Models.Users;
@@ -28,13 +27,6 @@ public static class UserModelBuilder
             .HasMany<Document>()
             .WithOne(d => d.Uploader)
             .HasForeignKey(d => d.UploaderId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder
-            .Entity<User>()
-            .HasMany<Event>()
-            .WithOne(e => e.User)
-            .HasForeignKey(e => e.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder

@@ -1,5 +1,5 @@
 using System.Net;
-using Digital.Net.Core.Entities.Models.Events;
+using Digital.Net.Core.Entities.Models.Auth;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data.Records;
 using Digital.Net.Tests.Core.Sdk;
@@ -11,7 +11,7 @@ public class JwtAuthorizationTest
 {
     [ClassDataSource<ApplicationFixture>]
     public required ApplicationFixture ApplicationFixture { get; init; }
-    
+
     [Test]
     public async Task LoggedUser_OnProtectedRoute_ShouldBeAuthorized()
     {
@@ -20,7 +20,7 @@ public class JwtAuthorizationTest
 
         await client.Login(user);
         var response = await client.TestJwtAuthorization();
-        
+
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
     }
 
@@ -31,13 +31,13 @@ public class JwtAuthorizationTest
         var user = ApplicationFixture.CreateUser(new TestUserPayload { IsActive = false });
         var response = await client.Login(user);
         var loginEvent = await ApplicationFixture
-            .GetContext().Events
+            .GetContext().AuthEvents
             .Where(x => x.UserId == user.Id).OrderByDescending(x => x.CreatedAt)
             .FirstAsync();
 
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Unauthorized);
-        await Assert.That(loginEvent.State).EqualTo(EventState.Failed);
-        await Assert.That(loginEvent.ErrorTrace!.Contains("0x80131500")).IsTrue();
+        await Assert.That(loginEvent.Type).EqualTo(AuthEventType.Login);
+        await Assert.That(loginEvent.Success).IsFalse();
     }
 
     [Test]
@@ -52,7 +52,7 @@ public class JwtAuthorizationTest
         userInDb!.IsActive = false;
         context.Users.Update(userInDb);
         await context.SaveChangesAsync();
-        
+
         var response = await client.TestJwtAuthorization();
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Unauthorized);
     }

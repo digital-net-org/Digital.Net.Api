@@ -7,7 +7,6 @@ using Digital.Net.Core.Http.RateLimiters;
 using Digital.Net.Core.Http.Services.Authentication;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Core.Http.Services.Documents;
-using Digital.Net.Core.Http.Services.Events;
 using Digital.Net.Lib.Environment;
 using Digital.Net.Lib.Validation;
 using Microsoft.AspNetCore.Builder;
@@ -19,7 +18,7 @@ namespace Digital.Net.Core.Http;
 public static class CoreHttpInjector
 {
     /// <summary>
-    ///     Registers all the Digital.Net HTTP adapters (endpoints, authentication, CRUD, SSE). The business layer
+    ///     Registers all the Digital.Net HTTP adapters (endpoints, authentication, CRUD). The business layer
     ///     must be registered separately via <c>AddDigitalNetCore()</c>.
     /// </summary>
     public static WebApplicationBuilder AddDigitalNetCoreHttp(this WebApplicationBuilder builder)
@@ -29,7 +28,6 @@ public static class CoreHttpInjector
             .AddScoped<IOriginAccessor, HttpOriginAccessor>()
             .AddCrudServices()
             .AddDigitalAuthenticationServices()
-            .AddSingleton<ISseStreamService, SseStreamService>()
             .AddScoped<DocumentCacheService>()
             .AddHostedService<ExpiredTokenPurgeService>()
             .AddRateLimiter(GlobalLimiter.Options)

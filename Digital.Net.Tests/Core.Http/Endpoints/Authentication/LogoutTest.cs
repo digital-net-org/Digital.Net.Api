@@ -1,7 +1,6 @@
 using System.Net;
-using Digital.Net.Core.Entities.Models.Events;
+using Digital.Net.Core.Entities.Models.Auth;
 using Digital.Net.Core.Entities.Models.Users;
-using Digital.Net.Core.Http.Services.Authentication.Events;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Sdk;
 
@@ -11,7 +10,7 @@ public class LogoutTest
 {
     [ClassDataSource<ApplicationFixture>]
     public required ApplicationFixture ApplicationFixture { get; init; }
-    
+
     [Test]
     public async Task Logout_ShouldLogoutClient()
     {
@@ -20,7 +19,7 @@ public class LogoutTest
         await client.Login(user);
 
         var result = await client.Logout();
-        await ExecuteTestAsync(result, user, AuthenticationEvents.Logout);
+        await ExecuteTestAsync(result, user, AuthEventType.Logout);
     }
 
     [Test]
@@ -33,17 +32,17 @@ public class LogoutTest
         await secondClient.Login(user);
 
         var result = await client.LogoutAll();
-        await ExecuteTestAsync(result, user, AuthenticationEvents.LogoutAll);
+        await ExecuteTestAsync(result, user, AuthEventType.LogoutAll);
     }
 
     private async Task ExecuteTestAsync(
         HttpResponseMessage result,
         User user,
-        string eventType
+        AuthEventType eventType
     )
     {
         var logoutEvent = ApplicationFixture
-            .GetContext().Events
+            .GetContext().AuthEvents
             .Where(x => x.UserId == user.Id)
             .OrderByDescending(x => x.CreatedAt)
             .First();
@@ -51,10 +50,10 @@ public class LogoutTest
             .GetContext().ApiTokens
             .Where(x => x.UserId == user.Id)
             .ToList();
-        
+
         await Assert.That(result.StatusCode).EqualTo(HttpStatusCode.NoContent);
-        await Assert.That(logoutEvent.Name).EqualTo(eventType);
-        await Assert.That(logoutEvent.State).EqualTo(EventState.Success);
+        await Assert.That(logoutEvent.Type).EqualTo(eventType);
+        await Assert.That(logoutEvent.Success).IsTrue();
         await Assert.That(userTokens).IsEmpty();
     }
 }

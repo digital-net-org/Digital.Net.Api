@@ -7,13 +7,11 @@ using Digital.Net.Cms.Models.Pages;
 using Digital.Net.Core.Entities.Exceptions;
 using Digital.Net.Core.Entities.Pivots;
 using Digital.Net.Core.Http.Services.Crud;
-using Digital.Net.Core.Services.Auditing;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Tests.Core;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data;
 using Microsoft.EntityFrameworkCore;
-using Moq;
 using TUnit.Core.Interfaces;
 
 namespace Digital.Net.Tests.Cms.Http.Services.Pages;
@@ -24,14 +22,12 @@ public class PageCrudServiceTest : UnitTest, IAsyncInitializer
     public required DatabaseFixture DbFixture { get; init; }
 
     private CmsContext _context = null!;
-    private Mock<IAuditService> _auditService = null!;
     private PageCrudService _service = null!;
 
     public async Task InitializeAsync()
     {
         await DbFixture.EnsureCreatedAsync<CmsContext>();
         _context = DbFixture.CreateContext<CmsContext>();
-        _auditService = new Mock<IAuditService>();
 
         var openGraphResolver = new PivotPatchResolver<
             CmsContext, Page, OpenGraphEntry, PageOpenGraph, OpenGraphEntryPayloadDto
@@ -39,7 +35,7 @@ public class PageCrudServiceTest : UnitTest, IAsyncInitializer
 
         var dispatcher = new PatchDispatcher<Page>([openGraphResolver]);
         var crudService = new CrudService<CmsContext, Page>(_context, dispatcher);
-        _service = new PageCrudService(crudService, _context, _auditService.Object);
+        _service = new PageCrudService(crudService, _context);
     }
 
     private static JsonElement BuildPatch(params object[] ops) => JsonSerializer.SerializeToElement(ops);

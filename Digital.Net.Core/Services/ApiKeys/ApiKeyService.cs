@@ -1,9 +1,6 @@
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.ApiKeys;
-using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.Services.ApiKeys.Exceptions;
-using Digital.Net.Core.Services.Auditing;
-using Digital.Net.Core.Services.Users.Events;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.Random;
 using Digital.Net.Lib.String;
@@ -12,8 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Digital.Net.Core.Services.ApiKeys;
 
 public class ApiKeyService(
-    DigitalContext context,
-    IAuditService auditService
+    DigitalContext context
 )
 {
     public const int MaxApiKeysPerUser = 5;
@@ -44,13 +40,6 @@ public class ApiKeyService(
             await context.ApiKeys.AddAsync(apiKey);
             await context.SaveChangesAsync();
             result.Value = plaintextKey;
-
-            await auditService.RegisterEventAsync(
-                UserEvents.CreateApiKey,
-                EventState.Success,
-                result,
-                userId
-            );
         }
         catch (Exception ex)
         {
@@ -81,12 +70,6 @@ public class ApiKeyService(
             if (apiKey is null) throw new KeyNotFoundException("API key not found.");
             context.ApiKeys.Remove(apiKey);
             await context.SaveChangesAsync();
-            await auditService.RegisterEventAsync(
-                UserEvents.DeleteApiKey,
-                EventState.Success,
-                result,
-                userId
-            );
         }
         catch (Exception ex)
         {

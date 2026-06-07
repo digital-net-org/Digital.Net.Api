@@ -1,20 +1,16 @@
 using System.Text.Json;
 using Digital.Net.Cms.Context;
-using Digital.Net.Cms.Events;
 using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Models.Pages;
 using Digital.Net.Core.Entities.Exceptions;
-using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.Http.Services.Crud;
-using Digital.Net.Core.Services.Auditing;
 using Digital.Net.Lib.Messages;
 
 namespace Digital.Net.Cms.Http.Services;
 
 public class PageCrudService(
     CrudService<CmsContext, Page> crudService,
-    CmsContext context,
-    IAuditService auditService
+    CmsContext context
 )
 {
     public async Task<Result<Guid>> CreatePage(PagePayload payload, Guid userId)
@@ -29,14 +25,6 @@ public class PageCrudService(
         {
             result.AddError(ex);
         }
-
-        if (!result.HasError || result.HasErrorOfType<EntityValidationException>())
-            await auditService.RegisterEventAsync(
-                CmsEvents.CreatePage,
-                result.HasError ? EventState.Failed : EventState.Success,
-                result,
-                userId
-            );
 
         return result;
     }
@@ -53,14 +41,6 @@ public class PageCrudService(
         {
             result.AddError(ex);
         }
-
-        if (!result.HasError || result.HasErrorOfType<EntityValidationException>())
-            await auditService.RegisterEventAsync(
-                CmsEvents.UpdatePage,
-                result.HasError ? EventState.Failed : EventState.Success,
-                result,
-                userId
-            );
 
         return result;
     }

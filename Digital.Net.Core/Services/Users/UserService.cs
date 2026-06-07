@@ -1,12 +1,9 @@
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Avatars;
 using Digital.Net.Core.Entities.Models.Documents;
-using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.Entities.Models.Users;
-using Digital.Net.Core.Services.Auditing;
 using Digital.Net.Core.Services.Documents;
 using Digital.Net.Core.Services.Documents.Exceptions;
-using Digital.Net.Core.Services.Users.Events;
 using Digital.Net.Core.Services.Users.Exceptions;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Files;
@@ -18,41 +15,22 @@ namespace Digital.Net.Core.Services.Users;
 
 public class UserService(
     IDocumentService documentService,
-    IAuditService auditService,
     DigitalContext context
 )
 {
     public async Task<Result> UpdatePasswordAsync(User user, string currentPassword, string newPassword)
     {
         var result = new Result();
-        Func<EventState, Task> registerEvent = async (state) =>
-        {
-            await auditService.RegisterEventAsync(
-                UserEvents.UpdatePassword,
-                state,
-                result,
-                user.Id
-            );
-        };
 
         if (!UserPassword.Verify(user, currentPassword))
-        {
-            result.AddError(new InvalidCredentialsException());
-            await registerEvent(EventState.Failed);
-            return result;
-        }
+            return result.AddError(new InvalidCredentialsException());
 
         if (!RegularExpressions.Password.IsMatch(newPassword))
-        {
-            result.AddError(new PasswordMalformedException());
-            await registerEvent(EventState.Failed);
-            return result;
-        }
+            return result.AddError(new PasswordMalformedException());
 
         user.Password = UserPassword.Hash(newPassword);
         context.Users.Update(user);
         await context.SaveChangesAsync();
-        await registerEvent(EventState.Success);
         return result;
     }
 

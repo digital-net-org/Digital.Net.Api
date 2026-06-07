@@ -3,6 +3,7 @@ using System;
 using Digital.Net.Core.Entities.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Digital.Net.Core.Entities.Migrations
 {
     [DbContext(typeof(DigitalContext))]
-    partial class DigitalContextModelSnapshot : ModelSnapshot
+    [Migration("20260607192932_AddEntityMutationPayload")]
+    partial class AddEntityMutationPayload
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -112,55 +115,6 @@ namespace Digital.Net.Core.Entities.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("ApiToken", "digital_net");
-                });
-
-            modelBuilder.Entity("Digital.Net.Core.Entities.Models.Auth.AuthEvent", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("Id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("CreatedAt");
-
-                    b.Property<string>("IpAddress")
-                        .HasMaxLength(45)
-                        .HasColumnType("character varying(45)")
-                        .HasColumnName("IpAddress");
-
-                    b.Property<string>("Login")
-                        .HasMaxLength(24)
-                        .HasColumnType("character varying(24)")
-                        .HasColumnName("Login");
-
-                    b.Property<bool>("Success")
-                        .HasColumnType("boolean")
-                        .HasColumnName("Success");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("integer")
-                        .HasColumnName("Type");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("UpdatedAt");
-
-                    b.Property<string>("UserAgent")
-                        .HasMaxLength(1024)
-                        .HasColumnType("character varying(1024)")
-                        .HasColumnName("UserAgent");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("UserId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IpAddress", "Type", "Success", "CreatedAt");
-
-                    b.ToTable("AuthEvent", "digital_net");
                 });
 
             modelBuilder.Entity("Digital.Net.Core.Entities.Models.Avatars.Avatar", b =>
@@ -288,6 +242,68 @@ namespace Digital.Net.Core.Entities.Migrations
                     b.HasIndex("UploaderId");
 
                     b.ToTable("Document", "digital_net");
+                });
+
+            modelBuilder.Entity("Digital.Net.Core.Entities.Models.Events.Event", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("Id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<string>("ErrorTrace")
+                        .HasMaxLength(4096)
+                        .HasColumnType("character varying(4096)")
+                        .HasColumnName("ErrorTrace");
+
+                    b.Property<bool>("HasError")
+                        .HasColumnType("boolean")
+                        .HasColumnName("HasError");
+
+                    b.Property<string>("IpAddress")
+                        .IsRequired()
+                        .HasMaxLength(45)
+                        .HasColumnType("character varying(45)")
+                        .HasColumnName("IpAddress");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("Name");
+
+                    b.Property<string>("Payload")
+                        .HasMaxLength(4096)
+                        .HasColumnType("character varying(4096)")
+                        .HasColumnName("Payload");
+
+                    b.Property<int?>("State")
+                        .HasColumnType("integer")
+                        .HasColumnName("State");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("UpdatedAt");
+
+                    b.Property<string>("UserAgent")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)")
+                        .HasColumnName("UserAgent");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("UserId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Event", "digital_net");
                 });
 
             modelBuilder.Entity("Digital.Net.Core.Entities.Models.Mutations.EntityMutation", b =>
@@ -447,6 +463,16 @@ namespace Digital.Net.Core.Entities.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Uploader");
+                });
+
+            modelBuilder.Entity("Digital.Net.Core.Entities.Models.Events.Event", b =>
+                {
+                    b.HasOne("Digital.Net.Core.Entities.Models.Users.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Digital.Net.Core.Entities.Models.Users.User", b =>

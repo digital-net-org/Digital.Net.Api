@@ -1,7 +1,6 @@
 using System.Linq.Expressions;
 using System.Text.Json;
 using Digital.Net.Cms.Context;
-using Digital.Net.Cms.Events;
 using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Http.Services;
 using Digital.Net.Cms.Models;
@@ -63,7 +62,7 @@ public static class PageEndpoints
 
         controller.MapCrudGet<CmsContext, Page, PageDto>();
         controller.MapPaginationGet<CmsContext, Page, PageDto, PageQuery>(filter: PaginationFilter);
-        controller.MapCrudDelete<CmsContext, Page>(eventType: CmsEvents.DeletePage);
+        controller.MapCrudDelete<CmsContext, Page>();
         controller
             .MapPatch("{id:guid}", UpdatePage)
             .WithSummary("Patch")

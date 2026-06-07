@@ -1,11 +1,8 @@
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Documents;
-using Digital.Net.Core.Entities.Models.Events;
-using Digital.Net.Core.Services.Auditing;
 using Digital.Net.Core.Services.Documents;
 using Digital.Net.Core.Services.Documents.Exceptions;
 using Digital.Net.Core.Services.Users;
-using Digital.Net.Core.Services.Users.Events;
 using Digital.Net.Core.Services.Users.Exceptions;
 using Digital.Net.Lib.Files;
 using Digital.Net.Lib.Messages;
@@ -23,17 +20,14 @@ public class UserServiceTest : UnitTest, IAsyncInitializer
 
     private DigitalContext _context = null!;
     private Mock<IDocumentService> _documentServiceMock = null!;
-    private Mock<IAuditService> _auditServiceMock = null!;
     private UserService _service = null!;
 
     public Task InitializeAsync()
     {
         _context = DbFixture.CreateContext<DigitalContext>();
         _documentServiceMock = new Mock<IDocumentService>();
-        _auditServiceMock = new Mock<IAuditService>();
         _service = new UserService(
             _documentServiceMock.Object,
-            _auditServiceMock.Object,
             _context
         );
         return Task.CompletedTask;
@@ -64,66 +58,6 @@ public class UserServiceTest : UnitTest, IAsyncInitializer
 
         var result = await _service.UpdatePasswordAsync(user, TestUserFactory.TestUserPassword, "NewPassword123!");
         await Assert.That(result.HasError).IsFalse();
-    }
-
-    [Test]
-    public async Task UpdatePasswordAsync_Should_Register_Success_AuditEvent()
-    {
-        var user = _context.BuildTestUser();
-
-        await _service.UpdatePasswordAsync(user, TestUserFactory.TestUserPassword, "NewPassword123!");
-        _auditServiceMock.Verify(
-            a => a.RegisterEventAsync(
-                UserEvents.UpdatePassword,
-                EventState.Success,
-                It.IsAny<Result>(),
-                user.Id,
-                null,
-                null,
-                null
-            ),
-            Times.Once
-        );
-    }
-
-    [Test]
-    public async Task UpdatePasswordAsync_Should_Register_Failed_AuditEvent_When_InvalidCredentials()
-    {
-        var user = _context.BuildTestUser();
-
-        await _service.UpdatePasswordAsync(user, "wrong_password", "NewPassword123!");
-        _auditServiceMock.Verify(
-            a => a.RegisterEventAsync(
-                UserEvents.UpdatePassword,
-                EventState.Failed,
-                It.IsAny<Result>(),
-                user.Id,
-                null,
-                null,
-                null
-            ),
-            Times.Once
-        );
-    }
-
-    [Test]
-    public async Task UpdatePasswordAsync_Should_Register_Failed_AuditEvent_When_PasswordMalformed()
-    {
-        var user = _context.BuildTestUser();
-
-        await _service.UpdatePasswordAsync(user, TestUserFactory.TestUserPassword, "weak");
-        _auditServiceMock.Verify(
-            a => a.RegisterEventAsync(
-                UserEvents.UpdatePassword,
-                EventState.Failed,
-                It.IsAny<Result>(),
-                user.Id,
-                null,
-                null,
-                null
-            ),
-            Times.Once
-        );
     }
 
     [Test]

@@ -1,5 +1,4 @@
 using Digital.Net.Core.Accessors;
-using Digital.Net.Core.Http.Accessors;
 using Digital.Net.Core.Http.Endpoints.Dto;
 using Digital.Net.Core.Http.RateLimiters;
 using Digital.Net.Core.Http.Services.Authentication;
@@ -64,15 +63,7 @@ public static class AuthenticationEndpoints
     )
     {
         var result = new Result<string>();
-        var userAgent = ctx.GetUserAgent() ?? string.Empty;
-        var ipAddress = ctx.GetRemoteIpAddress();
-
-        if (ipAddress is null)
-            return TypedResults.Unauthorized();
-        if (request.Login.Length is > 48 or < 1 || request.Password.Length is > 256 or < 1)
-            return TypedResults.Unauthorized();
-
-        var loginRes = await service.LoginAsync(request.Login, request.Password, ipAddress, userAgent);
+        var loginRes = await service.LoginAsync(request);
         result.Merge(loginRes);
 
         if (result.Errors.Any(e => e.Reference == new TooManyAttemptsException().GetReference()))
@@ -89,28 +80,26 @@ public static class AuthenticationEndpoints
         return TypedResults.Ok(result);
     }
 
-    private static async Task<Results<Ok<Result<bool>>, StatusCodeHttpResult>> IsLocked(AuthenticationService service,
-        HttpContext ctx)
+    private static async Task<Results<Ok<Result<bool>>, StatusCodeHttpResult>> IsLocked(
+        AuthEventService authEvents,
+        IOriginAccessor originAccessor
+    )
     {
         var result = new Result<bool>();
-        var ipAddress = ctx.GetRemoteIpAddress();
-        if (ipAddress is null)
-            result.Value = false;
-        else
-            result.Value = await service.GetLoginAttemptCountAsync(ipAddress) >=
-                           AuthenticationStaticOptions.MaxLoginAttempts;
-
+        var ipAddress = originAccessor.GetOrigin().IpAddress;
+        result.Value = ipAddress is not null && await authEvents.HasReachedMaxLoginAttemptsAsync(ipAddress);
         return TypedResults.Ok(result);
     }
 
     private static async Task<Results<Ok<Result<string>>, UnauthorizedHttpResult>> RefreshTokens(
         AuthenticationService service,
         AuthenticationOptionService opts,
+        IOriginAccessor originAccessor,
         HttpContext ctx
     )
     {
         var result = new Result<string>();
-        var userAgent = ctx.GetUserAgent() ?? string.Empty;
+        var userAgent = originAccessor.GetOrigin().UserAgent ?? string.Empty;
         var cookie = ctx.Request.Cookies[opts.CookieName];
 
         if (string.IsNullOrEmpty(cookie))
@@ -142,14 +131,9 @@ public static class AuthenticationEndpoints
         HttpContext ctx
     )
     {
-        var userAgent = ctx.GetUserAgent() ?? string.Empty;
-        var ipAddress = ctx.GetRemoteIpAddress() ?? string.Empty;
         var cookie = ctx.Request.Cookies[opts.CookieName];
-
-        if (string.IsNullOrEmpty(cookie))
-            return TypedResults.BadRequest();
-
-        await service.LogoutAsync(cookie, userCtx.GetUserId(), userAgent, ipAddress);
+        if (string.IsNullOrEmpty(cookie)) return TypedResults.BadRequest();
+        await service.LogoutAsync(cookie);
         ctx.Response.Cookies.Delete(opts.CookieName);
         return TypedResults.NoContent();
     }
@@ -160,14 +144,9 @@ public static class AuthenticationEndpoints
         HttpContext ctx
     )
     {
-        var userAgent = ctx.GetUserAgent() ?? string.Empty;
-        var ipAddress = ctx.GetRemoteIpAddress() ?? string.Empty;
         var cookie = ctx.Request.Cookies[opts.CookieName];
-
-        if (string.IsNullOrEmpty(cookie))
-            return TypedResults.Unauthorized();
-
-        await service.LogoutAllAsync(cookie, userAgent, ipAddress);
+        if (string.IsNullOrEmpty(cookie)) return TypedResults.Unauthorized();
+        await service.LogoutAllAsync(cookie);
         ctx.Response.Cookies.Delete(opts.CookieName);
         return TypedResults.NoContent();
     }

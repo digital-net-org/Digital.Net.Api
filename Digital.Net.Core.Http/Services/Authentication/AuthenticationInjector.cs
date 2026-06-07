@@ -31,6 +31,7 @@ public static class AuthenticationInjector
         services
             .AddScoped<IUserAccessor, UserAccessor>()
             .AddScoped<AuthenticationOptionService>()
+            .AddScoped<AuthEventService>()
             .AddScoped<AuthenticationService>()
             .AddScoped<JwtService>();
 

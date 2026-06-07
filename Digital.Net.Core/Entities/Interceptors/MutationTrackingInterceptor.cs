@@ -1,7 +1,11 @@
+using System.Reflection;
+using System.Text.Json;
 using Digital.Net.Core.Accessors;
+using Digital.Net.Core.Entities.Attributes;
 using Digital.Net.Core.Entities.Models;
 using Digital.Net.Core.Entities.Models.Mutations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,6 +18,9 @@ namespace Digital.Net.Core.Entities.Interceptors;
 /// </summary>
 public class MutationTrackingInterceptor(IServiceProvider serviceProvider) : SaveChangesInterceptor
 {
+    private const int MaxValueLength = 512;
+    private static readonly HashSet<string> IgnoredProperties = ["Id", "CreatedAt", "UpdatedAt"];
+
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
         Capture(eventData.Context);
@@ -63,10 +70,36 @@ public class MutationTrackingInterceptor(IServiceProvider serviceProvider) : Sav
                 UserId = userId,
                 IpAddress = origin?.IpAddress,
                 UserAgent = origin?.UserAgent,
-                CreatedAt = now
+                CreatedAt = now,
+                Payload = BuildPayload(entry)
             };
         }).ToList();
 
         context.AddRange(mutations);
     }
+
+    private static string? BuildPayload(EntityEntry entry)
+    {
+        if (entry.State is EntityState.Deleted) return null;
+        var isCreate = entry.State is EntityState.Added;
+
+        var changes = new Dictionary<string, object?>();
+        foreach (var prop in entry.Properties)
+        {
+            if (IgnoredProperties.Contains(prop.Metadata.Name)) continue;
+            if (prop.Metadata.PropertyInfo?.GetCustomAttribute<SecretAttribute>() is not null) continue;
+            if (!isCreate && !prop.IsModified) continue;
+
+            changes[prop.Metadata.Name] = new
+            {
+                from = isCreate ? null : Cap(prop.OriginalValue),
+                to = Cap(prop.CurrentValue)
+            };
+        }
+
+        return changes.Count == 0 ? null : JsonSerializer.Serialize(changes);
+    }
+
+    private static object? Cap(object? value) =>
+        value is string { Length: > MaxValueLength } s ? $"…({s.Length} chars)" : value;
 }

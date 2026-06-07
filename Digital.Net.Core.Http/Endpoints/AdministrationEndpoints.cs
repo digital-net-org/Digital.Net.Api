@@ -1,19 +1,14 @@
 using System.Linq.Expressions;
-using System.Text.Json;
 using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities;
 using Digital.Net.Core.Entities.Context;
-using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Core.Http.Endpoints.Dto;
 using Digital.Net.Core.Http.RateLimiters;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Core.Http.Services.Pagination.Extensions;
-using Digital.Net.Core.Services.Auditing;
 using Digital.Net.Core.Services.Users;
-using Digital.Net.Core.Services.Users.Events;
-using Digital.Net.Core.Services.Users.Events.Types;
 using Digital.Net.Core.Services.Users.Exceptions;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
@@ -74,9 +69,7 @@ public static class AdministrationEndpoints
     private static async Task<Results<Ok<Result<Guid>>, BadRequest<Result<Guid>>>> CreateUser(
         [FromBody]
         UserPayload payload,
-        UserService userService,
-        IUserAccessor userContextService,
-        IAuditService auditService
+        UserService userService
     )
     {
         var result = await userService.CreateUserAsync(
@@ -86,18 +79,9 @@ public static class AdministrationEndpoints
             password: payload.Password
         );
 
-        if (result.HasError)
-            return TypedResults.BadRequest(result);
-
-        await auditService.RegisterEventAsync(
-            UserEvents.CreateUser,
-            EventState.Success,
-            result,
-            userContextService.GetUserId(),
-            JsonSerializer.Serialize(
-                new AdminUserMutationEvent(payload.Username, payload.Login, payload.Email, result.Value))
-        );
-        return TypedResults.Ok(result);
+        return result.HasError
+            ? TypedResults.BadRequest(result)
+            : TypedResults.Ok(result);
     }
 
     private static async
@@ -113,8 +97,7 @@ public static class AdministrationEndpoints
             [FromBody]
             UserDeletePayload payload,
             UserService userService,
-            IUserAccessor userContextService,
-            IAuditService auditService
+            IUserAccessor userContextService
         )
     {
         var admin = userContextService.GetUser();
@@ -124,27 +107,13 @@ public static class AdministrationEndpoints
 
         var result = await userService.DeleteUserAsync(id);
 
-        Func<EventState, Task> registerEvent = async state =>
-            await auditService.RegisterEventAsync(
-                UserEvents.DeleteUser,
-                state,
-                result,
-                admin.Id,
-                JsonSerializer.Serialize(new AdminUserMutationEvent { Id = id })
-            );
-
         if (result.HasErrorOfType<CannotDeleteAdminException>())
-        {
-            await registerEvent(EventState.Failed);
             return TypedResults.StatusCode(403);
-        }
-
         if (result.HasErrorOfType<ResourceNotFoundException>())
             return TypedResults.NotFound(result);
         if (result.HasError)
             return TypedResults.InternalServerError(result);
 
-        await registerEvent(EventState.Success);
         return TypedResults.Ok(result);
     }
 
@@ -174,35 +143,18 @@ public static class AdministrationEndpoints
             Guid id,
             [FromBody]
             UserStatusPayload payload,
-            UserService userService,
-            IUserAccessor userContextService,
-            IAuditService auditService
+            UserService userService
         )
     {
-        var adminId = userContextService.GetUserId();
         var result = await userService.UpdateUserStatusAsync(id, payload.IsActive);
 
-        Func<EventState, Task> registerEvent = async state =>
-            await auditService.RegisterEventAsync(
-                UserEvents.UpdateUserStatus,
-                state,
-                result,
-                adminId,
-                JsonSerializer.Serialize(new AdminUserMutationEvent { Id = id })
-            );
-
         if (result.HasErrorOfType<CannotRevokeAdminException>())
-        {
-            await registerEvent(EventState.Failed);
             return TypedResults.StatusCode(403);
-        }
-
         if (result.HasErrorOfType<ResourceNotFoundException>())
             return TypedResults.NotFound(result);
         if (result.HasError)
             return TypedResults.InternalServerError(result);
 
-        await registerEvent(EventState.Success);
         return TypedResults.Ok(result);
     }
 
@@ -218,8 +170,7 @@ public static class AdministrationEndpoints
             [FromBody]
             UserRolePayload payload,
             UserService userService,
-            IUserAccessor userContextService,
-            IAuditService auditService
+            IUserAccessor userContextService
         )
     {
         var admin = userContextService.GetUser();
@@ -228,28 +179,13 @@ public static class AdministrationEndpoints
             return TypedResults.Unauthorized();
 
         var result = await userService.UpdateUserRoleAsync(id, payload.IsAdmin);
-
-        Func<EventState, Task> registerEvent = async state =>
-            await auditService.RegisterEventAsync(
-                UserEvents.UpdateUserRole,
-                state,
-                result,
-                admin.Id,
-                JsonSerializer.Serialize(new AdminUserMutationEvent { Id = id })
-            );
-
         if (result.HasErrorOfType<CannotDemoteAdminException>())
-        {
-            await registerEvent(EventState.Failed);
             return TypedResults.StatusCode(403);
-        }
-
         if (result.HasErrorOfType<ResourceNotFoundException>())
             return TypedResults.NotFound(result);
         if (result.HasError)
             return TypedResults.InternalServerError(result);
 
-        await registerEvent(EventState.Success);
         return TypedResults.Ok(result);
     }
 }

@@ -2,17 +2,17 @@ using System.Text.Json;
 using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Exceptions;
-using Digital.Net.Core.Entities.Models.Events;
+using Digital.Net.Core.Entities.Models.Auth;
 using Digital.Net.Core.Entities.Models.Users;
+using Digital.Net.Core.Http.Accessors;
 using Digital.Net.Core.Http.Endpoints.Dto;
 using Digital.Net.Core.Http.RateLimiters;
+using Digital.Net.Core.Http.Services.Authentication;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Core.Http.Services.Documents;
-using Digital.Net.Core.Services.Auditing;
 using Digital.Net.Core.Services.Documents.Exceptions;
 using Digital.Net.Core.Services.Users;
-using Digital.Net.Core.Services.Users.Events;
 using Digital.Net.Core.Services.Users.Exceptions;
 using Digital.Net.Lib.Files;
 using Digital.Net.Lib.Messages;
@@ -99,7 +99,6 @@ public static class UserEndpoints
         [FromBody]
         JsonElement patch,
         CrudService<DigitalContext, User> crudService,
-        IAuditService auditService,
         IUserAccessor userContextService,
         CancellationToken ct
     )
@@ -112,14 +111,6 @@ public static class UserEndpoints
         if (result.HasError && !isBadRequest)
             return TypedResults.InternalServerError(result);
 
-        await auditService.RegisterEventAsync(
-            UserEvents.UpdateProfile,
-            result.HasError ? EventState.Failed : EventState.Success,
-            result,
-            userContextService.GetUserId(),
-            patch.GetRawText()
-        );
-
         return result.HasError
             ? TypedResults.BadRequest(result)
             : TypedResults.Ok(result);
@@ -129,11 +120,21 @@ public static class UserEndpoints
         [FromBody]
         UserPasswordUpdatePayload request,
         UserService userService,
-        IUserAccessor userContextService
+        AuthEventService authEventService,
+        IUserAccessor userContextService,
+        HttpContext ctx
     )
     {
         var user = userContextService.GetUser();
         var result = await userService.UpdatePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+
+        await authEventService.RecordAsync(
+            AuthEventType.PasswordChange,
+            !result.HasError,
+            ctx.GetRemoteIpAddress(),
+            ctx.GetUserAgent(),
+            user.Id
+        );
 
         if (result.HasErrorOfType<PasswordMalformedException>())
             return TypedResults.BadRequest(result);

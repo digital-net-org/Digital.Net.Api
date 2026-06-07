@@ -2,9 +2,7 @@ using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Bootstrap;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Services.ApiKeys;
-using Digital.Net.Core.Services.Auditing;
 using Digital.Net.Core.Services.Documents;
-using Digital.Net.Core.Services.Events;
 using Digital.Net.Core.Services.Users;
 using Digital.Net.Lib.Configuration;
 using Digital.Net.Lib.Validation;
@@ -29,8 +27,6 @@ public static class CoreInjector
 
         builder.Services
             .AddDigitalApiKeyServices()
-            .AddDigitalAuditingServices()
-            .AddDigitalEventServices()
             .AddDigitalUserServices()
             .AddDigitalDocumentServices();
 

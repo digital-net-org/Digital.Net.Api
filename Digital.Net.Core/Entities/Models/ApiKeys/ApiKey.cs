@@ -31,6 +31,7 @@ public class ApiKey(Guid userId, string name, string? key = null, DateTime? expi
     [MaxLength(64)]
     [Required]
     [ReadOnly]
+    [Secret]
     public string Key { get; set; } =
         Hash(key ?? Randomizer.GenerateRandomString(Randomizer.AnyLetterOrNumber, 128));
 

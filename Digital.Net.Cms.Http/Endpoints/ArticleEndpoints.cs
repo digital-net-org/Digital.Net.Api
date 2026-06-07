@@ -1,6 +1,5 @@
 using System.Linq.Expressions;
 using Digital.Net.Cms.Context;
-using Digital.Net.Cms.Events;
 using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Http.Services;
 using Digital.Net.Cms.Models.Articles;
@@ -45,9 +44,9 @@ public static class ArticleEndpoints
             filter: PaginationFilter,
             include: [e => e.Tags]
         );
-        controller.MapCrudPost<CmsContext, Article, ArticlePayload>(eventType: CmsEvents.CreateArticle);
-        controller.MapCrudPatch<CmsContext, Article>(eventType: CmsEvents.UpdateArticle);
-        controller.MapCrudDelete<CmsContext, Article>(eventType: CmsEvents.DeleteArticle);
+        controller.MapCrudPost<CmsContext, Article, ArticlePayload>();
+        controller.MapCrudPatch<CmsContext, Article>();
+        controller.MapCrudDelete<CmsContext, Article>();
 
         var publicController = app
             .MapGroup("cms/articles")
@@ -78,7 +77,7 @@ public static class ArticleEndpoints
             ? TypedResults.InternalServerError(result)
             : TypedResults.Ok(result);
     }
-
+    
     private static async
         Task<Results<Ok<Result<ArticleDto>>, NotFound<Result<ArticleDto>>, InternalServerError<Result<ArticleDto>>>>
         GetArticleBySlug(

@@ -1,9 +1,6 @@
 using System.Text.Json;
-using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities.Exceptions;
 using Digital.Net.Core.Entities.Models;
-using Digital.Net.Core.Entities.Models.Events;
-using Digital.Net.Core.Services.Auditing;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.Models;
@@ -88,8 +85,7 @@ public static class CrudEndpointExtensions
 
     public static RouteHandlerBuilder MapCrudPost<TContext, T, TPayload>(
         this IEndpointRouteBuilder app,
-        string? route = null,
-        string? eventType = null
+        string? route = null
     )
         where TContext : DbContext
         where T : Entity
@@ -102,22 +98,12 @@ public static class CrudEndpointExtensions
                 async Task<Results<Ok<Result<Guid>>, BadRequest<Result<Guid>>, InternalServerError<Result<Guid>>>> (
                     [FromBody]
                     TPayload payload,
-                    CrudService<TContext, T> crudService,
-                    IAuditService auditService,
-                    IUserAccessor userContextService
+                    CrudService<TContext, T> crudService
                 ) =>
                 {
                     var result = await crudService.Create(Mapper.TryMap<TPayload, T>(payload));
                     if (result.HasError && !result.HasErrorOfType<EntityValidationException>())
                         return TypedResults.InternalServerError(result);
-
-                    if (eventType is not null)
-                        await auditService.RegisterEventAsync(
-                            eventType,
-                            result.HasError ? EventState.Failed : EventState.Success,
-                            result,
-                            userContextService.GetUserId()
-                        );
 
                     return result.HasError
                         ? TypedResults.BadRequest(result)
@@ -132,8 +118,7 @@ public static class CrudEndpointExtensions
 
     public static RouteHandlerBuilder MapCrudPatch<TContext, T>(
         this IEndpointRouteBuilder app,
-        string? route = null,
-        string? eventType = null
+        string? route = null
     )
         where TContext : DbContext
         where T : Entity
@@ -147,8 +132,6 @@ public static class CrudEndpointExtensions
                     [FromBody]
                     JsonElement patch,
                     CrudService<TContext, T> crudService,
-                    IAuditService auditService,
-                    IUserAccessor userContextService,
                     CancellationToken ct
                 ) =>
                 {
@@ -160,14 +143,6 @@ public static class CrudEndpointExtensions
                         return TypedResults.NotFound(result);
                     if (result.HasError && !isBadRequest)
                         return TypedResults.InternalServerError(result);
-
-                    if (eventType is not null)
-                        await auditService.RegisterEventAsync(
-                            eventType,
-                            result.HasError ? EventState.Failed : EventState.Success,
-                            result,
-                            userContextService.GetUserId()
-                        );
 
                     return result.HasError
                         ? TypedResults.BadRequest(result)
@@ -183,8 +158,7 @@ public static class CrudEndpointExtensions
 
     public static RouteHandlerBuilder MapCrudDelete<TContext, T>(
         this IEndpointRouteBuilder app,
-        string? route = null,
-        string? eventType = null
+        string? route = null
     )
         where TContext : DbContext
         where T : Entity
@@ -195,9 +169,7 @@ public static class CrudEndpointExtensions
                 $"{route}{{id:guid}}",
                 async Task<Results<Ok<Result>, NotFound<Result>, InternalServerError<Result>>> (
                     Guid id,
-                    CrudService<TContext, T> crudService,
-                    IAuditService auditService,
-                    IUserAccessor userContextService
+                    CrudService<TContext, T> crudService
                 ) =>
                 {
                     var result = await crudService.Delete(id);
@@ -205,14 +177,6 @@ public static class CrudEndpointExtensions
                         return TypedResults.NotFound(result);
                     if (result.HasError)
                         return TypedResults.InternalServerError(result);
-
-                    if (eventType is not null)
-                        await auditService.RegisterEventAsync(
-                            eventType, // TODO: Handle authorization VS Server errors
-                            result.HasError ? EventState.Failed : EventState.Success,
-                            result,
-                            userContextService.GetUserId()
-                        );
 
                     return TypedResults.Ok(result);
                 }

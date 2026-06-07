@@ -1,12 +1,12 @@
 using System.Diagnostics;
 using System.Security.Authentication;
+using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.ApiTokens;
-using Digital.Net.Core.Entities.Models.Events;
-using Digital.Net.Core.Http.Services.Authentication.Events;
+using Digital.Net.Core.Entities.Models.Auth;
+using Digital.Net.Core.Http.Endpoints.Dto;
 using Digital.Net.Core.Http.Services.Authentication.Exceptions;
 using Digital.Net.Core.Http.Services.Authentication.Options;
-using Digital.Net.Core.Services.Auditing;
 using Digital.Net.Core.Services.Users;
 using Digital.Net.Core.Services.Users.Exceptions;
 using Digital.Net.Lib.Environment;
@@ -16,53 +16,41 @@ using Microsoft.EntityFrameworkCore;
 namespace Digital.Net.Core.Http.Services.Authentication;
 
 public class AuthenticationService(
-    AuthenticationOptionService authenticationOptionService,
     JwtService jwtService,
-    IAuditService auditService,
+    AuthEventService authEventService,
+    IOriginAccessor originAccessor,
+    IUserAccessor userAccessor,
     DigitalContext context
 )
 {
-    public async Task<int> GetLoginAttemptCountAsync(string ipAddress)
-    {
-        var threshold = DateTime.UtcNow.Subtract(authenticationOptionService.GetMaxLoginAttemptsThreshold());
-        return await context.Events.CountAsync(e =>
-            e.CreatedAt > threshold
-            && e.Name == AuthenticationEvents.Login
-            && e.State == EventState.Failed
-            && e.IpAddress == ipAddress
-        );
-    }
-
-    public async Task<Result<(string bearer, string refresh)>> LoginAsync(
-        string login,
-        string password,
-        string ipAddress,
-        string? userAgent = null
-    )
+    public async Task<Result<(string bearer, string refresh)>> LoginAsync(LoginPayload payload)
     {
         var startedAt = Stopwatch.GetTimestamp();
+        
         var result = new Result<(string, string)>((string.Empty, string.Empty));
-        userAgent ??= string.Empty;
+        var origin = originAccessor.GetOrigin();
+        if (string.IsNullOrWhiteSpace(origin.IpAddress))
+            return result.AddError(new IpNotFound());
+        if (payload.Login.Length is > 48 or < 1 || payload.Password.Length is > 256 or < 1)
+            return result.AddError(new InvalidLoginPayloadException());
 
-        var user = await context.Users.FirstOrDefaultAsync(u => u.Login == login);
-        if (await GetLoginAttemptCountAsync(ipAddress) >= AuthenticationStaticOptions.MaxLoginAttempts)
+        var user = await context.Users.FirstOrDefaultAsync(u => u.Login == payload.Login);
+        if (await authEventService.HasReachedMaxLoginAttemptsAsync(origin.IpAddress))
             result.AddError(new TooManyAttemptsException());
         else if (user is null)
             result.AddError(new InvalidCredentialsException());
         else if (!user.IsActive)
             result.AddError(new InactiveUserException());
-        else if (!UserPassword.Verify(user, password))
+        else if (!UserPassword.Verify(user, payload.Password))
             result.AddError(new InvalidCredentialsException());
 
-        var state = result.HasError ? EventState.Failed : EventState.Success;
-        await auditService.RegisterEventAsync(
-            AuthenticationEvents.Login,
-            state,
-            result,
+        await authEventService.RecordAsync(
+            AuthEventType.Login,
+            !result.HasError,
+            origin.IpAddress,
+            origin.UserAgent, 
             user?.Id,
-            login,
-            userAgent,
-            ipAddress
+            payload.Login
         );
 
         if (!AspNetEnv.IsTest)
@@ -77,8 +65,8 @@ public class AuthenticationService(
             return result;
 
         result.Value = (
-            jwtService.GenerateBearerToken(user.Id, userAgent),
-            jwtService.GenerateRefreshToken(user.Id, userAgent)
+            jwtService.GenerateBearerToken(user.Id, origin.UserAgent ?? string.Empty),
+            jwtService.GenerateRefreshToken(user.Id, origin.UserAgent ?? string.Empty)
         );
         return result;
     }
@@ -111,52 +99,26 @@ public class AuthenticationService(
         return result;
     }
 
-    public async Task<Result> LogoutAsync(
-        string? refreshToken,
-        Guid? userId,
-        string? userAgent = null,
-        string? ipAddress = null
-    )
+    public async Task<Result> LogoutAsync(string refreshToken)
     {
         var result = new Result();
-        if (refreshToken is null)
-            return result.AddError(new AuthenticationException());
-
+        var origin = originAccessor.GetOrigin();
+        var userId = userAccessor.GetUserId();
         await jwtService.RevokeTokenAsync(refreshToken);
-        await auditService.RegisterEventAsync(
-            AuthenticationEvents.Logout,
-            EventState.Success,
-            null,
-            userId,
-            null,
-            userAgent,
-            ipAddress
-        );
+        await authEventService.RecordAsync(AuthEventType.Logout, true, origin.IpAddress, origin.UserAgent, userId);
         return result;
     }
 
-    public async Task<Result> LogoutAllAsync(
-        string? refreshToken,
-        string? userAgent = null,
-        string? ipAddress = null
-    )
+    public async Task<Result> LogoutAllAsync(string refreshToken)
     {
         var result = new Result();
-        var userId = context.ApiTokens.FirstOrDefault(u => u.Key == ApiToken.Hash(refreshToken ?? string.Empty))
-            ?.UserId;
+        var origin = originAccessor.GetOrigin();
+        var userId = context.ApiTokens.FirstOrDefault(u => u.Key == ApiToken.Hash(refreshToken))?.UserId;
         if (userId is null)
             return result.AddError(new AuthenticationException());
 
         await jwtService.RevokeAllTokensAsync(userId.Value);
-        await auditService.RegisterEventAsync(
-            AuthenticationEvents.LogoutAll,
-            EventState.Success,
-            null,
-            userId,
-            null,
-            userAgent,
-            ipAddress
-        );
+        await authEventService.RecordAsync(AuthEventType.LogoutAll, true, origin.IpAddress, origin.UserAgent, userId);
         return result;
     }
 }

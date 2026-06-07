@@ -2,17 +2,13 @@ using System.Linq.Expressions;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Digital.Net.Cms.Context;
-using Digital.Net.Cms.Events;
 using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Models.Forms;
-using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities.Exceptions;
-using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.Http.RateLimiters;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Core.Http.Services.Pagination.Extensions;
-using Digital.Net.Core.Services.Auditing;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.Predicates;
@@ -39,9 +35,9 @@ public static class FormEndpoints
         form.MapCrudSchema<CmsContext, Form>();
         form.MapCrudGet<CmsContext, Form, FormDto>();
         form.MapPaginationGet<CmsContext, Form, FormDto, FormQuery>(filter: PaginationFilter);
-        form.MapCrudPost<CmsContext, Form, FormCreatePayload>(eventType: CmsEvents.CreateForm);
-        form.MapCrudDelete<CmsContext, Form>(eventType: CmsEvents.DeleteForm);
-        form.MapCrudPatch<CmsContext, Form>(eventType: CmsEvents.UpdateForm);
+        form.MapCrudPost<CmsContext, Form, FormCreatePayload>();
+        form.MapCrudDelete<CmsContext, Form>();
+        form.MapCrudPatch<CmsContext, Form>();
 
         form.MapCrudSchema<CmsContext, FormField>("fields");
 
@@ -73,7 +69,7 @@ public static class FormEndpoints
         submissions.MapPaginationGet<CmsContext, FormSubmission, FormSubmissionDto, FormSubmissionQuery>(
             filter: SubmissionPaginationFilter
         );
-        submissions.MapCrudDelete<CmsContext, FormSubmission>(eventType: CmsEvents.DeleteFormSubmission);
+        submissions.MapCrudDelete<CmsContext, FormSubmission>();
 
         var publicApi = app
             .MapGroup("cms/forms")
@@ -113,8 +109,7 @@ public static class FormEndpoints
         Guid id,
         [FromBody]
         FormSubmitPayload payload,
-        CmsContext context,
-        IAuditService auditService
+        CmsContext context
     )
     {
         var form = await context.Forms
@@ -143,20 +138,10 @@ public static class FormEndpoints
         context.FormSubmissions.Add(submission);
         await context.SaveChangesAsync();
 
-        await auditService.RegisterEventAsync(
-            CmsEvents.FormSubmission,
-            EventState.Success,
-            new Result(),
-            null
-        );
-
         return Results.Ok(new Result());
     }
 
-    private static List<string> ValidateSubmission(
-        List<FormField> fields,
-        Dictionary<string, string?> values
-    )
+    private static List<string> ValidateSubmission(List<FormField> fields, Dictionary<string, string?> values)
     {
         var errors = new List<string>();
 
@@ -256,9 +241,7 @@ public static class FormEndpoints
             [FromBody]
             FormFieldPayload payload,
             CmsContext context,
-            CrudService<CmsContext, FormField> crudService,
-            IAuditService auditService,
-            IUserAccessor userContextService
+            CrudService<CmsContext, FormField> crudService
         )
     {
         var formExists = await context.Forms.AsNoTracking().AnyAsync(f => f.Id == formId);
@@ -284,13 +267,6 @@ public static class FormEndpoints
         if (result.HasError && !isBadRequest)
             return TypedResults.InternalServerError(result);
 
-        await auditService.RegisterEventAsync(
-            CmsEvents.CreateFormField,
-            result.HasError ? EventState.Failed : EventState.Success,
-            result,
-            userContextService.GetUserId()
-        );
-
         return result.HasError
             ? TypedResults.BadRequest(result)
             : TypedResults.Ok(result);
@@ -304,8 +280,6 @@ public static class FormEndpoints
             JsonElement patch,
             CmsContext context,
             CrudService<CmsContext, FormField> crudService,
-            IAuditService auditService,
-            IUserAccessor userContextService,
             CancellationToken ct
         )
     {
@@ -327,13 +301,6 @@ public static class FormEndpoints
         if (result.HasError && !isBadRequest)
             return TypedResults.InternalServerError(result);
 
-        await auditService.RegisterEventAsync(
-            CmsEvents.UpdateFormField,
-            result.HasError ? EventState.Failed : EventState.Success,
-            result,
-            userContextService.GetUserId()
-        );
-
         return result.HasError
             ? TypedResults.BadRequest(result)
             : TypedResults.Ok(result);
@@ -344,9 +311,7 @@ public static class FormEndpoints
             Guid formId,
             Guid fieldId,
             CmsContext context,
-            CrudService<CmsContext, FormField> crudService,
-            IAuditService auditService,
-            IUserAccessor userContextService
+            CrudService<CmsContext, FormField> crudService
         )
     {
         var field = await context.FormFields.AsNoTracking().FirstOrDefaultAsync(f => f.Id == fieldId);
@@ -358,13 +323,6 @@ public static class FormEndpoints
             return TypedResults.NotFound(result);
         if (result.HasError)
             return TypedResults.InternalServerError(result);
-
-        await auditService.RegisterEventAsync(
-            CmsEvents.DeleteFormField,
-            EventState.Success,
-            result,
-            userContextService.GetUserId()
-        );
 
         return TypedResults.Ok(result);
     }

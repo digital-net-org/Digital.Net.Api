@@ -1,15 +1,10 @@
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.ApiKeys;
-using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.Services.ApiKeys;
 using Digital.Net.Core.Services.ApiKeys.Exceptions;
-using Digital.Net.Core.Services.Auditing;
-using Digital.Net.Core.Services.Users.Events;
-using Digital.Net.Lib.Messages;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data;
 using Microsoft.EntityFrameworkCore;
-using Moq;
 using TUnit.Core.Interfaces;
 
 namespace Digital.Net.Tests.Core.Services.ApiKeys;
@@ -20,14 +15,12 @@ public class ApiKeyServiceTest : UnitTest, IAsyncInitializer
     public required DatabaseFixture DbFixture { get; init; }
 
     private DigitalContext _context = null!;
-    private Mock<IAuditService> _auditService = null!;
     private ApiKeyService _service = null!;
 
     public Task InitializeAsync()
     {
         _context = DbFixture.CreateContext<DigitalContext>();
-        _auditService = new Mock<IAuditService>();
-        _service = new ApiKeyService(_context, _auditService.Object);
+        _service = new ApiKeyService(_context);
 
         return Task.CompletedTask;
     }
@@ -148,27 +141,6 @@ public class ApiKeyServiceTest : UnitTest, IAsyncInitializer
     }
 
     [Test]
-    public async Task CreateAsync_CallsAuditService_OnSuccess()
-    {
-        var user = _context.BuildTestUser();
-        var name = $"Audited-{TestId}";
-
-        var result = await _service.CreateAsync(user.Id, name, null);
-
-        await Assert.That(result.HasError).IsFalse();
-        _auditService.Verify(
-            s => s.RegisterEventAsync(
-                UserEvents.CreateApiKey,
-                EventState.Success,
-                It.IsAny<Result?>(),
-                user.Id,
-                It.IsAny<string?>(),
-                It.IsAny<string?>(),
-                It.IsAny<string?>()),
-            Times.Once);
-    }
-
-    [Test]
     public async Task GetByUserAsync_ReturnsOnlyOwnKeys()
     {
         var user1 = _context.BuildTestUser();
@@ -214,26 +186,4 @@ public class ApiKeyServiceTest : UnitTest, IAsyncInitializer
         await Assert.That(stillThere).IsTrue();
     }
 
-    [Test]
-    public async Task DeleteAsync_CallsAuditService_OnSuccess()
-    {
-        var user = _context.BuildTestUser();
-        await _service.CreateAsync(user.Id, $"DelAudit-{TestId}", null);
-        var keyId = (await _service.GetByUserAsync(user.Id)).Value!.First().Id;
-        _auditService.Invocations.Clear();
-
-        var result = await _service.DeleteAsync(user.Id, keyId);
-
-        await Assert.That(result.HasError).IsFalse();
-        _auditService.Verify(
-            s => s.RegisterEventAsync(
-                UserEvents.DeleteApiKey,
-                EventState.Success,
-                It.IsAny<Result?>(),
-                user.Id,
-                It.IsAny<string?>(),
-                It.IsAny<string?>(),
-                It.IsAny<string?>()),
-            Times.Once);
-    }
 }

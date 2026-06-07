@@ -3,11 +3,12 @@ using Digital.Net.Cms.Models;
 using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Interceptors;
+using Digital.Net.Core.Entities.Models.Auth;
 using Digital.Net.Core.Entities.Models.Documents;
-using Digital.Net.Core.Entities.Models.Events;
 using Digital.Net.Core.Entities.Models.Mutations;
 using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Tests.Core.Factories;
+using Digital.Net.Tests.Core.Factories.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -74,12 +75,12 @@ public class MutationTrackingInterceptorTest : UnitTest
     public async Task Save_UntrackedEntity_PersistsNoMutation()
     {
         await using var ctx = CreateTrackedContext<DigitalContext>();
-        var @event = new Event { Name = $"no-loop-{TestId}" };
+        var authEvent = new AuthEvent { Type = AuthEventType.Login, Success = false };
 
-        ctx.Add(@event);
+        ctx.Add(authEvent);
         await ctx.SaveChangesAsync();
 
-        var mutation = await ReadMutation<DigitalContext>(@event.Id);
+        var mutation = await ReadMutation<DigitalContext>(authEvent.Id);
         await Assert.That(mutation).IsNull();
     }
 
@@ -96,6 +97,50 @@ public class MutationTrackingInterceptorTest : UnitTest
         await Assert.That(mutation).IsNotNull();
         await Assert.That(mutation!.ChangeType).IsEqualTo(ChangeType.Created);
         await Assert.That(mutation.EntityType).IsEqualTo(nameof(Tag));
+    }
+
+    [Test]
+    public async Task Create_CapturesInitialValuesInPayload()
+    {
+        await using var ctx = CreateTrackedContext<DigitalContext>();
+        var document = NewDocument();
+
+        ctx.Add(document);
+        await ctx.SaveChangesAsync();
+
+        var mutation = await ReadMutation<DigitalContext>(document.Id);
+        await Assert.That(mutation!.Payload).IsNotNull();
+        await Assert.That(mutation.Payload!.Contains(nameof(Document.FileName))).IsTrue();
+        await Assert.That(mutation.Payload!.Contains(nameof(Document.FileSize))).IsTrue();
+    }
+
+    [Test]
+    public async Task Update_CapturesOnlyChangedFieldDiff()
+    {
+        await using var ctx = CreateTrackedContext<DigitalContext>();
+        var document = NewDocument();
+        ctx.Add(document);
+        await ctx.SaveChangesAsync();
+
+        document.FileSize = 999;
+        await ctx.SaveChangesAsync();
+
+        var mutation = (await ReadMutations<DigitalContext>(document.Id, ChangeType.Updated)).Single();
+        await Assert.That(mutation.Payload).IsNotNull();
+        await Assert.That(mutation.Payload!.Contains(nameof(Document.FileSize))).IsTrue();
+        await Assert.That(mutation.Payload!.Contains(nameof(Document.MimeType))).IsFalse();
+    }
+
+    [Test]
+    public async Task Payload_ExcludesSecretFields()
+    {
+        await using var ctx = CreateTrackedContext<DigitalContext>();
+        var user = ctx.BuildTestUser();
+
+        var mutation = (await ReadMutations<DigitalContext>(user.Id, ChangeType.Created)).Single();
+        await Assert.That(mutation.Payload).IsNotNull();
+        await Assert.That(mutation.Payload!.Contains(nameof(User.Username))).IsTrue();
+        await Assert.That(mutation.Payload!.Contains(nameof(User.Password))).IsFalse();
     }
 
     private T CreateTrackedContext<T>() where T : DbContext
