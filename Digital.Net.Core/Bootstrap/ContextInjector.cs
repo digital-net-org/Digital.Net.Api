@@ -1,7 +1,9 @@
 using Digital.Net.Core.Entities.Context;
+using Digital.Net.Core.Entities.Interceptors;
 using Digital.Net.Lib.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
 namespace Digital.Net.Core.Bootstrap;
@@ -12,7 +14,11 @@ public static class ContextInjector
         where T : DbContext
     {
         var connectionString = builder.Configuration.GetOrThrow<string>($"{CoreSettings.ConnectionStringKey}");
-        builder.Services.AddDbContext<T>(options => options.UseDigitalNpgsql<T>(connectionString));
+        builder.Services.TryAddScoped<MutationTrackingInterceptor>();
+        builder.Services.AddDbContext<T>((sp, options) =>
+            options
+                .UseDigitalNpgsql<T>(connectionString)
+                .AddInterceptors(sp.GetRequiredService<MutationTrackingInterceptor>()));
         return builder;
     }
 

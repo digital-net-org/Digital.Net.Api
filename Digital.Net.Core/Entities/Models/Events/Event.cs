@@ -7,7 +7,7 @@ using Digital.Net.Lib.Messages;
 namespace Digital.Net.Core.Entities.Models.Events;
 
 [Table("Event")]
-public class Event : Entity
+public class Event : Entity, IUntrackedEntity
 {
     public Event() {}
 

@@ -5,6 +5,7 @@ using Digital.Net.Cms.Models.Medias;
 using Digital.Net.Cms.Models.Pages;
 using Digital.Net.Core.Entities.Interceptors;
 using Digital.Net.Core.Entities.Models;
+using Digital.Net.Core.Entities.Models.Mutations;
 using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Cms.Context;
@@ -29,6 +30,7 @@ public class CmsContext(DbContextOptions<CmsContext> options) : DbContext(option
     public DbSet<Form> Forms { get; init; }
     public DbSet<FormField> FormFields { get; init; }
     public DbSet<FormSubmission> FormSubmissions { get; init; }
+    public DbSet<EntityMutation> EntityMutations { get; init; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
         optionsBuilder.AddInterceptors(new TimestampInterceptor());

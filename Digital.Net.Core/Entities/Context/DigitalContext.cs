@@ -6,6 +6,7 @@ using Digital.Net.Core.Entities.Models.Avatars;
 using Digital.Net.Core.Entities.Models.ConfigValues;
 using Digital.Net.Core.Entities.Models.Documents;
 using Digital.Net.Core.Entities.Models.Events;
+using Digital.Net.Core.Entities.Models.Mutations;
 using Digital.Net.Core.Entities.Models.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,7 @@ public class DigitalContext(DbContextOptions<DigitalContext> options) : DbContex
     public DbSet<Avatar> Avatars { get; init; }
     public DbSet<ConfigValue> ConfigValues { get; init; }
     public DbSet<Document> Documents { get; init; }
+    public DbSet<EntityMutation> EntityMutations { get; init; }
     public DbSet<Event> Events { get; init; }
     public DbSet<User> Users { get; init; }
 

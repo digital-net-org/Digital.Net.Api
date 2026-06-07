@@ -7,7 +7,7 @@ using Digital.Net.Core.Entities.Models.Users;
 namespace Digital.Net.Core.Entities.Models.ApiTokens;
 
 [Table("ApiToken")]
-public class ApiToken : Entity
+public class ApiToken : Entity, IUntrackedEntity
 {
     public static string Hash(string token)
     {

@@ -12,4 +12,12 @@ public class HttpOriginAccessor(IHttpContextAccessor httpContextAccessor) : IOri
             ? new RequestOrigin(httpContext.GetRemoteIpAddress(), httpContext.GetUserAgent())
             : throw new ArgumentNullException(nameof(httpContext));
     }
+
+    public RequestOrigin TryGetOrigin()
+    {
+        var httpContext = httpContextAccessor.HttpContext;
+        return httpContext is not null
+            ? new RequestOrigin(httpContext.GetRemoteIpAddress(), httpContext.GetUserAgent())
+            : new RequestOrigin(null, null);
+    }
 }

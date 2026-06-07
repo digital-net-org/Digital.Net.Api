@@ -1,8 +1,8 @@
+using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Core.Http.Services.Authentication.Options;
 using Digital.Net.Core.Http.Services.Authentication.Types;
-using Digital.Net.Core.Accessors;
 using Microsoft.AspNetCore.Http;
 
 namespace Digital.Net.Core.Http.Services.Authentication;
@@ -23,6 +23,15 @@ public class UserAccessor(
                 : null;
 
         return result?.UserId ?? throw new UnauthorizedAccessException();
+    }
+
+    public Guid? TryGetUserId()
+    {
+        if (httpContextAccessor.HttpContext is not { } httpContext) return null;
+        return httpContext.Items.TryGetValue(AuthenticationStaticOptions.ApiContextAuthorizationKey, out var value) &&
+               value is AuthorizationResult typedValue
+            ? typedValue.UserId
+            : null;
     }
 
     public User GetUser() => context.Users.Find(GetUserId()) ?? throw new UnauthorizedAccessException();
