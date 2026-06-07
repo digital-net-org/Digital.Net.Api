@@ -6,7 +6,7 @@ using Digital.Net.Core.Entities.Models;
 namespace Digital.Net.Cms.Models;
 
 [Table("OpenGraphEntry")]
-public class OpenGraphEntry : Entity
+public class OpenGraphEntry : Entity, IUntrackedEntity
 {
     [Column("Property")]
     [Required]

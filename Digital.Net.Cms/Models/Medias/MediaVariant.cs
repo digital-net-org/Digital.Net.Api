@@ -7,7 +7,7 @@ namespace Digital.Net.Cms.Models.Medias;
 
 [Table("MediaVariant")]
 [Index(nameof(MediaId), nameof(Width), nameof(Quality), IsUnique = true)]
-public class MediaVariant : Entity
+public class MediaVariant : Entity, IUntrackedEntity
 {
     [Column("MediaId")]
     [Required]

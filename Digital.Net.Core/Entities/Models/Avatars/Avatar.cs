@@ -5,7 +5,7 @@ using Digital.Net.Core.Entities.Models.Documents;
 namespace Digital.Net.Core.Entities.Models.Avatars;
 
 [Table("Avatar")]
-public class Avatar : Entity
+public class Avatar : Entity, IUntrackedEntity
 {
     [Column("X")]
     public int X { get; set; }

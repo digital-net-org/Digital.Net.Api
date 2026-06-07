@@ -6,7 +6,7 @@ using Digital.Net.Core.Entities.Models;
 namespace Digital.Net.Cms.Models;
 
 [Table("Sheet")]
-public class Sheet : Entity
+public class Sheet : Entity, IUntrackedEntity
 {
     [Column("Name")]
     [Required]
