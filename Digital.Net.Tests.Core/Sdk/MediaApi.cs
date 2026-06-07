@@ -2,22 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
-using Digital.Net.Cms.Http.Dto;
-using Digital.Net.Tests.Core.Http;
 
 namespace Digital.Net.Tests.Core.Sdk;
 
 public static class MediaApi
 {
     public const string BaseUrl = "/cms/media";
-
-    public static async Task<HttpResponseMessage> GetMediaById(this HttpClient client, Guid mediaId) =>
-        await client.GetAsync($"{BaseUrl}/{mediaId}");
-
-    public static async Task<HttpResponseMessage> GetMedia(this HttpClient client, MediaQuery? query = null) =>
-        await client.GetAsync($"{BaseUrl}{query?.ToQueryString()}");
 
     public static async Task<HttpResponseMessage> UploadMedia(
         this HttpClient client,
@@ -39,17 +30,8 @@ public static class MediaApi
         return await client.PostAsync(BaseUrl, content);
     }
 
-    public static async Task<HttpResponseMessage> PatchMedia(this HttpClient client, Guid mediaId, object patch) =>
-        await client.PatchAsJsonAsync($"{BaseUrl}/{mediaId}", patch);
-
-    public static async Task<HttpResponseMessage> DeleteMedia(this HttpClient client, Guid mediaId) =>
-        await client.DeleteAsync($"{BaseUrl}/{mediaId}");
-
     public static async Task<HttpResponseMessage> PurgeMediaVariants(this HttpClient client, Guid mediaId) =>
         await client.DeleteAsync($"{BaseUrl}/{mediaId}/variants");
-
-    public static async Task<HttpResponseMessage> PurgeVariant(this HttpClient client, Guid variantId) =>
-        await client.DeleteAsync($"{BaseUrl}/variants/{variantId}");
 
     public static async Task<HttpResponseMessage> PurgeAllVariants(this HttpClient client) =>
         await client.DeleteAsync($"{BaseUrl}/variants");

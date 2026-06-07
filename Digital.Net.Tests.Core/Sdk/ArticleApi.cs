@@ -20,15 +20,6 @@ public static class ArticleApi
     public static async Task<HttpResponseMessage> CreateArticle(this HttpClient client, ArticlePayload payload) =>
         await client.PostAsJsonAsync(BaseUrl, payload);
 
-    public static async Task<HttpResponseMessage> PatchArticle(this HttpClient client, Guid articleId, object patch) =>
-        await client.PatchAsJsonAsync($"{BaseUrl}/{articleId}", patch);
-
-    public static async Task<HttpResponseMessage> DeleteArticle(this HttpClient client, Guid articleId) =>
-        await client.DeleteAsync($"{BaseUrl}/{articleId}");
-
-    public static async Task<HttpResponseMessage> GetArticleBySlug(this HttpClient client, string slug) =>
-        await client.GetAsync($"{BaseUrl}/slug/{slug}");
-
     public static async Task<HttpResponseMessage> GetSlugAvailability(
         this HttpClient client,
         string slug,

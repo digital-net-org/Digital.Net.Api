@@ -3,6 +3,7 @@ using Digital.Net.Cms.Models.Articles;
 using Digital.Net.Cms.Models.Forms;
 using Digital.Net.Cms.Models.Medias;
 using Digital.Net.Cms.Models.Pages;
+using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Interceptors;
 using Digital.Net.Core.Entities.Models;
 using Digital.Net.Core.Entities.Models.Mutations;
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Cms.Context;
 
-public class CmsContext(DbContextOptions<CmsContext> options) : DbContext(options)
+public class CmsContext(DbContextOptions<CmsContext> options) : DbContext(options), ISchemaContext
 {
     public const string Schema = "digital_net_cms";
+    static string ISchemaContext.Schema => Schema;
 
     public DbSet<Page> Pages { get; init; }
     public DbSet<Article> Articles { get; init; }

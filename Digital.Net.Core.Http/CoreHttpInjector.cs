@@ -7,6 +7,7 @@ using Digital.Net.Core.Http.RateLimiters;
 using Digital.Net.Core.Http.Services.Authentication;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Core.Http.Services.Documents;
+using Digital.Net.Core.Http.Services.Mutations;
 using Digital.Net.Lib.Environment;
 using Digital.Net.Lib.Validation;
 using Microsoft.AspNetCore.Builder;
@@ -29,7 +30,10 @@ public static class CoreHttpInjector
             .AddCrudServices()
             .AddDigitalAuthenticationServices()
             .AddScoped<DocumentCacheService>()
+            .AddSingleton<SseStreamService>()
+            .AddScoped<MutationCatchupReader>()
             .AddHostedService<ExpiredTokenPurgeService>()
+            .AddHostedService<MutationStreamListener>()
             .AddRateLimiter(GlobalLimiter.Options)
             .AddOpenApi();
 
@@ -69,7 +73,8 @@ public static class CoreHttpInjector
             .MapApiKeyEndpoints()
             .MapAdministrationEndpoints()
             .MapConfigValueEndpoints()
-            .MapValidationEndpoints();
+            .MapValidationEndpoints()
+            .MapMutationStreamEndpoints();
 
         if (AspNetEnv.IsDevelopment)
         {

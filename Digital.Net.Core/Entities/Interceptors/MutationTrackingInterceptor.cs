@@ -1,9 +1,11 @@
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text.Json;
 using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities.Attributes;
 using Digital.Net.Core.Entities.Models;
 using Digital.Net.Core.Entities.Models.Mutations;
+using Digital.Net.Core.Entities.Mutations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -14,12 +16,16 @@ namespace Digital.Net.Core.Entities.Interceptors;
 /// <summary>
 ///     Captures every mutation of a tracked entity (any <see cref="Entity" /> not marked
 ///     <see cref="IUntrackedEntity" />) as an <see cref="EntityMutation" /> row, written in the same
-///     transaction as the source change.
+///     transaction as the source change, then broadcasts a signal **after commit** (best-effort) for the
+///     real-time SSE stream (US-MUT-05).
 /// </summary>
 public class MutationTrackingInterceptor(IServiceProvider serviceProvider) : SaveChangesInterceptor
 {
     private const int MaxValueLength = 512;
     private static readonly HashSet<string> IgnoredProperties = ["Id", "CreatedAt", "UpdatedAt"];
+
+    // Signals built during SavingChanges, keyed by the saving context, emitted once it has committed.
+    private readonly ConcurrentDictionary<DbContext, List<MutationSignal>> _pending = new();
 
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
@@ -35,6 +41,41 @@ public class MutationTrackingInterceptor(IServiceProvider serviceProvider) : Sav
     {
         Capture(eventData.Context);
         return base.SavingChangesAsync(eventData, result, cancellationToken);
+    }
+
+    public override async ValueTask<int> SavedChangesAsync(
+        SaveChangesCompletedEventData eventData,
+        int result,
+        CancellationToken cancellationToken = default
+    )
+    {
+        if (eventData.Context is { } context && _pending.TryRemove(context, out var signals) && signals.Count > 0)
+            await serviceProvider.GetRequiredService<MutationBroadcaster>()
+                .PublishAsync(context, signals, cancellationToken);
+        return await base.SavedChangesAsync(eventData, result, cancellationToken);
+    }
+
+    // Sync saves (mostly test fixtures, whose contexts are not interceptor-wired anyway) don't emit a realtime
+    // signal — the persisted EntityMutation is recovered by catch-up. We just drop the stash to avoid a leak.
+    public override int SavedChanges(SaveChangesCompletedEventData eventData, int result)
+    {
+        if (eventData.Context is { } context) _pending.TryRemove(context, out _);
+        return base.SavedChanges(eventData, result);
+    }
+
+    public override void SaveChangesFailed(DbContextErrorEventData eventData)
+    {
+        if (eventData.Context is { } context) _pending.TryRemove(context, out _);
+        base.SaveChangesFailed(eventData);
+    }
+
+    public override Task SaveChangesFailedAsync(
+        DbContextErrorEventData eventData,
+        CancellationToken cancellationToken = default
+    )
+    {
+        if (eventData.Context is { } context) _pending.TryRemove(context, out _);
+        return base.SaveChangesFailedAsync(eventData, cancellationToken);
     }
 
     private void Capture(DbContext? context)
@@ -76,6 +117,9 @@ public class MutationTrackingInterceptor(IServiceProvider serviceProvider) : Sav
         }).ToList();
 
         context.AddRange(mutations);
+        _pending[context] = mutations
+            .Select(m => new MutationSignal(m.ChangeType, m.EntityType, m.EntityId, m.CreatedAt, m.Id))
+            .ToList();
     }
 
     private static string? BuildPayload(EntityEntry entry)

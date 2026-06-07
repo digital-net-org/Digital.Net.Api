@@ -1,5 +1,6 @@
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Interceptors;
+using Digital.Net.Core.Entities.Mutations;
 using Digital.Net.Lib.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,9 +12,11 @@ namespace Digital.Net.Core.Bootstrap;
 public static class ContextInjector
 {
     public static IHostApplicationBuilder AddDatabaseContext<T>(this IHostApplicationBuilder builder)
-        where T : DbContext
+        where T : DbContext, ISchemaContext
     {
         var connectionString = builder.Configuration.GetOrThrow<string>($"{CoreSettings.ConnectionStringKey}");
+        builder.Services.AddSingleton(new MutationSchema(T.Schema));
+        builder.Services.TryAddSingleton<MutationBroadcaster>();
         builder.Services.TryAddScoped<MutationTrackingInterceptor>();
         builder.Services.AddDbContext<T>((sp, options) =>
             options

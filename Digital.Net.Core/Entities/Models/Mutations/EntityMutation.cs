@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Core.Entities.Models.Mutations;
 
@@ -22,6 +23,7 @@ namespace Digital.Net.Core.Entities.Models.Mutations;
 ///     Materialized per schema.
 /// </summary>
 [Table("EntityMutation")]
+[Index(nameof(CreatedAt), nameof(Id))]
 public class EntityMutation : Entity, IUntrackedEntity
 {
     [Column("ChangeType")]

@@ -78,6 +78,8 @@ public class CrudService<TContext, T>(TContext context, PatchDispatcher<T> patch
             {
                 SchemaPatchValidator.Validate(patchDocument);
                 patchDocument.ApplyTo(entity);
+                // Always mark the root Modified. Needed for the mutation interceptor to emit a parent mutation.
+                // Do not remove.
                 context.Set<T>().Update(entity);
                 await context.SaveEntityAsync(ct);
 

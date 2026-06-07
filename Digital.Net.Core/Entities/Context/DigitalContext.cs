@@ -12,9 +12,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Core.Entities.Context;
 
-public class DigitalContext(DbContextOptions<DigitalContext> options) : DbContext(options)
+public class DigitalContext(DbContextOptions<DigitalContext> options) : DbContext(options), ISchemaContext
 {
     public const string Schema = "digital_net";
+    static string ISchemaContext.Schema => Schema;
 
     public DbSet<ApiKey> ApiKeys { get; init; }
     public DbSet<ApiToken> ApiTokens { get; init; }

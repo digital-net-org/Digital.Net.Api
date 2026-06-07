@@ -7,10 +7,12 @@ using Digital.Net.Core.Entities.Models.Auth;
 using Digital.Net.Core.Entities.Models.Documents;
 using Digital.Net.Core.Entities.Models.Mutations;
 using Digital.Net.Core.Entities.Models.Users;
+using Digital.Net.Core.Entities.Mutations;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Digital.Net.Tests.Core.Entities.Interceptors;
 
@@ -148,6 +150,7 @@ public class MutationTrackingInterceptorTest : UnitTest
         var provider = new ServiceCollection()
             .AddSingleton<IOriginAccessor>(new StubOriginAccessor(StubIp, StubUserAgent))
             .AddSingleton<IUserAccessor>(new StubUserAccessor(StubUserId))
+            .AddSingleton(new MutationBroadcaster(NullLogger<MutationBroadcaster>.Instance))
             .BuildServiceProvider();
 
         var options = new DbContextOptionsBuilder<T>()

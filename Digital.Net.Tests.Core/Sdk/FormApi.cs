@@ -21,9 +21,6 @@ public static class FormApi
     public static async Task<HttpResponseMessage> CreateForm(this HttpClient client, FormCreatePayload createPayload) =>
         await client.PostAsJsonAsync(BaseUrl, createPayload);
 
-    public static async Task<HttpResponseMessage> PatchForm(this HttpClient client, Guid id, object patch) =>
-        await client.PatchAsJsonAsync($"{BaseUrl}/{id}", patch);
-
     public static async Task<HttpResponseMessage> DeleteForm(this HttpClient client, Guid id) =>
         await client.DeleteAsync($"{BaseUrl}/{id}");
 
@@ -54,20 +51,4 @@ public static class FormApi
         FormSubmissionQuery? query = null
     ) =>
         await client.GetAsync($"{SubmissionsUrl}{query?.ToQueryString()}");
-
-    public static async Task<HttpResponseMessage> GetFormSubmission(this HttpClient client, Guid id) =>
-        await client.GetAsync($"{SubmissionsUrl}/{id}");
-
-    public static async Task<HttpResponseMessage> DeleteFormSubmission(this HttpClient client, Guid id) =>
-        await client.DeleteAsync($"{SubmissionsUrl}/{id}");
-
-    public static async Task<HttpResponseMessage> GetFormDefinition(this HttpClient client, Guid id) =>
-        await client.GetAsync($"{BaseUrl}/{id}/definition");
-
-    public static async Task<HttpResponseMessage> SubmitForm(
-        this HttpClient client,
-        Guid id,
-        FormSubmitPayload payload
-    ) =>
-        await client.PostAsJsonAsync($"{BaseUrl}/{id}/submit", payload);
 }
