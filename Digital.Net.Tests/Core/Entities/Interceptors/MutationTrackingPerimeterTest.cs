@@ -61,4 +61,14 @@ public class MutationTrackingPerimeterTest
         await Assert.That(typeof(IEntity).IsAssignableFrom(type)).IsTrue();
         await Assert.That(typeof(Entity).IsAssignableFrom(type)).IsFalse();
     }
+
+    [Test]
+    [Arguments(typeof(User))]
+    [Arguments(typeof(ApiKey))]
+    public async Task Restricted_entities_are_tracked_and_implement_IRestrictedAuditEntity(Type type)
+    {
+        await Assert.That(typeof(IRestrictedAuditEntity).IsAssignableFrom(type)).IsTrue();
+        await Assert.That(typeof(Entity).IsAssignableFrom(type)).IsTrue();
+        await Assert.That(typeof(IUntrackedEntity).IsAssignableFrom(type)).IsFalse();
+    }
 }

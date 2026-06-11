@@ -76,8 +76,9 @@ public class SseStreamService(ILogger<SseStreamService> logger)
             entity = signal.EntityType,
             entityId = signal.EntityId
         });
-        await response.WriteAsync($"id: {MutationCursor.From(signal).Format()}\nevent: {EventType}\ndata: {data}\n\n",
-            ct);
+        await response.WriteAsync(
+            $"id: {MutationCursor.From(signal).Format()}\nevent: {EventType}\ndata: {data}\n\n", ct
+        );
         await response.Body.FlushAsync(ct);
     }
 

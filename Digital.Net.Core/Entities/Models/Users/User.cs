@@ -12,7 +12,7 @@ namespace Digital.Net.Core.Entities.Models.Users;
 [Index(nameof(Username), IsUnique = true)]
 [Index(nameof(Email), IsUnique = true)]
 [Index(nameof(Login), IsUnique = true)]
-public class User : Entity
+public class User : Entity, IRestrictedAuditEntity
 {
     [Column("Username")]
     [MaxLength(24)]

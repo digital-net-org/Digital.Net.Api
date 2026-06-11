@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities;
 using Digital.Net.Core.Entities.Context;
+using Digital.Net.Core.Entities.Models.Auth;
 using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Core.Http.Endpoints.Dto;
 using Digital.Net.Core.Http.RateLimiters;
@@ -62,6 +63,14 @@ public static class AdministrationEndpoints
             .MapPut("user/{id:guid}/role", UpdateUserRole)
             .WithSummary("UpdateUserRole")
             .WithDescription("Grants or revokes admin privileges. Existing admins cannot be demoted.");
+
+        controller
+            .MapPaginationGet<DigitalContext, AuthEvent, AuthEventDto, AuthEventQuery>("auth-events", PaginationFilter)
+            .WithSummary("GetPaginatedAuthEvents")
+            .WithDescription(
+                "Retrieves the paginated audit log of authentication events " +
+                "(login/logout/password changes), newest first by default."
+            );
 
         return app;
     }
@@ -187,5 +196,21 @@ public static class AdministrationEndpoints
             return TypedResults.InternalServerError(result);
 
         return TypedResults.Ok(result);
+    }
+
+    private static Expression<Func<AuthEvent, bool>> PaginationFilter(
+        this Expression<Func<AuthEvent, bool>> predicate,
+        AuthEventQuery query
+    )
+    {
+        if (query.Type.HasValue)
+            predicate = predicate.Add(x => x.Type == query.Type);
+        if (query.Success.HasValue)
+            predicate = predicate.Add(x => x.Success == query.Success);
+        if (query.UserId.HasValue)
+            predicate = predicate.Add(x => x.UserId == query.UserId);
+        if (!string.IsNullOrEmpty(query.IpAddress))
+            predicate = predicate.Add(x => x.IpAddress == query.IpAddress);
+        return predicate;
     }
 }

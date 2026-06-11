@@ -13,7 +13,8 @@ namespace Digital.Net.Core.Entities.Models.ApiKeys;
 [Table("ApiKey")]
 [Index(nameof(Key), IsUnique = true)]
 [Index(nameof(UserId), nameof(Name), IsUnique = true)]
-public class ApiKey(Guid userId, string name, string? key = null, DateTime? expiredAt = null) : Entity
+public class ApiKey(Guid userId, string name, string? key = null, DateTime? expiredAt = null)
+    : Entity, IRestrictedAuditEntity
 {
     public static string Hash(string apiKey)
     {

@@ -27,13 +27,13 @@ public class MutationCatchupReader(DigitalContext context, IEnumerable<MutationS
             parameters.Add(new NpgsqlParameter("id", NpgsqlDbType.Uuid) { Value = c.Id });
         }
 
-        if (entityTypes is { Count: > 0 })
+        // Applied even when empty (= ANY('{}') matches nothing): an empty visibility whitelist must
+        // yield an empty catch-up, never an unfiltered one.
+        if (entityTypes is not null)
         {
             filters.Add("\"EntityType\" = ANY(@types)");
             parameters.Add(new NpgsqlParameter("types", NpgsqlDbType.Array | NpgsqlDbType.Text)
-            {
-                Value = entityTypes.ToArray()
-            });
+                { Value = entityTypes.ToArray() });
         }
 
         var schemaNames = schemas.Select(s => s.Name).Distinct().ToList();

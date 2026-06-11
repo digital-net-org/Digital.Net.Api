@@ -32,6 +32,7 @@ public static class CoreHttpInjector
             .AddScoped<DocumentCacheService>()
             .AddSingleton<SseStreamService>()
             .AddScoped<MutationCatchupReader>()
+            .AddScoped<MutationAuditReader>()
             .AddHostedService<ExpiredTokenPurgeService>()
             .AddHostedService<MutationStreamListener>()
             .AddRateLimiter(GlobalLimiter.Options)
@@ -74,7 +75,7 @@ public static class CoreHttpInjector
             .MapAdministrationEndpoints()
             .MapConfigValueEndpoints()
             .MapValidationEndpoints()
-            .MapMutationStreamEndpoints();
+            .MapEntityMutationEndpoints();
 
         if (AspNetEnv.IsDevelopment)
         {

@@ -70,4 +70,13 @@ public class MutationCatchupReaderTest : UnitTest, IAsyncInitializer
 
         await Assert.That(result).IsEmpty();
     }
+
+    [Test]
+    public async Task ReadSince_EmptyTypeSet_ReturnsNothing()
+    {
+        // An empty visibility whitelist (e.g. a non-admin requesting only restricted types) must yield
+        // an empty catch-up, never an unfiltered one.
+        var result = await BuildReader().ReadSinceAsync(null, new HashSet<string>(), CancellationToken.None);
+        await Assert.That(result).IsEmpty();
+    }
 }
