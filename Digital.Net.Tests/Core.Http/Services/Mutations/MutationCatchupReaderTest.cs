@@ -39,11 +39,24 @@ public class MutationCatchupReaderTest : UnitTest, IAsyncInitializer
     private MutationCatchupReader BuildReader() =>
         new(_digital, [new MutationSchema(DigitalContext.Schema), new MutationSchema(CmsContext.Schema)]);
 
+    // A cursor predating every row inserted here ⇒ catch-up replays them all (the live-reconnect path).
+    private static MutationCursor PastCursor() => new(DateTime.UtcNow.AddMinutes(-5), Guid.Empty);
+
+    [Test]
+    public async Task ReadSince_NullCursor_ReturnsEmpty()
+    {
+        // First connection (no lastEventId): the client just loaded its data, nothing to replay —
+        // even though both schemas hold rows.
+        var result = await BuildReader().ReadSinceAsync(null, new HashSet<string> { _digitalType, _cmsType },
+            CancellationToken.None);
+        await Assert.That(result).IsEmpty();
+    }
+
     [Test]
     public async Task ReadSince_AggregatesBothSchemas()
     {
         var reader = BuildReader();
-        var result = await reader.ReadSinceAsync(null, new HashSet<string> { _digitalType, _cmsType },
+        var result = await reader.ReadSinceAsync(PastCursor(), new HashSet<string> { _digitalType, _cmsType },
             CancellationToken.None);
 
         await Assert.That(result.Any(s => s.EntityId == _digitalId)).IsTrue();
@@ -54,7 +67,8 @@ public class MutationCatchupReaderTest : UnitTest, IAsyncInitializer
     public async Task ReadSince_FiltersByEntityType()
     {
         var reader = BuildReader();
-        var result = await reader.ReadSinceAsync(null, new HashSet<string> { _digitalType }, CancellationToken.None);
+        var result = await reader.ReadSinceAsync(PastCursor(), new HashSet<string> { _digitalType },
+            CancellationToken.None);
 
         await Assert.That(result.All(s => s.EntityType == _digitalType)).IsTrue();
         await Assert.That(result.Any(s => s.EntityId == _cmsId)).IsFalse();
@@ -76,7 +90,7 @@ public class MutationCatchupReaderTest : UnitTest, IAsyncInitializer
     {
         // An empty visibility whitelist (e.g. a non-admin requesting only restricted types) must yield
         // an empty catch-up, never an unfiltered one.
-        var result = await BuildReader().ReadSinceAsync(null, new HashSet<string>(), CancellationToken.None);
+        var result = await BuildReader().ReadSinceAsync(PastCursor(), new HashSet<string>(), CancellationToken.None);
         await Assert.That(result).IsEmpty();
     }
 }

@@ -4,6 +4,7 @@ public class Query
 {
     public const int DefaultIndex = 1;
     public const int DefaultSize = 50;
+    public const int MaxSize = 500;
 
     public int Index { get; set; } = DefaultIndex;
     public int Size { get; set; } = DefaultSize;
@@ -17,6 +18,6 @@ public class Query
     public void ValidateParameters()
     {
         Index = Index < 1 ? DefaultIndex : Index;
-        Size = Size < 1 ? DefaultSize : Size;
+        Size = Size < 1 ? DefaultSize : Math.Min(Size, MaxSize);
     }
 }

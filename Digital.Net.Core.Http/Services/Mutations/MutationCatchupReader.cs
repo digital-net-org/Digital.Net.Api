@@ -17,9 +17,11 @@ public class MutationCatchupReader(DigitalContext context, IEnumerable<MutationS
         CancellationToken cancellationToken
     )
     {
+        // No cursor ⇒ first connection: the client just loaded its data and has nothing cached to replay.
+        if (cursor is null) return [];
+
         var filters = new List<string>();
         var parameters = new List<object>();
-
         if (cursor is { } c)
         {
             filters.Add("(\"CreatedAt\" > @ts OR (\"CreatedAt\" = @ts AND \"Id\" > @id))");

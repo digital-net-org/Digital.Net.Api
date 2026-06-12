@@ -39,7 +39,7 @@ public static class PaginationEndpointExtensions
                     var rowCount = items.Count();
 
                     var config = new ParsingConfig { IsCaseSensitive = false };
-                    var orderBy = string.IsNullOrWhiteSpace(query.OrderBy) ? "CreatedAt" : query.OrderBy;
+                    var orderBy = OrderByResolver.Resolve<T>(query.OrderBy);
                     var direction = string.Equals(query.Order, "desc", StringComparison.OrdinalIgnoreCase)
                         ? " descending"
                         : "";

@@ -71,8 +71,7 @@ public static class EntityMutationEndpoints
         userAccessor.TryGetUserId() is { } id && id != Guid.Empty && userAccessor.GetUser().IsAdmin;
 
     // Same spirit as IUntrackedEntity: restricted (and unknown) types are silently dropped for
-    // non-admins. The result is never null, so live fan-out and catch-up share one whitelist —
-    // an empty intersection must yield an empty stream, not an unfiltered one.
+    // non-admins. The result is never null, so live fan-out and catch-up share one whitelist.
     private static IReadOnlySet<string> ResolveVisibleTypes(
         IReadOnlySet<string>? requested,
         bool isAdmin,

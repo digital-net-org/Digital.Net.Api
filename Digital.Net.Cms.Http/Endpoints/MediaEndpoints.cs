@@ -294,7 +294,7 @@ public static class MediaEndpoints
         var rowCount = await items.CountAsync();
 
         var config = new ParsingConfig { IsCaseSensitive = false };
-        var orderBy = string.IsNullOrWhiteSpace(query.OrderBy) ? "CreatedAt" : query.OrderBy;
+        var orderBy = OrderByResolver.Resolve<Media>(query.OrderBy);
         var direction = string.Equals(query.Order, "desc", StringComparison.OrdinalIgnoreCase)
             ? " descending"
             : "";
