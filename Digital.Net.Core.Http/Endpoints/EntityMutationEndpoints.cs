@@ -2,7 +2,9 @@ using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities.Mutations;
 using Digital.Net.Core.Http.Endpoints.Dto;
 using Digital.Net.Core.Http.RateLimiters;
+using Digital.Net.Core.Http.Services.Authentication;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
+using Digital.Net.Core.Http.Services.Authentication.Options;
 using Digital.Net.Core.Http.Services.Mutations;
 using Digital.Net.Core.Http.Services.Mutations.Exceptions;
 using Digital.Net.Core.Http.Services.Pagination;
@@ -51,6 +53,8 @@ public static class EntityMutationEndpoints
         SseStreamService sseStream,
         MutationCatchupReader catchupReader,
         IUserAccessor userAccessor,
+        JwtService jwtService,
+        AuthenticationOptionService authOptions,
         IEnumerable<AuditedEntityType> auditedTypes
     )
     {
@@ -62,8 +66,26 @@ public static class EntityMutationEndpoints
             ctx,
             entityTypes,
             ct => catchupReader.ReadSinceAsync(cursor, entityTypes, ct),
-            ctx.RequestAborted
+            ctx.RequestAborted,
+            ResolveConnectionUser(ctx, userAccessor, jwtService, authOptions)
         );
+    }
+
+    // Identity for echo suppression (isSelf). ApiKey callers already carry a real UserId; the BO connects
+    // with the (user-less) Application key, so we recover the logged-in user from the refresh cookie it
+    // sends via credentials:'include'. Resolved once at connect, no side effect (no rotation); a missing or
+    // expired cookie simply yields Guid.Empty → echo not suppressed (graceful, never a broken stream).
+    private static Guid? ResolveConnectionUser(
+        HttpContext ctx,
+        IUserAccessor userAccessor,
+        JwtService jwtService,
+        AuthenticationOptionService authOptions
+    )
+    {
+        if (userAccessor.TryGetUserId() is { } id && id != Guid.Empty) return id;
+        var cookie = ctx.Request.Cookies[authOptions.CookieName];
+        var fromCookie = jwtService.AuthorizeToken(cookie).UserId;
+        return fromCookie != Guid.Empty ? fromCookie : null;
     }
 
     // Application-key callers carry UserId = Guid.Empty → never admin.

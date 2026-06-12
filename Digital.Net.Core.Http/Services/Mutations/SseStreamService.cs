@@ -25,7 +25,8 @@ public class SseStreamService(ILogger<SseStreamService> logger)
         HttpContext httpContext,
         IReadOnlySet<string>? entityTypes,
         Func<CancellationToken, Task<IReadOnlyList<MutationSignal>>> catchUp,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken,
+        Guid? userId = null
     )
     {
         var response = httpContext.Response;
@@ -34,7 +35,7 @@ public class SseStreamService(ILogger<SseStreamService> logger)
         response.Headers.CacheControl = "no-cache";
         response.Headers.Connection = "keep-alive";
 
-        var client = new SseClient(entityTypes, ClientQueueCapacity);
+        var client = new SseClient(entityTypes, ClientQueueCapacity, userId);
         _clients.TryAdd(client.Id, client);
         logger.LogInformation("SSE client {ClientId} connected ({Count} total)", client.Id, _clients.Count);
 
@@ -46,14 +47,14 @@ public class SseStreamService(ILogger<SseStreamService> logger)
             var caughtUp = new HashSet<Guid>();
             foreach (var signal in await catchUp(cancellationToken))
             {
-                await WriteAsync(response, signal, cancellationToken);
+                await WriteAsync(response, signal, client.UserId, cancellationToken);
                 caughtUp.Add(signal.Id);
             }
 
             await foreach (var signal in client.Queue.Reader.ReadAllAsync(cancellationToken))
             {
                 if (caughtUp.Contains(signal.Id)) continue;
-                await WriteAsync(response, signal, cancellationToken);
+                await WriteAsync(response, signal, client.UserId, cancellationToken);
             }
         }
         catch (OperationCanceledException)
@@ -68,13 +69,16 @@ public class SseStreamService(ILogger<SseStreamService> logger)
         }
     }
 
-    private static async Task WriteAsync(HttpResponse response, MutationSignal signal, CancellationToken ct)
+    private static async Task WriteAsync(HttpResponse response, MutationSignal signal, Guid? clientUserId,
+        CancellationToken ct)
     {
+        var isSelf = signal.UserId is { } actor && actor != Guid.Empty && actor == clientUserId;
         var data = JsonSerializer.Serialize(new
         {
             type = signal.ChangeType.ToString(),
             entity = signal.EntityType,
-            entityId = signal.EntityId
+            entityId = signal.EntityId,
+            isSelf
         });
         await response.WriteAsync(
             $"id: {MutationCursor.From(signal).Format()}\nevent: {EventType}\ndata: {data}\n\n", ct
@@ -86,15 +90,17 @@ public class SseStreamService(ILogger<SseStreamService> logger)
     {
         private readonly IReadOnlySet<string>? _entityTypes;
 
-        public SseClient(IReadOnlySet<string>? entityTypes, int capacity)
+        public SseClient(IReadOnlySet<string>? entityTypes, int capacity, Guid? userId)
         {
             _entityTypes = entityTypes;
+            UserId = userId;
             Queue = Channel.CreateBounded<MutationSignal>(
                 new BoundedChannelOptions(capacity)
                     { FullMode = BoundedChannelFullMode.DropOldest, SingleReader = true });
         }
 
         public Guid Id { get; } = Guid.NewGuid();
+        public Guid? UserId { get; }
         public Channel<MutationSignal> Queue { get; }
         public bool Accepts(MutationSignal signal) => _entityTypes is null || _entityTypes.Contains(signal.EntityType);
     }

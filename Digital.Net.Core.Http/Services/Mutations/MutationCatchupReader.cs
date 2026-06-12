@@ -42,7 +42,7 @@ public class MutationCatchupReader(DigitalContext context, IEnumerable<MutationS
         if (schemaNames.Count == 0) return [];
 
         var where = filters.Count > 0 ? "WHERE " + string.Join(" AND ", filters) : string.Empty;
-        const string columns = "\"ChangeType\", \"EntityType\", \"EntityId\", \"CreatedAt\", \"Id\"";
+        const string columns = "\"ChangeType\", \"EntityType\", \"EntityId\", \"CreatedAt\", \"Id\", \"UserId\"";
         var union = string.Join(
             "\nUNION ALL\n",
             schemaNames.Select(schema => $"SELECT {columns} FROM {schema}.\"EntityMutation\" {where}")
@@ -54,7 +54,7 @@ public class MutationCatchupReader(DigitalContext context, IEnumerable<MutationS
             .ToListAsync(cancellationToken);
 
         return rows
-            .Select(r => new MutationSignal((ChangeType)r.ChangeType, r.EntityType, r.EntityId, r.CreatedAt, r.Id))
+            .Select(r => new MutationSignal((ChangeType)r.ChangeType, r.EntityType, r.EntityId, r.CreatedAt, r.Id, r.UserId))
             .ToList();
     }
 }
