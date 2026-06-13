@@ -9,20 +9,20 @@ namespace Digital.Net.Tests.Core.Sdk;
 
 public static class AdministrationApi
 {
-    public const string BaseUrl = "/admin";
+    public const string BaseUrl = "/user";
 
     public static async Task<HttpResponseMessage> GetUserById(this HttpClient client, Guid userId) =>
-        await client.GetAsync($"{BaseUrl}/user/{userId}");
+        await client.GetAsync($"{BaseUrl}/{userId}");
 
     public static async Task<HttpResponseMessage> GetUsers(this HttpClient client, UserQuery? query = null) =>
-        await client.GetAsync($"{BaseUrl}/user{query?.ToQueryString()}");
+        await client.GetAsync($"{BaseUrl}{query?.ToQueryString()}");
 
     public static async Task<HttpResponseMessage> CreateUser(this HttpClient client, UserPayload payload) =>
-        await client.PostAsJsonAsync($"{BaseUrl}/user", payload);
+        await client.PostAsJsonAsync(BaseUrl, payload);
 
     public static async Task<HttpResponseMessage> DeleteUser(this HttpClient client, Guid userId, UserDeletePayload payload)
     {
-        var request = new HttpRequestMessage(HttpMethod.Delete, $"{BaseUrl}/user/{userId}")
+        var request = new HttpRequestMessage(HttpMethod.Delete, $"{BaseUrl}/{userId}")
         {
             Content = JsonContent.Create(payload)
         };
@@ -31,7 +31,7 @@ public static class AdministrationApi
 
     public static async Task<HttpResponseMessage> UpdateUserStatus(this HttpClient client, Guid userId, UserStatusPayload payload)
     {
-        var request = new HttpRequestMessage(HttpMethod.Put, $"{BaseUrl}/user/{userId}/status")
+        var request = new HttpRequestMessage(HttpMethod.Put, $"{BaseUrl}/{userId}/status")
         {
             Content = JsonContent.Create(payload)
         };
@@ -40,7 +40,7 @@ public static class AdministrationApi
 
     public static async Task<HttpResponseMessage> UpdateUserRole(this HttpClient client, Guid userId, UserRolePayload payload)
     {
-        var request = new HttpRequestMessage(HttpMethod.Put, $"{BaseUrl}/user/{userId}/role")
+        var request = new HttpRequestMessage(HttpMethod.Put, $"{BaseUrl}/{userId}/role")
         {
             Content = JsonContent.Create(payload)
         };
