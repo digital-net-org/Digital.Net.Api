@@ -39,13 +39,10 @@ public static class PaginationEndpointExtensions
                     var rowCount = items.Count();
 
                     var config = new ParsingConfig { IsCaseSensitive = false };
-                    var orderBy = OrderByResolver.Resolve<T>(query.OrderBy);
-                    var direction = string.Equals(query.Order, "desc", StringComparison.OrdinalIgnoreCase)
-                        ? " descending"
-                        : "";
+                    var orderClause = OrderByResolver.ResolveOrderClause<T>(query.OrderBy, query.Order);
 
                     items = items.AsNoTracking();
-                    items = items.OrderBy(config, orderBy + direction);
+                    items = items.OrderBy(config, orderClause);
                     items = items.Skip((query.Index - 1) * query.Size).Take(query.Size);
                     if (include is not null)
                         items = include.Aggregate(items, (current, nav) => current.Include(nav));

@@ -48,56 +48,39 @@ public class SseStreamServiceTest
     }
 
     [Test]
-    public async Task Broadcast_FlagsIsSelfTrue_WhenActorMatchesConnectionUser()
+    public async Task Broadcast_IncludesOriginClientId_WhenPresent()
     {
-        var user = Guid.NewGuid();
+        // The frame carries the originating tab's client id verbatim — the client (not the server) decides
+        // whether to drop its own echo.
         var (service, ctx, body, cts) = Setup(null);
-        var streaming = service.StreamAsync(ctx, null, _ => Task.FromResult(NoCatchUp), cts.Token, user);
+        var streaming = service.StreamAsync(ctx, null, _ => Task.FromResult(NoCatchUp), cts.Token, Guid.NewGuid());
 
         await Task.Delay(150);
         service.Broadcast(new MutationSignal(ChangeType.Updated, "Page", Guid.NewGuid(), DateTime.UtcNow,
-            Guid.NewGuid(), user));
+            Guid.NewGuid(), Guid.NewGuid(), "client-abc"));
         await Task.Delay(150);
         await cts.CancelAsync();
         await streaming;
 
         var output = Encoding.UTF8.GetString(body.ToArray());
-        await Assert.That(output.Contains("\"isSelf\":true")).IsTrue();
+        await Assert.That(output.Contains("\"originClientId\":\"client-abc\"")).IsTrue();
     }
 
     [Test]
-    public async Task Broadcast_FlagsIsSelfFalse_WhenActorIsAnotherUser()
+    public async Task Broadcast_EmitsNullOriginClientId_WhenAbsent()
     {
         var (service, ctx, body, cts) = Setup(null);
         var streaming = service.StreamAsync(ctx, null, _ => Task.FromResult(NoCatchUp), cts.Token, Guid.NewGuid());
 
         await Task.Delay(150);
         service.Broadcast(new MutationSignal(ChangeType.Updated, "Page", Guid.NewGuid(), DateTime.UtcNow,
-            Guid.NewGuid(), Guid.NewGuid()));
+            Guid.NewGuid()));
         await Task.Delay(150);
         await cts.CancelAsync();
         await streaming;
 
         var output = Encoding.UTF8.GetString(body.ToArray());
-        await Assert.That(output.Contains("\"isSelf\":false")).IsTrue();
-    }
-
-    [Test]
-    public async Task Broadcast_FlagsIsSelfFalse_WhenActorIsEmpty()
-    {
-        // ApiKey-driven mutation: UserId = Guid.Empty must never be suppressed, even for a matching connection.
-        var (service, ctx, body, cts) = Setup(null);
-        var streaming = service.StreamAsync(ctx, null, _ => Task.FromResult(NoCatchUp), cts.Token, Guid.Empty);
-
-        await Task.Delay(150);
-        service.Broadcast(new MutationSignal(ChangeType.Updated, "Page", Guid.NewGuid(), DateTime.UtcNow,
-            Guid.NewGuid(), Guid.Empty));
-        await Task.Delay(150);
-        await cts.CancelAsync();
-        await streaming;
-
-        var output = Encoding.UTF8.GetString(body.ToArray());
-        await Assert.That(output.Contains("\"isSelf\":false")).IsTrue();
+        await Assert.That(output.Contains("\"originClientId\":null")).IsTrue();
     }
 
     [Test]

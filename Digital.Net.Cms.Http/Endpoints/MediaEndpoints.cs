@@ -296,14 +296,11 @@ public static class MediaEndpoints
         var rowCount = await items.CountAsync();
 
         var config = new ParsingConfig { IsCaseSensitive = false };
-        var orderBy = OrderByResolver.Resolve<Media>(query.OrderBy);
-        var direction = string.Equals(query.Order, "desc", StringComparison.OrdinalIgnoreCase)
-            ? " descending"
-            : "";
+        var orderClause = OrderByResolver.ResolveOrderClause<Media>(query.OrderBy, query.Order);
 
         var entities = await items
             .AsNoTracking()
-            .OrderBy(config, orderBy + direction)
+            .OrderBy(config, orderClause)
             .Skip((query.Index - 1) * query.Size)
             .Take(query.Size)
             .ToListAsync();

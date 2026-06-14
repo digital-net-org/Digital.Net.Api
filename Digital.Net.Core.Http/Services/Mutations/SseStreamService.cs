@@ -51,7 +51,7 @@ public class SseStreamService(ILogger<SseStreamService> logger)
         response.Headers.Connection = "keep-alive";
         response.Headers["X-Accel-Buffering"] = "no"; // tell proxy not to buffer the stream
 
-        var client = new SseClient(entityTypes, ClientQueueCapacity, userId);
+        var client = new SseClient(entityTypes, ClientQueueCapacity);
         _clients.TryAdd(client.Id, client);
         logger.LogInformation("SSE client {ClientId} connected ({Count} total)", client.Id, _clients.Count);
 
@@ -63,7 +63,7 @@ public class SseStreamService(ILogger<SseStreamService> logger)
             var caughtUp = new HashSet<Guid>();
             foreach (var signal in await catchUp(cancellationToken))
             {
-                await WriteFrameAsync(response, PreparedSignal.From(signal).FrameFor(client.UserId), cancellationToken);
+                await WriteFrameAsync(response, PreparedSignal.From(signal).Frame, cancellationToken);
                 caughtUp.Add(signal.Id);
             }
 
@@ -88,7 +88,7 @@ public class SseStreamService(ILogger<SseStreamService> logger)
                 while (reader.TryRead(out var prepared))
                 {
                     if (caughtUp.Contains(prepared.Id)) continue;
-                    await WriteFrameAsync(response, prepared.FrameFor(client.UserId), cancellationToken);
+                    await WriteFrameAsync(response, prepared.Frame, cancellationToken);
                 }
 
                 readTask = reader.WaitToReadAsync(cancellationToken).AsTask();
@@ -133,60 +133,45 @@ public class SseStreamService(ILogger<SseStreamService> logger)
 
     private sealed class PreparedSignal
     {
-        private readonly Guid? _actorUserId;
-        private readonly string _frameSelf;
-        private readonly string _frameNotSelf;
-
-        private PreparedSignal(Guid id, Guid? actorUserId, string frameSelf, string frameNotSelf)
+        private PreparedSignal(Guid id, string frame)
         {
             Id = id;
-            _actorUserId = actorUserId;
-            _frameSelf = frameSelf;
-            _frameNotSelf = frameNotSelf;
+            Frame = frame;
         }
 
         public Guid Id { get; }
 
+        // One frame for every client: the originating tab is identified by OriginClientId carried in the
+        // payload, so the client (not the server) decides whether to drop its own echo.
+        public string Frame { get; }
+
         public static PreparedSignal From(MutationSignal signal)
         {
-            var prefix = $"id: {MutationCursor.From(signal).Format()}\nevent: {EventType}\ndata: ";
-            return new PreparedSignal(
-                signal.Id,
-                signal.UserId,
-                prefix + SerializeData(signal, true) + "\n\n",
-                prefix + SerializeData(signal, false) + "\n\n");
+            var data = JsonSerializer.Serialize(new
+            {
+                type = signal.ChangeType.ToString(),
+                entity = signal.EntityType,
+                entityId = signal.EntityId,
+                originClientId = signal.OriginClientId
+            });
+            var frame = $"id: {MutationCursor.From(signal).Format()}\nevent: {EventType}\ndata: {data}\n\n";
+            return new PreparedSignal(signal.Id, frame);
         }
-
-        public string FrameFor(Guid? clientUserId)
-        {
-            var isSelf = _actorUserId is { } actor && actor != Guid.Empty && actor == clientUserId;
-            return isSelf ? _frameSelf : _frameNotSelf;
-        }
-
-        private static string SerializeData(MutationSignal signal, bool isSelf) => JsonSerializer.Serialize(new
-        {
-            type = signal.ChangeType.ToString(),
-            entity = signal.EntityType,
-            entityId = signal.EntityId,
-            isSelf
-        });
     }
 
     private sealed class SseClient
     {
         private readonly IReadOnlySet<string>? _entityTypes;
 
-        public SseClient(IReadOnlySet<string>? entityTypes, int capacity, Guid? userId)
+        public SseClient(IReadOnlySet<string>? entityTypes, int capacity)
         {
             _entityTypes = entityTypes;
-            UserId = userId;
             Queue = Channel.CreateBounded<PreparedSignal>(
                 new BoundedChannelOptions(capacity)
                     { FullMode = BoundedChannelFullMode.DropOldest, SingleReader = true });
         }
 
         public Guid Id { get; } = Guid.NewGuid();
-        public Guid? UserId { get; }
         public Channel<PreparedSignal> Queue { get; }
         public bool Accepts(MutationSignal signal) => _entityTypes is null || _entityTypes.Contains(signal.EntityType);
     }

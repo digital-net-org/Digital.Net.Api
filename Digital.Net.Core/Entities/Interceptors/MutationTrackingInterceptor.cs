@@ -118,7 +118,9 @@ public class MutationTrackingInterceptor(IServiceProvider serviceProvider) : Sav
 
         context.AddRange(mutations);
         _pending[context] = mutations
-            .Select(m => new MutationSignal(m.ChangeType, m.EntityType, m.EntityId, m.CreatedAt, m.Id, m.UserId))
+            .Select(m => new MutationSignal(
+                m.ChangeType, m.EntityType, m.EntityId, m.CreatedAt, m.Id, m.UserId, origin?.ClientId
+            ))
             .ToList();
     }
 

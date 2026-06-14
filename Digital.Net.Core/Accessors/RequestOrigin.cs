@@ -1,3 +1,3 @@
 namespace Digital.Net.Core.Accessors;
 
-public sealed record RequestOrigin(string? IpAddress, string? UserAgent);
+public sealed record RequestOrigin(string? IpAddress, string? UserAgent, string? ClientId = null);

@@ -8,5 +8,6 @@ public sealed record MutationSignal(
     Guid EntityId,
     DateTime CreatedAt,
     Guid Id,
-    Guid? UserId = null
+    Guid? UserId = null,
+    string? OriginClientId = null
 );
