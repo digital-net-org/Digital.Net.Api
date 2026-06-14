@@ -20,5 +20,5 @@ public interface IUserAccessor
     /// <summary>
     ///     Get the current user entity. Throws <see cref="UnauthorizedAccessException" /> if not found or not authenticated.
     /// </summary>
-    User GetUser();
+    Task<User> GetUserAsync(CancellationToken ct = default);
 }

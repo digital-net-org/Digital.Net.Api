@@ -93,6 +93,6 @@ public class MutationParentTouchTest : UnitTest, IAsyncInitializer
     {
         public Guid GetUserId() => throw new InvalidOperationException();
         public Guid? TryGetUserId() => null;
-        public User GetUser() => throw new NotSupportedException();
+        public Task<User> GetUserAsync(CancellationToken ct = default) => throw new NotSupportedException();
     }
 }

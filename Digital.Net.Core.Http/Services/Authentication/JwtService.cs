@@ -7,6 +7,7 @@ using Digital.Net.Core.Http.Services.Authentication.Exceptions;
 using Digital.Net.Core.Http.Services.Authentication.Options;
 using Digital.Net.Core.Http.Services.Authentication.Types;
 using Digital.Net.Core.Http.Services.Authentication.Utils;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Digital.Net.Core.Http.Services.Authentication;
@@ -57,7 +58,7 @@ public class JwtService(
         return token;
     }
 
-    public AuthorizationResult AuthorizeToken(string? token)
+    public async Task<AuthorizationResult> AuthorizeTokenAsync(string? token, CancellationToken ct = default)
     {
         var result = new AuthorizationResult();
         if (string.IsNullOrWhiteSpace(token))
@@ -69,7 +70,7 @@ public class JwtService(
             handler.ValidateToken(token, authenticationOptionService.GetTokenParameters(), out _);
             var jwt = handler.ReadJwtToken(token);
             var decoded = jwt.Decode();
-            var user = context.Users.FirstOrDefault(u => u.Id == decoded.Id && u.IsActive);
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Id == decoded.Id && u.IsActive, ct);
 
             if (user is null)
                 throw new InvalidTokenException();

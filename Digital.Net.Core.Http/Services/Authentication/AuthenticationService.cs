@@ -82,7 +82,7 @@ public class AuthenticationService(
         if (apiToken.UserAgent != (userAgent ?? string.Empty))
             return result.AddError(new InvalidTokenException());
 
-        var tokenResult = jwtService.AuthorizeToken(refreshToken);
+        var tokenResult = await jwtService.AuthorizeTokenAsync(refreshToken);
         result.Merge(tokenResult);
 
         if (result.HasError)

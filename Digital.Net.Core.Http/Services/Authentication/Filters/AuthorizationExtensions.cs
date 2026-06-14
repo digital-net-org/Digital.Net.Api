@@ -8,6 +8,7 @@ using Digital.Net.Lib.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -81,7 +82,7 @@ public static class AuthorizationExtensions
     )
     {
         var contextService = context.HttpContext.RequestServices.GetRequiredService<IUserAccessor>();
-        var user = contextService.GetUser();
+        var user = await contextService.GetUserAsync(context.HttpContext.RequestAborted);
         return user.IsAdmin ? await next(context) : Results.StatusCode(403);
     }
 
@@ -98,20 +99,24 @@ public static class AuthorizationExtensions
 
         if (type.HasFlag(AuthorizeType.ApiKey))
             result.Merge(
-                AuthorizeApiKey(
+                await AuthorizeApiKeyAsync(
                     dbCtx,
-                    ctx.HttpContext.Request.Headers[AuthenticationStaticOptions.ApiKeyHeaderAccessor].FirstOrDefault()
+                    ctx.HttpContext.Request.Headers[AuthenticationStaticOptions.ApiKeyHeaderAccessor].FirstOrDefault(),
+                    ctx.HttpContext.RequestAborted
                 ));
         if (type.HasFlag(AuthorizeType.JwtRefreshOnly) && !result.IsAuthorized)
         {
             var authOptions = ctx.HttpContext.RequestServices.GetRequiredService<AuthenticationOptionService>();
-            result.Merge(jwtService.AuthorizeToken(ctx.HttpContext.Request.Cookies[authOptions.CookieName]));
+            result.Merge(await jwtService.AuthorizeTokenAsync(
+                ctx.HttpContext.Request.Cookies[authOptions.CookieName], ctx.HttpContext.RequestAborted)
+            );
         }
 
         if (type.HasFlag(AuthorizeType.Jwt) && !result.IsAuthorized)
             result.Merge(
-                jwtService.AuthorizeToken(
-                    ctx.HttpContext.Request.Headers.Authorization.FirstOrDefault()?.Split(" ").Last()
+                await jwtService.AuthorizeTokenAsync(
+                    ctx.HttpContext.Request.Headers.Authorization.FirstOrDefault()?.Split(" ").Last(),
+                    ctx.HttpContext.RequestAborted
                 ));
         if (type.HasFlag(AuthorizeType.Application) && !result.IsAuthorized)
             result.Merge(
@@ -141,20 +146,24 @@ public static class AuthorizationExtensions
         return result;
     }
 
-    private static AuthorizationResult AuthorizeApiKey(DigitalContext dbCtx, string? key)
+    private static async Task<AuthorizationResult> AuthorizeApiKeyAsync(
+        DigitalContext dbCtx,
+        string? key,
+        CancellationToken ct
+    )
     {
         var result = new AuthorizationResult();
         if (string.IsNullOrWhiteSpace(key))
             return result.AddError(new TokenNotFoundException());
 
-        var authorization = dbCtx.ApiKeys.FirstOrDefault(k => k.Key == ApiKey.Hash(key));
+        var authorization = await dbCtx.ApiKeys.FirstOrDefaultAsync(k => k.Key == ApiKey.Hash(key), ct);
         if (authorization is null)
             return result.AddError(new InvalidTokenException());
 
         if (authorization.ExpiredAt is not null && authorization.ExpiredAt < DateTime.UtcNow)
             return result.AddError(new ExpiredTokenException());
 
-        var user = dbCtx.Users.FirstOrDefault(u => u.Id == authorization.UserId && u.IsActive);
+        var user = await dbCtx.Users.FirstOrDefaultAsync(u => u.Id == authorization.UserId && u.IsActive, ct);
         if (user is null)
             return result.AddError(new InvalidTokenException());
 

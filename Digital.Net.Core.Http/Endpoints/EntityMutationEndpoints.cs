@@ -47,7 +47,7 @@ public static class EntityMutationEndpoints
         return app;
     }
 
-    private static Task Stream(
+    private static async Task Stream(
         HttpContext ctx,
         SseStreamService sseStream,
         MutationCatchupReader catchupReader,
@@ -55,12 +55,12 @@ public static class EntityMutationEndpoints
         IEnumerable<AuditedEntityType> auditedTypes
     )
     {
-        var user = userAccessor.GetUser();
+        var user = await userAccessor.GetUserAsync(ctx.RequestAborted);
         var requested = ParseEntityTypes(ctx.Request.Query["entity"]);
         var cursor = MutationCursor.TryParse(ctx.Request.Query[LastEventIdParam].FirstOrDefault());
         var entityTypes = ResolveVisibleTypes(requested, user.IsAdmin, auditedTypes);
 
-        return sseStream.StreamAsync(
+        await sseStream.StreamAsync(
             ctx,
             entityTypes,
             ct => catchupReader.ReadSinceAsync(cursor, entityTypes, ct),
@@ -104,8 +104,8 @@ public static class EntityMutationEndpoints
     {
         query.ValidateParameters();
         var result = new QueryResult<EntityMutationDto> { Index = query.Index, Size = query.Size };
-        var isAdmin = userAccessor.GetUser().IsAdmin;
-
+        var isAdmin = (await userAccessor.GetUserAsync(ct)).IsAdmin;
+        
         try
         {
             var page = await reader.SearchAsync(ToCriteria(query, isAdmin), ct);

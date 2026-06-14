@@ -34,5 +34,6 @@ public class UserAccessor(
             : null;
     }
 
-    public User GetUser() => context.Users.Find(GetUserId()) ?? throw new UnauthorizedAccessException();
+    public async Task<User> GetUserAsync(CancellationToken ct = default) =>
+        await context.Users.FindAsync([GetUserId()], ct) ?? throw new UnauthorizedAccessException();
 }

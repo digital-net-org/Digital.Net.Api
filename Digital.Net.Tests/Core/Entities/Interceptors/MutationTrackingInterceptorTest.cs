@@ -192,6 +192,6 @@ public class MutationTrackingInterceptorTest : UnitTest
     {
         public Guid GetUserId() => userId ?? throw new InvalidOperationException();
         public Guid? TryGetUserId() => userId;
-        public User GetUser() => throw new NotSupportedException();
+        public Task<User> GetUserAsync(CancellationToken ct = default) => throw new NotSupportedException();
     }
 }

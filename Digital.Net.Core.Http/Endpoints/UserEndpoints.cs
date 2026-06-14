@@ -128,19 +128,23 @@ public static class UserEndpoints
         return app;
     }
 
-    private static Results<Ok<Result<bool>>, UnauthorizedHttpResult> GetSelfIsAdmin(
-        IUserAccessor userContextService
+    private static async Task<Results<Ok<Result<bool>>, UnauthorizedHttpResult>> GetSelfIsAdmin(
+        IUserAccessor userContextService,
+        CancellationToken ct
     )
     {
-        if (userContextService.GetUser() is not { } user)
+        if (await userContextService.GetUserAsync(ct) is not { } user)
             return TypedResults.Unauthorized();
 
         return TypedResults.Ok(new Result<bool>(user.IsAdmin));
     }
 
-    private static Results<Ok<Result<UserDto>>, UnauthorizedHttpResult> GetSelf(IUserAccessor userContextService)
+    private static async Task<Results<Ok<Result<UserDto>>, UnauthorizedHttpResult>> GetSelf(
+        IUserAccessor userContextService,
+        CancellationToken ct
+    )
     {
-        if (userContextService.GetUser() is not { } user)
+        if (await userContextService.GetUserAsync(ct) is not { } user)
             return TypedResults.Unauthorized();
 
         return TypedResults.Ok(new Result<UserDto>(new UserDto(user)));
@@ -176,7 +180,7 @@ public static class UserEndpoints
         HttpContext ctx
     )
     {
-        var user = userContextService.GetUser();
+        var user = await userContextService.GetUserAsync(ctx.RequestAborted);
         var result = await userService.UpdatePasswordAsync(user, request.CurrentPassword, request.NewPassword);
 
         await authEventService.RecordAsync(
@@ -198,10 +202,11 @@ public static class UserEndpoints
     private static async Task<Results<Ok, BadRequest<Result>, InternalServerError<Result>>> UpdateAvatar(
         IFormFile avatar,
         UserService userService,
-        IUserAccessor userContextService
+        IUserAccessor userContextService,
+        CancellationToken ct
     )
     {
-        var user = userContextService.GetUser();
+        var user = await userContextService.GetUserAsync(ct);
         await using var stream = avatar.OpenReadStream();
         var definition = new FileDefinition
         {
@@ -221,10 +226,11 @@ public static class UserEndpoints
 
     private static async Task<Results<Ok, InternalServerError<Result>>> RemoveAvatar(
         UserService userService,
-        IUserAccessor userContextService
+        IUserAccessor userContextService,
+        CancellationToken ct
     )
     {
-        var user = userContextService.GetUser();
+        var user = await userContextService.GetUserAsync(ct);
         var result = await userService.RemoveUserAvatar(user);
 
         if (result.HasError)
@@ -291,10 +297,11 @@ public static class UserEndpoints
             [FromBody]
             UserDeletePayload payload,
             UserService userService,
-            IUserAccessor userContextService
+            IUserAccessor userContextService,
+            CancellationToken ct
         )
     {
-        var admin = userContextService.GetUser();
+        var admin = await userContextService.GetUserAsync(ct);
 
         if (!UserPassword.Verify(admin, payload.Password))
             return TypedResults.Unauthorized();
@@ -364,10 +371,11 @@ public static class UserEndpoints
             [FromBody]
             UserRolePayload payload,
             UserService userService,
-            IUserAccessor userContextService
+            IUserAccessor userContextService,
+            CancellationToken ct
         )
     {
-        var admin = userContextService.GetUser();
+        var admin = await userContextService.GetUserAsync(ct);
 
         if (!UserPassword.Verify(admin, payload.Password))
             return TypedResults.Unauthorized();

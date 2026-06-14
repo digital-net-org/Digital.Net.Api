@@ -143,7 +143,8 @@ public static class MediaEndpoints
         string? alt,
         IDocumentService documentService,
         CrudService<CmsContext, Media> crudService,
-        IUserAccessor userContextService
+        IUserAccessor userContextService,
+        CancellationToken ct
     )
     {
         if (file.Length > MediaUploadConstraints.MaxFileSize)
@@ -153,7 +154,7 @@ public static class MediaEndpoints
         if (!MediaUploadConstraints.SupportedMimeTypes.Contains(file.ContentType, StringComparer.OrdinalIgnoreCase))
             return Results.BadRequest($"Unsupported file type '{file.ContentType}'.");
 
-        var user = userContextService.GetUser();
+        var user = await userContextService.GetUserAsync(ct);
         await using var stream = file.OpenReadStream();
         var definition = new FileDefinition
         {
@@ -212,10 +213,11 @@ public static class MediaEndpoints
         CmsContext context,
         MediaService mediaService,
         DocumentCacheService documentCacheService,
-        IUserAccessor userContextService
+        IUserAccessor userContextService,
+        CancellationToken ct
     )
     {
-        var media = await context.Media.FindAsync(id);
+        var media = await context.Media.FindAsync([id], ct);
         if (media is null)
             return Results.NotFound();
 
@@ -223,7 +225,7 @@ public static class MediaEndpoints
         if (!media.Published)
             try
             {
-                userContextService.GetUser();
+                await userContextService.GetUserAsync(ct);
             }
             catch (UnauthorizedAccessException)
             {
