@@ -12,14 +12,17 @@ public class SseStreamService(ILogger<SseStreamService> logger)
 {
     private const string EventType = "mutation";
     private const int ClientQueueCapacity = 256;
+    private const int MaxConnectionsPerUser = 10;
     private static readonly TimeSpan HeartbeatInterval = TimeSpan.FromSeconds(20);
     private readonly ConcurrentDictionary<Guid, SseClient> _clients = new();
+
+    private readonly ConcurrentDictionary<Guid, int> _connectionsByUser = new();
 
     public void Broadcast(MutationSignal signal)
     {
         foreach (var (_, client) in _clients)
             if (client.Accepts(signal))
-                client.Queue.Writer.TryWrite(signal); // bounded + DropOldest → best-effort, never blocks the listener
+                client.Queue.Writer.TryWrite(signal);
     }
 
     public async Task StreamAsync(
@@ -31,6 +34,13 @@ public class SseStreamService(ILogger<SseStreamService> logger)
     )
     {
         var response = httpContext.Response;
+        if (userId is { } reserveUser && !TryReserveSlot(reserveUser))
+        {
+            response.StatusCode = StatusCodes.Status429TooManyRequests;
+            logger.LogWarning("SSE connection refused for user {UserId}: per-user limit reached", reserveUser);
+            return;
+        }
+
         httpContext.Features.Get<IHttpResponseBodyFeature>()?.DisableBuffering();
         response.Headers.ContentType = "text/event-stream";
         response.Headers.CacheControl = "no-cache";
@@ -88,8 +98,23 @@ public class SseStreamService(ILogger<SseStreamService> logger)
         {
             _clients.TryRemove(client.Id, out _);
             client.Queue.Writer.TryComplete();
+            if (userId is { } releaseUser) ReleaseSlot(releaseUser);
             logger.LogInformation("SSE client {ClientId} disconnected ({Count} total)", client.Id, _clients.Count);
         }
+    }
+
+    private bool TryReserveSlot(Guid userId)
+    {
+        var count = _connectionsByUser.AddOrUpdate(userId, 1, (_, current) => current + 1);
+        if (count <= MaxConnectionsPerUser) return true;
+        ReleaseSlot(userId); // roll back the over-limit increment
+        return false;
+    }
+
+    private void ReleaseSlot(Guid userId)
+    {
+        var remaining = _connectionsByUser.AddOrUpdate(userId, 0, (_, current) => current - 1);
+        if (remaining <= 0) _connectionsByUser.TryRemove(new KeyValuePair<Guid, int>(userId, remaining));
     }
 
     private static async Task WriteAsync(HttpResponse response, MutationSignal signal, Guid? clientUserId,
