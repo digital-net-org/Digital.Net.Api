@@ -12,6 +12,7 @@ public class SseStreamService(ILogger<SseStreamService> logger)
 {
     private const string EventType = "mutation";
     private const int ClientQueueCapacity = 256;
+    private static readonly TimeSpan HeartbeatInterval = TimeSpan.FromSeconds(20);
     private readonly ConcurrentDictionary<Guid, SseClient> _clients = new();
 
     public void Broadcast(MutationSignal signal)
@@ -34,6 +35,7 @@ public class SseStreamService(ILogger<SseStreamService> logger)
         response.Headers.ContentType = "text/event-stream";
         response.Headers.CacheControl = "no-cache";
         response.Headers.Connection = "keep-alive";
+        response.Headers["X-Accel-Buffering"] = "no"; // tell proxy not to buffer the stream
 
         var client = new SseClient(entityTypes, ClientQueueCapacity, userId);
         _clients.TryAdd(client.Id, client);
@@ -51,15 +53,37 @@ public class SseStreamService(ILogger<SseStreamService> logger)
                 caughtUp.Add(signal.Id);
             }
 
-            await foreach (var signal in client.Queue.Reader.ReadAllAsync(cancellationToken))
+            // Emit a heartbeat comment every HeartbeatInterval of silence so a half-open connection is detected
+            // Needed by the proxy and the client watchdog.
+            using var heartbeat = new PeriodicTimer(HeartbeatInterval);
+            var reader = client.Queue.Reader;
+            var readTask = reader.WaitToReadAsync(cancellationToken).AsTask();
+            var tickTask = heartbeat.WaitForNextTickAsync(cancellationToken).AsTask();
+            while (true)
             {
-                if (caughtUp.Contains(signal.Id)) continue;
-                await WriteAsync(response, signal, client.UserId, cancellationToken);
+                var completed = await Task.WhenAny(readTask, tickTask);
+                if (completed == tickTask)
+                {
+                    if (!await tickTask) break;
+                    await response.WriteAsync(": ping\n\n", cancellationToken);
+                    await response.Body.FlushAsync(cancellationToken);
+                    tickTask = heartbeat.WaitForNextTickAsync(cancellationToken).AsTask();
+                    continue;
+                }
+
+                if (!await readTask) break; // channel completed
+                while (reader.TryRead(out var signal))
+                {
+                    if (caughtUp.Contains(signal.Id)) continue;
+                    await WriteAsync(response, signal, client.UserId, cancellationToken);
+                }
+
+                readTask = reader.WaitToReadAsync(cancellationToken).AsTask();
             }
         }
         catch (OperationCanceledException)
         {
-            // client disconnected — expected
+            // client disconnected
         }
         finally
         {
