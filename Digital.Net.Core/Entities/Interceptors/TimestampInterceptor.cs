@@ -30,7 +30,8 @@ public class TimestampInterceptor : SaveChangesInterceptor
         var now = DateTime.UtcNow;
         var entries = context.ChangeTracker
             .Entries()
-            .Where(e => e.Entity is Entity && e.State is EntityState.Added or EntityState.Modified);
+            .Where(e => e.Entity is Entity and not IUntrackedEntity &&
+                        e.State is EntityState.Added or EntityState.Modified);
 
         foreach (var entry in entries)
             switch (entry.State)

@@ -20,9 +20,13 @@ public class SseStreamService(ILogger<SseStreamService> logger)
 
     public void Broadcast(MutationSignal signal)
     {
+        PreparedSignal? prepared = null;
         foreach (var (_, client) in _clients)
-            if (client.Accepts(signal))
-                client.Queue.Writer.TryWrite(signal);
+        {
+            if (!client.Accepts(signal)) continue;
+            prepared ??= PreparedSignal.From(signal); // serialize once, shared across all matching clients
+            client.Queue.Writer.TryWrite(prepared);
+        }
     }
 
     public async Task StreamAsync(
@@ -59,7 +63,7 @@ public class SseStreamService(ILogger<SseStreamService> logger)
             var caughtUp = new HashSet<Guid>();
             foreach (var signal in await catchUp(cancellationToken))
             {
-                await WriteAsync(response, signal, client.UserId, cancellationToken);
+                await WriteFrameAsync(response, PreparedSignal.From(signal).FrameFor(client.UserId), cancellationToken);
                 caughtUp.Add(signal.Id);
             }
 
@@ -81,10 +85,10 @@ public class SseStreamService(ILogger<SseStreamService> logger)
                 }
 
                 if (!await readTask) break; // channel completed
-                while (reader.TryRead(out var signal))
+                while (reader.TryRead(out var prepared))
                 {
-                    if (caughtUp.Contains(signal.Id)) continue;
-                    await WriteAsync(response, signal, client.UserId, cancellationToken);
+                    if (caughtUp.Contains(prepared.Id)) continue;
+                    await WriteFrameAsync(response, prepared.FrameFor(client.UserId), cancellationToken);
                 }
 
                 readTask = reader.WaitToReadAsync(cancellationToken).AsTask();
@@ -93,6 +97,10 @@ public class SseStreamService(ILogger<SseStreamService> logger)
         catch (OperationCanceledException)
         {
             // client disconnected
+        }
+        catch (IOException)
+        {
+            // client disconnected (reset mid-write case)
         }
         finally
         {
@@ -117,21 +125,51 @@ public class SseStreamService(ILogger<SseStreamService> logger)
         if (remaining <= 0) _connectionsByUser.TryRemove(new KeyValuePair<Guid, int>(userId, remaining));
     }
 
-    private static async Task WriteAsync(HttpResponse response, MutationSignal signal, Guid? clientUserId,
-        CancellationToken ct)
+    private static async Task WriteFrameAsync(HttpResponse response, string frame, CancellationToken ct)
     {
-        var isSelf = signal.UserId is { } actor && actor != Guid.Empty && actor == clientUserId;
-        var data = JsonSerializer.Serialize(new
+        await response.WriteAsync(frame, ct);
+        await response.Body.FlushAsync(ct);
+    }
+
+    private sealed class PreparedSignal
+    {
+        private readonly Guid? _actorUserId;
+        private readonly string _frameSelf;
+        private readonly string _frameNotSelf;
+
+        private PreparedSignal(Guid id, Guid? actorUserId, string frameSelf, string frameNotSelf)
+        {
+            Id = id;
+            _actorUserId = actorUserId;
+            _frameSelf = frameSelf;
+            _frameNotSelf = frameNotSelf;
+        }
+
+        public Guid Id { get; }
+
+        public static PreparedSignal From(MutationSignal signal)
+        {
+            var prefix = $"id: {MutationCursor.From(signal).Format()}\nevent: {EventType}\ndata: ";
+            return new PreparedSignal(
+                signal.Id,
+                signal.UserId,
+                prefix + SerializeData(signal, true) + "\n\n",
+                prefix + SerializeData(signal, false) + "\n\n");
+        }
+
+        public string FrameFor(Guid? clientUserId)
+        {
+            var isSelf = _actorUserId is { } actor && actor != Guid.Empty && actor == clientUserId;
+            return isSelf ? _frameSelf : _frameNotSelf;
+        }
+
+        private static string SerializeData(MutationSignal signal, bool isSelf) => JsonSerializer.Serialize(new
         {
             type = signal.ChangeType.ToString(),
             entity = signal.EntityType,
             entityId = signal.EntityId,
             isSelf
         });
-        await response.WriteAsync(
-            $"id: {MutationCursor.From(signal).Format()}\nevent: {EventType}\ndata: {data}\n\n", ct
-        );
-        await response.Body.FlushAsync(ct);
     }
 
     private sealed class SseClient
@@ -142,14 +180,14 @@ public class SseStreamService(ILogger<SseStreamService> logger)
         {
             _entityTypes = entityTypes;
             UserId = userId;
-            Queue = Channel.CreateBounded<MutationSignal>(
+            Queue = Channel.CreateBounded<PreparedSignal>(
                 new BoundedChannelOptions(capacity)
                     { FullMode = BoundedChannelFullMode.DropOldest, SingleReader = true });
         }
 
         public Guid Id { get; } = Guid.NewGuid();
         public Guid? UserId { get; }
-        public Channel<MutationSignal> Queue { get; }
+        public Channel<PreparedSignal> Queue { get; }
         public bool Accepts(MutationSignal signal) => _entityTypes is null || _entityTypes.Contains(signal.EntityType);
     }
 }
