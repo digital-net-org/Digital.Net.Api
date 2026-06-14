@@ -28,17 +28,24 @@ public class TimestampInterceptor : SaveChangesInterceptor
         if (context == null) return;
 
         var now = DateTime.UtcNow;
+        // Every Entity carries CreatedAt/UpdatedAt and must be stamped (including IUntrackedEntity) never out of
+        // timestamping: skipping them here left CreatedAt = default, silently breaking the login lockout window
+        // and oldest-session revocation.
         var entries = context.ChangeTracker
             .Entries()
-            .Where(e => e.Entity is Entity and not IUntrackedEntity &&
+            .Where(e => e.Entity is Entity &&
                         e.State is EntityState.Added or EntityState.Modified);
 
         foreach (var entry in entries)
             switch (entry.State)
             {
                 case EntityState.Added:
-                    entry.Property("CreatedAt").CurrentValue = now;
+                {
+                    var createdAt = entry.Property("CreatedAt");
+                    if (createdAt.CurrentValue is not DateTime value || value == default)
+                        createdAt.CurrentValue = now;
                     break;
+                }
                 case EntityState.Modified:
                     entry.Property("UpdatedAt").CurrentValue = now;
                     break;
