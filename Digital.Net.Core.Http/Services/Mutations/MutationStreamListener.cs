@@ -15,10 +15,12 @@ public class MutationStreamListener(
 ) : BackgroundService
 {
     private static readonly TimeSpan ReconnectDelay = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan ProbeInterval = TimeSpan.FromSeconds(30);
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var connectionString = configuration.GetOrThrow<string>(CoreSettings.ConnectionStringKey);
+        var connectionString = BuildListenerConnectionString(
+            configuration.GetOrThrow<string>(CoreSettings.ConnectionStringKey));
         while (!stoppingToken.IsCancellationRequested)
             try
             {
@@ -33,7 +35,8 @@ public class MutationStreamListener(
 
                 logger.LogInformation("Mutation listener subscribed to '{Channel}'", MutationBroadcaster.Channel);
                 while (!stoppingToken.IsCancellationRequested)
-                    await connection.WaitAsync(stoppingToken);
+                    if (!await connection.WaitAsync(ProbeInterval, stoppingToken))
+                        await ProbeAsync(connection, stoppingToken);
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {
@@ -52,6 +55,20 @@ public class MutationStreamListener(
                     break;
                 }
             }
+    }
+
+    private static string BuildListenerConnectionString(string connectionString) =>
+        new NpgsqlConnectionStringBuilder(connectionString)
+        {
+            KeepAlive = 30,
+            TcpKeepAlive = true
+        }.ConnectionString;
+
+    private async Task ProbeAsync(NpgsqlConnection connection, CancellationToken ct)
+    {
+        await using var probe = new NpgsqlCommand("SELECT 1", connection);
+        await probe.ExecuteScalarAsync(ct);
+        logger.LogDebug("Mutation listener alive on '{Channel}'", MutationBroadcaster.Channel);
     }
 
     private void OnNotification(object sender, NpgsqlNotificationEventArgs e)
