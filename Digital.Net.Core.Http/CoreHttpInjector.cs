@@ -3,7 +3,7 @@ using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Http.Accessors;
 using Digital.Net.Core.Http.Bootstrap;
 using Digital.Net.Core.Http.Endpoints;
-using Digital.Net.Core.Http.RateLimiters;
+using Digital.Net.Core.Http.Security;
 using Digital.Net.Core.Http.Services.Authentication;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Core.Http.Services.Documents;
@@ -11,6 +11,7 @@ using Digital.Net.Core.Http.Services.Mutations;
 using Digital.Net.Lib.Environment;
 using Digital.Net.Lib.Validation;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Scalar.AspNetCore;
 
@@ -18,12 +19,17 @@ namespace Digital.Net.Core.Http;
 
 public static class CoreHttpInjector
 {
+    // Above the 10 MB media upload, below Kestrel's ~30 MB default.
+    private const long MaxRequestBodyBytes = 12L * 1024 * 1024;
+
     /// <summary>
     ///     Registers all the Digital.Net HTTP adapters (endpoints, authentication, CRUD). The business layer
     ///     must be registered separately via <c>AddDigitalNetCore()</c>.
     /// </summary>
     public static WebApplicationBuilder AddDigitalNetCoreHttp(this WebApplicationBuilder builder)
     {
+        builder.WebHost.ConfigureKestrel(options => options.Limits.MaxRequestBodySize = MaxRequestBodyBytes);
+
         builder.Services
             .AddHttpContextAccessor()
             .AddScoped<IOriginAccessor, HttpOriginAccessor>()
@@ -33,14 +39,14 @@ public static class CoreHttpInjector
             .AddSingleton<SseStreamService>()
             .AddScoped<MutationCatchupReader>()
             .AddScoped<MutationAuditReader>()
-            .AddHostedService<ExpiredTokenPurgeService>()
+            .AddHostedService<RetentionPurgeService>()
             .AddHostedService<MutationStreamListener>()
-            .AddRateLimiter(GlobalLimiter.Options)
+            .AddRateLimiter(RateLimiter.Options)
+            .AddResponseCompression(options => options.EnableForHttps = true)
             .AddOpenApi();
 
-        builder.Services
-            .RequireContract<DigitalContext>("AddDigitalNetCore");
-
+        builder.Services.AddHealthChecks().AddCheck<DatabaseHealthCheck>("database");
+        builder.Services.RequireContract<DigitalContext>("AddDigitalNetCore");
         builder
             .SetForwardedHeaders()
             .AddDefaultCorsPolicy();
@@ -56,16 +62,21 @@ public static class CoreHttpInjector
         // Fail-fast strategy, should always be called first: throws if the business layer
         app.Services.ValidateRequiredContracts();
 
+        app.UseResponseCompression();
+
         app.Use(async (context, next) =>
         {
             context.Response.Headers.XContentTypeOptions = "nosniff";
             await next();
         });
 
-        app
-            .UseCors()
-            .UseRateLimiter()
-            .UseStaticFiles();
+        app.UseCors();
+        app.UseStaticFiles();
+
+        if (!AspNetEnv.IsTest)
+            app.UseRateLimiter();
+
+        app.MapHealthChecks("/health");
 
         app
             .MapRootEndpoints()

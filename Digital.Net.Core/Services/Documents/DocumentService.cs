@@ -4,7 +4,6 @@ using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Core.Services.Documents.Exceptions;
 using Digital.Net.Core.Services.Documents.Extensions;
 using Digital.Net.Lib.Configuration;
-using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Files;
 using Digital.Net.Lib.Messages;
 using Microsoft.Extensions.Configuration;
@@ -23,24 +22,10 @@ public class DocumentService(
         document.FileName
     );
 
-    public Result<FileContent?> GetDocumentFile(Guid documentId, string? contentType = null)
+    public string? ResolveExistingPath(Document document)
     {
-        var result = new Result<FileContent?>();
-        var document = context.Documents.Find(documentId);
-        if (document is null)
-            return result.AddError(new ResourceNotFoundException());
-        var path = GetDocumentPath(document);
-        if (!File.Exists(path))
-            return result.AddError(new ResourceNotFoundException());
-
-        var fileBytes = File.ReadAllBytes(path);
-        result.Value = new FileContent(
-            fileBytes,
-            document.FileName,
-            contentType ?? "application/octet-stream",
-            document.UpdatedAt ?? document.CreatedAt
-        );
-        return result;
+        var path = Path.GetFullPath(GetDocumentPath(document));
+        return File.Exists(path) ? path : null;
     }
 
     public async Task<Result<Document>> SaveImageDocumentAsync(

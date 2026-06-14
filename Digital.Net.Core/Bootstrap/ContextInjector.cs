@@ -17,6 +17,7 @@ public static class ContextInjector
     {
         var connectionString = builder.Configuration.GetOrThrow<string>($"{CoreSettings.ConnectionStringKey}");
         builder.Services.AddSingleton(new MutationSchema(T.Schema));
+        builder.Services.AddSingleton(new MigratableContext(typeof(T)));
         RegisterAuditedEntityTypes<T>(builder.Services);
         builder.Services.TryAddSingleton<MutationBroadcaster>();
         builder.Services.TryAddScoped<MutationTrackingInterceptor>();
@@ -27,12 +28,12 @@ public static class ContextInjector
         return builder;
     }
 
-    public static IHostApplicationBuilder ApplyMigrations<T>(this IHostApplicationBuilder builder)
-        where T : DbContext
+    public static async Task ApplyDigitalNetMigrationsAsync(this IHost app)
     {
-        var context = builder.Services.BuildServiceProvider().GetRequiredService<T>();
-        context.Database.Migrate();
-        return builder;
+        await using var scope = app.Services.CreateAsyncScope();
+        foreach (var migratable in scope.ServiceProvider.GetServices<MigratableContext>())
+            await ((DbContext)scope.ServiceProvider.GetRequiredService(migratable.ContextType))
+                .Database.MigrateAsync();
     }
 
     private static void RegisterAuditedEntityTypes<T>(IServiceCollection services) where T : DbContext
@@ -49,3 +50,5 @@ public static class ContextInjector
             );
     }
 }
+
+public sealed record MigratableContext(Type ContextType);

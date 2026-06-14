@@ -16,8 +16,7 @@ public static class CmsInjector
         where TBuilder : IHostApplicationBuilder
     {
         builder
-            .AddDatabaseContext<CmsContext>()
-            .ApplyMigrations<CmsContext>();
+            .AddDatabaseContext<CmsContext>();
 
         builder.Services
             .AddScoped<MediaService>();

@@ -19,25 +19,14 @@ public class JwtService(
 {
     public async Task RevokeTokenAsync(string token)
     {
-        var record = context.ApiTokens.FirstOrDefault(t => t.Key == ApiToken.Hash(token));
-
-        if (record is null)
-            return;
-
+        var record = await context.ApiTokens.FirstOrDefaultAsync(t => t.Key == ApiToken.Hash(token));
+        if (record is null) return;
         context.ApiTokens.Remove(record);
         await context.SaveChangesAsync();
     }
 
-    public async Task RevokeAllTokensAsync(Guid userId)
-    {
-        var records = context.ApiTokens.Where(t => t.UserId == userId).ToList();
-
-        foreach (var record in records)
-        {
-            context.ApiTokens.Remove(record);
-            await context.SaveChangesAsync();
-        }
-    }
+    public async Task RevokeAllTokensAsync(Guid userId) =>
+        await context.ApiTokens.Where(t => t.UserId == userId).ExecuteDeleteAsync();
 
     public string GenerateBearerToken(Guid userId, string userAgent)
     {
@@ -45,15 +34,15 @@ public class JwtService(
         return SignToken(content, authenticationOptionService.GetBearerTokenExpirationDate());
     }
 
-    public string GenerateRefreshToken(Guid userId, string userAgent)
+    public async Task<string> GenerateRefreshTokenAsync(Guid userId, string userAgent, CancellationToken ct = default)
     {
         var content = new TokenContent(userId, userAgent);
         var tokenExpiration = authenticationOptionService.GetRefreshTokenExpirationDate();
         var token = SignToken(content, tokenExpiration);
 
-        HandleMaxConcurrentSessions(userId);
+        await EvictSurplusSessionsAsync(userId, ct);
         context.ApiTokens.Add(new ApiToken(userId, ApiToken.Hash(token), userAgent, tokenExpiration));
-        context.SaveChanges();
+        await context.SaveChangesAsync(ct);
 
         return token;
     }
@@ -104,24 +93,20 @@ public class JwtService(
         return tokenHandler.WriteToken(token);
     }
 
-    private void HandleMaxConcurrentSessions(Guid userId)
+    private async Task EvictSurplusSessionsAsync(Guid userId, CancellationToken ct)
     {
         var maxTokenAllowed = AuthenticationStaticOptions.MaxConcurrentSessions;
-        var userTokens = context.ApiTokens
+        var userTokens = await context.ApiTokens
             .Where(t => t.UserId == userId && t.ExpiredAt > DateTime.UtcNow)
-            .ToList();
+            .ToListAsync(ct);
 
         if (userTokens.Count < maxTokenAllowed)
             return;
 
-        var tokens = userTokens
+        var surplus = userTokens
             .OrderByDescending(t => t.CreatedAt)
-            .Skip(maxTokenAllowed - 1);
-
-        foreach (var token in tokens)
-        {
-            context.ApiTokens.Remove(token);
-            context.SaveChanges();
-        }
+            .Skip(maxTokenAllowed - 1)
+            .ToList();
+        context.ApiTokens.RemoveRange(surplus);
     }
 }

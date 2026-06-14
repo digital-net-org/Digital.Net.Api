@@ -5,7 +5,7 @@ using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Models.Forms;
 using Digital.Net.Core.Entities.Exceptions;
-using Digital.Net.Core.Http.RateLimiters;
+using Digital.Net.Core.Http.Security;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Core.Http.Services.Pagination.Extensions;
@@ -24,12 +24,15 @@ namespace Digital.Net.Cms.Http.Endpoints;
 
 public static class FormEndpoints
 {
+    private const int MaxFieldValueLength = 4096;
+    private const int MaxSerializedValuesLength = 16_384;
+
     public static IEndpointRouteBuilder MapCmsFormEndpoints(this IEndpointRouteBuilder app)
     {
         var form = app
             .MapGroup("cms/forms")
             .WithTags("CMS.Forms")
-            .RequireRateLimiting(GlobalLimiter.Policy)
+            .RequireRateLimiting(RateLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         form.MapCrudSchema<CmsContext, Form>();
@@ -62,7 +65,7 @@ public static class FormEndpoints
         var submissions = app
             .MapGroup("cms/forms/submissions")
             .WithTags("CMS.FormsSubmissions")
-            .RequireRateLimiting(GlobalLimiter.Policy)
+            .RequireRateLimiting(RateLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         submissions.MapCrudGet<CmsContext, FormSubmission, FormSubmissionDto>();
@@ -74,7 +77,7 @@ public static class FormEndpoints
         var publicApi = app
             .MapGroup("cms/forms")
             .WithTags("CMS.FormsPublic")
-            .RequireRateLimiting(GlobalLimiter.Policy)
+            .RequireRateLimiting(RateLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         publicApi
@@ -128,10 +131,14 @@ public static class FormEndpoints
             return Results.BadRequest(result);
         }
 
+        var valuesJson = JsonSerializer.Serialize(payload.Values);
+        if (valuesJson.Length > MaxSerializedValuesLength)
+            return Results.BadRequest(new Result().AddError(new Exception("Submission payload is too large.")));
+
         var submission = new FormSubmission
         {
             FormId = id,
-            ValuesJson = JsonSerializer.Serialize(payload.Values),
+            ValuesJson = valuesJson,
             SubmitterIp = payload.SubmitterIp,
             UserAgent = payload.UserAgent
         };
@@ -145,6 +152,15 @@ public static class FormEndpoints
     {
         var errors = new List<string>();
 
+        var fieldNames = fields.Select(f => f.Name).ToHashSet();
+        foreach (var (key, value) in values)
+        {
+            if (!fieldNames.Contains(key))
+                errors.Add($"{key}: Unknown field.");
+            if (value is { Length: > MaxFieldValueLength })
+                errors.Add($"{key}: Value exceeds {MaxFieldValueLength} characters.");
+        }
+
         foreach (var field in fields.Where(f => f.Type != FormFieldTypes.Message))
         {
             var hasValue = values.TryGetValue(field.Name, out var rawValue) &&
@@ -155,23 +171,18 @@ public static class FormEndpoints
                 errors.Add($"{field.Name}: This field is required.");
                 continue;
             }
-
             if (!hasValue || rawValue is null)
                 continue;
-
-            if (field.Type == FormFieldTypes.Email &&
-                !Regex.IsMatch(rawValue, RegularExpressions.EmailPattern))
+            if (field.Type == FormFieldTypes.Email && !Regex.IsMatch(rawValue, RegularExpressions.EmailPattern))
             {
                 errors.Add($"{field.Name}: Invalid email address.");
                 continue;
             }
-
             if (field.Type == FormFieldTypes.Checkbox && rawValue is not "true" and not "false")
             {
                 errors.Add($"{field.Name}: Must be 'true' or 'false'.");
                 continue;
             }
-
             if (field.Type is FormFieldTypes.Select or FormFieldTypes.Radio && field.OptionsJson is not null)
             {
                 try
@@ -187,7 +198,6 @@ public static class FormEndpoints
 
                 continue;
             }
-
             if (field.ValidationJson is null)
                 continue;
 

@@ -64,10 +64,9 @@ public class AuthenticationService(
         if (result.HasError || user is null)
             return result;
 
-        result.Value = (
-            jwtService.GenerateBearerToken(user.Id, origin.UserAgent ?? string.Empty),
-            jwtService.GenerateRefreshToken(user.Id, origin.UserAgent ?? string.Empty)
-        );
+        var bearer = jwtService.GenerateBearerToken(user.Id, origin.UserAgent ?? string.Empty);
+        var refresh = await jwtService.GenerateRefreshTokenAsync(user.Id, origin.UserAgent ?? string.Empty);
+        result.Value = (bearer, refresh);
         return result;
     }
 
@@ -76,7 +75,7 @@ public class AuthenticationService(
     {
         var result = new Result<(string, string?)>((string.Empty, null));
         var hashedToken = ApiToken.Hash(refreshToken ?? string.Empty);
-        var apiToken = context.ApiTokens.FirstOrDefault(a => a.Key == hashedToken);
+        var apiToken = await context.ApiTokens.FirstOrDefaultAsync(a => a.Key == hashedToken);
         if (apiToken is null)
             return result.AddError(new InvalidTokenException());
         if (apiToken.UserAgent != (userAgent ?? string.Empty))
@@ -90,12 +89,11 @@ public class AuthenticationService(
         if (tokenResult.ShouldRenewCookie)
             await jwtService.RevokeTokenAsync(refreshToken!);
 
-        result.Value = (
-            jwtService.GenerateBearerToken(tokenResult.UserId, userAgent ?? string.Empty),
-            tokenResult.ShouldRenewCookie
-                ? jwtService.GenerateRefreshToken(tokenResult.UserId, userAgent ?? string.Empty)
-                : null
-        );
+        var bearer = jwtService.GenerateBearerToken(tokenResult.UserId, userAgent ?? string.Empty);
+        var refresh = tokenResult.ShouldRenewCookie
+            ? await jwtService.GenerateRefreshTokenAsync(tokenResult.UserId, userAgent ?? string.Empty)
+            : null;
+        result.Value = (bearer, refresh);
         return result;
     }
 
@@ -113,10 +111,8 @@ public class AuthenticationService(
     {
         var result = new Result();
         var origin = originAccessor.GetOrigin();
-        var userId = context.ApiTokens.FirstOrDefault(u => u.Key == ApiToken.Hash(refreshToken))?.UserId;
-        if (userId is null)
-            return result.AddError(new AuthenticationException());
-
+        var userId = (await context.ApiTokens.FirstOrDefaultAsync(u => u.Key == ApiToken.Hash(refreshToken)))?.UserId;
+        if (userId is null) return result.AddError(new AuthenticationException());
         await jwtService.RevokeAllTokensAsync(userId.Value);
         await authEventService.RecordAsync(AuthEventType.LogoutAll, true, origin.IpAddress, origin.UserAgent, userId);
         return result;

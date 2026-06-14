@@ -23,10 +23,11 @@ public static class PaginationEndpointExtensions
         where TDto : class
         where TQuery : Query =>
         app
-            .MapGet(route ?? "", (
+            .MapGet(route ?? "", async (
                 [AsParameters]
                 TQuery query,
-                TContext context
+                TContext context,
+                CancellationToken ct
             ) =>
             {
                 query.ValidateParameters();
@@ -36,7 +37,7 @@ public static class PaginationEndpointExtensions
                 {
                     var predicate = BuildFilter(query, filter);
                     var items = context.Set<T>().Where(predicate);
-                    var rowCount = items.Count();
+                    var rowCount = await items.CountAsync(ct);
 
                     var config = new ParsingConfig { IsCaseSensitive = false };
                     var orderClause = OrderByResolver.ResolveOrderClause<T>(query.OrderBy, query.Order);
@@ -47,7 +48,7 @@ public static class PaginationEndpointExtensions
                     if (include is not null)
                         items = include.Aggregate(items, (current, nav) => current.Include(nav));
 
-                    result.Value = Mapper.TryMap<T, TDto>(items.ToList());
+                    result.Value = Mapper.TryMap<T, TDto>(await items.ToListAsync(ct));
                     result.Total = rowCount;
                     result.Index = query.Index;
                     result.Size = query.Size;

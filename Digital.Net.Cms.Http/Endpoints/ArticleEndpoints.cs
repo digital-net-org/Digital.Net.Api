@@ -3,7 +3,7 @@ using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Http.Services;
 using Digital.Net.Cms.Models.Articles;
-using Digital.Net.Core.Http.RateLimiters;
+using Digital.Net.Core.Http.Security;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Core.Http.Services.Pagination.Extensions;
@@ -26,7 +26,7 @@ public static class ArticleEndpoints
         var controller = app
             .MapGroup("cms/articles")
             .WithTags("CMS.Articles")
-            .RequireRateLimiting(GlobalLimiter.Policy)
+            .RequireRateLimiting(RateLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         controller
@@ -51,7 +51,7 @@ public static class ArticleEndpoints
         var publicController = app
             .MapGroup("cms/articles")
             .WithTags("CMS.Articles")
-            .RequireRateLimiting(GlobalLimiter.Policy)
+            .RequireRateLimiting(RateLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         publicController

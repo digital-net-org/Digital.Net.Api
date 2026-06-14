@@ -1,4 +1,4 @@
-using Digital.Net.Core.Http.RateLimiters;
+using Digital.Net.Core.Http.Security;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.String;
@@ -15,7 +15,7 @@ public static class ValidationEndpoints
         var controller = app
             .MapGroup("/validation")
             .WithTags("Validation")
-            .RequireRateLimiting(GlobalLimiter.Policy);
+            .RequireRateLimiting(RateLimiter.Policy);
 
         controller
             .MapGet(

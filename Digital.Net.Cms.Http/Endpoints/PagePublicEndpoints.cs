@@ -1,7 +1,7 @@
 using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Http.Exceptions;
 using Digital.Net.Cms.Http.Services;
-using Digital.Net.Core.Http.RateLimiters;
+using Digital.Net.Core.Http.Security;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
@@ -20,7 +20,7 @@ public static class PagePublicEndpoints
         var publicController = app
             .MapGroup("cms/pages/public")
             .WithTags("CMS.Pages.Public")
-            .RequireRateLimiting(GlobalLimiter.Policy)
+            .RequireRateLimiting(RateLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         publicController

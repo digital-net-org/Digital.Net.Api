@@ -1,5 +1,5 @@
 using Digital.Net.Core.Http.Endpoints.Dto;
-using Digital.Net.Core.Http.RateLimiters;
+using Digital.Net.Core.Http.Security;
 using Digital.Net.Lib.Messages;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -16,7 +16,7 @@ public static class RootEndpoints
         var controller = app
             .MapGroup("/")
             .WithTags("Application")
-            .RequireRateLimiting(GlobalLimiter.Policy);
+            .RequireRateLimiting(RateLimiter.Policy);
 
         controller
             .MapGet("/", GetApplicationVersion)

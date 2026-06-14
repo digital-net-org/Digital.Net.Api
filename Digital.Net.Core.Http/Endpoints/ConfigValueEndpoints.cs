@@ -3,7 +3,7 @@ using Digital.Net.Core.Entities;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.ConfigValues;
 using Digital.Net.Core.Http.Endpoints.Dto;
-using Digital.Net.Core.Http.RateLimiters;
+using Digital.Net.Core.Http.Security;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Core.Http.Services.Pagination.Extensions;
@@ -22,7 +22,7 @@ public static class ConfigValueEndpoints
         var controller = app
             .MapGroup("admin/config-value")
             .WithTags("ConfigValue")
-            .RequireRateLimiting(GlobalLimiter.Policy)
+            .RequireRateLimiting(RateLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey)
             .RequireAdmin();
 

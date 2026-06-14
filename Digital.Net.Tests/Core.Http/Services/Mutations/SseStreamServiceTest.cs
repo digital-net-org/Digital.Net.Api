@@ -50,19 +50,14 @@ public class SseStreamServiceTest
     [Test]
     public async Task Broadcast_IncludesOriginClientId_WhenPresent()
     {
-        // The frame carries the originating tab's client id verbatim — the client (not the server) decides
-        // whether to drop its own echo.
         var (service, ctx, body, cts) = Setup(null);
         var streaming = service.StreamAsync(ctx, null, _ => Task.FromResult(NoCatchUp), cts.Token, Guid.NewGuid());
 
         await Task.Delay(150);
         service.Broadcast(new MutationSignal(ChangeType.Updated, "Page", Guid.NewGuid(), DateTime.UtcNow,
             Guid.NewGuid(), Guid.NewGuid(), "client-abc"));
-        await Task.Delay(150);
-        await cts.CancelAsync();
-        await streaming;
 
-        var output = Encoding.UTF8.GetString(body.ToArray());
+        var output = await CaptureAsync(body, cts, streaming, "\"originClientId\":\"client-abc\"");
         await Assert.That(output.Contains("\"originClientId\":\"client-abc\"")).IsTrue();
     }
 
@@ -75,11 +70,8 @@ public class SseStreamServiceTest
         await Task.Delay(150);
         service.Broadcast(new MutationSignal(ChangeType.Updated, "Page", Guid.NewGuid(), DateTime.UtcNow,
             Guid.NewGuid()));
-        await Task.Delay(150);
-        await cts.CancelAsync();
-        await streaming;
 
-        var output = Encoding.UTF8.GetString(body.ToArray());
+        var output = await CaptureAsync(body, cts, streaming, "\"originClientId\":null");
         await Assert.That(output.Contains("\"originClientId\":null")).IsTrue();
     }
 
@@ -138,5 +130,28 @@ public class SseStreamServiceTest
         var ctx = new DefaultHttpContext();
         ctx.Response.Body = new MemoryStream();
         return (ctx, new CancellationTokenSource());
+    }
+
+    private static async Task<string> CaptureAsync(MemoryStream body, CancellationTokenSource cts, Task streaming,
+        string marker)
+    {
+        var deadline = DateTime.UtcNow.AddSeconds(2);
+        while (DateTime.UtcNow < deadline)
+        {
+            try
+            {
+                if (Encoding.UTF8.GetString(body.ToArray()).Contains(marker)) break;
+            }
+            catch
+            {
+                // body resized mid-read by the concurrent stream writer
+            }
+
+            await Task.Delay(10);
+        }
+
+        await cts.CancelAsync();
+        await streaming;
+        return Encoding.UTF8.GetString(body.ToArray());
     }
 }

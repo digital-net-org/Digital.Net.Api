@@ -31,6 +31,7 @@ public class ApplicationFactory : WebApplicationFactory<DigitalProgram>
             { CoreSettings.ConnectionStringKey, connectionString },
             { CoreSettings.FileSystemPathKey, ".test_storage" },
             { CoreSettings.ApplicationKeyKey, "test-application-secret-key-for-integration-tests" },
+            { CoreSettings.JwtSecretKey, "test-jwt-secret-key-must-be-at-least-46-characters-long-for-hs256" },
             { "Logging:LogLevel:Default", "None" },
             { "Logging:LogLevel:Microsoft", "None" }
         };

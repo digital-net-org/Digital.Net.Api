@@ -2,7 +2,6 @@ using Digital.Net.Core;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Services.Documents;
 using Digital.Net.Core.Services.Documents.Exceptions;
-using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Files;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data;
@@ -29,14 +28,6 @@ public class DocumentServiceTest : UnitTest, IAsyncInitializer
         var extractorMock = new Mock<IDocumentDimensionExtractor>();
         _service = new DocumentService(_context, configMock.Object, extractorMock.Object);
         return Task.CompletedTask;
-    }
-
-    [Test]
-    public async Task GetDocumentFile_Should_Return_Error_When_Document_Is_Not_Found()
-    {
-        var docId = Guid.NewGuid();
-        var result = _service.GetDocumentFile(docId);
-        await Assert.That(result.HasErrorOfType<ResourceNotFoundException>()).IsTrue();
     }
 
     [Test]

@@ -22,8 +22,7 @@ public static class CoreInjector
         builder.Configuration.AddAppSettings();
         builder
             .ValidateApplicationSettings()
-            .AddDatabaseContext<DigitalContext>()
-            .ApplyMigrations<DigitalContext>();
+            .AddDatabaseContext<DigitalContext>();
 
         builder.Services
             .AddDigitalApiKeyServices()
@@ -42,7 +41,9 @@ public static class CoreInjector
         var mandatorySettings = new[]
         {
             CoreSettings.DomainKey,
-            CoreSettings.ConnectionStringKey
+            CoreSettings.ConnectionStringKey,
+            CoreSettings.JwtSecretKey,
+            CoreSettings.ApplicationKeyKey
         };
 
         foreach (var setting in mandatorySettings)

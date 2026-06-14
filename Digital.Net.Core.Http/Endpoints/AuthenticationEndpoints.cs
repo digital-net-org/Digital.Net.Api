@@ -1,6 +1,6 @@
 using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Http.Endpoints.Dto;
-using Digital.Net.Core.Http.RateLimiters;
+using Digital.Net.Core.Http.Security;
 using Digital.Net.Core.Http.Services.Authentication;
 using Digital.Net.Core.Http.Services.Authentication.Exceptions;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
@@ -22,7 +22,7 @@ public static class AuthenticationEndpoints
         var controller = app
             .MapGroup("authentication/user")
             .WithTags("Authentication")
-            .RequireRateLimiting(GlobalLimiter.Policy);
+            .RequireRateLimiting(RateLimiter.Policy);
 
         controller
             .MapPost("login", Login)

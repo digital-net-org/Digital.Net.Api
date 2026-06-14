@@ -7,7 +7,7 @@ using Digital.Net.Cms.Models.Medias;
 using Digital.Net.Cms.Services;
 using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities.Context;
-using Digital.Net.Core.Http.RateLimiters;
+using Digital.Net.Core.Http.Security;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Core.Http.Services.Documents;
@@ -33,7 +33,7 @@ public static class MediaEndpoints
         var userRoutes = app
             .MapGroup("cms/media")
             .WithTags("CMS.Media")
-            .RequireRateLimiting(GlobalLimiter.Policy)
+            .RequireRateLimiting(RateLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         userRoutes.MapCrudSchema<CmsContext, Media>();
@@ -76,6 +76,7 @@ public static class MediaEndpoints
         userRoutes
             .MapPost("", UploadMedia)
             .DisableAntiforgery()
+            .RequireRateLimiting(RateLimiter.UploadPolicy)
             .WithSummary("Upload")
             .WithDescription("Uploads a new media image.");
 
@@ -103,7 +104,7 @@ public static class MediaEndpoints
         app
             .MapGroup("cms/media")
             .WithTags("CMS.Media")
-            .RequireRateLimiting(GlobalLimiter.Policy)
+            .RequireRateLimiting(RateLimiter.ImagePolicy)
             .MapGet("image/{id:guid}.{ext}", GetMediaImage)
             .WithSummary("GetMediaImage")
             .WithDescription(
@@ -240,15 +241,10 @@ public static class MediaEndpoints
 
         if (cacheResult.HasErrorOfType<DocumentNotFoundException>())
             return Results.NotFound();
-        if (cacheResult.HasError)
+        if (cacheResult.HasError || cacheResult.Value is null)
             return Results.InternalServerError();
-        if (cacheResult.Value is not FileContentResult fileContentResult)
-            return Results.StatusCode(304);
 
-        return Results.File(
-            fileContentResult.FileContents,
-            fileContentResult.ContentType
-        );
+        return cacheResult.Value;
     }
 
     private static async Task<Results<Ok<Result<MediaDto>>, NotFound<Result<MediaDto>>>> GetMediaById(

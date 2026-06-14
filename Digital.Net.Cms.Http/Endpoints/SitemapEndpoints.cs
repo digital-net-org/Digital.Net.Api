@@ -1,6 +1,6 @@
 using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Http.Services;
-using Digital.Net.Core.Http.RateLimiters;
+using Digital.Net.Core.Http.Security;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Lib.Messages;
 using Microsoft.AspNetCore.Builder;
@@ -16,7 +16,7 @@ public static class SitemapEndpoints
         var controller = app
             .MapGroup("cms/sitemaps")
             .WithTags("CMS.Sitemaps")
-            .RequireRateLimiting(GlobalLimiter.Policy)
+            .RequireRateLimiting(RateLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         controller

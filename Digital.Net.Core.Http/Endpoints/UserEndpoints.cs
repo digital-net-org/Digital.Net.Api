@@ -8,7 +8,7 @@ using Digital.Net.Core.Entities.Models.Auth;
 using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Core.Http.Accessors;
 using Digital.Net.Core.Http.Endpoints.Dto;
-using Digital.Net.Core.Http.RateLimiters;
+using Digital.Net.Core.Http.Security;
 using Digital.Net.Core.Http.Services.Authentication;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Core.Http.Services.Crud;
@@ -37,7 +37,7 @@ public static class UserEndpoints
         var controller = app
             .MapGroup("/user")
             .WithTags("User")
-            .RequireRateLimiting(GlobalLimiter.Policy)
+            .RequireRateLimiting(RateLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         controller.MapCrudSchema<DigitalContext, User>("");
@@ -49,7 +49,7 @@ public static class UserEndpoints
             .RequireAdmin();
 
         controller
-            .MapPaginationGet<DigitalContext, User, UserDto, UserQuery>("", PaginationFilter)
+            .MapPaginationGet<DigitalContext, User, UserListDto, UserQuery>("", PaginationFilter)
             .WithSummary("GetPaginatedUsers")
             .WithDescription("Retrieves a paginated list of users with filtering and sorting options.")
             .RequireAdmin();
@@ -239,31 +239,24 @@ public static class UserEndpoints
         return TypedResults.Ok();
     }
 
-    private static async Task<Results<FileContentHttpResult, NotFound, InternalServerError, StatusCodeHttpResult>>
-        GetUserAvatar(
-            Guid id,
-            UserService userService,
-            DocumentCacheService documentCacheService
-        )
+    private static async Task<IResult> GetUserAvatar(
+        Guid id,
+        UserService userService,
+        DocumentCacheService documentCacheService
+    )
     {
         var result = await userService.GetUserAvatarDocumentAsync(id);
 
         if (result.HasError || result.Value is null)
-            return TypedResults.NotFound();
+            return Results.NotFound();
 
         var cacheResult = documentCacheService.GetCachedDocumentFile(result.Value);
-
         if (cacheResult.HasErrorOfType<DocumentNotFoundException>())
-            return TypedResults.NotFound();
-        if (cacheResult.HasError)
-            return TypedResults.InternalServerError();
-        if (cacheResult.Value is not FileContentResult fileContentResult)
-            return TypedResults.StatusCode(304);
+            return Results.NotFound();
+        if (cacheResult.HasError || cacheResult.Value is null)
+            return Results.InternalServerError();
 
-        return TypedResults.File(
-            fileContentResult.FileContents,
-            fileContentResult.ContentType
-        );
+        return cacheResult.Value;
     }
 
     private static async Task<Results<Ok<Result<Guid>>, BadRequest<Result<Guid>>>> CreateUser(

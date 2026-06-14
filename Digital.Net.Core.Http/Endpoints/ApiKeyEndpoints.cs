@@ -1,6 +1,6 @@
 using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Http.Endpoints.Dto;
-using Digital.Net.Core.Http.RateLimiters;
+using Digital.Net.Core.Http.Security;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Core.Services.ApiKeys;
 using Digital.Net.Lib.Messages;
@@ -19,7 +19,7 @@ public static class ApiKeyEndpoints
         var group = app
             .MapGroup("/user/self/api-key")
             .WithTags("User")
-            .RequireRateLimiting(GlobalLimiter.Policy)
+            .RequireRateLimiting(RateLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         group

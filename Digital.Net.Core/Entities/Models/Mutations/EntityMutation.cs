@@ -25,6 +25,7 @@ namespace Digital.Net.Core.Entities.Models.Mutations;
 [Table("EntityMutation")]
 [Index(nameof(CreatedAt), nameof(Id))]
 [Index(nameof(EntityType), nameof(EntityId), nameof(CreatedAt))]
+[Index(nameof(UserId), nameof(CreatedAt))]
 public class EntityMutation : Entity, IUntrackedEntity
 {
     [Column("ChangeType")]

@@ -1,7 +1,6 @@
 using System.Net;
 using Digital.Net.Core;
 using Digital.Net.Tests.Core.Factories;
-using Digital.Net.Tests.Core.Http;
 using Digital.Net.Tests.Core.Sdk;
 
 namespace Digital.Net.Tests.Core.Http.Endpoints.Authorization;

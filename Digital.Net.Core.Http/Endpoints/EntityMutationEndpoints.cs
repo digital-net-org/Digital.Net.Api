@@ -1,7 +1,7 @@
 using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities.Mutations;
 using Digital.Net.Core.Http.Endpoints.Dto;
-using Digital.Net.Core.Http.RateLimiters;
+using Digital.Net.Core.Http.Security;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Core.Http.Services.Mutations;
 using Digital.Net.Core.Http.Services.Mutations.Exceptions;
@@ -23,7 +23,7 @@ public static class EntityMutationEndpoints
         var controller = app
             .MapGroup("events/mutation")
             .WithTags("Events")
-            .RequireRateLimiting(GlobalLimiter.Policy);
+            .RequireRateLimiting(RateLimiter.Policy);
 
         controller
             .MapGet("stream", Stream)

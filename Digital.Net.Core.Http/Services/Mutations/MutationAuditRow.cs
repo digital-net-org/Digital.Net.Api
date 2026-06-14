@@ -12,4 +12,5 @@ public class MutationAuditRow
     public string? IpAddress { get; set; }
     public string? UserAgent { get; set; }
     public string? Payload { get; set; }
+    public int TotalCount { get; set; }
 }

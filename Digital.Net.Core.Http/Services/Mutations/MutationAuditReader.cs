@@ -35,30 +35,24 @@ public class MutationAuditReader(
             .Distinct()
             .ToArray();
 
-        var (countUnion, countParameters) = BuildUnion(criteria, schemaNames, allowedTypes);
-        var total = await context.Database
-            .SqlQueryRaw<int>(
-                $"SELECT COUNT(*)::int AS \"Value\" FROM (\n{countUnion}\n) AS mutations",
-                countParameters.ToArray()
-            )
-            .SingleAsync(ct);
-
-        var (pageUnion, pageParameters) = BuildUnion(criteria, schemaNames, allowedTypes);
+        var (union, parameters) = BuildUnion(criteria, schemaNames, allowedTypes);
         var orderColumn = OrderColumns.GetValueOrDefault(criteria.OrderBy ?? string.Empty, "\"CreatedAt\"");
         var direction = criteria.Descending ? "DESC" : "ASC";
-        pageParameters.Add(new NpgsqlParameter("size", NpgsqlDbType.Integer) { Value = criteria.Size });
-        pageParameters.Add(new NpgsqlParameter("offset", NpgsqlDbType.Bigint)
+        parameters.Add(new NpgsqlParameter("size", NpgsqlDbType.Integer) { Value = criteria.Size });
+        parameters.Add(new NpgsqlParameter("offset", NpgsqlDbType.Bigint)
         {
             Value = (long)(criteria.Index - 1) * criteria.Size
         });
 
         var rows = await context.Database
             .SqlQueryRaw<MutationAuditRow>(
-                $"{pageUnion}\nORDER BY {orderColumn} {direction}, \"Id\" {direction}\nLIMIT @size OFFSET @offset",
-                pageParameters.ToArray()
+                $"SELECT *, COUNT(*) OVER()::int AS \"TotalCount\" FROM (\n{union}\n) AS mutations\n" +
+                $"ORDER BY {orderColumn} {direction}, \"Id\" {direction}\nLIMIT @size OFFSET @offset",
+                parameters.ToArray()
             )
             .ToListAsync(ct);
 
+        var total = rows.Count > 0 ? rows[0].TotalCount : 0;
         return new MutationAuditPage(rows, total);
     }
 

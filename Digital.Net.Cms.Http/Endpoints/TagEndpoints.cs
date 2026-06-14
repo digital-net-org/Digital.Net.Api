@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Models;
-using Digital.Net.Core.Http.RateLimiters;
+using Digital.Net.Core.Http.Security;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Core.Http.Services.Pagination.Extensions;
@@ -21,7 +21,7 @@ public static class TagEndpoints
         var controller = app
             .MapGroup("cms/tags")
             .WithTags("CMS.Tags")
-            .RequireRateLimiting(GlobalLimiter.Policy)
+            .RequireRateLimiting(RateLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         controller.MapCrudSchema<CmsContext, Tag>();

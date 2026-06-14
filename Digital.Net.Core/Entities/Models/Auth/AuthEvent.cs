@@ -7,6 +7,7 @@ namespace Digital.Net.Core.Entities.Models.Auth;
 [Table("AuthEvent")]
 [Index(nameof(IpAddress), nameof(Type), nameof(Success), nameof(CreatedAt))]
 [Index(nameof(UserId), nameof(CreatedAt))]
+[Index(nameof(CreatedAt), nameof(Id))]
 public class AuthEvent : Entity, IUntrackedEntity
 {
     [Column("Type")]

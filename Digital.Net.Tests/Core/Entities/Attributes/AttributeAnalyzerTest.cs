@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Digital.Net.Core.Entities.Attributes;
 using Digital.Net.Core.Entities.Models;
-using Digital.Net.Tests.Core;
 using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Tests.Core.Entities.Attributes;

@@ -4,53 +4,38 @@ using Digital.Net.Core.Services.Documents.Exceptions;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 
 namespace Digital.Net.Core.Http.Services.Documents;
 
-/// <summary>
-///     HTTP adapter that turns a neutral <see cref="IDocumentService" /> payload into a cacheable
-///     <see cref="FileResult" />, honouring conditional requests (ETag / If-None-Match).
-/// </summary>
 public class DocumentCacheService(
     IHttpContextAccessor httpContextAccessor,
     IDocumentService documentService
 )
 {
-    public Result<FileResult?> GetCachedDocumentFile(Document? document)
+    public Result<IResult?> GetCachedDocumentFile(Document? document)
     {
-        var result = new Result<FileResult?>();
+        var result = new Result<IResult?>();
         if (document is null)
             return result.AddError(new DocumentNotFoundException());
-
-        var etag = $"\"{document.Id}\"";
 
         var context = httpContextAccessor.HttpContext;
         if (context is null)
             return result.AddError(new UnhandledInternalError());
 
-        var ifNoneMatch = context.Request.Headers.IfNoneMatch;
-        if (ifNoneMatch.Count > 0 && ifNoneMatch.Any(v => v is not null && v.Contains(etag)))
-        {
-            context.Response.Headers.CacheControl = "public, max-age=0, must-revalidate";
-            context.Response.Headers.ETag = etag;
-            return result;
-        }
-
-        var fileResult = documentService.GetDocumentFile(document.Id, document.MimeType);
-        if (fileResult.HasError || fileResult.Value is null)
+        var path = documentService.ResolveExistingPath(document);
+        if (path is null)
             return result.AddError(new DocumentNotFoundException());
 
         context.Response.Headers.CacheControl = "public, max-age=0, must-revalidate";
-        context.Response.Headers.ETag = etag;
-        context.Response.Headers.Remove("Content-Disposition");
 
-        var content = fileResult.Value;
-        result.Value = new FileContentResult(content.Bytes, content.ContentType ?? "application/octet-stream")
-        {
-            FileDownloadName = content.FileName,
-            LastModified = content.LastModified
-        };
+        result.Value = Results.File(
+            path,
+            document.MimeType,
+            lastModified: document.UpdatedAt ?? document.CreatedAt,
+            entityTag: new EntityTagHeaderValue($"\"{document.Id}\""),
+            enableRangeProcessing: true
+        );
         return result;
     }
 }

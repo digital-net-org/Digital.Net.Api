@@ -8,7 +8,7 @@ namespace Digital.Net.Core.Services.Documents;
 public interface IDocumentService
 {
     string GetDocumentPath(Document document);
-    Result<FileContent?> GetDocumentFile(Guid documentId, string? contentType = null);
+    string? ResolveExistingPath(Document document);
     Task<Result<Document>> SaveDocumentAsync(Stream content, FileDefinition definition, User? uploader);
 
     Task<Result<Document>> SaveImageDocumentAsync(

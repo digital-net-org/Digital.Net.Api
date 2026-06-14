@@ -8,7 +8,7 @@ using Digital.Net.Cms.Models.Articles;
 using Digital.Net.Cms.Models.Pages;
 using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities.Exceptions;
-using Digital.Net.Core.Http.RateLimiters;
+using Digital.Net.Core.Http.Security;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Core.Http.Services.Pagination.Extensions;
@@ -32,7 +32,7 @@ public static class PageEndpoints
         var controller = app
             .MapGroup("cms/pages")
             .WithTags("CMS.Pages")
-            .RequireRateLimiting(GlobalLimiter.Policy)
+            .RequireRateLimiting(RateLimiter.Policy)
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
         controller

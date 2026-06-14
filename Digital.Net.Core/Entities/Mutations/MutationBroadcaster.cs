@@ -14,23 +14,21 @@ public class MutationBroadcaster(ILogger<MutationBroadcaster> logger)
         CancellationToken cancellationToken = default
     )
     {
-        foreach (var signal in signals)
-            try
-            {
-                var payload = JsonSerializer.Serialize(signal);
-                await context.Database.ExecuteSqlRawAsync(
-                    "SELECT pg_notify({0}, {1})",
-                    [Channel, payload],
-                    cancellationToken
-                );
-            }
-            catch (Exception ex)
-            {
-                logger.LogWarning(
-                    ex,
-                    "Failed to publish mutation signal {ChangeType} {EntityType} {EntityId}",
-                    signal.ChangeType, signal.EntityType, signal.EntityId
-                );
-            }
+        if (signals.Count == 0)
+            return;
+
+        try
+        {
+            var payloads = signals.Select(signal => JsonSerializer.Serialize(signal)).ToArray();
+            await context.Database.ExecuteSqlRawAsync(
+                "SELECT pg_notify({0}, payload) FROM unnest({1}) AS payload",
+                [Channel, payloads],
+                cancellationToken
+            );
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to publish {Count} mutation signal(s)", signals.Count);
+        }
     }
 }
