@@ -53,8 +53,7 @@ public class SseStreamService(ILogger<SseStreamService> logger)
                 caughtUp.Add(signal.Id);
             }
 
-            // Emit a heartbeat comment every HeartbeatInterval of silence so a half-open connection is detected
-            // Needed by the proxy and the client watchdog.
+            // Emit a heartbeat comment every HeartbeatInterval. Needed by the proxy and the client watchdog.
             using var heartbeat = new PeriodicTimer(HeartbeatInterval);
             var reader = client.Queue.Reader;
             var readTask = reader.WaitToReadAsync(cancellationToken).AsTask();

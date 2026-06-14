@@ -2,9 +2,7 @@ using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities.Mutations;
 using Digital.Net.Core.Http.Endpoints.Dto;
 using Digital.Net.Core.Http.RateLimiters;
-using Digital.Net.Core.Http.Services.Authentication;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
-using Digital.Net.Core.Http.Services.Authentication.Options;
 using Digital.Net.Core.Http.Services.Mutations;
 using Digital.Net.Core.Http.Services.Mutations.Exceptions;
 using Digital.Net.Core.Http.Services.Pagination;
@@ -31,10 +29,11 @@ public static class EntityMutationEndpoints
             .MapGet("stream", Stream)
             .WithSummary("Mutation stream (SSE)")
             .WithDescription(
-                "Server-Sent Events stream of entity mutations. " +
+                "Server-Sent Events stream of entity mutations. Requires the refresh-token cookie " +
+                "or an API key. " +
                 "Filter with ?entity=Page,Article ; resume with the lastEventId=id param."
             )
-            .RequireAuthentication(AuthorizeType.Application | AuthorizeType.ApiKey);
+            .RequireAuthentication(AuthorizeType.JwtRefreshOnly | AuthorizeType.ApiKey);
 
         controller
             .MapGet("", GetPaginated)
@@ -53,47 +52,23 @@ public static class EntityMutationEndpoints
         SseStreamService sseStream,
         MutationCatchupReader catchupReader,
         IUserAccessor userAccessor,
-        JwtService jwtService,
-        AuthenticationOptionService authOptions,
         IEnumerable<AuditedEntityType> auditedTypes
     )
     {
+        var user = userAccessor.GetUser();
         var requested = ParseEntityTypes(ctx.Request.Query["entity"]);
         var cursor = MutationCursor.TryParse(ctx.Request.Query[LastEventIdParam].FirstOrDefault());
-        var entityTypes = ResolveVisibleTypes(requested, IsAdmin(userAccessor), auditedTypes);
+        var entityTypes = ResolveVisibleTypes(requested, user.IsAdmin, auditedTypes);
 
         return sseStream.StreamAsync(
             ctx,
             entityTypes,
             ct => catchupReader.ReadSinceAsync(cursor, entityTypes, ct),
             ctx.RequestAborted,
-            ResolveConnectionUser(ctx, userAccessor, jwtService, authOptions)
+            user.Id
         );
     }
 
-    // Identity for echo suppression (isSelf). ApiKey callers already carry a real UserId; the BO connects
-    // with the (user-less) Application key, so we recover the logged-in user from the refresh cookie it
-    // sends via credentials:'include'. Resolved once at connect, no side effect (no rotation); a missing or
-    // expired cookie simply yields Guid.Empty → echo not suppressed (graceful, never a broken stream).
-    private static Guid? ResolveConnectionUser(
-        HttpContext ctx,
-        IUserAccessor userAccessor,
-        JwtService jwtService,
-        AuthenticationOptionService authOptions
-    )
-    {
-        if (userAccessor.TryGetUserId() is { } id && id != Guid.Empty) return id;
-        var cookie = ctx.Request.Cookies[authOptions.CookieName];
-        var fromCookie = jwtService.AuthorizeToken(cookie).UserId;
-        return fromCookie != Guid.Empty ? fromCookie : null;
-    }
-
-    // Application-key callers carry UserId = Guid.Empty → never admin.
-    private static bool IsAdmin(IUserAccessor userAccessor) =>
-        userAccessor.TryGetUserId() is { } id && id != Guid.Empty && userAccessor.GetUser().IsAdmin;
-
-    // Same spirit as IUntrackedEntity: restricted (and unknown) types are silently dropped for
-    // non-admins. The result is never null, so live fan-out and catch-up share one whitelist.
     private static IReadOnlySet<string> ResolveVisibleTypes(
         IReadOnlySet<string>? requested,
         bool isAdmin,

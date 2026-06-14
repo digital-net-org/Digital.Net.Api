@@ -102,6 +102,12 @@ public static class AuthorizationExtensions
                     dbCtx,
                     ctx.HttpContext.Request.Headers[AuthenticationStaticOptions.ApiKeyHeaderAccessor].FirstOrDefault()
                 ));
+        if (type.HasFlag(AuthorizeType.JwtRefreshOnly) && !result.IsAuthorized)
+        {
+            var authOptions = ctx.HttpContext.RequestServices.GetRequiredService<AuthenticationOptionService>();
+            result.Merge(jwtService.AuthorizeToken(ctx.HttpContext.Request.Cookies[authOptions.CookieName]));
+        }
+
         if (type.HasFlag(AuthorizeType.Jwt) && !result.IsAuthorized)
             result.Merge(
                 jwtService.AuthorizeToken(

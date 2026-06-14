@@ -53,6 +53,9 @@ public static class AuthenticationApi
     public static async Task<HttpResponseMessage> TestApiKeyAuthorization(this HttpClient client) =>
         await client.GetAsync("test/authentication/api-key");
 
+    public static async Task<HttpResponseMessage> TestRefreshAuthorization(this HttpClient client) =>
+        await client.GetAsync("test/authentication/refresh");
+
     public static async Task<HttpResponseMessage> TestApplicationAuthorization(this HttpClient client) =>
         await client.GetAsync("test/authentication/application");
 

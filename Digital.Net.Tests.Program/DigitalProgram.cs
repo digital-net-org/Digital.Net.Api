@@ -44,6 +44,10 @@ public sealed class DigitalProgram
             .RequireAuthentication(AuthorizeType.ApiKey);
 
         controller
+            .MapGet("/refresh", () => Results.Ok())
+            .RequireAuthentication(AuthorizeType.JwtRefreshOnly);
+
+        controller
             .MapGet("/any", () => Results.Ok())
             .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
 
