@@ -4,6 +4,7 @@ using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Models.Forms;
 using Digital.Net.Core.Entities.Exceptions;
+using Digital.Net.Core.Entities.Projection;
 using Digital.Net.Core.Http.Security;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Core.Http.Services.Crud;
@@ -40,7 +41,6 @@ public static class FormEndpoints
         form.MapCrudPost<CmsContext, Form, FormCreatePayload>();
         form.MapCrudDelete<CmsContext, Form>();
         form.MapCrudPatch<CmsContext, Form>();
-
         form.MapCrudSchema<CmsContext, FormField>("fields");
 
         form
@@ -96,15 +96,16 @@ public static class FormEndpoints
     private static async Task<Results<Ok<Result<FormDto>>, NotFound>> GetFormDefinition(
         Guid id,
         CmsContext context,
-        HttpContext httpContext
+        CancellationToken ct
     )
     {
-        var form = await context.Forms
-            .Include(f => f.Fields)
-            .FirstOrDefaultAsync(f => f.Id == id && f.Published == true);
-        return form is null
+        var dto = await context.Forms
+            .Where(f => f.Id == id && f.Published)
+            .ProjectTo<Form, FormDto>()
+            .FirstOrDefaultAsync(ct);
+        return dto is null
             ? TypedResults.NotFound()
-            : TypedResults.Ok(new Result<FormDto>(new FormDto(form)));
+            : TypedResults.Ok(new Result<FormDto>(dto));
     }
 
     private static async Task<IResult> SubmitForm(

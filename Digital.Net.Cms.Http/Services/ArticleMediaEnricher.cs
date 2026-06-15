@@ -12,12 +12,12 @@ public class ArticleMediaEnricher(
     DigitalContext digitalContext
 ) : IDtoEnricher<Article, ArticleDto>
 {
-    public async Task EnrichAsync(Article entity, ArticleDto dto, CancellationToken ct)
+    public async Task EnrichAsync(ArticleDto dto, CancellationToken ct)
     {
         var pivots = await cmsContext.ArticleMedia
             .Include(p => p.Child)
             .AsNoTracking()
-            .Where(p => p.ParentId == entity.Id)
+            .Where(p => p.ParentId == dto.Id)
             .OrderBy(p => p.Order)
             .ToListAsync(ct);
 

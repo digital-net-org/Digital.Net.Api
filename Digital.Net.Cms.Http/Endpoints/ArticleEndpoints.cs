@@ -21,28 +21,6 @@ namespace Digital.Net.Cms.Http.Endpoints;
 
 public static class ArticleEndpoints
 {
-    private static readonly Expression<Func<Article, ArticleListDto>> ArticleListProjection =
-        article => new ArticleListDto
-        {
-            Id = article.Id,
-            Title = article.Title,
-            Slug = article.Slug,
-            PublishedAt = article.PublishedAt,
-            PageId = article.PageId,
-            CreatedAt = article.CreatedAt,
-            UpdatedAt = article.UpdatedAt,
-            Tags = article.Tags
-                .Select(tag => new TagDto
-                {
-                    Id = tag.Id,
-                    Name = tag.Name,
-                    Color = tag.Color,
-                    CreatedAt = tag.CreatedAt,
-                    UpdatedAt = tag.UpdatedAt
-                })
-                .ToList()
-        };
-
     public static IEndpointRouteBuilder MapCmsArticleEndpoints(this IEndpointRouteBuilder app)
     {
         var controller = app
@@ -62,10 +40,7 @@ public static class ArticleEndpoints
         controller.MapCrudSchema<CmsContext, Article>();
         controller.MapCrudSchema<CmsContext, ArticleMedia>("media");
         controller.MapCrudGet<CmsContext, Article, ArticleDto>();
-        controller.MapPaginationGet<CmsContext, Article, ArticleListDto, ArticleQuery>(
-            filter: PaginationFilter,
-            projection: ArticleListProjection
-        );
+        controller.MapPaginationGet<CmsContext, Article, ArticleListDto, ArticleQuery>(filter: PaginationFilter);
         controller.MapCrudPost<CmsContext, Article, ArticlePayload>();
         controller.MapCrudPatch<CmsContext, Article>();
         controller.MapCrudDelete<CmsContext, Article>();

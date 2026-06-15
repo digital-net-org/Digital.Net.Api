@@ -10,12 +10,12 @@ namespace Digital.Net.Cms.Http.Services;
 public class PageMediaEnricher(CmsContext cmsContext, DigitalContext digitalContext)
     : IDtoEnricher<Page, PageDto>
 {
-    public async Task EnrichAsync(Page entity, PageDto dto, CancellationToken ct)
+    public async Task EnrichAsync(PageDto dto, CancellationToken ct)
     {
         var pivots = await cmsContext.PageMedia
             .Include(p => p.Child)
             .AsNoTracking()
-            .Where(p => p.ParentId == entity.Id)
+            .Where(p => p.ParentId == dto.Id)
             .OrderBy(p => p.Order)
             .ToListAsync(ct);
 

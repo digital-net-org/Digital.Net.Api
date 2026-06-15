@@ -15,5 +15,5 @@ public interface IDtoEnricher<in T, in TDto>
     where T : Entity
     where TDto : class
 {
-    Task EnrichAsync(T entity, TDto dto, CancellationToken ct);
+    Task EnrichAsync(TDto dto, CancellationToken ct);
 }

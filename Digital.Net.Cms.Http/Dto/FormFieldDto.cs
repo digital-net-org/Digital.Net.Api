@@ -1,28 +1,9 @@
-using Digital.Net.Cms.Models.Forms;
-
 namespace Digital.Net.Cms.Http.Dto;
 
 public class FormFieldDto
 {
     public FormFieldDto()
     {
-    }
-
-    public FormFieldDto(FormField field)
-    {
-        Id = field.Id;
-        FormId = field.FormId;
-        Name = field.Name;
-        Type = field.Type;
-        Label = field.Label;
-        Placeholder = field.Placeholder;
-        DefaultValue = field.DefaultValue;
-        Required = field.Required;
-        SortOrder = field.SortOrder;
-        ValidationJson = field.ValidationJson;
-        OptionsJson = field.OptionsJson;
-        CreatedAt = field.CreatedAt;
-        UpdatedAt = field.UpdatedAt;
     }
 
     public Guid Id { get; init; }

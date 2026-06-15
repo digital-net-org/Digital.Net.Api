@@ -1,25 +1,9 @@
-using Digital.Net.Cms.Models.Articles;
-
 namespace Digital.Net.Cms.Http.Dto;
 
 public class ArticleDto
 {
     public ArticleDto()
     {
-    }
-
-    public ArticleDto(Article article)
-    {
-        Id = article.Id;
-        Title = article.Title;
-        Description = article.Description;
-        Content = article.Content;
-        Slug = article.Slug;
-        PublishedAt = article.PublishedAt;
-        PageId = article.PageId;
-        CreatedAt = article.CreatedAt;
-        UpdatedAt = article.UpdatedAt;
-        Tags = article.Tags.Select(t => new TagDto(t)).ToList();
     }
 
     public Guid Id { get; init; }

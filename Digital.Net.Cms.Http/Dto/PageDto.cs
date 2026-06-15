@@ -8,21 +8,6 @@ public class PageDto
     {
     }
 
-    public PageDto(Page page)
-    {
-        Id = page.Id;
-        Path = page.Path;
-        EntityType = page.EntityType;
-        Published = page.Published;
-        Indexed = page.Indexed;
-        Title = page.Title;
-        Description = page.Description;
-        JsonLd = page.JsonLd;
-        Redirect = page.Redirect;
-        CreatedAt = page.CreatedAt;
-        UpdatedAt = page.UpdatedAt;
-    }
-
     public Guid Id { get; init; }
     public string Path { get; set; } = string.Empty;
     public PageEntityType? EntityType { get; set; }

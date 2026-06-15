@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Digital.Net.Core.Entities.Exceptions;
 using Digital.Net.Core.Entities.Models;
+using Digital.Net.Core.Entities.Projection;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.Models;
@@ -58,12 +59,15 @@ public static class CrudEndpointExtensions
                     var result = new Result<TDto>();
                     try
                     {
-                        var entity = await context.Set<T>().FindAsync([id], ct) ??
-                                     throw new ResourceNotFoundException();
+                        var dto = await context
+                                      .Set<T>()
+                                      .Where(e => e.Id == id)
+                                      .ProjectTo<T, TDto>()
+                                      .FirstOrDefaultAsync(ct)
+                                  ?? throw new ResourceNotFoundException();
 
-                        var dto = Mapper.TryMap<T, TDto>(entity);
                         foreach (var enricher in enrichers)
-                            await enricher.EnrichAsync(entity, dto, ct);
+                            await enricher.EnrichAsync(dto, ct);
 
                         result.Value = dto;
                         return TypedResults.Ok(result);
@@ -102,7 +106,7 @@ public static class CrudEndpointExtensions
                     CancellationToken ct
                 ) =>
                 {
-                    var result = await crudService.Create(Mapper.TryMap<TPayload, T>(payload), ct);
+                    var result = await crudService.Create(PayloadBinder.Bind<TPayload, T>(payload), ct);
                     if (result.HasError && !result.HasErrorOfType<EntityValidationException>())
                         return TypedResults.InternalServerError(result);
 

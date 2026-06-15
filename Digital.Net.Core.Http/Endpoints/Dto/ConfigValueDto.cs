@@ -8,16 +8,6 @@ public class ConfigValueDto
     {
     }
 
-    public ConfigValueDto(ConfigValue configValue)
-    {
-        Id = configValue.Id;
-        Name = configValue.Name;
-        Value = configValue.Value;
-        Type = configValue.Type;
-        CreatedAt = configValue.CreatedAt;
-        UpdatedAt = configValue.UpdatedAt;
-    }
-
     public Guid Id { get; init; }
     public string Name { get; set; } = string.Empty;
     public string? Value { get; set; }

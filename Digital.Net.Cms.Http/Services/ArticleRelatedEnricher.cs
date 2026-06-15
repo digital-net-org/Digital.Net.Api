@@ -8,10 +8,10 @@ namespace Digital.Net.Cms.Http.Services;
 
 public class ArticleRelatedEnricher(CmsContext context) : IDtoEnricher<Article, ArticleDto>
 {
-    public async Task EnrichAsync(Article entity, ArticleDto dto, CancellationToken ct) =>
+    public async Task EnrichAsync(ArticleDto dto, CancellationToken ct) =>
         dto.Related = await context.ArticleRelated
             .AsNoTracking()
-            .Where(p => p.ParentId == entity.Id)
+            .Where(p => p.ParentId == dto.Id)
             .OrderBy(p => p.Order)
             .Select(p => new ArticleRefDto { Id = p.Child.Id, Title = p.Child.Title })
             .ToListAsync(ct);

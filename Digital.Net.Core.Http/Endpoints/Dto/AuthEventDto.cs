@@ -6,18 +6,6 @@ public class AuthEventDto
 {
     public AuthEventDto() { }
 
-    public AuthEventDto(AuthEvent authEvent)
-    {
-        Id = authEvent.Id;
-        Type = authEvent.Type;
-        Success = authEvent.Success;
-        Login = authEvent.Login;
-        UserId = authEvent.UserId;
-        IpAddress = authEvent.IpAddress;
-        UserAgent = authEvent.UserAgent;
-        CreatedAt = authEvent.CreatedAt;
-    }
-
     public Guid Id { get; init; }
     public AuthEventType Type { get; init; }
     public bool Success { get; init; }

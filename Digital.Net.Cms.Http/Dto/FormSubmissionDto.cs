@@ -1,22 +1,9 @@
-using Digital.Net.Cms.Models.Forms;
-
 namespace Digital.Net.Cms.Http.Dto;
 
 public class FormSubmissionDto
 {
     public FormSubmissionDto()
     {
-    }
-
-    public FormSubmissionDto(FormSubmission submission)
-    {
-        Id = submission.Id;
-        FormId = submission.FormId;
-        ValuesJson = submission.ValuesJson;
-        SubmitterIp = submission.SubmitterIp;
-        UserAgent = submission.UserAgent;
-        CreatedAt = submission.CreatedAt;
-        UpdatedAt = submission.UpdatedAt;
     }
 
     public Guid Id { get; init; }

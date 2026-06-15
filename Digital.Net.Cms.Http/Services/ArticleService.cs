@@ -1,6 +1,7 @@
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Models.Articles;
+using Digital.Net.Core.Entities.Projection;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
@@ -36,17 +37,16 @@ public class ArticleService(
         var result = new Result<ArticleDto>();
         try
         {
-            var article = await context.Articles
-                .AsNoTracking()
-                .Include(a => a.Tags)
-                .FirstOrDefaultAsync(a => a.Slug == slug && a.PublishedAt != null, ct);
+            var dto = await context.Articles
+                .Where(a => a.Slug == slug && a.PublishedAt != null)
+                .ProjectTo<Article, ArticleDto>()
+                .FirstOrDefaultAsync(ct);
 
-            if (article is null)
+            if (dto is null)
                 throw new ResourceNotFoundException();
 
-            var dto = new ArticleDto(article);
             foreach (var enricher in enrichers)
-                await enricher.EnrichAsync(article, dto, ct);
+                await enricher.EnrichAsync(dto, ct);
             result.Value = dto;
         }
         catch (Exception ex)

@@ -1,23 +1,9 @@
-using Digital.Net.Cms.Models.Forms;
-
 namespace Digital.Net.Cms.Http.Dto;
 
 public class FormListDto
 {
     public FormListDto()
     {
-    }
-
-    public FormListDto(Form form)
-    {
-        Id = form.Id;
-        Name = form.Name;
-        Description = form.Description;
-        Published = form.Published;
-        SubmitLabel = form.SubmitLabel;
-        Path = form.Path;
-        CreatedAt = form.CreatedAt;
-        UpdatedAt = form.UpdatedAt;
     }
 
     public Guid Id { get; init; }

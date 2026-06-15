@@ -147,7 +147,8 @@ public static class UserEndpoints
         if (await userContextService.GetUserAsync(ct) is not { } user)
             return TypedResults.Unauthorized();
 
-        return TypedResults.Ok(new Result<UserDto>(new UserDto(user)));
+        var dto = new UserDto(user);
+        return TypedResults.Ok(new Result<UserDto>(dto));
     }
 
     private static async Task<Results<Ok<Result>, BadRequest<Result>, InternalServerError<Result>>> PatchSelf(
