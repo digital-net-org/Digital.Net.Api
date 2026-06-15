@@ -61,7 +61,7 @@ public static class PageEndpoints
             );
 
         controller.MapCrudGet<CmsContext, Page, PageDto>();
-        controller.MapPaginationGet<CmsContext, Page, PageDto, PageQuery>(filter: PaginationFilter);
+        controller.MapPaginationGet<CmsContext, Page, PageListDto, PageQuery>(filter: PaginationFilter);
         controller.MapCrudDelete<CmsContext, Page>();
         controller
             .MapPatch("{id:guid}", UpdatePage)
