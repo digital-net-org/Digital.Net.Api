@@ -37,6 +37,8 @@ public static class CoreHttpInjector
             .AddDigitalAuthenticationServices()
             .AddScoped<DocumentCacheService>()
             .AddSingleton<SseStreamService>()
+            .AddSingleton<MutationSignalDispatcher>()
+            .AddScoped<IMutationSignalHandler, SseBroadcastHandler>()
             .AddScoped<MutationCatchupReader>()
             .AddScoped<MutationAuditReader>()
             .AddHostedService<RetentionPurgeService>()
