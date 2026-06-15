@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Digital.Net.Core.Entities.Attributes;
@@ -12,6 +13,12 @@ namespace Digital.Net.Core.Entities.Models;
 public class SchemaProperty<T>
     where T : class, IEntity
 {
+    private static readonly IReadOnlyList<SchemaProperty<T>> Cached =
+        typeof(T).GetProperties().Select(property => new SchemaProperty<T>(property)).ToArray();
+
+    private readonly Func<T, object?> _getter;
+    private readonly Regex? _regex;
+
     public SchemaProperty(PropertyInfo propertyInfo)
     {
         Name = propertyInfo.Name;
@@ -24,8 +31,10 @@ public class SchemaProperty<T>
         MaxLength = AttributeAnalyzer<T>.MaxLength(propertyInfo);
         IsIdentity = AttributeAnalyzer<T>.IsIdentity(propertyInfo);
         IsForeignKey = AttributeAnalyzer<T>.IsForeignKey(propertyInfo);
-        RegexValidation = AttributeAnalyzer<T>.GetRegex(propertyInfo)?.ToString();
+        _regex = AttributeAnalyzer<T>.GetRegex(propertyInfo);
+        RegexValidation = _regex?.ToString();
         OneOfValues = AttributeAnalyzer<T>.GetOneOf(propertyInfo);
+        _getter = BuildGetter(propertyInfo);
 
         var underlying = Nullable.GetUnderlyingType(propertyInfo.PropertyType) ?? propertyInfo.PropertyType;
         if (underlying.IsEnum)
@@ -56,19 +65,17 @@ public class SchemaProperty<T>
     public string[]? EnumValues { get; }
 
     /// <summary>
-    ///     Get a schema of the entity describing its properties.
+    ///     Get a schema of the entity describing its properties. Built once per closed type and shared.
     /// </summary>
-    public static List<SchemaProperty<T>> Get() =>
-        typeof(T).GetProperties().Select(property => new SchemaProperty<T>(property)).ToList();
+    public static IReadOnlyList<SchemaProperty<T>> Get() => Cached;
 
     /// <summary>
     ///     Validate an <see cref="Entity" /> payload for an EFCore creation.
     /// </summary>
     public static void Validate(T entity)
     {
-        var schema = Get();
-        foreach (var property in entity.GetType().GetProperties())
-            schema.FirstOrDefault(x => x.Name == property.Name)?.ValidatePath(property.GetValue(entity), property.Name);
+        foreach (var property in Cached)
+            property.ValidatePath(property._getter(entity), property.Name);
     }
 
     /// <summary>
@@ -89,7 +96,7 @@ public class SchemaProperty<T>
             throw new EntityValidationException($"{path}: This field is read-only.");
         if (IsRequired && Type == "String" && string.IsNullOrWhiteSpace(value.ToString()))
             throw new EntityValidationException($"{path}: This field is required and cannot be empty.");
-        if (RegexValidation is not null && !Regex.IsMatch(value.ToString() ?? "", RegexValidation))
+        if (_regex is not null && !_regex.IsMatch(value.ToString() ?? ""))
             throw new EntityValidationException($"{path}: This value does not meet the requirements.");
         if (OneOfValues is not null && !OneOfValues.Contains(value.ToString() ?? string.Empty))
             throw new EntityValidationException($"{path}: Value must be one of: {string.Join(", ", OneOfValues)}.");
@@ -103,5 +110,14 @@ public class SchemaProperty<T>
         ValidatePath(value, path);
         if (IsIdentity || IsReadOnly)
             throw new EntityValidationException($"{path}: This field is read-only.");
+    }
+
+    // Compiled accessor (boxed) so Validate reads values without a per-call GetValue reflection hit.
+    private static Func<T, object?> BuildGetter(PropertyInfo info)
+    {
+        if (!info.CanRead) return static _ => null;
+        var param = Expression.Parameter(typeof(T), "e");
+        var body = Expression.Convert(Expression.Property(param, info), typeof(object));
+        return Expression.Lambda<Func<T, object?>>(body, param).Compile();
     }
 }

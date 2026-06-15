@@ -1,4 +1,6 @@
 using System.Collections;
+using System.Collections.Concurrent;
+using System.Linq.Expressions;
 using System.Reflection;
 using Digital.Net.Core.Entities.Exceptions;
 using Digital.Net.Core.Entities.Models;
@@ -15,6 +17,9 @@ namespace Digital.Net.Core.Http.Services.Crud;
 /// </summary>
 public static class SchemaPatchValidator
 {
+    private static readonly ConcurrentDictionary<Type, Action<Entity>> RuntimeValidators = new();
+    private static readonly ConcurrentDictionary<(Type Owner, string Member), Type?> MemberTypes = new();
+
     /// <summary>
     ///     Validate a JSON Patch document for an EFCore mutation. Each <c>add</c>/<c>replace</c>
     ///     op is dispatched; depth-2 paths targeting a navigation <see cref="Entity" /> are validated against that
@@ -34,7 +39,7 @@ public static class SchemaPatchValidator
             if (parts.Count is 0 or > 2)
                 continue;
 
-            var memberType = ResolveMemberType<T>(parts[0]);
+            var memberType = ResolveMemberType(typeof(T), parts[0]);
             if (parts.Count == 2 && typeof(Entity).IsAssignableFrom(memberType))
             {
                 var parent = schema.FirstOrDefault(x =>
@@ -42,7 +47,7 @@ public static class SchemaPatchValidator
                 if (parent is { IsReadOnly: true } or { IsIdentity: true })
                     throw new EntityValidationException($"{parts[0]}: This field is read-only.");
 
-                var nested = JObject.FromObject(op.value).ToObject(memberType) as Entity
+                var nested = JObject.FromObject(op.value).ToObject(memberType!) as Entity
                              ?? throw new EntityValidationException($"{op.path}: Invalid entity type.");
                 ValidateRuntime(nested);
                 continue;
@@ -57,10 +62,12 @@ public static class SchemaPatchValidator
     ///     Resolve the CLR type of the first path segment: returns the property type, or its
     ///     element type if it is a collection.
     /// </summary>
-    private static Type? ResolveMemberType<T>(string memberName)
-        where T : class, IEntity
+    private static Type? ResolveMemberType(Type owner, string memberName) =>
+        MemberTypes.GetOrAdd((owner, memberName), static key => ResolveMemberTypeUncached(key.Owner, key.Member));
+
+    private static Type? ResolveMemberTypeUncached(Type owner, string memberName)
     {
-        var property = typeof(T).GetProperty(
+        var property = owner.GetProperty(
             memberName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
         if (property is null)
             return null;
@@ -78,10 +85,12 @@ public static class SchemaPatchValidator
     ///     Dispatch to <c>SchemaProperty&lt;TActual&gt;.Validate(entity)</c> using the runtime
     ///     type of <paramref name="entity" />.
     /// </summary>
-    private static void ValidateRuntime(Entity entity)
+    private static void ValidateRuntime(Entity entity) =>
+        RuntimeValidators.GetOrAdd(entity.GetType(), BuildRuntimeValidator)(entity);
+
+    private static Action<Entity> BuildRuntimeValidator(Type actualType)
     {
         const BindingFlags flags = BindingFlags.Public | BindingFlags.Static;
-        var actualType = entity.GetType();
         var validate =
             typeof(SchemaProperty<>)
                 .MakeGenericType(actualType)
@@ -90,6 +99,8 @@ public static class SchemaPatchValidator
                 $"SchemaProperty<{actualType.Name}>.Validate({actualType.Name}) not found."
             );
 
-        validate.Invoke(null, BindingFlags.DoNotWrapExceptions, null, [entity], null);
+        var param = Expression.Parameter(typeof(Entity), "e");
+        var call = Expression.Call(validate, Expression.Convert(param, actualType));
+        return Expression.Lambda<Action<Entity>>(call, param).Compile();
     }
 }

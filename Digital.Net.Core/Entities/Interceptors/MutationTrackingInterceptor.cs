@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using System.Reflection;
 using System.Text.Json;
 using Digital.Net.Core.Accessors;
@@ -24,7 +25,7 @@ public class MutationTrackingInterceptor(IServiceProvider serviceProvider) : Sav
     private const int MaxValueLength = 512;
     private static readonly HashSet<string> IgnoredProperties = ["Id", "CreatedAt", "UpdatedAt"];
 
-    // Signals built during SavingChanges, keyed by the saving context, emitted once it has committed.
+    private static readonly ConcurrentDictionary<Type, FrozenSet<string>> SecretProperties = new();
     private readonly ConcurrentDictionary<DbContext, List<MutationSignal>> _pending = new();
 
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
@@ -128,12 +129,13 @@ public class MutationTrackingInterceptor(IServiceProvider serviceProvider) : Sav
     {
         if (entry.State is EntityState.Deleted) return null;
         var isCreate = entry.State is EntityState.Added;
+        var secrets = SecretProperties.GetOrAdd(entry.Metadata.ClrType, BuildSecretSet);
 
         var changes = new Dictionary<string, object?>();
         foreach (var prop in entry.Properties)
         {
             if (IgnoredProperties.Contains(prop.Metadata.Name)) continue;
-            if (prop.Metadata.PropertyInfo?.GetCustomAttribute<SecretAttribute>() is not null) continue;
+            if (secrets.Contains(prop.Metadata.Name)) continue;
             if (!isCreate && !prop.IsModified) continue;
 
             changes[prop.Metadata.Name] = new
@@ -148,4 +150,10 @@ public class MutationTrackingInterceptor(IServiceProvider serviceProvider) : Sav
 
     private static object? Cap(object? value) =>
         value is string { Length: > MaxValueLength } s ? $"…({s.Length} chars)" : value;
+
+    private static FrozenSet<string> BuildSecretSet(Type clrType) =>
+        clrType.GetProperties()
+            .Where(p => p.GetCustomAttribute<SecretAttribute>() is not null)
+            .Select(p => p.Name)
+            .ToFrozenSet(StringComparer.Ordinal);
 }

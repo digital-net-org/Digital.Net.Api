@@ -26,7 +26,7 @@ public static class CrudEndpointExtensions
         return app
             .MapGet($"{route}schema", () =>
             {
-                var result = new Result<List<SchemaProperty<T>>>(SchemaProperty<T>.Get());
+                var result = new Result<IReadOnlyList<SchemaProperty<T>>>(SchemaProperty<T>.Get());
                 return TypedResults.Ok(result);
             })
             .WithSummary($"GetSchema: {typeof(T).Name}")
@@ -98,10 +98,11 @@ public static class CrudEndpointExtensions
                 async Task<Results<Ok<Result<Guid>>, BadRequest<Result<Guid>>, InternalServerError<Result<Guid>>>> (
                     [FromBody]
                     TPayload payload,
-                    CrudService<TContext, T> crudService
+                    CrudService<TContext, T> crudService,
+                    CancellationToken ct
                 ) =>
                 {
-                    var result = await crudService.Create(Mapper.TryMap<TPayload, T>(payload));
+                    var result = await crudService.Create(Mapper.TryMap<TPayload, T>(payload), ct);
                     if (result.HasError && !result.HasErrorOfType<EntityValidationException>())
                         return TypedResults.InternalServerError(result);
 
@@ -169,10 +170,11 @@ public static class CrudEndpointExtensions
                 $"{route}{{id:guid}}",
                 async Task<Results<Ok<Result>, NotFound<Result>, InternalServerError<Result>>> (
                     Guid id,
-                    CrudService<TContext, T> crudService
+                    CrudService<TContext, T> crudService,
+                    CancellationToken ct
                 ) =>
                 {
-                    var result = await crudService.Delete(id);
+                    var result = await crudService.Delete(id, ct);
                     if (result.HasErrorOfType<ResourceNotFoundException>())
                         return TypedResults.NotFound(result);
                     if (result.HasError)

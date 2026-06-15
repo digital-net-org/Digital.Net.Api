@@ -1,5 +1,4 @@
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using Digital.Net.Core.Entities.Models;
 using Digital.Net.Lib.Messages;
 
@@ -13,28 +12,33 @@ public class PatchDispatcher<TParent>(IEnumerable<IPivotPatchResolver<TParent>> 
 
     private readonly List<(IPivotPatchResolver<TParent> Resolver, JsonElement Value)> _pending = [];
 
-    public (JsonElement SanitizedPatch, Result Validation) ExtractAndValidate(JsonElement patch, Guid parentId)
+    public (IReadOnlyList<JsonElement> SanitizedOps, Result Validation) ExtractAndValidate(
+        JsonElement patch,
+        Guid parentId
+    )
     {
         _pending.Clear();
         var validation = new Result();
+        var remaining = new List<JsonElement>();
         if (patch.ValueKind != JsonValueKind.Array)
-            return (patch, validation);
+            return (remaining, validation);
 
-        var remaining = new JsonArray();
         foreach (var op in patch.EnumerateArray())
         {
             if (!TryMatchResolver(op, out var resolver) || !op.TryGetProperty("value", out var valueEl))
             {
-                remaining.Add(JsonNode.Parse(op.GetRawText()));
+                // Kept verbatim as a System.Text.Json element; serialized to text only once, downstream.
+                remaining.Add(op);
                 continue;
             }
 
             var opValidation = resolver!.ValidateValue(valueEl, parentId);
             validation.Merge(opValidation);
+            // Pivot ops are applied later (across awaits), so clone them off the request document.
             _pending.Add((resolver, valueEl.Clone()));
         }
 
-        return (JsonSerializer.SerializeToElement(remaining), validation);
+        return (remaining, validation);
     }
 
     public async Task ApplyPendingAsync(Guid parentId, CancellationToken ct)

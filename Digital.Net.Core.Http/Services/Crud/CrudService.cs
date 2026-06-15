@@ -61,7 +61,7 @@ public class CrudService<TContext, T>(TContext context, PatchDispatcher<T> patch
     public async Task<Result> Patch(JsonElement patch, Guid id, CancellationToken ct = default)
     {
         var result = new Result();
-        var entity = await context.Set<T>().FindAsync(id);
+        var entity = await context.Set<T>().FindAsync([id], ct);
         if (entity is null)
             return result.AddError(new ResourceNotFoundException());
 
@@ -96,15 +96,15 @@ public class CrudService<TContext, T>(TContext context, PatchDispatcher<T> patch
         });
     }
 
-    public async Task<Result> Delete(Guid id)
+    public async Task<Result> Delete(Guid id, CancellationToken ct = default)
     {
         var result = new Result();
         try
         {
-            var entity = await context.Set<T>().FindAsync(id);
+            var entity = await context.Set<T>().FindAsync([id], ct);
             if (entity is null) throw new ResourceNotFoundException();
             context.Set<T>().Remove(entity);
-            await context.SaveEntityAsync();
+            await context.SaveEntityAsync(ct);
         }
         catch (Exception e)
         {
@@ -114,14 +114,14 @@ public class CrudService<TContext, T>(TContext context, PatchDispatcher<T> patch
         return result;
     }
 
-    public async Task<Result<Guid>> Create(T entity)
+    public async Task<Result<Guid>> Create(T entity, CancellationToken ct = default)
     {
         var result = new Result<Guid>();
         try
         {
             SchemaProperty<T>.Validate(entity);
-            await context.Set<T>().AddAsync(entity);
-            await context.SaveEntityAsync();
+            await context.Set<T>().AddAsync(entity, ct);
+            await context.SaveEntityAsync(ct);
             result.Value = entity.Id;
         }
         catch (Exception e)

@@ -8,5 +8,5 @@ namespace Digital.Net.Core.Entities.Attributes;
 [AttributeUsage(AttributeTargets.Property)]
 public class RegexValidationAttribute(string regex) : Attribute
 {
-    public Regex Regex { get; } = new(regex);
+    public Regex Regex { get; } = new(regex, RegexOptions.Compiled);
 }

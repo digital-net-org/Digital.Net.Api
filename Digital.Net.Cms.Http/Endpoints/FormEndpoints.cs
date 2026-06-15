@@ -1,6 +1,5 @@
 using System.Linq.Expressions;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Models.Forms;
@@ -37,7 +36,7 @@ public static class FormEndpoints
 
         form.MapCrudSchema<CmsContext, Form>();
         form.MapCrudGet<CmsContext, Form, FormDto>();
-        form.MapPaginationGet<CmsContext, Form, FormDto, FormQuery>(filter: PaginationFilter);
+        form.MapPaginationGet<CmsContext, Form, FormListDto, FormQuery>(filter: PaginationFilter);
         form.MapCrudPost<CmsContext, Form, FormCreatePayload>();
         form.MapCrudDelete<CmsContext, Form>();
         form.MapCrudPatch<CmsContext, Form>();
@@ -171,18 +170,21 @@ public static class FormEndpoints
                 errors.Add($"{field.Name}: This field is required.");
                 continue;
             }
+
             if (!hasValue || rawValue is null)
                 continue;
-            if (field.Type == FormFieldTypes.Email && !Regex.IsMatch(rawValue, RegularExpressions.EmailPattern))
+            if (field.Type == FormFieldTypes.Email && !RegularExpressions.Email.IsMatch(rawValue))
             {
                 errors.Add($"{field.Name}: Invalid email address.");
                 continue;
             }
+
             if (field.Type == FormFieldTypes.Checkbox && rawValue is not "true" and not "false")
             {
                 errors.Add($"{field.Name}: Must be 'true' or 'false'.");
                 continue;
             }
+
             if (field.Type is FormFieldTypes.Select or FormFieldTypes.Radio && field.OptionsJson is not null)
             {
                 try
@@ -198,6 +200,7 @@ public static class FormEndpoints
 
                 continue;
             }
+
             if (field.ValidationJson is null)
                 continue;
 
@@ -251,10 +254,11 @@ public static class FormEndpoints
             [FromBody]
             FormFieldPayload payload,
             CmsContext context,
-            CrudService<CmsContext, FormField> crudService
+            CrudService<CmsContext, FormField> crudService,
+            CancellationToken ct
         )
     {
-        var formExists = await context.Forms.AsNoTracking().AnyAsync(f => f.Id == formId);
+        var formExists = await context.Forms.AsNoTracking().AnyAsync(f => f.Id == formId, ct);
         if (!formExists)
             return TypedResults.NotFound(new Result<Guid>().AddError(new ResourceNotFoundException()));
 
@@ -272,7 +276,7 @@ public static class FormEndpoints
             OptionsJson = payload.OptionsJson
         };
 
-        var result = await crudService.Create(entity);
+        var result = await crudService.Create(entity, ct);
         var isBadRequest = result.HasErrorOfType<EntityValidationException>();
         if (result.HasError && !isBadRequest)
             return TypedResults.InternalServerError(result);
@@ -321,14 +325,15 @@ public static class FormEndpoints
             Guid formId,
             Guid fieldId,
             CmsContext context,
-            CrudService<CmsContext, FormField> crudService
+            CrudService<CmsContext, FormField> crudService,
+            CancellationToken ct
         )
     {
-        var field = await context.FormFields.AsNoTracking().FirstOrDefaultAsync(f => f.Id == fieldId);
+        var field = await context.FormFields.AsNoTracking().FirstOrDefaultAsync(f => f.Id == fieldId, ct);
         if (field is null || field.FormId != formId)
             return TypedResults.NotFound(new Result().AddError(new ResourceNotFoundException()));
 
-        var result = await crudService.Delete(fieldId);
+        var result = await crudService.Delete(fieldId, ct);
         if (result.HasErrorOfType<ResourceNotFoundException>())
             return TypedResults.NotFound(result);
         if (result.HasError)

@@ -16,7 +16,8 @@ public static class PaginationEndpointExtensions
         this IEndpointRouteBuilder app,
         string? route = null,
         Func<Expression<Func<T, bool>>, TQuery, Expression<Func<T, bool>>>? filter = null,
-        Expression<Func<T, object?>>[]? include = null
+        Expression<Func<T, object?>>[]? include = null,
+        Expression<Func<T, TDto>>? projection = null
     )
         where TContext : DbContext
         where T : Entity
@@ -45,10 +46,18 @@ public static class PaginationEndpointExtensions
                     items = items.AsNoTracking();
                     items = items.OrderBy(config, orderClause);
                     items = items.Skip((query.Index - 1) * query.Size).Take(query.Size);
-                    if (include is not null)
-                        items = include.Aggregate(items, (current, nav) => current.Include(nav));
 
-                    result.Value = Mapper.TryMap<T, TDto>(await items.ToListAsync(ct));
+                    if (projection is not null)
+                    {
+                        result.Value = await items.Select(projection).ToListAsync(ct);
+                    }
+                    else
+                    {
+                        if (include is not null)
+                            items = include.Aggregate(items, (current, nav) => current.Include(nav)).AsSplitQuery();
+                        result.Value = Mapper.TryMap<T, TDto>(await items.ToListAsync(ct));
+                    }
+
                     result.Total = rowCount;
                     result.Index = query.Index;
                     result.Size = query.Size;

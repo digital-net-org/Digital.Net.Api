@@ -21,6 +21,28 @@ namespace Digital.Net.Cms.Http.Endpoints;
 
 public static class ArticleEndpoints
 {
+    private static readonly Expression<Func<Article, ArticleListDto>> ArticleListProjection =
+        article => new ArticleListDto
+        {
+            Id = article.Id,
+            Title = article.Title,
+            Slug = article.Slug,
+            PublishedAt = article.PublishedAt,
+            PageId = article.PageId,
+            CreatedAt = article.CreatedAt,
+            UpdatedAt = article.UpdatedAt,
+            Tags = article.Tags
+                .Select(tag => new TagDto
+                {
+                    Id = tag.Id,
+                    Name = tag.Name,
+                    Color = tag.Color,
+                    CreatedAt = tag.CreatedAt,
+                    UpdatedAt = tag.UpdatedAt
+                })
+                .ToList()
+        };
+
     public static IEndpointRouteBuilder MapCmsArticleEndpoints(this IEndpointRouteBuilder app)
     {
         var controller = app
@@ -42,7 +64,7 @@ public static class ArticleEndpoints
         controller.MapCrudGet<CmsContext, Article, ArticleDto>();
         controller.MapPaginationGet<CmsContext, Article, ArticleListDto, ArticleQuery>(
             filter: PaginationFilter,
-            include: [e => e.Tags]
+            projection: ArticleListProjection
         );
         controller.MapCrudPost<CmsContext, Article, ArticlePayload>();
         controller.MapCrudPatch<CmsContext, Article>();
@@ -77,7 +99,7 @@ public static class ArticleEndpoints
             ? TypedResults.InternalServerError(result)
             : TypedResults.Ok(result);
     }
-    
+
     private static async
         Task<Results<Ok<Result<ArticleDto>>, NotFound<Result<ArticleDto>>, InternalServerError<Result<ArticleDto>>>>
         GetArticleBySlug(

@@ -24,14 +24,18 @@ public class PivotPatchResolver<TContext, TParent, TChild, TPivot, TDto>(TContex
             $"to be usable by {nameof(PivotPatchResolver<,,,,>)}."
         );
 
-    public string VirtualPath => Resolution.VirtualPath;
-    protected Ownership Mode => Resolution.Mode;
-    
-    private static readonly IReadOnlyList<SchemaProperty<TPivot>> PivotCustomSchema =
+    private static readonly IReadOnlyList<(SchemaProperty<TPivot> Schema, PropertyInfo DtoProp)> PivotCustomSchema =
         SchemaProperty<TPivot>
             .Get()
             .Where(s => typeof(TPivot).GetProperty(s.Name)?.DeclaringType != typeof(Pivot<TParent, TChild>))
-            .ToList();
+            .Select(s => (Schema: s, DtoProp: typeof(TDto).GetProperty(s.Name)))
+            .Where(x => x.DtoProp is not null)
+            .Select(x => (x.Schema, x.DtoProp!))
+            .ToArray();
+
+    protected Ownership Mode => Resolution.Mode;
+
+    public string VirtualPath => Resolution.VirtualPath;
 
     public Result ValidateValue(JsonElement value, Guid parentId)
     {
@@ -47,26 +51,16 @@ public class PivotPatchResolver<TContext, TParent, TChild, TPivot, TDto>(TContex
             var dto = items[i];
             var hasValidId = dto.Id is { } v && v != Guid.Empty;
             if (Mode == Ownership.Cascade || !hasValidId)
-            {
                 try
                 {
-                    var entity = dto.ToChild();
-                    var schema = SchemaProperty<TChild>.Get();
-                    foreach (var property in entity.GetType().GetProperties())
-                        schema
-                            .FirstOrDefault(x => x.Name == property.Name)?
-                            .ValidatePath(property.GetValue(entity), property.Name);
+                    SchemaProperty<TChild>.Validate(dto.ToChild());
                 }
                 catch (EntityValidationException ex)
                 {
                     result.AddError(new EntityValidationException($"{VirtualPath}[{i}].{ex.Message}"));
                 }
-            }
 
-            foreach (var pivotSchema in PivotCustomSchema)
-            {
-                var dtoProp = typeof(TDto).GetProperty(pivotSchema.Name);
-                if (dtoProp is null) continue;
+            foreach (var (pivotSchema, dtoProp) in PivotCustomSchema)
                 try
                 {
                     pivotSchema.ValidatePath(dtoProp.GetValue(dto), pivotSchema.Name);
@@ -75,7 +69,6 @@ public class PivotPatchResolver<TContext, TParent, TChild, TPivot, TDto>(TContex
                 {
                     result.AddError(new EntityValidationException($"{VirtualPath}[{i}].{ex.Message}"));
                 }
-            }
         }
 
         return result;
