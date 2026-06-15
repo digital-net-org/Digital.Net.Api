@@ -15,4 +15,8 @@
         <ProjectReference Include="..\Digital.Net.Core.Http\Digital.Net.Core.Http.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9"/>
+    </ItemGroup>
+
 </Project>

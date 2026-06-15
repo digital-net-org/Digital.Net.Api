@@ -16,4 +16,8 @@
         <ProjectReference Include="..\Digital.Net.Tests.Core\Digital.Net.Tests.Core.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9"/>
+    </ItemGroup>
+
 </Project>

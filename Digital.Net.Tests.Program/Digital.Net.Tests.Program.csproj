@@ -15,4 +15,8 @@
         <ProjectReference Include="..\Digital.Net.Cms.Http\Digital.Net.Cms.Http.csproj"/>
         <ProjectReference Include="..\Digital.Net.Lib\Digital.Net.Lib.csproj"/>
     </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9"/>
+    </ItemGroup>
 </Project>
