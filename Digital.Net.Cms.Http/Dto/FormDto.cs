@@ -1,4 +1,4 @@
-using Digital.Net.Core.Entities.Attributes;
+using Digital.Net.Lib.Entities.Attributes;
 
 namespace Digital.Net.Cms.Http.Dto;
 

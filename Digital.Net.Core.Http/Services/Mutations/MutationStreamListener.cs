@@ -1,6 +1,6 @@
 using System.Text.Json;
 using System.Threading.Channels;
-using Digital.Net.Core.Entities.Mutations;
+using Digital.Net.Lib.Entities.Mutations;
 using Digital.Net.Lib.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;

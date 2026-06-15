@@ -1,5 +1,5 @@
 using Digital.Net.Core.Entities.Context;
-using Digital.Net.Core.Entities.Mutations;
+using Digital.Net.Lib.Entities.Mutations;
 using Digital.Net.Core.Http.Services.Mutations.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;

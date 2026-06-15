@@ -2,7 +2,7 @@ using System.Text.Json;
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Models.Pages;
-using Digital.Net.Core.Entities.Exceptions;
+using Digital.Net.Lib.Entities.Exceptions;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Lib.Messages;
 

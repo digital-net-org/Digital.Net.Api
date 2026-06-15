@@ -1,5 +1,4 @@
-using Digital.Net.Core.Entities.Models.Mutations;
-using Digital.Net.Core.Entities.Mutations;
+using Digital.Net.Lib.Entities.Mutations;
 using Digital.Net.Core.Http.Services.Mutations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;

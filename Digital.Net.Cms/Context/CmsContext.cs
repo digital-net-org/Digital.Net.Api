@@ -3,18 +3,18 @@ using Digital.Net.Cms.Models.Articles;
 using Digital.Net.Cms.Models.Forms;
 using Digital.Net.Cms.Models.Medias;
 using Digital.Net.Cms.Models.Pages;
-using Digital.Net.Core.Entities.Context;
-using Digital.Net.Core.Entities.Interceptors;
-using Digital.Net.Core.Entities.Models;
-using Digital.Net.Core.Entities.Models.Mutations;
+using Digital.Net.Lib.Entities.Context;
+using Digital.Net.Lib.Entities.Interceptors;
+using Digital.Net.Lib.Entities.Models;
+using Digital.Net.Lib.Entities.Mutations;
 using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Cms.Context;
 
-public class CmsContext(DbContextOptions<CmsContext> options) : DbContext(options), ISchemaContext
+public class CmsContext(DbContextOptions<CmsContext> options) : DbContext(options), IDigitalNetContext
 {
     public const string Schema = "digital_net_cms";
-    static string ISchemaContext.Schema => Schema;
+    static string IDigitalNetContext.Schema => Schema;
 
     public DbSet<Page> Pages { get; init; }
     public DbSet<Article> Articles { get; init; }

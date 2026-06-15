@@ -2,7 +2,7 @@ using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Http.Exceptions;
 using Digital.Net.Cms.Models.Pages;
-using Digital.Net.Core.Entities.Models;
+using Digital.Net.Lib.Entities.Models;
 using Digital.Net.Core.Services.Templating;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;

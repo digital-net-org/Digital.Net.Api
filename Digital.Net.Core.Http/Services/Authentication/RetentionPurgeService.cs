@@ -1,5 +1,5 @@
 using Digital.Net.Core.Entities.Context;
-using Digital.Net.Core.Entities.Mutations;
+using Digital.Net.Lib.Entities.Mutations;
 using Digital.Net.Lib.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

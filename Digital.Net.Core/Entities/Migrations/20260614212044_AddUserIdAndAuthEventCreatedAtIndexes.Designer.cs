@@ -300,7 +300,7 @@ namespace Digital.Net.Core.Entities.Migrations
                     b.ToTable("Document", "digital_net");
                 });
 
-            modelBuilder.Entity("Digital.Net.Core.Entities.Models.Mutations.EntityMutation", b =>
+            modelBuilder.Entity("Digital.Net.Lib.Entities.Mutations.EntityMutation", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()

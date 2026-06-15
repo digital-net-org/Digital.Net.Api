@@ -1,5 +1,5 @@
-using Digital.Net.Core.Entities.Attributes;
-using Digital.Net.Core.Entities.Models;
+using Digital.Net.Lib.Entities.Attributes;
+using Digital.Net.Lib.Entities.Models;
 using Digital.Net.Core.Services.Templating;
 
 namespace Digital.Net.Tests.Core.Services.Templating;

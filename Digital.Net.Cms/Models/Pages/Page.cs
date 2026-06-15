@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Digital.Net.Core.Entities.Attributes;
-using Digital.Net.Core.Entities.Models;
+using Digital.Net.Lib.Entities.Attributes;
+using Digital.Net.Lib.Entities.Models;
 using Digital.Net.Lib.String;
 using Microsoft.EntityFrameworkCore;
 

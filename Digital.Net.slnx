@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="Digital.Net.Lib/Digital.Net.Lib.csproj" />
+  <Project Path="Digital.Net.Lib.Entities/Digital.Net.Lib.Entities.csproj" />
   <Project Path="Digital.Net.Core/Digital.Net.Core.csproj" />
   <Project Path="Digital.Net.Core.Http/Digital.Net.Core.Http.csproj" />
   <Project Path="Digital.Net.Cms/Digital.Net.Cms.csproj" />

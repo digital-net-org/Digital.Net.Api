@@ -1,10 +1,11 @@
 using Digital.Net.Core.Accessors;
-using Digital.Net.Core.Bootstrap;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Services.ApiKeys;
 using Digital.Net.Core.Services.Documents;
 using Digital.Net.Core.Services.Users;
+using Digital.Net.Lib.Accessors;
 using Digital.Net.Lib.Configuration;
+using Digital.Net.Lib.Entities.Bootstrap;
 using Digital.Net.Lib.Validation;
 using Microsoft.Extensions.Hosting;
 
@@ -20,9 +21,9 @@ public static class CoreInjector
         where TBuilder : IHostApplicationBuilder
     {
         builder.Configuration.AddAppSettings();
-        builder
-            .ValidateApplicationSettings()
-            .AddDatabaseContext<DigitalContext>();
+        builder.ValidateApplicationSettings();
+        builder.AddDatabaseContext<DigitalContext>(
+            builder.Configuration.GetOrThrow<string>(CoreSettings.ConnectionStringKey));
 
         builder.Services
             .AddDigitalApiKeyServices()

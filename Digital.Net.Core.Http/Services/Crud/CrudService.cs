@@ -1,8 +1,8 @@
 using System.Text.Json;
-using Digital.Net.Core.Entities.Extensions;
-using Digital.Net.Core.Entities.Models;
-using Digital.Net.Core.Entities.Pivots;
-using Digital.Net.Core.Entities.Projection;
+using Digital.Net.Lib.Entities.Extensions;
+using Digital.Net.Lib.Entities.Models;
+using Digital.Net.Lib.Entities.Pivots;
+using Digital.Net.Lib.Entities.Projection;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
 using Microsoft.EntityFrameworkCore;

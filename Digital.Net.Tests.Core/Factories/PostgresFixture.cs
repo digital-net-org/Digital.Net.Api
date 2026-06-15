@@ -13,6 +13,7 @@ using Npgsql;
 using Testcontainers.PostgreSql;
 using TUnit.Core.Interfaces;
 using Assembly = System.Reflection.Assembly;
+using Digital.Net.Lib.Entities.Context;
 
 namespace Digital.Net.Tests.Core.Factories;
 

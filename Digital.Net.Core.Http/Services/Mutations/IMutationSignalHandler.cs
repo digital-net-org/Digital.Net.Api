@@ -1,4 +1,4 @@
-using Digital.Net.Core.Entities.Mutations;
+using Digital.Net.Lib.Entities.Mutations;
 
 namespace Digital.Net.Core.Http.Services.Mutations;
 

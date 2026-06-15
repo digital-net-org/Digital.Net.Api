@@ -1,4 +1,4 @@
-using Digital.Net.Core.Entities.Interceptors;
+using Digital.Net.Lib.Entities.Interceptors;
 using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Tests.Core.Http.Services.Crud;

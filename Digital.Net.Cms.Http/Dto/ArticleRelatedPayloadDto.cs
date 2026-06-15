@@ -1,6 +1,6 @@
 using Digital.Net.Cms.Models.Articles;
-using Digital.Net.Core.Entities.Exceptions;
-using Digital.Net.Core.Entities.Pivots;
+using Digital.Net.Lib.Entities.Exceptions;
+using Digital.Net.Lib.Entities.Pivots;
 
 namespace Digital.Net.Cms.Http.Dto;
 

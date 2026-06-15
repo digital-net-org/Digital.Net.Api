@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Digital.Net.Core.Entities.Models.Users;
 using Microsoft.EntityFrameworkCore;
+using Digital.Net.Lib.Entities.Models;
 
 namespace Digital.Net.Core.Entities.Models.ApiTokens;
 

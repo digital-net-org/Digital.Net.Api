@@ -1,4 +1,4 @@
-using Digital.Net.Core.Entities.Models;
+using Digital.Net.Lib.Entities.Models;
 
 namespace Digital.Net.Core.Http.Services.Crud;
 

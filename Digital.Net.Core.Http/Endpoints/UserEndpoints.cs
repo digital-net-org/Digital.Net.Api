@@ -1,9 +1,9 @@
 using System.Linq.Expressions;
 using System.Text.Json;
 using Digital.Net.Core.Accessors;
-using Digital.Net.Core.Entities;
+using Digital.Net.Lib.Entities;
 using Digital.Net.Core.Entities.Context;
-using Digital.Net.Core.Entities.Exceptions;
+using Digital.Net.Lib.Entities.Exceptions;
 using Digital.Net.Core.Entities.Models.Auth;
 using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Core.Http.Accessors;

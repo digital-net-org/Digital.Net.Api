@@ -1,8 +1,8 @@
 using System.Linq.Expressions;
 using System.Text.Json;
-using Digital.Net.Core.Entities.Exceptions;
-using Digital.Net.Core.Entities.Models;
-using Digital.Net.Core.Entities.Pivots;
+using Digital.Net.Lib.Entities.Exceptions;
+using Digital.Net.Lib.Entities.Models;
+using Digital.Net.Lib.Entities.Pivots;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Random;

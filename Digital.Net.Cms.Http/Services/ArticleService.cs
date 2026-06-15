@@ -1,7 +1,7 @@
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Models.Articles;
-using Digital.Net.Core.Entities.Projection;
+using Digital.Net.Lib.Entities.Projection;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;

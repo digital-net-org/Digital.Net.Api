@@ -1,7 +1,7 @@
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
-using Digital.Net.Core.Entities.Models;
-using Digital.Net.Core.Entities.Projection;
+using Digital.Net.Lib.Entities.Models;
+using Digital.Net.Lib.Entities.Projection;
 using Digital.Net.Lib.Predicates;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;

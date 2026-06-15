@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Digital.Net.Core.Entities.Attributes;
+using Digital.Net.Lib.Entities.Attributes;
 using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Lib.Files;
 using Microsoft.EntityFrameworkCore;
+using Digital.Net.Lib.Entities.Models;
 
 namespace Digital.Net.Core.Entities.Models.Documents;
 

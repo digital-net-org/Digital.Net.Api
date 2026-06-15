@@ -631,7 +631,7 @@ namespace Digital.Net.Cms.Migrations
                     b.ToTable("Tag", "digital_net_cms");
                 });
 
-            modelBuilder.Entity("Digital.Net.Core.Entities.Models.Mutations.EntityMutation", b =>
+            modelBuilder.Entity("Digital.Net.Lib.Entities.Mutations.EntityMutation", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()

@@ -1,6 +1,6 @@
 using Digital.Net.Cms.Models;
 using Digital.Net.Cms.Models.Pages;
-using Digital.Net.Core.Entities.Pivots;
+using Digital.Net.Lib.Entities.Pivots;
 
 namespace Digital.Net.Cms.Http.Dto;
 

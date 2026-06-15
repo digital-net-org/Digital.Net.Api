@@ -1,5 +1,5 @@
 using System;
-using Digital.Net.Core.Entities.Context;
+using Digital.Net.Lib.Entities.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Tests.Core.Factories;

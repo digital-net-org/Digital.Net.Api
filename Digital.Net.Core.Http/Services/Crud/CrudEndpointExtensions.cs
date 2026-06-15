@@ -1,7 +1,7 @@
 using System.Text.Json;
-using Digital.Net.Core.Entities.Exceptions;
-using Digital.Net.Core.Entities.Models;
-using Digital.Net.Core.Entities.Projection;
+using Digital.Net.Lib.Entities.Exceptions;
+using Digital.Net.Lib.Entities.Models;
+using Digital.Net.Lib.Entities.Projection;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.Models;

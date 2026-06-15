@@ -1,4 +1,4 @@
-using Digital.Net.Core.Entities.Models.Mutations;
+using Digital.Net.Lib.Entities.Mutations;
 using Digital.Net.Core.Http.Endpoints.Dto;
 using Digital.Net.Core.Http.Services.Mutations;
 

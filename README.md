@@ -14,26 +14,10 @@
 
 ## Overview
 
-Digital.Net is a .NET 10 / ASP.NET Core framework that bootstraps a REST API
-with batteries included: authentication (JWT + API key + application), user
-management, generic CRUD services, audit logging, document storage, rate
-limiting, OpenAPI documentation, and an optional headless CMS module (pages,
-articles, tags, media, sitemap).
-
-The solution is composed of several projects:
-
-| Project                         | Role                                       |
-|---------------------------------|--------------------------------------------|
-| `Digital.Net.Core`              | Core framework (auth, CRUD, audit, files)  |
-| `Digital.Net.Core.Entities`     | Entity models and EF Core `DbContext`      |
-| `Digital.Net.Cms`               | Optional headless CMS module               |
-| `Digital.Net.Lib`               | Shared utilities (`Result<T>`, URL helpers)|
-| `Digital.Net.*.Test`            | Unit test projects for each library        |
-| `Digital.Net.Tests.Core`        | Shared test infrastructure                 |
-| `Digital.Net.Tests.Program`     | Integration test host                      |
+Digital.Net is a .NET 10 / ASP.NET Core framework that bootstraps a REST API with batteries included: 
+authentication, user management, generic CRUD services, audit logging, document storage, rate limiting, and much more.
 
 ## Getting Started (contributors)
-
 ### Prerequisites
 
 - **.NET SDK** 10
@@ -41,14 +25,10 @@ The solution is composed of several projects:
 - **Docker** or **Podman** (the test suite spins up an ephemeral
   PostgreSQL container via [Testcontainers](https://dotnet.testcontainers.org/))
 
-### Clone and build
-
+### Clone
+This library is only provided as a Git submodule.
 ```bash
 git clone --recurse-submodules git@github.com:digital-net-org/Digital.Net.Api.git
-cd Digital.Net.Api
-
-dotnet restore Digital.Net.slnx
-dotnet build   Digital.Net.slnx
 ```
 
 ### Run the tests
@@ -77,59 +57,6 @@ Ryuk (the cleanup container) is disabled because it does not play well with
 rootless Podman. The Postgres container still cleans itself up via
 `WithCleanUp(true)` when the test session exits.
 
-## Installation (consumers)
-
-### Core
-
-Install the `Digital.Net.Core` NuGet package and call `AddDigitalNet()` /
-`UseDigitalNet()` in your entry point.
-
-```csharp
-public sealed class Program
-{
-    private static async Task Main(string[] args)
-    {
-        var app = WebApplication.CreateBuilder(args)
-            .AddDigitalNet()
-            .Build();
-
-        await app
-            .UseDigitalNet()
-            .RunAsync();
-    }
-}
-```
-
-This registers authentication (JWT + API Key + Application), user management,
-CRUD services, audit logging, document storage, rate limiting, and OpenAPI
-documentation.
-
-### CMS module (optional)
-
-Add the `Digital.Net.Cms` project (or package) and chain `AddDigitalCms()` /
-`UseDigitalCms()`.
-
-```csharp
-public sealed class Program
-{
-    private static async Task Main(string[] args)
-    {
-        var app = WebApplication.CreateBuilder(args)
-            .AddDigitalNet()
-            .AddDigitalCms()
-            .Build();
-
-        await app
-            .UseDigitalNet()
-            .UseDigitalCms()
-            .RunAsync();
-    }
-}
-```
-
-This adds headless CMS capabilities: pages, articles, tags, media (with
-on-demand image resizing), CSS/JS sheets, and sitemap data endpoints.
-
 ## Configuration
 
 Configure the application via environment variables or `appsettings.*.json`.
@@ -144,17 +71,27 @@ Loading order:
 
 ### Environment variables
 
-| Accessor                                                                                                                                                                                                  | Type       | Default value            |
-|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|--------------------------|
-| ___ApplicationName___                    <br/>Name of your application, returned by the `GET /` endpoint                                                                                                 | `string`   | `""`                     |
-| ___Domain___                             <br/>Describes your application domain. Used to **prefix Cookies**, setup JWT **Audience/Issuer** and all subdomains will be added the allowed **CORS policies** | `string`   | **Mandatory**            |
-| ___CorsAllowedOrigins___                 <br/>All entries will be added the allowed **CORS policies** _(be aware that Domain is automatically added to allowed origins)_                                  | `string[]` | `[]`                     |
-| ___Database:ConnectionString___          <br/>Postgres Database connection string formated like `"Host=host;Port=5432;Database=db;Username=usr;Password=psw"`                                             | `string`   | **Mandatory**            |
-| ___FileSystemPath___                     <br/>Path to folder where the application will save uploaded files                                                                                               | `string`   | `"/digital_net_storage"` |
-| ___Auth:JwtRefreshExpiration___          <br/>Refresh token expiration expressed in milliseconds                                                                                                          | `number`   | `3600000`                |
-| ___Auth:JwtBearerExpiration___           <br/>Bearer token expiration expressed in milliseconds                                                                                                           | `number`   | `300000`                 |
-| ___Auth:JwtSecret___                     <br/>Secret for Jwt configuration, must be a least 46 characters long                                                                                            | `string`   | _Random string_          |
-| ___Auth:ApplicationKey___                <br/>Shared secret for system-to-system **Application** authentication (e.g. Next.js frontend). Sent via the `DN-Application-Key` header                       | `string`   | _None (disabled)_        |
-| ___Git:Origin___                         <br/>Optional string that will be returned in `GET /`                                                                                                            | `string`   | `""`                     |
-| ___Git:CommitSha___                      <br/>Optional string that will be returned in `GET /`                                                                                                            | `string`   | `""`                     |
-| ___Git:Release___                        <br/>Optional string that will be returned in `GET /`                                                                                                            | `string`   | `""`                     |
+The table below lists **every** configuration accessor read by the framework.
+Hierarchical keys use `:` in `appsettings.*.json`; as real OS environment
+variables replace `:` with `__` (e.g. `Auth:JwtSecret` → `Auth__JwtSecret`,
+`Database:ConnectionString` → `Database__ConnectionString`).
+
+`Domain`, `Database:ConnectionString`, `Auth:JwtSecret` and `Auth:ApplicationKey`
+are **validated at startup**: the host throws if any of them is missing or blank.
+
+| Accessor                                                                                                                                                                                                                                                                                                            | Type       | Default value            |
+|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|--------------------------|
+| ___ASPNETCORE_ENVIRONMENT___<br/>Runtime profile. Selects the `appsettings.{Environment}.json` file and toggles env-specific behaviour: the Scalar UI and OpenAPI document are exposed only in `Development`, and the rate limiter is disabled in `Test`. One of `Development` / `Staging` / `Production` / `Test`. | `string`   | `Development`            |
+| ___ApplicationName___<br/>Name of your application, returned by the `GET /` endpoint.                                                                                                                                                                                                                               | `string`   | `""`                     |
+| ___Domain___<br/>Application domain. Used to **prefix the refresh cookie**, set the JWT **Audience/Issuer**, and add every subdomain to the allowed **CORS** origins.                                                                                                                                               | `string`   | **Mandatory**            |
+| ___CorsAllowedOrigins___<br/>Extra origins added to the allowed **CORS** policy _(`Domain` and its subdomains are already added automatically)_.                                                                                                                                                                    | `string[]` | `[]`                     |
+| ___Database:ConnectionString___<br/>Postgres connection string, e.g. `"Host=host;Port=5432;Database=db;Username=usr;Password=psw"`. Shared by every context (each uses its own schema).                                                                                                                             | `string`   | **Mandatory**            |
+| ___FileSystemPath___<br/>Directory where uploaded files (documents, media) are stored.                                                                                                                                                                                                                              | `string`   | `"/digital_net_storage"` |
+| ___Auth:JwtSecret___<br/>HMAC-SHA256 signing secret for JWTs. Must be at least 46 characters long.                                                                                                                                                                                                                  | `string`   | **Mandatory**            |
+| ___Auth:ApplicationKey___<br/>Shared secret for system-to-system **Application** authentication (e.g. a Next.js frontend), sent via the `DN-Application-Key` header.                                                                                                                                                | `string`   | **Mandatory**            |
+| ___Auth:JwtBearerExpiration___<br/>Bearer (access) token lifetime, in milliseconds.                                                                                                                                                                                                                                 | `number`   | `300000` _(5 min)_       |
+| ___Auth:JwtRefreshExpiration___<br/>Refresh token lifetime, in milliseconds.                                                                                                                                                                                                                                        | `number`   | `3600000` _(1 h)_        |
+| ___Audit:RetentionDays___<br/>Retention window, in days, for audit data. The background `RetentionPurgeService` deletes `EntityMutation` (all schemas) and `AuthEvent` rows older than this (expired `ApiToken`s are purged regardless).                                                                            | `number`   | `90`                     |
+| ___Git:Origin___<br/>Optional build metadata, returned by `GET /`.                                                                                                                                                                                                                                                  | `string`   | `""`                     |
+| ___Git:CommitSha___<br/>Optional build metadata, returned by `GET /`.                                                                                                                                                                                                                                               | `string`   | `""`                     |
+| ___Git:Release___<br/>Optional build metadata, returned by `GET /`.                                                                                                                                                                                                                                                 | `string`   | `""`                     |

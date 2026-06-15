@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using Digital.Net.Lib.Entities.Models;
 
 namespace Digital.Net.Core.Entities.Models.Auth;
 

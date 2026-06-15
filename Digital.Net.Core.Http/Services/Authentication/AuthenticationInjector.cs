@@ -1,5 +1,6 @@
 using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Http.Services.Authentication.Options;
+using Digital.Net.Lib.Accessors;
 using Digital.Net.Lib.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,6 +31,7 @@ public static class AuthenticationInjector
         });
         services
             .AddScoped<IUserAccessor, UserAccessor>()
+            .AddScoped<ICurrentUserAccessor>(sp => sp.GetRequiredService<IUserAccessor>())
             .AddScoped<AuthenticationOptionService>()
             .AddScoped<AuthEventService>()
             .AddScoped<AuthenticationService>()

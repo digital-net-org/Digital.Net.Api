@@ -1,6 +1,8 @@
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Services;
-using Digital.Net.Core.Bootstrap;
+using Digital.Net.Core;
+using Digital.Net.Lib.Configuration;
+using Digital.Net.Lib.Entities.Bootstrap;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -15,8 +17,8 @@ public static class CmsInjector
     public static TBuilder AddDigitalNetCms<TBuilder>(this TBuilder builder)
         where TBuilder : IHostApplicationBuilder
     {
-        builder
-            .AddDatabaseContext<CmsContext>();
+        builder.AddDatabaseContext<CmsContext>(
+            builder.Configuration.GetOrThrow<string>(CoreSettings.ConnectionStringKey));
 
         builder.Services
             .AddScoped<MediaService>();

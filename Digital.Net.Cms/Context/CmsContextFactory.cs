@@ -1,4 +1,4 @@
-using Digital.Net.Core.Entities.Context;
+using Digital.Net.Lib.Entities.Context;
 
 namespace Digital.Net.Cms.Context;
 

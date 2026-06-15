@@ -9,6 +9,7 @@ using Digital.Net.Core.Http.Services.Authentication.Exceptions;
 using Digital.Net.Core.Http.Services.Authentication.Options;
 using Digital.Net.Core.Services.Users;
 using Digital.Net.Core.Services.Users.Exceptions;
+using Digital.Net.Lib.Accessors;
 using Digital.Net.Lib.Environment;
 using Digital.Net.Lib.Messages;
 using Microsoft.EntityFrameworkCore;

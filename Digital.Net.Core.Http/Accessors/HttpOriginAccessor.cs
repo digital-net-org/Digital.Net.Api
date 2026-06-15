@@ -1,4 +1,4 @@
-using Digital.Net.Core.Accessors;
+using Digital.Net.Lib.Accessors;
 using Microsoft.AspNetCore.Http;
 
 namespace Digital.Net.Core.Http.Accessors;

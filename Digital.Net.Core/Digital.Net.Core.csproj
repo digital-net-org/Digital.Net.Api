@@ -29,6 +29,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Digital.Net.Lib\Digital.Net.Lib.csproj"/>
+        <ProjectReference Include="..\Digital.Net.Lib.Entities\Digital.Net.Lib.Entities.csproj"/>
     </ItemGroup>
 
 </Project>

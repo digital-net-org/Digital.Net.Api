@@ -2,11 +2,12 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Security.Cryptography;
 using System.Text;
-using Digital.Net.Core.Entities.Attributes;
+using Digital.Net.Lib.Entities.Attributes;
 using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Lib.Random;
 using Digital.Net.Lib.String;
 using Microsoft.EntityFrameworkCore;
+using Digital.Net.Lib.Entities.Models;
 
 namespace Digital.Net.Core.Entities.Models.ApiKeys;
 

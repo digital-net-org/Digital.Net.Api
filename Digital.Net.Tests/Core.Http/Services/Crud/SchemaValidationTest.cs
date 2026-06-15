@@ -1,6 +1,6 @@
 using Digital.Net.Core.Http.Services.Crud;
-using Digital.Net.Core.Entities.Exceptions;
-using Digital.Net.Core.Entities.Models;
+using Digital.Net.Lib.Entities.Exceptions;
+using Digital.Net.Lib.Entities.Models;
 using Digital.Net.Lib.Random;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.JsonPatch.Operations;

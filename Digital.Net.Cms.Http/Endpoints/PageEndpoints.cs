@@ -7,7 +7,7 @@ using Digital.Net.Cms.Models;
 using Digital.Net.Cms.Models.Articles;
 using Digital.Net.Cms.Models.Pages;
 using Digital.Net.Core.Accessors;
-using Digital.Net.Core.Entities.Exceptions;
+using Digital.Net.Lib.Entities.Exceptions;
 using Digital.Net.Core.Http.Security;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Core.Http.Services.Crud;

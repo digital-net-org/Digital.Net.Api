@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using Digital.Net.Core.Entities;
+using Digital.Net.Lib.Entities;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.ConfigValues;
 using Digital.Net.Core.Http.Endpoints.Dto;

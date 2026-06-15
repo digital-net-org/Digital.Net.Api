@@ -5,13 +5,13 @@ using Digital.Net.Cms.Http.Services;
 using Digital.Net.Cms.Models;
 using Digital.Net.Cms.Models.Pages;
 using Digital.Net.Core.Accessors;
-using Digital.Net.Core.Entities.Context;
-using Digital.Net.Core.Entities.Interceptors;
-using Digital.Net.Core.Entities.Models.Mutations;
 using Digital.Net.Core.Entities.Models.Users;
-using Digital.Net.Core.Entities.Mutations;
-using Digital.Net.Core.Entities.Pivots;
 using Digital.Net.Core.Http.Services.Crud;
+using Digital.Net.Lib.Accessors;
+using Digital.Net.Lib.Entities.Context;
+using Digital.Net.Lib.Entities.Interceptors;
+using Digital.Net.Lib.Entities.Mutations;
+using Digital.Net.Lib.Entities.Pivots;
 using Digital.Net.Tests.Core;
 using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data;
@@ -72,6 +72,7 @@ public class MutationParentTouchTest : UnitTest, IAsyncInitializer
         var provider = new ServiceCollection()
             .AddSingleton<IOriginAccessor>(new StubOriginAccessor())
             .AddSingleton<IUserAccessor>(new StubUserAccessor())
+            .AddSingleton<ICurrentUserAccessor>(sp => sp.GetRequiredService<IUserAccessor>())
             .AddSingleton(new MutationBroadcaster(NullLogger<MutationBroadcaster>.Instance))
             .BuildServiceProvider();
 

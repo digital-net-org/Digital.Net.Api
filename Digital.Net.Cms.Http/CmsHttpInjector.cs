@@ -1,7 +1,7 @@
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Http.Endpoints;
 using Digital.Net.Cms.Http.Services;
-using Digital.Net.Core.Entities.Pivots;
+using Digital.Net.Lib.Entities.Pivots;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Lib.Validation;
 using Microsoft.AspNetCore.Builder;

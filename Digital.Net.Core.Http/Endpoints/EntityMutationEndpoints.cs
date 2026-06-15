@@ -1,5 +1,5 @@
 using Digital.Net.Core.Accessors;
-using Digital.Net.Core.Entities.Mutations;
+using Digital.Net.Lib.Entities.Mutations;
 using Digital.Net.Core.Http.Endpoints.Dto;
 using Digital.Net.Core.Http.Security;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
