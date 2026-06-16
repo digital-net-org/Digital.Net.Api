@@ -2,40 +2,13 @@ using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Models.Articles;
 using Digital.Net.Core.Entities.Context;
-using Digital.Net.Core.Http.Services.Crud;
-using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Cms.Http.Services;
 
-public class ArticleMediaEnricher(
-    CmsContext cmsContext,
-    DigitalContext digitalContext
-) : IDtoEnricher<Article, ArticleDto>
+public class ArticleMediaEnricher(CmsContext cmsContext, DigitalContext digitalContext)
+    : MediaGalleryEnricher<Article, ArticleDto, ArticleMedia, ArticleMediaDto>(cmsContext, digitalContext)
 {
-    public async Task EnrichAsync(ArticleDto dto, CancellationToken ct)
-    {
-        var pivots = await cmsContext.ArticleMedia
-            .Include(p => p.Child)
-            .AsNoTracking()
-            .Where(p => p.ParentId == dto.Id)
-            .OrderBy(p => p.Order)
-            .ToListAsync(ct);
-
-        if (pivots.Count == 0)
-        {
-            dto.Media = [];
-            return;
-        }
-
-        var documentIds = pivots.Select(p => p.Child.DocumentId).Distinct().ToList();
-        var documents = await digitalContext.Documents
-            .AsNoTracking()
-            .Where(d => documentIds.Contains(d.Id))
-            .ToDictionaryAsync(d => d.Id, ct);
-
-        dto.Media = pivots
-            .Where(p => documents.ContainsKey(p.Child.DocumentId))
-            .Select(p => new ArticleMediaDto(p, new MediaDto(p.Child, documents[p.Child.DocumentId])))
-            .ToList();
-    }
+    protected override Guid GetParentId(ArticleDto dto) => dto.Id;
+    protected override void SetMedia(ArticleDto dto, List<ArticleMediaDto> media) => dto.Media = media;
+    protected override ArticleMediaDto Project(ArticleMedia pivot, MediaDto media) => new(pivot, media);
 }

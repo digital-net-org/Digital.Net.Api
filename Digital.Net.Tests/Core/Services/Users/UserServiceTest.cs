@@ -6,37 +6,28 @@ using Digital.Net.Core.Services.Users;
 using Digital.Net.Core.Services.Users.Exceptions;
 using Digital.Net.Lib.Files;
 using Digital.Net.Lib.Messages;
-using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data;
+using Digital.Net.Tests.Core.Factories.Data.Records;
 using Moq;
-using TUnit.Core.Interfaces;
 
 namespace Digital.Net.Tests.Core.Services.Users;
 
-public class UserServiceTest : UnitTest, IAsyncInitializer
+public class UserServiceTest : DbServiceTest<DigitalContext>
 {
-    [ClassDataSource<DatabaseFixture>]
-    public required DatabaseFixture DbFixture { get; init; }
-
-    private DigitalContext _context = null!;
     private Mock<IDocumentService> _documentServiceMock = null!;
     private UserService _service = null!;
 
-    public Task InitializeAsync()
+    protected override Task OnInitializedAsync()
     {
-        _context = DbFixture.CreateContext<DigitalContext>();
         _documentServiceMock = new Mock<IDocumentService>();
-        _service = new UserService(
-            _documentServiceMock.Object,
-            _context
-        );
+        _service = new UserService(_documentServiceMock.Object, Context);
         return Task.CompletedTask;
     }
 
     [Test]
     public async Task UpdatePasswordAsync_Should_Return_Error_When_Invalid_Credentials()
     {
-        var user = _context.BuildTestUser();
+        var user = Context.BuildTestUser();
 
         var result = await _service.UpdatePasswordAsync(user, "wrong_password", "NewPassword123!");
         await Assert.That(result.HasErrorOfType<InvalidCredentialsException>()).IsTrue();
@@ -45,7 +36,7 @@ public class UserServiceTest : UnitTest, IAsyncInitializer
     [Test]
     public async Task UpdatePasswordAsync_Should_Return_Error_When_Password_Malformed()
     {
-        var user = _context.BuildTestUser();
+        var user = Context.BuildTestUser();
 
         var result = await _service.UpdatePasswordAsync(user, TestUserFactory.TestUserPassword, "weak");
         await Assert.That(result.HasErrorOfType<PasswordMalformedException>()).IsTrue();
@@ -54,7 +45,7 @@ public class UserServiceTest : UnitTest, IAsyncInitializer
     [Test]
     public async Task UpdatePasswordAsync_Should_Succeed()
     {
-        var user = _context.BuildTestUser();
+        var user = Context.BuildTestUser();
 
         var result = await _service.UpdatePasswordAsync(user, TestUserFactory.TestUserPassword, "NewPassword123!");
         await Assert.That(result.HasError).IsFalse();
@@ -63,7 +54,7 @@ public class UserServiceTest : UnitTest, IAsyncInitializer
     [Test]
     public async Task UpdateAvatar_Should_Return_Error_When_File_Too_Heavy()
     {
-        var user = _context.BuildTestUser();
+        var user = Context.BuildTestUser();
 
         var result = await _service.UpdateAvatar(
             user,
@@ -75,7 +66,7 @@ public class UserServiceTest : UnitTest, IAsyncInitializer
     [Test]
     public async Task UpdateAvatar_Should_Return_Error_When_Unsupported_Format()
     {
-        var user = _context.BuildTestUser();
+        var user = Context.BuildTestUser();
 
         var result = await _service.UpdateAvatar(
             user,
@@ -87,15 +78,15 @@ public class UserServiceTest : UnitTest, IAsyncInitializer
     [Test]
     public async Task UpdateAvatar_Should_Succeed()
     {
-        var user = _context.BuildTestUser();
+        var user = Context.BuildTestUser();
         var document = new Document
         {
             FileName = $"{Guid.NewGuid()}.jpg",
             MimeType = "image/jpeg",
             FileSize = 100
         };
-        await _context.Documents.AddAsync(document);
-        await _context.SaveChangesAsync();
+        await Context.Documents.AddAsync(document);
+        await Context.SaveChangesAsync();
 
         _documentServiceMock
             .Setup(d => d.SaveImageDocumentAsync(It.IsAny<Stream>(), It.IsAny<FileDefinition>(), user,
@@ -108,5 +99,32 @@ public class UserServiceTest : UnitTest, IAsyncInitializer
             new FileDefinition { FileName = "avatar.jpg", MimeType = "image/jpeg", FileSize = 100 });
         await Assert.That(result.HasError).IsFalse();
         await Assert.That(user.AvatarId).IsNotNull();
+    }
+
+    [Test]
+    public async Task DeleteUserAsync_Should_Return_Error_When_Target_Is_Admin()
+    {
+        var admin = Context.BuildTestUser(new TestUserPayload { IsAdmin = true });
+
+        var result = await _service.DeleteUserAsync(admin.Id);
+        await Assert.That(result.HasErrorOfType<CannotDeleteAdminException>()).IsTrue();
+    }
+
+    [Test]
+    public async Task UpdateUserStatusAsync_Should_Return_Error_When_Deactivating_Admin()
+    {
+        var admin = Context.BuildTestUser(new TestUserPayload { IsAdmin = true });
+
+        var result = await _service.UpdateUserStatusAsync(admin.Id, false);
+        await Assert.That(result.HasErrorOfType<CannotRevokeAdminException>()).IsTrue();
+    }
+
+    [Test]
+    public async Task UpdateUserRoleAsync_Should_Return_Error_When_Demoting_Admin()
+    {
+        var admin = Context.BuildTestUser(new TestUserPayload { IsAdmin = true });
+
+        var result = await _service.UpdateUserRoleAsync(admin.Id, false);
+        await Assert.That(result.HasErrorOfType<CannotDemoteAdminException>()).IsTrue();
     }
 }

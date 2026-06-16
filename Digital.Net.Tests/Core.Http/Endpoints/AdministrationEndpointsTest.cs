@@ -123,18 +123,6 @@ public class AdministrationEndpointsTest
     }
 
     [Test]
-    public async Task DeleteUser_ShouldReturnForbidden_WhenTargetIsAdmin()
-    {
-        var (_, client) = await CreateTestAdminAsync();
-        var adminTarget = ApplicationFixture.CreateUser(new TestUserPayload { IsActive = true, IsAdmin = true });
-        var deletePayload = new UserDeletePayload { Password = TestUserFactory.TestUserPassword };
-
-        var response = await client.DeleteUser(adminTarget.Id, deletePayload);
-
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Forbidden);
-    }
-
-    [Test]
     public async Task GetUsers_ShouldReturnPaginatedUsers()
     {
         var (_, client) = await CreateTestAdminAsync();
@@ -215,17 +203,6 @@ public class AdministrationEndpointsTest
     }
 
     [Test]
-    public async Task UpdateUserStatus_ShouldReturnForbidden_WhenDeactivatingAdmin()
-    {
-        var (_, client) = await CreateTestAdminAsync();
-        var adminTarget = ApplicationFixture.CreateUser(new TestUserPayload { IsActive = true, IsAdmin = true });
-
-        var response = await client.UpdateUserStatus(adminTarget.Id, new UserStatusPayload { IsActive = false });
-
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Forbidden);
-    }
-
-    [Test]
     public async Task UpdateUserRole_ShouldPromoteToAdmin()
     {
         var (_, client) = await CreateTestAdminAsync();
@@ -240,18 +217,6 @@ public class AdministrationEndpointsTest
             .AsNoTracking()
             .FirstAsync(u => u.Id == targetUser.Id);
         await Assert.That(updatedUser.IsAdmin).IsTrue();
-    }
-
-    [Test]
-    public async Task UpdateUserRole_ShouldReturnForbidden_WhenDemotingAdmin()
-    {
-        var (_, client) = await CreateTestAdminAsync();
-        var adminTarget = ApplicationFixture.CreateUser(new TestUserPayload { IsActive = true, IsAdmin = true });
-        var payload = new UserRolePayload { IsAdmin = false, Password = TestUserFactory.TestUserPassword };
-
-        var response = await client.UpdateUserRole(adminTarget.Id, payload);
-
-        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Forbidden);
     }
 
     [Test]

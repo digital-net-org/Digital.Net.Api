@@ -1,37 +1,8 @@
-using System.ComponentModel.DataAnnotations;
 using Digital.Net.Cms.Models.Articles;
-using Digital.Net.Cms.Models.Medias;
-using Digital.Net.Lib.Entities.Exceptions;
-using Digital.Net.Lib.Entities.Pivots;
 
 namespace Digital.Net.Cms.Http.Dto;
 
-public class ArticleMediaPayloadDto : IPivotPayload<ArticleMediaPayloadDto, ArticleMedia, Media>
+public class ArticleMediaPayloadDto : MediaPivotPayloadDto<ArticleMediaPayloadDto, ArticleMedia>
 {
-    public ArticleMediaPayloadDto()
-    {
-    }
-
-    public ArticleMediaPayloadDto(ArticleMedia pivot)
-    {
-        Id = pivot.ChildId;
-        Label = pivot.Label;
-    }
-
-    public Guid? Id { get; set; }
-
-    [Required]
-    public required string Label { get; set; }
-
-    public Media ToChild() =>
-        throw new EntityValidationException(
-            "/media: Media creation require a file upload; upload it first using the \"cms/media\" API."
-        );
-
-    public void ApplyTo(Media child) =>
-        throw new EntityValidationException(
-            "/media: Media cannot be mutated from here; use the \"cms/media\" API."
-        );
-
-    public void ApplyToPivot(ArticleMedia pivot) => pivot.Label = Label.Trim();
+    public override void ApplyToPivot(ArticleMedia pivot) => pivot.Label = Label.Trim();
 }

@@ -3,30 +3,23 @@ using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Services.Documents;
 using Digital.Net.Core.Services.Documents.Exceptions;
 using Digital.Net.Lib.Files;
-using Digital.Net.Tests.Core.Factories;
 using Digital.Net.Tests.Core.Factories.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using TUnit.Core.Interfaces;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace Digital.Net.Tests.Core.Services.Documents;
 
-public class DocumentServiceTest : UnitTest, IAsyncInitializer
+public class DocumentServiceTest : DbServiceTest<DigitalContext>
 {
-    [ClassDataSource<DatabaseFixture>]
-    public required DatabaseFixture DbFixture { get; init; }
-
-    private DigitalContext _context = null!;
     private DocumentService _service = null!;
 
-    public Task InitializeAsync()
+    protected override Task OnInitializedAsync()
     {
-        _context = DbFixture.CreateContext<DigitalContext>();
         var configMock = new Mock<IConfiguration>();
         var extractorMock = new Mock<IDocumentDimensionExtractor>();
-        _service = new DocumentService(_context, configMock.Object, extractorMock.Object);
+        _service = new DocumentService(Context, configMock.Object, extractorMock.Object);
         return Task.CompletedTask;
     }
 
@@ -56,7 +49,7 @@ public class DocumentServiceTest : UnitTest, IAsyncInitializer
 
         try
         {
-            var user = _context.BuildTestUser();
+            var user = Context.BuildTestUser();
             var (bytes, fileName, contentType) = TestMediaDataFactory.GenerateTestImage(120, 80);
             using var stream = new MemoryStream(bytes);
             var definition = new FileDefinition { FileName = fileName, MimeType = contentType, FileSize = bytes.Length };
@@ -66,7 +59,7 @@ public class DocumentServiceTest : UnitTest, IAsyncInitializer
             await Assert.That(result.HasError).IsFalse();
             await Assert.That(result.Value).IsNotNull();
 
-            var saved = await _context.Documents.AsNoTracking().FirstOrDefaultAsync(d => d.Id == result.Value!.Id);
+            var saved = await Context.Documents.AsNoTracking().FirstOrDefaultAsync(d => d.Id == result.Value!.Id);
             await Assert.That(saved).IsNotNull();
             await Assert.That(saved!.Width).IsEqualTo(120);
             await Assert.That(saved.Height).IsEqualTo(80);
@@ -86,7 +79,7 @@ public class DocumentServiceTest : UnitTest, IAsyncInitializer
 
         try
         {
-            var user = _context.BuildTestUser();
+            var user = Context.BuildTestUser();
             var bytes = "not an image"u8.ToArray();
             using var stream = new MemoryStream(bytes);
             var definition = new FileDefinition { FileName = "test.txt", MimeType = "text/plain", FileSize = bytes.Length };
@@ -96,7 +89,7 @@ public class DocumentServiceTest : UnitTest, IAsyncInitializer
             await Assert.That(result.HasError).IsFalse();
             await Assert.That(result.Value).IsNotNull();
 
-            var saved = await _context.Documents.AsNoTracking().FirstOrDefaultAsync(d => d.Id == result.Value!.Id);
+            var saved = await Context.Documents.AsNoTracking().FirstOrDefaultAsync(d => d.Id == result.Value!.Id);
             await Assert.That(saved).IsNotNull();
             await Assert.That(saved!.Width).IsNull();
             await Assert.That(saved.Height).IsNull();
@@ -116,6 +109,6 @@ public class DocumentServiceTest : UnitTest, IAsyncInitializer
                 [CoreSettings.FileSystemPathKey] = storagePath
             })
             .Build();
-        return new DocumentService(_context, config, new DocumentDimensionExtractor());
+        return new DocumentService(Context, config, new DocumentDimensionExtractor());
     }
 }

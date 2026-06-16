@@ -74,7 +74,15 @@ public static class PaginationEndpointExtensions
         where T : Entity
         where TQuery : Query
     {
-        var predicate = PredicateBuilder.New<T>();
+        var predicate = PredicateBuilder.New<T>().ApplyDateRange(query);
+        if (filter is not null)
+            predicate = filter(predicate, query);
+        return predicate;
+    }
+
+    public static Expression<Func<T, bool>> ApplyDateRange<T>(this Expression<Func<T, bool>> predicate, Query query)
+        where T : Entity
+    {
         if (query.CreatedFrom.HasValue)
             predicate = predicate.Add(x => x.CreatedAt >= query.CreatedFrom);
         if (query.UpdatedFrom.HasValue)
@@ -83,8 +91,6 @@ public static class PaginationEndpointExtensions
             predicate = predicate.Add(x => x.CreatedAt <= query.CreatedTo);
         if (query.UpdatedTo is not null)
             predicate = predicate.Add(x => x.UpdatedAt <= query.UpdatedTo);
-        if (filter is not null)
-            predicate = filter(predicate, query);
         return predicate;
     }
 }

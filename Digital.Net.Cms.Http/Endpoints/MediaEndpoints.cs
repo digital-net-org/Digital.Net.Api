@@ -12,6 +12,7 @@ using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Core.Http.Services.Documents;
 using Digital.Net.Core.Http.Services.Pagination;
+using Digital.Net.Core.Http.Services.Pagination.Extensions;
 using Digital.Net.Core.Services.Documents;
 using Digital.Net.Core.Services.Documents.Exceptions;
 using Digital.Net.Lib.Files;
@@ -260,8 +261,6 @@ public static class MediaEndpoints
         if (media is null)
             return TypedResults.NotFound(result);
 
-        // Cross-context join: Document lives in DigitalContext, not in CmsContext.
-        // We batch-load every Document referenced by the Media and its Variants in one query.
         var documentIds = new HashSet<Guid> { media.DocumentId };
         foreach (var variant in media.Variants)
             documentIds.Add(variant.DocumentId);
@@ -301,8 +300,6 @@ public static class MediaEndpoints
             .Take(query.Size)
             .ToListAsync();
 
-        // Cross-context join (batch): one query for all root Documents of the page.
-        // Variants are not loaded here — only on GetById.
         var documentIds = entities.Select(m => m.DocumentId).Distinct().ToList();
         var documents = await digitalContext.Documents
             .AsNoTracking()
@@ -322,15 +319,7 @@ public static class MediaEndpoints
 
     private static Expression<Func<Media, bool>> BuildMediaPredicate(MediaQuery query)
     {
-        var predicate = PredicateBuilder.New<Media>();
-        if (query.CreatedFrom.HasValue)
-            predicate = predicate.Add(x => x.CreatedAt >= query.CreatedFrom);
-        if (query.UpdatedFrom.HasValue)
-            predicate = predicate.Add(x => x.UpdatedAt >= query.UpdatedFrom);
-        if (query.CreatedTo is not null)
-            predicate = predicate.Add(x => x.CreatedAt <= query.CreatedTo);
-        if (query.UpdatedTo is not null)
-            predicate = predicate.Add(x => x.UpdatedAt <= query.UpdatedTo);
+        var predicate = PredicateBuilder.New<Media>().ApplyDateRange(query);
         if (!string.IsNullOrEmpty(query.Name))
             predicate = predicate.Add(x => x.Name.StartsWith(query.Name));
         if (query.Published.HasValue)
