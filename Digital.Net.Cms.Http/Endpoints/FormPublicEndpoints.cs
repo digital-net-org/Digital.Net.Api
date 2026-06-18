@@ -35,6 +35,11 @@ public static class FormPublicEndpoints
             .WithDescription("Returns the full definition of a published form.");
 
         publicApi
+            .MapGet("by-path", GetFormDefinitionByPath)
+            .WithSummary("GetFormDefinitionByPath")
+            .WithDescription("Returns the full definition of a published form resolved by its public path (`?path=`).");
+
+        publicApi
             .MapPost("{id:guid}/submit", SubmitForm)
             .WithSummary("SubmitForm")
             .WithDescription("Submits values for a published form. Validates all fields server-side.")
@@ -51,6 +56,24 @@ public static class FormPublicEndpoints
     {
         var dto = await context.Forms
             .Where(f => f.Id == id && f.Published)
+            .ProjectTo<Form, FormPublicDto>()
+            .FirstOrDefaultAsync(ct);
+        return dto is null
+            ? TypedResults.NotFound()
+            : TypedResults.Ok(new Result<FormPublicDto>(dto));
+    }
+
+    private static async Task<Results<Ok<Result<FormPublicDto>>, NotFound>> GetFormDefinitionByPath(
+        [FromQuery] string? path,
+        CmsContext context,
+        CancellationToken ct
+    )
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return TypedResults.NotFound();
+
+        var dto = await context.Forms
+            .Where(f => f.Path == path && f.Published)
             .ProjectTo<Form, FormPublicDto>()
             .FirstOrDefaultAsync(ct);
         return dto is null
