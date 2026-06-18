@@ -7,7 +7,6 @@ using Digital.Net.Core.Http.Security;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Core.Http.Services.Pagination.Extensions;
-using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.Predicates;
 using Microsoft.AspNetCore.Builder;
@@ -45,17 +44,6 @@ public static class ArticleEndpoints
         controller.MapCrudPatch<CmsContext, Article>();
         controller.MapCrudDelete<CmsContext, Article>();
 
-        var publicController = app
-            .MapGroup("cms/articles")
-            .WithTags("CMS.Articles")
-            .RequireRateLimiting(RateLimiter.Policy)
-            .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
-
-        publicController
-            .MapGet("slug/{slug}", GetArticleBySlug)
-            .WithSummary("GetBySlug")
-            .WithDescription("Retrieves a published article by its slug.");
-
         return app;
     }
 
@@ -73,23 +61,6 @@ public static class ArticleEndpoints
         return result.HasError
             ? TypedResults.InternalServerError(result)
             : TypedResults.Ok(result);
-    }
-
-    private static async
-        Task<Results<Ok<Result<ArticleDto>>, NotFound<Result<ArticleDto>>, InternalServerError<Result<ArticleDto>>>>
-        GetArticleBySlug(
-            string slug,
-            ArticleService articleService,
-            CancellationToken ct
-        )
-    {
-        var result = await articleService.GetArticleBySlug(slug, ct);
-        if (result.HasErrorOfType<ResourceNotFoundException>())
-            return TypedResults.NotFound(result);
-        if (result.HasError)
-            return TypedResults.InternalServerError(result);
-
-        return TypedResults.Ok(result);
     }
 
     private static Expression<Func<Article, bool>> PaginationFilter(

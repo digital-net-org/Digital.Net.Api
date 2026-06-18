@@ -2,7 +2,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Digital.Net.Core.Http.Services.Authentication.Exceptions;
 using Digital.Net.Core.Http.Services.Authentication.Utils;
-using Digital.Net.Tests.Core;
 
 namespace Digital.Net.Tests.Core.Http.Services.Authentication;
 

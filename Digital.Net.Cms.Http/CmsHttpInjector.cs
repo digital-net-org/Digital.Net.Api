@@ -1,8 +1,8 @@
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Http.Endpoints;
 using Digital.Net.Cms.Http.Services;
-using Digital.Net.Lib.Entities.Pivots;
 using Digital.Net.Core.Http.Services.Crud;
+using Digital.Net.Lib.Entities.Pivots;
 using Digital.Net.Lib.Validation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,9 +42,11 @@ public static class CmsHttpInjector
             .MapCmsPageEndpoints()
             .MapCmsPagePublicEndpoints()
             .MapCmsArticleEndpoints()
+            .MapCmsArticlePublicEndpoints()
             .MapCmsMediaEndpoints()
             .MapCmsSitemapEndpoints()
-            .MapCmsFormEndpoints();
+            .MapCmsFormEndpoints()
+            .MapCmsFormPublicEndpoints();
 
         return app;
     }

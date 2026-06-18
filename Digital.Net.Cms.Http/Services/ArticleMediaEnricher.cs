@@ -5,7 +5,10 @@ using Digital.Net.Core.Entities.Context;
 
 namespace Digital.Net.Cms.Http.Services;
 
-public class ArticleMediaEnricher(CmsContext cmsContext, DigitalContext digitalContext)
+public class ArticleMediaEnricher(
+    CmsContext cmsContext,
+    DigitalContext digitalContext
+)
     : MediaGalleryEnricher<Article, ArticleDto, ArticleMedia, ArticleMediaDto>(cmsContext, digitalContext)
 {
     protected override Guid GetParentId(ArticleDto dto) => dto.Id;
