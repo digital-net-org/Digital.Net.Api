@@ -18,7 +18,7 @@ public static class CoreSettings
     public const string JwtSecretKey = "Auth:JwtSecret";
     public const string ApplicationKeyKey = "Auth:ApplicationKey";
     public const string AuditRetentionDaysKey = "Audit:RetentionDays";
-    public const string GitOriginKey = "Git:Origin";
-    public const string GitCommitShaKey = "Git:CommitSha";
-    public const string GitReleaseKey = "Git:Release";
+    public const string GitBranchKey = "Git:Branch";
+    public const string GitTagKey = "Git:Tag";
+    public const string GitCommitKey = "Git:Commit";
 }

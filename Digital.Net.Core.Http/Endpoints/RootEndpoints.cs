@@ -36,8 +36,8 @@ public static class RootEndpoints
             new Result<ApplicationVersion>(new ApplicationVersion(
                 configuration[CoreSettings.ApplicationNameKey] ?? string.Empty,
                 "Digital.Net",
-                configuration[CoreSettings.GitOriginKey] ?? string.Empty,
-                configuration[CoreSettings.GitCommitShaKey] ?? string.Empty,
-                configuration[CoreSettings.GitReleaseKey] ?? string.Empty
+                configuration[CoreSettings.GitBranchKey] ?? string.Empty,
+                configuration[CoreSettings.GitTagKey] ?? string.Empty,
+                configuration[CoreSettings.GitCommitKey] ?? string.Empty
             )));
 }

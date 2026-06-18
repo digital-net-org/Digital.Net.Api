@@ -11,9 +11,9 @@ public record ApplicationVersion(
     [property: Required]
     string Framework,
     [property: Required]
-    string Origin,
+    string Branch,
     [property: Required]
-    string CommitSha,
+    string Tag,
     [property: Required]
-    string Release
+    string Commit
 );
