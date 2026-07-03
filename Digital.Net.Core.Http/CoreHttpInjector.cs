@@ -64,6 +64,7 @@ public static class CoreHttpInjector
         // Fail-fast strategy, should always be called first: throws if the business layer
         app.Services.ValidateRequiredContracts();
 
+        app.UseForwardedHeaders();
         app.UseResponseCompression();
 
         app.Use(async (context, next) =>

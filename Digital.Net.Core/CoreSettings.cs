@@ -7,6 +7,7 @@ public static class CoreSettings
     public const long DefaultAuthJwtBearerExpiration = 300000;
     public const string DefaultFileSystemPath = "/digital_net_storage";
     public const int DefaultAuditRetentionDays = 90;
+    public const int DefaultForwardLimit = 1;
 
     public const string ApplicationNameKey = "ApplicationName";
     public const string DomainKey = "Domain";
@@ -18,6 +19,9 @@ public static class CoreSettings
     public const string JwtSecretKey = "Auth:JwtSecret";
     public const string ApplicationKeyKey = "Auth:ApplicationKey";
     public const string AuditRetentionDaysKey = "Audit:RetentionDays";
+    public const string ForwardedHeadersKnownProxiesKey = "ForwardedHeaders:KnownProxies";
+    public const string ForwardedHeadersKnownIPNetworksKey = "ForwardedHeaders:KnownIPNetworks";
+    public const string ForwardedHeadersForwardLimitKey = "ForwardedHeaders:ForwardLimit";
     public const string GitBranchKey = "Git:Branch";
     public const string GitTagKey = "Git:Tag";
     public const string GitCommitKey = "Git:Commit";

@@ -18,11 +18,6 @@ public static class ClientHeaders
         return string.IsNullOrEmpty(result) ? null : result;
     }
 
-    public static string? GetRemoteIpAddress(this HttpContext context)
-    {
-        context.Request.Headers.TryGetValue("X-Forwarded-For", out var forwardedFor);
-        return
-            forwardedFor.FirstOrDefault()
-            ?? context.Connection.RemoteIpAddress?.ToString();
-    }
+    public static string? GetRemoteIpAddress(this HttpContext context) =>
+        context.Connection.RemoteIpAddress?.ToString();
 }

@@ -21,7 +21,7 @@ public class ApplicationFactory : WebApplicationFactory<DigitalProgram>
 {
     private readonly Dictionary<string, string?> _testSettings;
 
-    public ApplicationFactory(string connectionString)
+    public ApplicationFactory(string connectionString, IDictionary<string, string?>? settings = null)
     {
         AspNetEnv.Set(AspNetEnv.Test);
 
@@ -35,6 +35,10 @@ public class ApplicationFactory : WebApplicationFactory<DigitalProgram>
             { "Logging:LogLevel:Default", "None" },
             { "Logging:LogLevel:Microsoft", "None" }
         };
+        if (settings is null)
+            return;
+        foreach (var (key, value) in settings)
+            _testSettings[key] = value;
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -46,6 +50,7 @@ public class ApplicationFactory : WebApplicationFactory<DigitalProgram>
             .Build();
 
         builder.UseConfiguration(configuration);
+        builder.ConfigureServices(services => services.AddSingleton<IStartupFilter, TestRemoteIpStartupFilter>());
     }
 
     /// <summary>

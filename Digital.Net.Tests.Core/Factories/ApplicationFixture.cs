@@ -8,6 +8,7 @@ using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Core.Http.Services.Authentication.Options;
 using Digital.Net.Tests.Core.Factories.Data;
 using Digital.Net.Tests.Core.Factories.Data.Records;
+using Digital.Net.Tests.Core.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TUnit.Core.Interfaces;
@@ -60,14 +61,15 @@ public class ApplicationFixture : IAsyncInitializer, IAsyncDisposable
     public CmsContext GetCmsContext() => PostgresContextHelper.CreateContext<CmsContext>(Fixture.ConnectionString);
     
     /// <summary>
-    ///     Creates and configures an HttpClient instance to interact with the application's services with a unique IP.
+    ///     Creates and configures an HttpClient instance to interact with the application's services with a unique
+    ///     connection IP (see <see cref="TestRemoteIpStartupFilter" />).
     /// </summary>
     public HttpClient CreateClient()
     {
         var client = Factory.CreateClient();
         var rng = Random.Shared;
         client.DefaultRequestHeaders.Add(
-            "X-Forwarded-For",
+            TestRemoteIpStartupFilter.Header,
             $"10.{rng.Next(0, 256)}.{rng.Next(0, 256)}.{rng.Next(1, 255)}"
         );
         return client;
