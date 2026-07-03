@@ -108,7 +108,8 @@ public class SchemaProperty<T>
     public void ValidatePathMutation(object? value, string path)
     {
         ValidatePath(value, path);
-        if (IsIdentity || IsReadOnly)
+        // IsSecret act as read-only to avoid advertising which fields are secrets.
+        if (IsIdentity || IsReadOnly || IsSecret)
             throw new EntityValidationException($"{path}: This field is read-only.");
     }
 

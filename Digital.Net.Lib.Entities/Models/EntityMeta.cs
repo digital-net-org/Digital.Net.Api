@@ -6,9 +6,9 @@ namespace Digital.Net.Lib.Entities.Models;
 
 public abstract class EntityMeta
 {
-    [Column("CreatedAt"), Required, ReadOnly]
+    [Column("CreatedAt"), Required, ReadOnly, Sortable]
     public DateTime CreatedAt { get; set; }
 
-    [Column("UpdatedAt"), ReadOnly]
+    [Column("UpdatedAt"), ReadOnly, Sortable]
     public DateTime? UpdatedAt { get; set; }
 }

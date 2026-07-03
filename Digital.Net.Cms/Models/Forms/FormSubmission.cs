@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Digital.Net.Lib.Entities.Attributes;
 using Digital.Net.Lib.Entities.Models;
 
 namespace Digital.Net.Cms.Models.Forms;
@@ -8,6 +9,7 @@ namespace Digital.Net.Cms.Models.Forms;
 public class FormSubmission : Entity
 {
     [Column("FormId")]
+    [Sortable]
     public Guid FormId { get; set; }
 
     [Column("ValuesJson")]

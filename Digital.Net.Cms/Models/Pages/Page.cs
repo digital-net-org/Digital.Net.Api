@@ -14,6 +14,7 @@ public class Page : Entity
     [Column("Path")]
     [Required]
     [MaxLength(2068)]
+    [Sortable]
     [RegexValidation(RegularExpressions.PagePathPattern)]
     public required string Path { get; set; }
 
@@ -22,14 +23,17 @@ public class Page : Entity
     public PageEntityType? EntityType { get; set; }
 
     [Column("Published")]
+    [Sortable]
     public bool Published { get; set; }
 
     [Column("Indexed")]
+    [Sortable]
     public bool Indexed { get; set; } = true;
 
     [Column("Title")]
     [Templatable]
     [MaxLength(256)]
+    [Sortable]
     public string? Title { get; set; }
 
     [Column("Description")]

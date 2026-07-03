@@ -16,6 +16,7 @@ public class Article : Entity
     [Required]
     [Templatable]
     [MaxLength(256)]
+    [Sortable]
     public required string Title { get; set; }
 
     [Column("Description")]
@@ -32,10 +33,12 @@ public class Article : Entity
     [Required]
     [Templatable]
     [MaxLength(256)]
+    [Sortable]
     [RegexValidation(RegularExpressions.ArticleSlugPattern)]
     public required string Slug { get; set; }
 
     [Column("PublishedAt")]
+    [Sortable]
     public DateTime? PublishedAt { get; set; }
 
     [Column("PageId")]

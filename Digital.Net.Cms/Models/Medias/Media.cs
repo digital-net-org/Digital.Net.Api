@@ -11,6 +11,7 @@ public class Media : Entity
     [Column("Name")]
     [Required]
     [MaxLength(256)]
+    [Sortable]
     public required string Name { get; set; }
 
     [Column("Alt")]
@@ -18,6 +19,7 @@ public class Media : Entity
     public string? Alt { get; set; }
 
     [Column("Published")]
+    [Sortable]
     public bool Published { get; set; }
 
     [Column("DocumentId")]

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Digital.Net.Lib.Entities.Attributes;
 
 namespace Digital.Net.Lib.Entities.Models;
 
@@ -8,7 +9,7 @@ namespace Digital.Net.Lib.Entities.Models;
 /// </summary>
 public abstract class Entity : EntityMeta, IEntity
 {
-    [Column("Id"), Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Column("Id"), Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), Sortable]
     public Guid Id { get; init; }
 
     /// <summary>

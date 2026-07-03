@@ -277,7 +277,7 @@ public static class MediaEndpoints
         return TypedResults.Ok(result);
     }
 
-    private static async Task<Ok<QueryResult<MediaDto>>> GetMediaList(
+    private static async Task<Results<Ok<QueryResult<MediaDto>>, BadRequest<QueryResult<MediaDto>>>> GetMediaList(
         [AsParameters]
         MediaQuery query,
         CmsContext cmsContext,
@@ -286,12 +286,22 @@ public static class MediaEndpoints
         query.ValidateParameters();
         var result = new QueryResult<MediaDto>();
 
+        string orderClause;
+        try
+        {
+            orderClause = OrderByResolver.ResolveOrderClause<Media>(query.OrderBy, query.Order);
+        }
+        catch (InvalidOrderByException e)
+        {
+            result.AddError(e);
+            return TypedResults.BadRequest(result);
+        }
+
         var predicate = BuildMediaPredicate(query);
         var items = cmsContext.Media.Where(predicate);
         var rowCount = await items.CountAsync();
 
         var config = new ParsingConfig { IsCaseSensitive = false };
-        var orderClause = OrderByResolver.ResolveOrderClause<Media>(query.OrderBy, query.Order);
 
         var entities = await items
             .AsNoTracking()

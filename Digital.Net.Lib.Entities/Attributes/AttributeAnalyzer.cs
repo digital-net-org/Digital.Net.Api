@@ -63,6 +63,12 @@ public static class AttributeAnalyzer<T>
     public static bool IsReadOnly(PropertyInfo property) =>
         property.GetCustomAttribute<ReadOnlyAttribute>() is not null;
 
+    public static bool IsSortable(string propertyName) =>
+        typeof(T).GetProperty(propertyName)?.GetCustomAttribute<SortableAttribute>() is not null;
+
+    public static bool IsSortable(PropertyInfo property) =>
+        property.GetCustomAttribute<SortableAttribute>() is not null;
+
     public static string GetPath(string propertyName) =>
         typeof(T).GetProperty(propertyName)?.GetCustomAttribute<ColumnAttribute>()?.Name
         ?? propertyName;

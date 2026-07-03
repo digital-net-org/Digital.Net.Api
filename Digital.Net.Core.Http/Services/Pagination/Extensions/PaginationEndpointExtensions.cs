@@ -5,6 +5,7 @@ using Digital.Net.Lib.Entities.Projection;
 using Digital.Net.Lib.Predicates;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,7 +24,7 @@ public static class PaginationEndpointExtensions
         where TDto : class
         where TQuery : Query =>
         app
-            .MapGet(route ?? "", async (
+            .MapGet(route ?? "", async Task<Results<Ok<QueryResult<TDto>>, BadRequest<QueryResult<TDto>>>> (
                 [AsParameters]
                 TQuery query,
                 TContext context,
@@ -33,6 +34,17 @@ public static class PaginationEndpointExtensions
                 query.ValidateParameters();
                 var result = new QueryResult<TDto>();
 
+                string orderClause;
+                try
+                {
+                    orderClause = OrderByResolver.ResolveOrderClause<T>(query.OrderBy, query.Order);
+                }
+                catch (InvalidOrderByException e)
+                {
+                    result.AddError(e);
+                    return TypedResults.BadRequest(result);
+                }
+
                 try
                 {
                     var predicate = BuildFilter(query, filter);
@@ -40,7 +52,6 @@ public static class PaginationEndpointExtensions
                     var rowCount = await items.CountAsync(ct);
 
                     var config = new ParsingConfig { IsCaseSensitive = false };
-                    var orderClause = OrderByResolver.ResolveOrderClause<T>(query.OrderBy, query.Order);
 
                     items = items.AsNoTracking();
                     items = items.OrderBy(config, orderClause);

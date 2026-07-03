@@ -14,6 +14,7 @@ public class ConfigValue : Entity
     [Column("Name")]
     [MaxLength(128)]
     [Required]
+    [Sortable]
     [RegexValidation(RegularExpressions.ConfigValueNamePattern)]
     public required string Name { get; set; }
 
@@ -24,5 +25,6 @@ public class ConfigValue : Entity
     [Column("Type")]
     [MaxLength(16)]
     [Required]
+    [Sortable]
     public ConfigValueType Type { get; set; } = ConfigValueType.String;
 }

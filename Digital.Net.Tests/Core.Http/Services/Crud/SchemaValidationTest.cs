@@ -1,4 +1,5 @@
 using Digital.Net.Core.Http.Services.Crud;
+using Digital.Net.Lib.Entities.Attributes;
 using Digital.Net.Lib.Entities.Exceptions;
 using Digital.Net.Lib.Entities.Models;
 using Digital.Net.Lib.Random;
@@ -9,6 +10,20 @@ namespace Digital.Net.Tests.Core.Http.Services.Crud;
 
 public class SchemaValidationTest : UnitTest
 {
+    private class SecretSample : IEntity
+    {
+        [Secret]
+        public string? Token { get; set; }
+    }
+
+    [Test]
+    public async Task ValidatePathMutation_Throws_WhenFieldIsSecret()
+    {
+        var property = SchemaProperty<SecretSample>.Get().First(p => p.Name == nameof(SecretSample.Token));
+        await Assert.That(() => property.ValidatePathMutation("value", "/Token"))
+            .Throws<EntityValidationException>();
+    }
+
     private static CrudTestEntity GetValidEntity() => new()
     {
         Name = Randomizer.GenerateRandomString(Randomizer.AnyLetterOrNumber, 8),

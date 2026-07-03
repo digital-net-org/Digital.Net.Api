@@ -12,6 +12,7 @@ public class Form : Entity
     [Column("Name")]
     [Required]
     [MaxLength(256)]
+    [Sortable]
     public required string Name { get; set; }
 
     [Column("Description")]
@@ -19,6 +20,7 @@ public class Form : Entity
     public string? Description { get; set; }
 
     [Column("Published")]
+    [Sortable]
     public bool Published { get; set; }
 
     [Column("SubmitLabel")]
@@ -27,6 +29,7 @@ public class Form : Entity
 
     [Column("Path")]
     [MaxLength(2068)]
+    [Sortable]
     [RegexValidation(RegularExpressions.PagePathPattern)]
     public string? Path { get; set; }
 

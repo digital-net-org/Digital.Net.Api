@@ -1,14 +1,27 @@
 using Digital.Net.Core.Http.Services.Pagination;
+using Digital.Net.Lib.Entities.Attributes;
+using Digital.Net.Lib.Entities.Models;
 
 namespace Digital.Net.Tests.Core.Http.Services.Pagination;
 
 public class OrderByResolverTest : UnitTest
 {
-    private class Sample
+    private class Sample : IEntity
     {
+        [Sortable]
         public Guid Id { get; set; }
+
+        [Sortable]
         public DateTime CreatedAt { get; set; }
+
+        [Sortable]
         public string Title { get; set; } = string.Empty;
+
+        public string NotWhitelisted { get; set; } = string.Empty;
+
+        [Sortable]
+        [Secret]
+        public string PasswordHash { get; set; } = string.Empty;
     }
 
     [Test]
@@ -19,27 +32,30 @@ public class OrderByResolverTest : UnitTest
     }
 
     [Test]
-    public async Task Resolve_ReturnsCanonicalName_WhenKnownColumn()
-    {
-        // Case-insensitive match resolves to the property's canonical casing.
+    public async Task Resolve_ReturnsCanonicalName_WhenSortableColumn() =>
         await Assert.That(OrderByResolver.Resolve<Sample>("title")).IsEqualTo("Title");
+
+    [Test]
+    public async Task Resolve_Throws_WhenUnknownColumn()
+    {
+        await Assert.That(() => OrderByResolver.Resolve<Sample>("DROP TABLE")).Throws<InvalidOrderByException>();
+        await Assert.That(() => OrderByResolver.Resolve<Sample>("NotAProperty")).Throws<InvalidOrderByException>();
     }
 
     [Test]
-    public async Task Resolve_FallsBackToDefault_WhenUnknownColumn()
-    {
-        await Assert.That(OrderByResolver.Resolve<Sample>("DROP TABLE")).IsEqualTo(OrderByResolver.DefaultColumn);
-        await Assert.That(OrderByResolver.Resolve<Sample>("NotAProperty")).IsEqualTo(OrderByResolver.DefaultColumn);
-    }
+    public async Task Resolve_Throws_WhenColumnIsNotWhitelisted() => await Assert
+        .That(() => OrderByResolver.Resolve<Sample>("NotWhitelisted")).Throws<InvalidOrderByException>();
+
+    [Test]
+    public async Task Resolve_Throws_WhenColumnIsSecret_EvenIfMarkedSortable() =>
+        await Assert.That(() => OrderByResolver.Resolve<Sample>("PasswordHash")).Throws<InvalidOrderByException>();
 
     [Test]
     public async Task ResolveOrderClause_AppendsTieBreaker_ForStableTotalOrder()
     {
-        // Default column + the primary-key tie-breaker → tied CreatedAt rows keep a deterministic position.
         await Assert.That(OrderByResolver.ResolveOrderClause<Sample>(null, null)).IsEqualTo("CreatedAt, Id");
         await Assert.That(OrderByResolver.ResolveOrderClause<Sample>("title", "desc"))
             .IsEqualTo("Title descending, Id");
-        await Assert.That(OrderByResolver.ResolveOrderClause<Sample>("NotAProperty", null)).IsEqualTo("CreatedAt, Id");
     }
 
     [Test]

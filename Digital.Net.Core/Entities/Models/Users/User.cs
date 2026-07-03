@@ -18,12 +18,14 @@ public class User : Entity, IRestrictedAuditEntity
     [Column("Username")]
     [MaxLength(24)]
     [Required]
+    [Sortable]
     [RegexValidation(RegularExpressions.UsernamePattern)]
     public required string Username { get; set; }
 
     [Column("Email")]
     [MaxLength(254)]
     [Required]
+    [Sortable]
     [RegexValidation(RegularExpressions.EmailPattern)]
     public required string Email { get; set; }
 
@@ -48,16 +50,19 @@ public class User : Entity, IRestrictedAuditEntity
     [MaxLength(24)]
     [Required]
     [ReadOnly]
+    [Sortable]
     [RegexValidation(RegularExpressions.UsernamePattern)]
     public required string Login { get; set; }
 
     [Column("IsActive")]
     [Required]
     [ReadOnly]
+    [Sortable]
     public bool IsActive { get; set; }
 
     [Column("IsAdmin")]
     [Required]
     [ReadOnly]
+    [Sortable]
     public bool IsAdmin { get; set; }
 }

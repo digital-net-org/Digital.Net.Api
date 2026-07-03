@@ -38,7 +38,11 @@ public static class ArticlePublicEndpoints
         return app;
     }
 
-    private static async Task<Ok<QueryResult<ArticlePublicListDto>>>
+    private static async
+        Task<Results<
+            Ok<QueryResult<ArticlePublicListDto>>,
+            BadRequest<QueryResult<ArticlePublicListDto>>
+        >>
         GetPublishedArticles(
             [AsParameters]
             ArticlePublicQuery query,
@@ -47,7 +51,9 @@ public static class ArticlePublicEndpoints
         )
     {
         var result = await articleService.GetPublishedArticles(query, ct);
-        return TypedResults.Ok(result);
+        return result.HasErrorOfType<InvalidOrderByException>()
+            ? TypedResults.BadRequest(result)
+            : TypedResults.Ok(result);
     }
 
     private static async
