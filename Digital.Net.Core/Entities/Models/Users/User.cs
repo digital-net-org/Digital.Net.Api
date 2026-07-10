@@ -1,11 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Digital.Net.Lib.Entities.Attributes;
 using Digital.Net.Core.Entities.Models.ApiKeys;
 using Digital.Net.Core.Entities.Models.Avatars;
+using Digital.Net.Lib.Entities.Attributes;
+using Digital.Net.Lib.Entities.Models;
 using Digital.Net.Lib.String;
 using Microsoft.EntityFrameworkCore;
-using Digital.Net.Lib.Entities.Models;
 
 namespace Digital.Net.Core.Entities.Models.Users;
 
@@ -47,7 +47,7 @@ public class User : Entity, IRestrictedAuditEntity
     public required string Password { get; set; }
 
     [Column("Login")]
-    [MaxLength(24)]
+    [MaxLength(48)]
     [Required]
     [ReadOnly]
     [Sortable]

@@ -20,4 +20,8 @@
         <ProjectReference Include="..\Digital.Net.Core\Digital.Net.Core.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <Content Include=".scripts\migrate.sh"/>
+    </ItemGroup>
+
 </Project>

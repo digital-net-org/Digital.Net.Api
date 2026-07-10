@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Digital.Net.Lib.Entities.Attributes;
-using Microsoft.EntityFrameworkCore;
 using Digital.Net.Lib.Entities.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Core.Entities.Models.Auth;
 
@@ -23,7 +23,7 @@ public class AuthEvent : Entity, IUntrackedEntity
     public bool Success { get; init; }
 
     [Column("Login")]
-    [MaxLength(24)]
+    [MaxLength(48)]
     [Sortable]
     public string? Login { get; init; }
 
