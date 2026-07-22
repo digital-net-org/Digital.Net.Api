@@ -22,6 +22,14 @@ public class MediaEndpointsTest
         return client;
     }
 
+    private async Task<HttpClient> CreateAdminClientAsync()
+    {
+        var user = ApplicationFixture.CreateUser(new TestUserPayload { IsActive = true, IsAdmin = true });
+        var client = ApplicationFixture.CreateClient();
+        await client.Login(user);
+        return client;
+    }
+
     private string GetStoragePath() =>
         ApplicationFixture.GetConfiguration<string>(CoreSettings.FileSystemPathKey) ?? ".test_storage";
 
@@ -161,7 +169,7 @@ public class MediaEndpointsTest
     [Test]
     public async Task PurgeAllVariants_ShouldPurgeEverything()
     {
-        var client = await CreateAuthenticatedClientAsync();
+        var client = await CreateAdminClientAsync();
         var response = await client.PurgeAllVariants();
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
     }

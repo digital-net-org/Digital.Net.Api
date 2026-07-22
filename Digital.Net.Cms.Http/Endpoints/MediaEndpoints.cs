@@ -100,7 +100,8 @@ public static class MediaEndpoints
         userRoutes
             .MapDelete("variants", PurgeAllVariants)
             .WithSummary("PurgeAllVariants")
-            .WithDescription("Purges all cached variants across all media.");
+            .WithDescription("Purges all cached variants across all media.")
+            .RequireAdmin();
 
         app
             .MapGroup("cms/media")
