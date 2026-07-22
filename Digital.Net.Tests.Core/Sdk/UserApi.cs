@@ -13,9 +13,6 @@ public static class UserApi
     public static async Task<HttpResponseMessage> GetSelf(this HttpClient client) =>
         await client.GetAsync($"{BaseUrl}/self");
 
-    public static async Task<HttpResponseMessage> PatchSelf(this HttpClient client, object patch) =>
-        await client.PatchAsJsonAsync($"{BaseUrl}/self", patch);
-
     public static async Task<HttpResponseMessage> UpdatePassword(
         this HttpClient client,
         string currentPassword,

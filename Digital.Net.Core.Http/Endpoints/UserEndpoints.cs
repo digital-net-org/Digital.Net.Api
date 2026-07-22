@@ -1,9 +1,7 @@
 using System.Linq.Expressions;
-using System.Text.Json;
 using Digital.Net.Core.Accessors;
 using Digital.Net.Lib.Entities;
 using Digital.Net.Core.Entities.Context;
-using Digital.Net.Lib.Entities.Exceptions;
 using Digital.Net.Core.Entities.Models.Auth;
 using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Core.Http.Accessors;
@@ -98,13 +96,6 @@ public static class UserEndpoints
             .WithDescription("Retrieves the authenticated user's information.");
 
         controller
-            .MapPatch("/self", PatchSelf)
-            .WithSummary("PatchSelf")
-            .WithDescription(
-                "Updates the authenticated user's information using a JSON patch. Use the *User Schema* to get the available fields."
-            );
-
-        controller
             .MapPut("/self/password", UpdatePassword)
             .WithSummary("UpdatePassword")
             .WithDescription("Updates the authenticated user's password.");
@@ -149,27 +140,6 @@ public static class UserEndpoints
 
         var dto = new UserDto(user);
         return TypedResults.Ok(new Result<UserDto>(dto));
-    }
-
-    private static async Task<Results<Ok<Result>, BadRequest<Result>, InternalServerError<Result>>> PatchSelf(
-        [FromBody]
-        JsonElement patch,
-        CrudService<DigitalContext, User> crudService,
-        IUserAccessor userContextService,
-        CancellationToken ct
-    )
-    {
-        var userId = userContextService.GetUserId();
-        var result = await crudService.Patch(patch, userId, ct);
-        var isBadRequest = result.HasErrorOfType<EntityValidationException>() ||
-                           result.HasErrorOfType<InvalidOperationException>();
-
-        if (result.HasError && !isBadRequest)
-            return TypedResults.InternalServerError(result);
-
-        return result.HasError
-            ? TypedResults.BadRequest(result)
-            : TypedResults.Ok(result);
     }
 
     private static async Task<Results<Ok<Result>, BadRequest<Result>, UnauthorizedHttpResult>> UpdatePassword(

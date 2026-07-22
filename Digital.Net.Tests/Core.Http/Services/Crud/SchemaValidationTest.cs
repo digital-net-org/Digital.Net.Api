@@ -95,14 +95,21 @@ public class SchemaValidationTest : UnitTest
     }
 
     [Test]
-    public async Task ValidatePatch_DoesNotThrow_WhenOpIsNotAddOrReplace()
+    [Arguments("copy")]
+    [Arguments("move")]
+    [Arguments("test")]
+    public async Task ValidatePatch_Throws_WhenOperationIsOutsideAllowList(string operation)
     {
         var patch = new JsonPatchDocument<CrudTestEntity>();
         patch.Operations.Add(new Operation<CrudTestEntity>
         {
-            op = "test", path = "/Name", value = "ab",
+            op = operation, from = "/Name", path = "/ReadOnlyField",
         });
-        await Assert.That(() => SchemaPatchValidator.Validate(patch)).ThrowsNothing();
+        await Assert.ThrowsAsync<EntityValidationException>(async () =>
+        {
+            SchemaPatchValidator.Validate(patch);
+            await Task.CompletedTask;
+        });
     }
 
     [Test]
@@ -212,13 +219,12 @@ public class SchemaValidationTest : UnitTest
     [Test]
     public async Task ValidatePatch_ContinuesAfterSkippedOp_WhenLaterOpIsInvalid()
     {
-        // Regression guard: prior to consolidation, the loop did `return` on skipped ops
-        // (null value, non-add/replace, deep paths…) which silently skipped every later op.
-        // Now skipped ops should `continue` and a later invalid op must still throw.
+        // Regression guard: a value-less but allowed op (here remove) must `continue`, not `return`.
+        // A later invalid op must still throw.
         var patch = new JsonPatchDocument<CrudTestEntity>();
         patch.Operations.Add(new Operation<CrudTestEntity>
         {
-            op = "test", path = "/Name", value = "noop",
+            op = "remove", path = "/ReadOnlyField",
         });
         patch.Replace(e => e.OneOfField, "delta");
         await Assert.ThrowsAsync<EntityValidationException>(async () =>

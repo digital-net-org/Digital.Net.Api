@@ -21,10 +21,9 @@ public static class SchemaPatchValidator
     private static readonly ConcurrentDictionary<(Type Owner, string Member), Type?> MemberTypes = new();
 
     /// <summary>
-    ///     Validate a JSON Patch document for an EFCore mutation. Each <c>add</c>/<c>replace</c>
-    ///     op is dispatched; depth-2 paths targeting a navigation <see cref="Entity" /> are validated against that
-    ///     entity's own schema. Other ops (<c>remove</c>/<c>test</c>/<c>copy</c>/<c>move</c>) and paths
-    ///     deeper than two segments are skipped.
+    ///     Validate a JSON Patch document for an EFCore mutation. Only <c>add</c>/<c>replace</c>/<c>remove</c>
+    ///     are accepted; <c>copy</c>/<c>move</c>/<c>test</c> are rejected outright because <c>ApplyTo</c> does not
+    ///     honor the <c>[ReadOnly]</c> guard.
     /// </summary>
     public static void Validate<T>(JsonPatchDocument<T> patch)
         where T : class, IEntity
@@ -32,6 +31,8 @@ public static class SchemaPatchValidator
         var schema = SchemaProperty<T>.Get();
         foreach (var op in patch.Operations)
         {
+            if (op.op is not ("add" or "replace" or "remove"))
+                throw new EntityValidationException($"{op.op}: This patch operation is not allowed.");
             if (op.value is null || (op.op != "add" && op.op != "replace"))
                 continue;
 
