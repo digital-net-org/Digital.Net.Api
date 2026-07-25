@@ -15,7 +15,7 @@ public class Query
     public DateTime? UpdatedFrom { get; set; }
     public DateTime? UpdatedTo { get; set; }
 
-    public void ValidateParameters()
+    public virtual void ValidateParameters()
     {
         Index = Index < 1 ? DefaultIndex : Index;
         Size = Size < 1 ? DefaultSize : Math.Min(Size, MaxSize);
