@@ -34,7 +34,7 @@ public class AuthenticationOptionService(
         ValidIssuer = options.Value.Issuer,
         ValidAudience = options.Value.Audience,
         IssuerSigningKey =
-            new SymmetricSecurityKey(Encoding.ASCII.GetBytes(
+            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
                 configuration.GetOrThrow<string>(CoreSettings.JwtSecretKey)
             )),
         ClockSkew = TimeSpan.Zero

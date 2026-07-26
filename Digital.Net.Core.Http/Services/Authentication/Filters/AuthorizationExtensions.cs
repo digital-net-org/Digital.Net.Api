@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.ApiKeys;
@@ -143,11 +145,19 @@ public static class AuthorizationExtensions
     {
         var result = new AuthorizationResult();
         var configuredKey = config.Get<string>(CoreSettings.ApplicationKeyKey);
-        if (string.IsNullOrWhiteSpace(configuredKey) || !string.Equals(key, configuredKey, StringComparison.Ordinal))
+        if (string.IsNullOrWhiteSpace(configuredKey) || string.IsNullOrEmpty(key) || !IsSameKey(key, configuredKey))
             return result.AddError(new InvalidTokenException());
         result.Authorize(Guid.Empty);
         return result;
     }
+
+    private static bool IsSameKey(string candidate, string expected) =>
+        // Compares two shared keys without leaking their content through timing. Hashing first keeps the
+        // comparison on fixed-size buffers, so the key length does not leak either.
+        CryptographicOperations.FixedTimeEquals(
+            SHA256.HashData(Encoding.UTF8.GetBytes(candidate)),
+            SHA256.HashData(Encoding.UTF8.GetBytes(expected))
+        );
 
     private static async Task<AuthorizationResult> AuthorizeApiKeyAsync(
         DigitalContext dbCtx,

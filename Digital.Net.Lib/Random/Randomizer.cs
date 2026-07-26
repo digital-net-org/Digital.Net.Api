@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+
 namespace Digital.Net.Lib.Random;
 
 public static class Randomizer
@@ -21,11 +23,8 @@ public static class Randomizer
     public static string GenerateRandomString(string? chars = null, int? length = null)
     {
         chars ??= AnyCharacter;
-        length ??= GenerateRandomInt(1, 128);
-        return new string([
-            ..Enumerable.Repeat(chars, length.Value)
-                .Select(s => s[new System.Random().Next(s.Length)])
-        ]);
+        length ??= RandomNumberGenerator.GetInt32(1, 128);
+        return new string(RandomNumberGenerator.GetItems<char>(chars, length.Value));
     }
 
     /// <summary>
@@ -40,12 +39,4 @@ public static class Randomizer
         topLevelDomain ??= GenerateRandomString(SmallLetters, 3);
         return $"{GenerateRandomString(SmallLetters, 10)}@{domain}.{topLevelDomain}";
     }
-
-    /// <summary>
-    ///     Generates a random integer within the specified range.
-    /// </summary>
-    /// <param name="rangeMin">The minimum range of the random integer.</param>
-    /// <param name="rangeMax">The maximum range of the random integer.</param>
-    /// <returns>A random integer within the specified range.</returns>
-    public static int GenerateRandomInt(int rangeMin, int rangeMax) => new System.Random().Next(rangeMin, rangeMax);
 }

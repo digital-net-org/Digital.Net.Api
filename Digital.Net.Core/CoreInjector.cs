@@ -1,3 +1,4 @@
+using System.Text;
 using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Services.ApiKeys;
@@ -53,6 +54,12 @@ public static class CoreInjector
             if (string.IsNullOrWhiteSpace(value))
                 throw new NullReferenceException($"Missing mandatory configuration section: {setting}");
         }
+
+        var jwtSecret = builder.Configuration.GetSection(CoreSettings.JwtSecretKey).Value!;
+        if (Encoding.UTF8.GetByteCount(jwtSecret) < CoreSettings.MinJwtSecretBytes)
+            throw new InvalidOperationException(
+                $"{CoreSettings.JwtSecretKey} must be at least {CoreSettings.MinJwtSecretBytes} bytes long."
+            );
 
         return builder;
     }

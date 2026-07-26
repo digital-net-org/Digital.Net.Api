@@ -8,6 +8,7 @@ public static class CoreSettings
     public const string DefaultFileSystemPath = "/digital_net_storage";
     public const int DefaultAuditRetentionDays = 90;
     public const int DefaultForwardLimit = 1;
+    public const int MinJwtSecretBytes = 32;
 
     public const string ApplicationNameKey = "ApplicationName";
     public const string DomainKey = "Domain";
