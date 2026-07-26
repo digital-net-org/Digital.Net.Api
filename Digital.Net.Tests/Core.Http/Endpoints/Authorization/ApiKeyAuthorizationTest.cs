@@ -1,9 +1,11 @@
 using System.Net;
+using System.Net.Http.Json;
 using Digital.Net.Core.Entities.Models.ApiKeys;
 using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Core.Http.Services.Authentication.Options;
 using Digital.Net.Lib.Random;
 using Digital.Net.Tests.Core.Factories;
+using Digital.Net.Tests.Core.Factories.Data.Records;
 using Digital.Net.Tests.Core.Sdk;
 
 namespace Digital.Net.Tests.Core.Http.Endpoints.Authorization;
@@ -59,6 +61,26 @@ public class ApiKeyAuthorizationTest
     [Test]
     public async Task Authorize_ShouldReturnUnauthorized_OnMissingApiKeyHeader() =>
         await ExecuteTestAsync(ApplicationFixture.CreateClient(), HttpStatusCode.Unauthorized);
+
+    [Test]
+    public async Task CreateApiKey_ShouldReturnUnauthorized_WhenAuthenticatedWithApiKey()
+    {
+        var (_, client) = await Setup(Randomizer.GenerateRandomString(Randomizer.AnyLetter, 128));
+        var response = await client.PostAsJsonAsync(
+            "/user/self/api-key", new { Name = "new-key", ExpiredAt = (DateTime?)null });
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.Unauthorized);
+    }
+
+    [Test]
+    public async Task CreateApiKey_ShouldSucceed_WhenAuthenticatedWithJwt()
+    {
+        var user = ApplicationFixture.CreateUser(new TestUserPayload { IsActive = true });
+        var client = ApplicationFixture.CreateClient();
+        await client.Login(user);
+        var response = await client.PostAsJsonAsync(
+            "/user/self/api-key", new { Name = "jwt-key", ExpiredAt = (DateTime?)null });
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+    }
 
     private async Task<(User, HttpClient)> Setup(string key, DateTime? expiry = null, string? header = null)
     {

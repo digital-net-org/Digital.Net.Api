@@ -53,13 +53,27 @@ public class ApiKeyServiceTest : DbServiceTest<DigitalContext>
     {
         var user = Context.BuildTestUser();
         var name = $"Custom-{TestId}";
-        var customExpiry = DateTime.UtcNow.AddYears(1);
+        var customExpiry = DateTime.UtcNow.AddDays(120);
 
         var result = await _service.CreateAsync(user.Id, name, customExpiry);
         await Assert.That(result.HasError).IsFalse();
 
         var stored = await Context.ApiKeys.FirstAsync(k => k.UserId == user.Id && k.Name == name);
         await Assert.That((stored.ExpiredAt!.Value - customExpiry).TotalMinutes).IsLessThan(1);
+    }
+
+    [Test]
+    public async Task CreateAsync_CapsExpiration_WhenBeyondMax()
+    {
+        var user = Context.BuildTestUser();
+        var name = $"Capped-{TestId}";
+
+        var result = await _service.CreateAsync(user.Id, name, DateTime.UtcNow.AddYears(1));
+        await Assert.That(result.HasError).IsFalse();
+
+        var stored = await Context.ApiKeys.FirstAsync(k => k.UserId == user.Id && k.Name == name);
+        var expectedCap = DateTime.UtcNow.Add(ApiKeyService.MaxExpiration);
+        await Assert.That((stored.ExpiredAt!.Value - expectedCap).TotalMinutes).IsLessThan(1);
     }
 
     [Test]

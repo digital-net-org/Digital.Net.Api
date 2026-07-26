@@ -14,6 +14,7 @@ public class ApiKeyService(
 {
     public const int MaxApiKeysPerUser = 5;
     public static readonly TimeSpan DefaultExpiration = TimeSpan.FromDays(90);
+    public static readonly TimeSpan MaxExpiration = TimeSpan.FromDays(180);
 
     public async Task<Result<string>> CreateAsync(Guid userId, string name, DateTime? expiresAt)
     {
@@ -34,8 +35,14 @@ public class ApiKeyService(
             if (nameExists)
                 throw new DuplicateApiKeyNameException();
 
+            // Cap the client-supplied expiry so a key cannot be made effectively permanent.
+            var maxExpiredAt = DateTime.UtcNow.Add(MaxExpiration);
+            var effectiveExpiredAt = expiresAt.HasValue
+                ? expiresAt.Value < maxExpiredAt ? expiresAt.Value : maxExpiredAt
+                : DateTime.UtcNow.Add(DefaultExpiration);
+
             var plaintextKey = Randomizer.GenerateRandomString(Randomizer.AnyLetterOrNumber, 128);
-            var apiKey = new ApiKey(userId, name, plaintextKey, expiresAt ?? DateTime.UtcNow.Add(DefaultExpiration));
+            var apiKey = new ApiKey(userId, name, plaintextKey, effectiveExpiredAt);
 
             await context.ApiKeys.AddAsync(apiKey);
             await context.SaveChangesAsync();
@@ -49,6 +56,24 @@ public class ApiKeyService(
         return result;
     }
 
+    public async Task<Result> DeleteAsync(Guid userId, Guid keyId)
+    {
+        var result = new Result();
+        try
+        {
+            var apiKey = await context.ApiKeys.FirstOrDefaultAsync(k => k.Id == keyId && k.UserId == userId);
+            if (apiKey is null) throw new KeyNotFoundException("API key not found.");
+            context.ApiKeys.Remove(apiKey);
+            await context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            result.AddError(ex);
+        }
+
+        return result;
+    }
+    
     public async Task<Result<List<ApiKey>>> GetByUserAsync(Guid userId)
     {
         var result = new Result<List<ApiKey>>
@@ -61,14 +86,16 @@ public class ApiKeyService(
         return result;
     }
 
-    public async Task<Result> DeleteAsync(Guid userId, Guid keyId)
+    public async Task<Result> RevokeUserKeysAsync(Guid userId)
     {
         var result = new Result();
         try
         {
-            var apiKey = await context.ApiKeys.FirstOrDefaultAsync(k => k.Id == keyId && k.UserId == userId);
-            if (apiKey is null) throw new KeyNotFoundException("API key not found.");
-            context.ApiKeys.Remove(apiKey);
+            var userApiKeys = await context.ApiKeys.Where(k => k.UserId == userId).ToListAsync();
+            foreach (var apiKey in userApiKeys)
+                apiKey.ExpiredAt = DateTime.UtcNow;
+
+            context.ApiKeys.UpdateRange(userApiKeys);
             await context.SaveChangesAsync();
         }
         catch (Exception ex)

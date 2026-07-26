@@ -1,5 +1,7 @@
 using Digital.Net.Core.Entities.Context;
+using Digital.Net.Core.Entities.Models.ApiKeys;
 using Digital.Net.Core.Entities.Models.Documents;
+using Digital.Net.Core.Services.ApiKeys;
 using Digital.Net.Core.Services.Documents;
 using Digital.Net.Core.Services.Documents.Exceptions;
 using Digital.Net.Core.Services.Users;
@@ -8,6 +10,7 @@ using Digital.Net.Lib.Files;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Tests.Core.Factories.Data;
 using Digital.Net.Tests.Core.Factories.Data.Records;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace Digital.Net.Tests.Core.Services.Users;
@@ -15,12 +18,14 @@ namespace Digital.Net.Tests.Core.Services.Users;
 public class UserServiceTest : DbServiceTest<DigitalContext>
 {
     private Mock<IDocumentService> _documentServiceMock = null!;
+    private ApiKeyService _apiKeyService = null!;
     private UserService _service = null!;
 
     protected override Task OnInitializedAsync()
     {
         _documentServiceMock = new Mock<IDocumentService>();
-        _service = new UserService(_documentServiceMock.Object, Context);
+        _apiKeyService = new ApiKeyService(Context);
+        _service = new UserService(_documentServiceMock.Object, _apiKeyService, Context);
         return Task.CompletedTask;
     }
 
@@ -49,6 +54,36 @@ public class UserServiceTest : DbServiceTest<DigitalContext>
 
         var result = await _service.UpdatePasswordAsync(user, TestUserFactory.TestUserPassword, "NewPassword123!");
         await Assert.That(result.HasError).IsFalse();
+    }
+
+    [Test]
+    public async Task UpdatePasswordAsync_RevokesApiKeys()
+    {
+        var user = Context.BuildTestUser();
+        await Context.ApiKeys.AddAsync(new ApiKey(user.Id, "revoke-key-1", expiredAt: DateTime.UtcNow.AddMonths(3)));
+        await Context.ApiKeys.AddAsync(new ApiKey(user.Id, "revoke-key-2", expiredAt: DateTime.UtcNow.AddMonths(3)));
+        await Context.SaveChangesAsync();
+
+        var result = await _service.UpdatePasswordAsync(user, TestUserFactory.TestUserPassword, "NewPassword123!");
+        await Assert.That(result.HasError).IsFalse();
+
+        var keys = await Context.ApiKeys.Where(k => k.UserId == user.Id).ToListAsync();
+        await Assert.That(keys.Count).IsEqualTo(2);
+        await Assert.That(keys.All(k => k.ExpiredAt <= DateTime.UtcNow)).IsTrue();
+    }
+
+    [Test]
+    public async Task UpdateUserStatusAsync_RevokesApiKeys_WhenDeactivating()
+    {
+        var user = Context.BuildTestUser();
+        await Context.ApiKeys.AddAsync(new ApiKey(user.Id, "status-key", expiredAt: DateTime.UtcNow.AddMonths(3)));
+        await Context.SaveChangesAsync();
+
+        var result = await _service.UpdateUserStatusAsync(user.Id, false);
+        await Assert.That(result.HasError).IsFalse();
+
+        var key = await Context.ApiKeys.FirstAsync(k => k.UserId == user.Id);
+        await Assert.That(key.ExpiredAt <= DateTime.UtcNow).IsTrue();
     }
 
     [Test]

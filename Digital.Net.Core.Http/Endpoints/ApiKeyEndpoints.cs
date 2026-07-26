@@ -24,6 +24,7 @@ public static class ApiKeyEndpoints
 
         group
             .MapPost("", Create)
+            .RequireAuthentication(AuthorizeType.Jwt)
             .WithSummary("CreateApiKey")
             .WithDescription("Generates a new API key. The plaintext key is returned only once.");
 

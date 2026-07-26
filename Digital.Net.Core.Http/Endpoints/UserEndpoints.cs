@@ -1,6 +1,5 @@
 using System.Linq.Expressions;
 using Digital.Net.Core.Accessors;
-using Digital.Net.Lib.Entities;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Auth;
 using Digital.Net.Core.Entities.Models.Users;
@@ -15,6 +14,7 @@ using Digital.Net.Core.Http.Services.Pagination.Extensions;
 using Digital.Net.Core.Services.Documents.Exceptions;
 using Digital.Net.Core.Services.Users;
 using Digital.Net.Core.Services.Users.Exceptions;
+using Digital.Net.Lib.Entities;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Files;
 using Digital.Net.Lib.Messages;
@@ -98,7 +98,9 @@ public static class UserEndpoints
         controller
             .MapPut("/self/password", UpdatePassword)
             .WithSummary("UpdatePassword")
-            .WithDescription("Updates the authenticated user's password.");
+            .WithDescription(
+                "Updates the authenticated user's password. A password change revokes the account's API keys."
+            );
 
         controller
             .MapPut("/self/avatar", UpdateAvatar)

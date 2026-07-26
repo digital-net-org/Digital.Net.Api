@@ -2,6 +2,7 @@ using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Avatars;
 using Digital.Net.Core.Entities.Models.Documents;
 using Digital.Net.Core.Entities.Models.Users;
+using Digital.Net.Core.Services.ApiKeys;
 using Digital.Net.Core.Services.Documents;
 using Digital.Net.Core.Services.Documents.Exceptions;
 using Digital.Net.Core.Services.Users.Exceptions;
@@ -15,6 +16,7 @@ namespace Digital.Net.Core.Services.Users;
 
 public class UserService(
     IDocumentService documentService,
+    ApiKeyService apiKeyService,
     DigitalContext context
 )
 {
@@ -24,10 +26,11 @@ public class UserService(
 
         if (!UserPassword.Verify(user, currentPassword))
             return result.AddError(new InvalidCredentialsException());
-
         if (!RegularExpressions.Password.IsMatch(newPassword))
             return result.AddError(new PasswordMalformedException());
 
+        result.Merge(await apiKeyService.RevokeUserKeysAsync(user.Id));
+        
         user.Password = UserPassword.Hash(newPassword);
         context.Users.Update(user);
         await context.SaveChangesAsync();
@@ -136,6 +139,7 @@ public class UserService(
         if (user.IsAdmin && !isActive)
             return result.AddError(new CannotRevokeAdminException());
 
+        result.Merge(await apiKeyService.RevokeUserKeysAsync(user.Id));
         user.IsActive = isActive;
         context.Users.Update(user);
         await context.SaveChangesAsync();
