@@ -15,7 +15,7 @@ public class ResultTest : UnitTest
         var error = model.Errors[0];
         await Assert.That((IEnumerable)model.Errors).HasSingleItem();
         await Assert.That(model.HasError).IsTrue();
-        await Assert.That(error.Message).IsEqualTo("Test exception");
+        await Assert.That(error.Message).IsEqualTo("An unexpected error occurred");
     }
 
     [Test]
@@ -30,8 +30,8 @@ public class ResultTest : UnitTest
 
         await Assert.That(model1.Errors.Count).IsEqualTo(2);
         await Assert.That(model1.Value).IsEqualTo("Test");
-        await Assert.That(model1.Errors[0].Message).IsEqualTo("Error 1");
-        await Assert.That(model1.Errors[1].Message).IsEqualTo("Error 2");
+        await Assert.That(model1.Errors[0].Message).IsEqualTo("An unexpected error occurred");
+        await Assert.That(model1.Errors[1].Message).IsEqualTo("An unexpected error occurred");
     }
 
     [Test]
@@ -46,7 +46,7 @@ public class ResultTest : UnitTest
         var error = model.Errors[0];
         await Assert.That(model.Errors).HasSingleItem();
         await Assert.That(model.HasError).IsTrue();
-        await Assert.That(error.Message).IsEqualTo("Test exception");
+        await Assert.That(error.Message).IsEqualTo("An unexpected error occurred");
     }
 
     [Test]
@@ -70,7 +70,7 @@ public class ResultTest : UnitTest
         var error = model.Errors[0];
         await Assert.That(model.Errors).HasSingleItem();
         await Assert.That(model.HasError).IsTrue();
-        await Assert.That(error.Message).IsEqualTo("Test exception");
+        await Assert.That(error.Message).IsEqualTo("An unexpected error occurred");
     }
 
     [Test]
@@ -111,7 +111,7 @@ public class ResultTest : UnitTest
             return new Result<string>();
         });
         await Assert.That(model.HasError).IsTrue();
-        await Assert.That(model.Errors[0].Message).IsEqualTo("Async error");
+        await Assert.That(model.Errors[0].Message).IsEqualTo("An unexpected error occurred");
     }
 
     [Test]

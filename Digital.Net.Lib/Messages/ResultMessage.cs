@@ -1,5 +1,6 @@
 ﻿using Digital.Net.Lib.Environment;
 using Digital.Net.Lib.Exceptions;
+using Digital.Net.Lib.Exceptions.types;
 
 namespace Digital.Net.Lib.Messages;
 
@@ -13,11 +14,15 @@ public class ResultMessage
     public ResultMessage(Exception ex, string? message = null)
     {
         Code = message?.GetHashCode().ToString() ?? ex.GetFormattedErrorCode();
-        Message = message ?? ex.Message;
+        Message = ResolveMessage(ex, message);
         Reference = ex.GetReference();
         StackTrace = AspNetEnv.IsDevelopment ? ex.StackTrace : null;
         Exception = ex;
     }
+
+    private static string ResolveMessage(Exception ex, string? explicitMessage) =>
+        explicitMessage
+        ?? (ex is DigitalException || AspNetEnv.IsDevelopment ? ex.Message : "An unexpected error occurred");
 
     public ResultMessage(string message)
     {
