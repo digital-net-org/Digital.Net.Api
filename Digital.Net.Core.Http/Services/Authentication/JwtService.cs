@@ -31,14 +31,14 @@ public class JwtService(
     public string GenerateBearerToken(Guid userId, string userAgent)
     {
         var content = new TokenContent(userId, userAgent);
-        return SignToken(content, authenticationOptionService.GetBearerTokenExpirationDate());
+        return SignToken(content, authenticationOptionService.GetBearerTokenExpirationDate(), TokenType.Access);
     }
 
     public async Task<string> GenerateRefreshTokenAsync(Guid userId, string userAgent, CancellationToken ct = default)
     {
         var content = new TokenContent(userId, userAgent);
         var tokenExpiration = authenticationOptionService.GetRefreshTokenExpirationDate();
-        var token = SignToken(content, tokenExpiration);
+        var token = SignToken(content, tokenExpiration, TokenType.Refresh);
 
         await EvictSurplusSessionsAsync(userId, ct);
         context.ApiTokens.Add(new ApiToken(userId, ApiToken.Hash(token), userAgent, tokenExpiration));
@@ -47,7 +47,11 @@ public class JwtService(
         return token;
     }
 
-    public async Task<AuthorizationResult> AuthorizeTokenAsync(string? token, CancellationToken ct = default)
+    public async Task<AuthorizationResult> AuthorizeTokenAsync(
+        string? token,
+        TokenType expectedType = TokenType.Access,
+        CancellationToken ct = default
+    )
     {
         var result = new AuthorizationResult();
         if (string.IsNullOrWhiteSpace(token))
@@ -58,6 +62,9 @@ public class JwtService(
         {
             handler.ValidateToken(token, authenticationOptionService.GetTokenParameters(), out _);
             var jwt = handler.ReadJwtToken(token);
+            if (jwt.GetTokenType() != expectedType)
+                throw new InvalidTokenException();
+
             var decoded = jwt.Decode();
             var user = await context.Users.FirstOrDefaultAsync(u => u.Id == decoded.Id && u.IsActive, ct);
 
@@ -74,10 +81,13 @@ public class JwtService(
         return result;
     }
 
-    private string SignToken(TokenContent obj, DateTime expires)
+    private string SignToken(TokenContent obj, DateTime expires, TokenType type)
     {
         var claims = new List<Claim>
-            { new(AuthenticationStaticOptions.ContentClaimType, JsonSerializer.Serialize(obj)) };
+        {
+            new(AuthenticationStaticOptions.ContentClaimType, JsonSerializer.Serialize(obj)),
+            new(AuthenticationStaticOptions.TokenTypeClaimType, type.ToString())
+        };
         var parameters = authenticationOptionService.GetTokenParameters();
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.CreateToken(

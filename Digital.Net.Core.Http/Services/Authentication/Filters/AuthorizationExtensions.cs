@@ -108,7 +108,9 @@ public static class AuthorizationExtensions
         {
             var authOptions = ctx.HttpContext.RequestServices.GetRequiredService<AuthenticationOptionService>();
             result.Merge(await jwtService.AuthorizeTokenAsync(
-                ctx.HttpContext.Request.Cookies[authOptions.CookieName], ctx.HttpContext.RequestAborted)
+                ctx.HttpContext.Request.Cookies[authOptions.CookieName],
+                TokenType.Refresh,
+                ctx.HttpContext.RequestAborted)
             );
         }
 
@@ -116,6 +118,7 @@ public static class AuthorizationExtensions
             result.Merge(
                 await jwtService.AuthorizeTokenAsync(
                     ctx.HttpContext.Request.Headers.Authorization.FirstOrDefault()?.Split(" ").Last(),
+                    TokenType.Access,
                     ctx.HttpContext.RequestAborted
                 ));
         if (type.HasFlag(AuthorizeType.Application) && !result.IsAuthorized)

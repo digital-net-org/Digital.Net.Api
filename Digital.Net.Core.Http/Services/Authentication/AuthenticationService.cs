@@ -7,6 +7,7 @@ using Digital.Net.Core.Entities.Models.Auth;
 using Digital.Net.Core.Http.Endpoints.Dto;
 using Digital.Net.Core.Http.Services.Authentication.Exceptions;
 using Digital.Net.Core.Http.Services.Authentication.Options;
+using Digital.Net.Core.Http.Services.Authentication.Types;
 using Digital.Net.Core.Services.Users;
 using Digital.Net.Core.Services.Users.Exceptions;
 using Digital.Net.Lib.Accessors;
@@ -82,7 +83,7 @@ public class AuthenticationService(
         if (apiToken.UserAgent != (userAgent ?? string.Empty))
             return result.AddError(new InvalidTokenException());
 
-        var tokenResult = await jwtService.AuthorizeTokenAsync(refreshToken);
+        var tokenResult = await jwtService.AuthorizeTokenAsync(refreshToken, TokenType.Refresh);
         result.Merge(tokenResult);
 
         if (result.HasError)

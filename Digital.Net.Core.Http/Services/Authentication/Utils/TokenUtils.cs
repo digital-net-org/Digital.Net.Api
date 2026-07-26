@@ -25,6 +25,12 @@ public static class TokenUtils
         return percentLeft < 0.2 || timeLeft > TimeSpan.FromDays(1);
     }
     
+    public static TokenType? GetTokenType(this JwtSecurityToken jwt) =>
+        jwt.Claims.FirstOrDefault(c => c.Type == AuthenticationStaticOptions.TokenTypeClaimType)?.Value is { } value
+        && Enum.TryParse<TokenType>(value, out var type)
+            ? type
+            : null;
+
     public static TokenContent Decode(this JwtSecurityToken jwt)
     {
         var content = jwt.Claims.First(c => c.Type == AuthenticationStaticOptions.ContentClaimType).Value;

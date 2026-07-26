@@ -3,6 +3,7 @@ namespace Digital.Net.Core.Http.Services.Authentication.Options;
 public static class AuthenticationStaticOptions
 {
     public const string ContentClaimType = "Content";
+    public const string TokenTypeClaimType = "TokenType";
     public const string ApiContextAuthorizationKey = "AuthorizationResult";
     public const string ApiKeyHeaderAccessor = "DN-Api-Key";
     public const string ApplicationKeyHeaderAccessor = "DN-Application-Key";
