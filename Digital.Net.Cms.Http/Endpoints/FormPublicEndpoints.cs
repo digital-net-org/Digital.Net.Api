@@ -4,6 +4,7 @@ using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Models.Forms;
 using Digital.Net.Core.Http.Security;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
+using Digital.Net.Lib.Accessors;
 using Digital.Net.Lib.Entities.Projection;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.String;
@@ -85,7 +86,8 @@ public static class FormPublicEndpoints
         Guid id,
         [FromBody]
         FormSubmitPayload payload,
-        CmsContext context
+        CmsContext context,
+        IOriginAccessor originAccessor
     )
     {
         var form = await context.Forms
@@ -108,12 +110,13 @@ public static class FormPublicEndpoints
         if (valuesJson.Length > MaxSerializedValuesLength)
             return Results.BadRequest(new Result().AddError(new Exception("Submission payload is too large.")));
 
+        var origin = originAccessor.TryGetOrigin();
         var submission = new FormSubmission
         {
             FormId = id,
             ValuesJson = valuesJson,
-            SubmitterIp = payload.SubmitterIp,
-            UserAgent = payload.UserAgent
+            SubmitterIp = origin.IpAddress,
+            UserAgent = origin.UserAgent
         };
         context.FormSubmissions.Add(submission);
         await context.SaveChangesAsync();

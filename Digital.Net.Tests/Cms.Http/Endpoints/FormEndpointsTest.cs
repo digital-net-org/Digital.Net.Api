@@ -39,6 +39,24 @@ public class FormEndpointsTest
     };
 
     [Test]
+    public async Task SubmitForm_ShouldDeriveOriginServerSide()
+    {
+        var cmsContext = ApplicationFixture.GetCmsContext();
+        var form = cmsContext.BuildTestForm(published: true);
+        var field = cmsContext.BuildTestFormField(form.Id, type: FormFieldTypes.Text);
+
+        var client = ApplicationFixture.CreateApplicationClient();
+        var response = await client.SubmitForm(
+            form.Id,
+            new FormSubmitPayload { Values = new Dictionary<string, string?> { [field.Name] = "hello" } });
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+
+        var submission = await cmsContext.FormSubmissions.AsNoTracking().FirstAsync(s => s.FormId == form.Id);
+        await Assert.That(submission.SubmitterIp).IsNotNull();
+    }
+
+    [Test]
     public async Task CreateForm_ShouldPersistPath_WhenPathIsValid()
     {
         var client = await CreateAuthenticatedClientAsync();

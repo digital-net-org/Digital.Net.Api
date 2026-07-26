@@ -69,7 +69,17 @@ public static class CoreHttpInjector
 
         app.Use(async (context, next) =>
         {
-            context.Response.Headers.XContentTypeOptions = "nosniff";
+            var headers = context.Response.Headers;
+            headers.XContentTypeOptions = "nosniff";
+            headers.XFrameOptions = "DENY";
+            headers["Referrer-Policy"] = "no-referrer";
+            headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()";
+
+            if (context.Request.IsHttps)
+                headers.StrictTransportSecurity = "max-age=31536000; includeSubDomains";
+            if (!AspNetEnv.IsDevelopment)
+                headers.ContentSecurityPolicy = "default-src 'none'; frame-ancestors 'none'";
+            
             await next();
         });
 

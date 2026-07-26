@@ -67,11 +67,7 @@ public class ApplicationFixture : IAsyncInitializer, IAsyncDisposable
     public HttpClient CreateClient()
     {
         var client = Factory.CreateClient();
-        var rng = Random.Shared;
-        client.DefaultRequestHeaders.Add(
-            TestRemoteIpStartupFilter.Header,
-            $"10.{rng.Next(0, 256)}.{rng.Next(0, 256)}.{rng.Next(1, 255)}"
-        );
+        AddTestRemoteIp(client);
         return client;
     }
 
@@ -81,11 +77,21 @@ public class ApplicationFixture : IAsyncInitializer, IAsyncDisposable
     public HttpClient CreateApplicationClient()
     {
         var client = Factory.CreateClient();
+        AddTestRemoteIp(client);
         client.DefaultRequestHeaders.Add(
             AuthenticationStaticOptions.ApplicationKeyHeaderAccessor,
             GetConfiguration<string>(CoreSettings.ApplicationKeyKey)
         );
         return client;
+    }
+
+    private static void AddTestRemoteIp(HttpClient client)
+    {
+        var rng = Random.Shared;
+        client.DefaultRequestHeaders.Add(
+            TestRemoteIpStartupFilter.Header,
+            $"10.{rng.Next(0, 256)}.{rng.Next(0, 256)}.{rng.Next(1, 255)}"
+        );
     }
 
     /// <summary>

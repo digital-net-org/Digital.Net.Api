@@ -11,6 +11,14 @@ public static class FormApi
 {
     public const string BaseUrl = "/cms/forms";
     public const string SubmissionsUrl = "/cms/forms/submissions";
+    public const string PublicUrl = "/cms/forms/public";
+
+    public static async Task<HttpResponseMessage> SubmitForm(
+        this HttpClient client,
+        Guid id,
+        FormSubmitPayload payload
+    ) =>
+        await client.PostAsJsonAsync($"{PublicUrl}/{id}/submit", payload);
 
     public static async Task<HttpResponseMessage> GetFormById(this HttpClient client, Guid id) =>
         await client.GetAsync($"{BaseUrl}/{id}");
