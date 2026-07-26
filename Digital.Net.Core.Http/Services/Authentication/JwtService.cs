@@ -71,7 +71,7 @@ public class JwtService(
             if (user is null)
                 throw new InvalidTokenException();
 
-            result.Authorize(user.Id, jwt.ShouldRenewCookie());
+            result.Authorize(user.Id);
         }
         catch (Exception e)
         {
@@ -86,7 +86,8 @@ public class JwtService(
         var claims = new List<Claim>
         {
             new(AuthenticationStaticOptions.ContentClaimType, JsonSerializer.Serialize(obj)),
-            new(AuthenticationStaticOptions.TokenTypeClaimType, type.ToString())
+            new(AuthenticationStaticOptions.TokenTypeClaimType, type.ToString()),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
         var parameters = authenticationOptionService.GetTokenParameters();
         var tokenHandler = new JwtSecurityTokenHandler();

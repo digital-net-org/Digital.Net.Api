@@ -114,12 +114,11 @@ public static class AuthenticationEndpoints
         if (result.HasError || string.IsNullOrEmpty(bearerToken))
             return TypedResults.Unauthorized();
 
-        if (refresh is not null)
-            ctx.Response.Cookies.Append(
-                opts.CookieName,
-                refresh,
-                BuildCookieOptions(opts.GetRefreshTokenExpirationDate())
-            );
+        ctx.Response.Cookies.Append(
+            opts.CookieName,
+            refresh,
+            BuildCookieOptions(opts.GetRefreshTokenExpirationDate())
+        );
 
         result.Value = bearerToken;
         return TypedResults.Ok(result);
@@ -156,7 +155,8 @@ public static class AuthenticationEndpoints
     {
         HttpOnly = true,
         Secure = true,
-        SameSite = SameSiteMode.None,
+        // Lax, not None: no cross-site need, less CSRF surface => everything on the same domain
+        SameSite = SameSiteMode.Lax, 
         Expires = expiration
     };
 }

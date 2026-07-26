@@ -72,10 +72,10 @@ public class AuthenticationService(
         return result;
     }
 
-    public async Task<Result<(string bearer, string? refresh)>> RefreshTokensAsync(string? refreshToken,
+    public async Task<Result<(string bearer, string refresh)>> RefreshTokensAsync(string? refreshToken,
         string? userAgent = null)
     {
-        var result = new Result<(string, string?)>((string.Empty, null));
+        var result = new Result<(string, string)>((string.Empty, string.Empty));
         var hashedToken = ApiToken.Hash(refreshToken ?? string.Empty);
         var apiToken = await context.ApiTokens.FirstOrDefaultAsync(a => a.Key == hashedToken);
         if (apiToken is null)
@@ -88,13 +88,10 @@ public class AuthenticationService(
 
         if (result.HasError)
             return result;
-        if (tokenResult.ShouldRenewCookie)
-            await jwtService.RevokeTokenAsync(refreshToken!);
 
+        await jwtService.RevokeTokenAsync(refreshToken!);
         var bearer = jwtService.GenerateBearerToken(tokenResult.UserId, userAgent ?? string.Empty);
-        var refresh = tokenResult.ShouldRenewCookie
-            ? await jwtService.GenerateRefreshTokenAsync(tokenResult.UserId, userAgent ?? string.Empty)
-            : null;
+        var refresh = await jwtService.GenerateRefreshTokenAsync(tokenResult.UserId, userAgent ?? string.Empty);
         result.Value = (bearer, refresh);
         return result;
     }

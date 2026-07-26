@@ -7,15 +7,13 @@ public class AuthorizationResult : Result
     public Guid UserId { get; set; } = Guid.Empty;
     public bool IsForbidden { get; set; }
     public bool IsAuthorized { get; set; }
-    public bool ShouldRenewCookie { get; set; }
 
     public void Forbid() => IsForbidden = true;
 
-    public void Authorize(Guid userId, bool shouldRenewCookie = false)
+    public void Authorize(Guid userId)
     {
         IsAuthorized = true;
         UserId = userId;
-        ShouldRenewCookie = shouldRenewCookie;
         ClearErrors();
     }
 

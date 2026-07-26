@@ -8,23 +8,6 @@ namespace Digital.Net.Core.Http.Services.Authentication.Utils;
 
 public static class TokenUtils
 {
-    /// <summary>
-    ///     Verifies if the refresh token should be refreshed based on its lifetime.
-    ///     If the token is less than 20% of its total lifetime or has more than 1 day left, it should be refreshed.
-    /// </summary>
-    /// <returns>A boolean indicating whether the token should be refreshed.</returns>
-    public static bool ShouldRenewCookie(this JwtSecurityToken token)
-    {
-        var totalLifetime = token.ValidTo - token.IssuedAt;
-        var timeLeft = token.ValidTo - DateTime.UtcNow;
-
-        if (timeLeft <= TimeSpan.Zero)
-            throw new InvalidTokenException();
-
-        var percentLeft = timeLeft.TotalSeconds / totalLifetime.TotalSeconds;
-        return percentLeft < 0.2 || timeLeft > TimeSpan.FromDays(1);
-    }
-    
     public static TokenType? GetTokenType(this JwtSecurityToken jwt) =>
         jwt.Claims.FirstOrDefault(c => c.Type == AuthenticationStaticOptions.TokenTypeClaimType)?.Value is { } value
         && Enum.TryParse<TokenType>(value, out var type)

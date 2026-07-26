@@ -1,61 +1,36 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Digital.Net.Core.Http.Services.Authentication.Exceptions;
+using Digital.Net.Core.Http.Services.Authentication.Options;
+using Digital.Net.Core.Http.Services.Authentication.Types;
 using Digital.Net.Core.Http.Services.Authentication.Utils;
 
 namespace Digital.Net.Tests.Core.Http.Services.Authentication;
 
 public class TokenUtilsTest : UnitTest
 {
-    /// <summary>
-    ///     Builds an (unsigned) token with a controlled <c>iat</c>/<c>exp</c> so the renewal window can be
-    ///     exercised without going through signing or the handler's lifetime validation.
-    /// </summary>
-    private static JwtSecurityToken BuildToken(TimeSpan issuedAgo, TimeSpan expiresIn)
+    private static JwtSecurityToken BuildToken(params Claim[] claims) =>
+        new(claims: claims, expires: DateTime.UtcNow.AddMinutes(5));
+
+    [Test]
+    [Arguments(TokenType.Access)]
+    [Arguments(TokenType.Refresh)]
+    public async Task GetTokenType_ReturnsType_WhenClaimIsPresent(TokenType type)
     {
-        var now = DateTime.UtcNow;
-        return new JwtSecurityToken(
-            claims:
-            [
-                new Claim(
-                    JwtRegisteredClaimNames.Iat,
-                    new DateTimeOffset(now - issuedAgo, TimeSpan.Zero).ToUnixTimeSeconds().ToString(),
-                    ClaimValueTypes.Integer64)
-            ],
-            expires: now + expiresIn);
+        var token = BuildToken(new Claim(AuthenticationStaticOptions.TokenTypeClaimType, type.ToString()));
+        await Assert.That(token.GetTokenType()).IsEqualTo(type);
     }
 
     [Test]
-    public async Task ShouldRenewCookie_ReturnsTrue_WhenMoreThanOneDayLeft()
+    public async Task GetTokenType_ReturnsNull_WhenClaimIsMissing()
     {
-        var token = BuildToken(issuedAgo: TimeSpan.FromMinutes(1), expiresIn: TimeSpan.FromDays(2));
-        await Assert.That(token.ShouldRenewCookie()).IsTrue();
+        var token = BuildToken(new Claim(JwtRegisteredClaimNames.Sub, "someone"));
+        await Assert.That(token.GetTokenType()).IsNull();
     }
 
     [Test]
-    public async Task ShouldRenewCookie_ReturnsTrue_WhenLessThanTwentyPercentLeft()
+    public async Task GetTokenType_ReturnsNull_WhenClaimIsNotAKnownType()
     {
-        // 110 min lifetime, 10 min left -> ~9% remaining, well under the 20% threshold.
-        var token = BuildToken(issuedAgo: TimeSpan.FromMinutes(100), expiresIn: TimeSpan.FromMinutes(10));
-        await Assert.That(token.ShouldRenewCookie()).IsTrue();
-    }
-
-    [Test]
-    public async Task ShouldRenewCookie_ReturnsFalse_WhenInsideMiddleBand()
-    {
-        // 120 min lifetime, 60 min left -> 50% remaining and under a day: no renewal.
-        var token = BuildToken(issuedAgo: TimeSpan.FromMinutes(60), expiresIn: TimeSpan.FromMinutes(60));
-        await Assert.That(token.ShouldRenewCookie()).IsFalse();
-    }
-
-    [Test]
-    public async Task ShouldRenewCookie_Throws_WhenTokenExpired()
-    {
-        var token = BuildToken(issuedAgo: TimeSpan.FromMinutes(60), expiresIn: TimeSpan.FromMinutes(-1));
-        await Assert.ThrowsAsync<InvalidTokenException>(async () =>
-        {
-            token.ShouldRenewCookie();
-            await Task.CompletedTask;
-        });
+        var token = BuildToken(new Claim(AuthenticationStaticOptions.TokenTypeClaimType, "Whatever"));
+        await Assert.That(token.GetTokenType()).IsNull();
     }
 }
