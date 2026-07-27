@@ -70,6 +70,18 @@ public class LoginTest
     }
 
     [Test]
+    public async Task Login_OnMaxAccountAttempts_ShouldLockAccountEvenFromAFreshIp()
+    {
+        var user = ApplicationFixture.CreateUser();
+        for (var i = 0; i < AuthenticationStaticOptions.MaxAccountLoginAttempts; i++)
+            await ApplicationFixture.CreateClient().Login(user.Login, "wrongPassword");
+
+        var response = await ApplicationFixture.CreateClient().Login(user.Login, "wrongPassword");
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.TooManyRequests);
+    }
+
+    [Test]
     public async Task Login_OnMaxCurrentSessions_ShouldInvalidateOldestSession()
     {
         const int maxSessions = AuthenticationStaticOptions.MaxConcurrentSessions;

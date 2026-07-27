@@ -37,7 +37,7 @@ public class AuthenticationService(
             return result.AddError(new InvalidLoginPayloadException());
 
         var user = await context.Users.FirstOrDefaultAsync(u => u.Login == payload.Login);
-        if (await authEventService.HasReachedMaxLoginAttemptsAsync(origin.IpAddress))
+        if (await authEventService.HasReachedMaxLoginAttemptsAsync(origin.IpAddress, user?.Id))
             result.AddError(new TooManyAttemptsException());
         else if (user is null)
             result.AddError(new InvalidCredentialsException());

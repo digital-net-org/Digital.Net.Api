@@ -28,14 +28,25 @@ public class AuthEventService(DigitalContext context, AuthenticationOptionServic
         await context.SaveChangesAsync();
     }
 
-    public async Task<bool> HasReachedMaxLoginAttemptsAsync(string ipAddress)
+    /// <summary>
+    ///     Whether logins must be refused, either because this IP failed too often or because this
+    ///     account did.
+    /// </summary>
+    public async Task<bool> HasReachedMaxLoginAttemptsAsync(string ipAddress, Guid? userId = null)
     {
         var threshold = DateTime.UtcNow.Subtract(options.GetMaxLoginAttemptsThreshold());
-        return await context.AuthEvents.CountAsync(e =>
-            e.CreatedAt > threshold
-            && e.Type == AuthEventType.Login
-            && !e.Success
-            && e.IpAddress == ipAddress
-        ) >= AuthenticationStaticOptions.MaxLoginAttempts;
+        var failedLogins = context.AuthEvents.Where(e =>
+            e.CreatedAt > threshold && e.Type == AuthEventType.Login && !e.Success
+        );
+
+        var perIpFailureCounts = await failedLogins.CountAsync(e => e.IpAddress == ipAddress);
+        if (perIpFailureCounts >= AuthenticationStaticOptions.MaxLoginAttempts)
+            return true;
+
+        if (userId is null)
+            return false;
+
+        var perUserFailureCounts = await failedLogins.CountAsync(e => e.UserId == userId);
+        return perUserFailureCounts >= AuthenticationStaticOptions.MaxAccountLoginAttempts;
     }
 }
