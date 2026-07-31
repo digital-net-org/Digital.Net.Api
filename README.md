@@ -1,5 +1,5 @@
 <h1 align="center">
-    <img width="256" src="logo.png">
+    <img width="256px" src="logo.png">
 </h1>
 <p align="center">
     Digital Net REST API framework library.
@@ -16,33 +16,6 @@
 
 Digital.Net is a .NET 10 / ASP.NET Core framework that bootstraps a REST API with batteries included: 
 authentication, user management, generic CRUD services, audit logging, document storage, rate limiting, and much more.
-
-## Authentication
-
-Three schemes coexist, resolved in this order by the authorization filter:
-
-| Scheme | Carrier | For |
-|---|---|---|
-| `ApiKey` | `DN-Api-Key` header | machine-to-machine, per user |
-| `Session` | `dn_session` cookie | browser clients (the back-office) |
-| `Application` | `DN-Application-Key` header | one trusted server-side consumer |
-
-**Sessions are opaque and server-side.** `POST authentication/user/login` stores a CSPRNG id hashed
-with SHA-256 in the `Session` table and returns it only through a `Set-Cookie` — `HttpOnly`, `Secure`,
-`Path=/`, no `Domain` (host-only on the API host). The body carries no identity: `GET user/self` is the
-single source of truth. Nothing reaches JavaScript, so an XSS cannot steal a session.
-
-A session has two deadlines: an **idle** one that slides as it is used (at most one write per 10 min)
-and an **absolute** one that is never extended. Revocation is immediate — logout deletes the row, and
-the next request is rejected. A password change drops every session of the account and issues a fresh
-one to the caller.
-
-**CSRF.** A cookie is attached by the browser on its own, so every *mutating* request authenticated by
-session must also carry the `DN-Requested-With` header. Only its presence is checked: a cross-site
-context cannot set a custom header without a preflight, which the CORS policy grants to
-`CorsAllowedOrigins` alone. Safe methods (GET/HEAD/OPTIONS) are exempt, so `<img src>` and the SSE
-stream keep working, and machine-to-machine schemes are exempt too — their holder is not a browser.
-Rejection answers **403**, never 401, so a transport bug is not mistaken for an expired session.
 
 ## Getting Started (contributors)
 ### Prerequisites
@@ -127,3 +100,11 @@ silently disable the idle window.
 | ___Git:Origin___<br/>Optional build metadata, returned by `GET /`.                                                                                                                                                                                                                                                  | `string`   | `""`                     |
 | ___Git:CommitSha___<br/>Optional build metadata, returned by `GET /`.                                                                                                                                                                                                                                               | `string`   | `""`                     |
 | ___Git:Release___<br/>Optional build metadata, returned by `GET /`.                                                                                                                                                                                                                                                 | `string`   | `""`                     |
+
+## Documentation
+
+API documentation lives in [`.doc`](.doc), one file per area.
+
+| Document                                        | Contents                                                                                                                                          |
+|-------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| [Authentication](.doc/api_doc_auth.md)          | The three authorization schemes, the JavaScript SDK, what a custom client must implement, the `DN-Requested-With` (CSRF) rationale, session lifecycle, login hardening, API and application keys. |
