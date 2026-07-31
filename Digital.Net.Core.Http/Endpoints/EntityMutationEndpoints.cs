@@ -1,11 +1,11 @@
-using Digital.Net.Core.Accessors;
-using Digital.Net.Lib.Entities.Mutations;
 using Digital.Net.Core.Http.Endpoints.Dto;
 using Digital.Net.Core.Http.Security;
+using Digital.Net.Core.Http.Services.Authentication.Accessor;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Core.Http.Services.Mutations;
 using Digital.Net.Core.Http.Services.Mutations.Exceptions;
 using Digital.Net.Core.Http.Services.Pagination;
+using Digital.Net.Lib.Entities.Mutations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -29,11 +29,10 @@ public static class EntityMutationEndpoints
             .MapGet("stream", Stream)
             .WithSummary("Mutation stream (SSE)")
             .WithDescription(
-                "Server-Sent Events stream of entity mutations. Requires the refresh-token cookie " +
-                "or an API key. " +
+                "Server-Sent Events stream of entity mutations. Requires the session cookie or an API key. " +
                 "Filter with ?entity=Page,Article ; resume with the lastEventId=id param."
             )
-            .RequireAuthentication(AuthorizeType.JwtRefreshOnly | AuthorizeType.ApiKey);
+            .RequireAuthentication(AuthorizeType.Session | AuthorizeType.ApiKey);
 
         controller
             .MapGet("", GetPaginated)
@@ -42,7 +41,7 @@ public static class EntityMutationEndpoints
                 "Retrieves the paginated audit log of entity mutations, newest first by default. " +
                 "OrderBy supports CreatedAt, EntityType and ChangeType."
             )
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
+            .RequireAuthentication(AuthorizeType.Session | AuthorizeType.ApiKey);
 
         return app;
     }
@@ -51,7 +50,7 @@ public static class EntityMutationEndpoints
         HttpContext ctx,
         SseStreamService sseStream,
         MutationCatchupReader catchupReader,
-        IUserAccessor userAccessor,
+        IAuthorizedUserAccessor userAccessor,
         IEnumerable<AuditedEntityType> auditedTypes
     )
     {
@@ -98,7 +97,7 @@ public static class EntityMutationEndpoints
         [AsParameters]
         EntityMutationQuery query,
         MutationAuditReader reader,
-        IUserAccessor userAccessor,
+        IAuthorizedUserAccessor userAccessor,
         CancellationToken ct
     )
     {

@@ -1,6 +1,6 @@
 using Digital.Net.Core.Entities.Context;
-using Digital.Net.Lib.Entities.Mutations;
 using Digital.Net.Lib.Configuration;
+using Digital.Net.Lib.Entities.Mutations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,7 +43,7 @@ public class RetentionPurgeService(
         var context = scope.ServiceProvider.GetRequiredService<DigitalContext>();
 
         var now = DateTime.UtcNow;
-        var tokens = await context.ApiTokens.Where(t => t.ExpiredAt < now).ExecuteDeleteAsync(ct);
+        var sessions = await context.Sessions.Where(s => s.ExpiredAt < now).ExecuteDeleteAsync(ct);
 
         var retentionDays = configuration.Get<int?>(CoreSettings.AuditRetentionDaysKey)
                             ?? CoreSettings.DefaultAuditRetentionDays;
@@ -57,10 +57,9 @@ public class RetentionPurgeService(
                 ct);
 
         var authEvents = await context.AuthEvents.Where(e => e.CreatedAt < cutoff).ExecuteDeleteAsync(ct);
-
-        if (tokens + mutations + authEvents > 0)
+        if (sessions + mutations + authEvents > 0)
             logger.LogInformation(
-                "Retention purge: {Tokens} token(s), {Mutations} mutation(s), {AuthEvents} auth event(s)",
-                tokens, mutations, authEvents);
+                "Retention purge: {Sessions} session(s), {Mutations} mutation(s), {AuthEvents} auth event(s)",
+                sessions, mutations, authEvents);
     }
 }

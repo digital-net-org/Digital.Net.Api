@@ -4,11 +4,11 @@ using Digital.Net.Cms.Models.Forms;
 using Digital.Net.Cms.Models.Medias;
 using Digital.Net.Cms.Models.Pages;
 using Digital.Net.Core.Entities.Models.ApiKeys;
-using Digital.Net.Core.Entities.Models.ApiTokens;
 using Digital.Net.Core.Entities.Models.Auth;
 using Digital.Net.Core.Entities.Models.Avatars;
 using Digital.Net.Core.Entities.Models.ConfigValues;
 using Digital.Net.Core.Entities.Models.Documents;
+using Digital.Net.Core.Entities.Models.Sessions;
 using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Lib.Entities.Models;
 using Digital.Net.Lib.Entities.Mutations;
@@ -39,7 +39,7 @@ public class MutationTrackingPerimeterTest
     }
 
     [Test]
-    [Arguments(typeof(ApiToken))]
+    [Arguments(typeof(Session))]
     [Arguments(typeof(AuthEvent))]
     [Arguments(typeof(EntityMutation))]
     [Arguments(typeof(Avatar))]

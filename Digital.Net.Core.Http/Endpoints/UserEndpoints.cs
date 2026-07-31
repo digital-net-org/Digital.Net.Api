@@ -1,5 +1,4 @@
 using System.Linq.Expressions;
-using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Auth;
 using Digital.Net.Core.Entities.Models.Users;
@@ -7,7 +6,9 @@ using Digital.Net.Core.Http.Accessors;
 using Digital.Net.Core.Http.Endpoints.Dto;
 using Digital.Net.Core.Http.Security;
 using Digital.Net.Core.Http.Services.Authentication;
+using Digital.Net.Core.Http.Services.Authentication.Accessor;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
+using Digital.Net.Core.Http.Services.Authentication.Options;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Core.Http.Services.Documents;
 using Digital.Net.Core.Http.Services.Pagination.Extensions;
@@ -36,7 +37,7 @@ public static class UserEndpoints
             .MapGroup("/user")
             .WithTags("User")
             .RequireRateLimiting(RateLimiter.Policy)
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
+            .RequireAuthentication(AuthorizeType.Session | AuthorizeType.ApiKey);
 
         controller.MapCrudSchema<DigitalContext, User>("");
 
@@ -99,12 +100,13 @@ public static class UserEndpoints
             .MapPut("/self/password", UpdatePassword)
             .WithSummary("UpdatePassword")
             .WithDescription(
-                "Updates the authenticated user's password. A password change revokes the account's API keys."
+                "Updates the authenticated user's password. A password change revokes the account's API keys "
+                + "and all its sessions; the caller gets a fresh session cookie."
             );
 
         controller
             .MapPut("/self/avatar", UpdateAvatar)
-            .DisableAntiforgery() // Not needed as we don't use session cookie
+            .DisableAntiforgery() // No ASP.NET antiforgery pipeline here: would throw if enabled
             .WithSummary("UpdateAvatar")
             .WithDescription("Updates the authenticated user's avatar.");
 
@@ -122,7 +124,7 @@ public static class UserEndpoints
     }
 
     private static async Task<Results<Ok<Result<bool>>, UnauthorizedHttpResult>> GetSelfIsAdmin(
-        IUserAccessor userContextService,
+        IAuthorizedUserAccessor userContextService,
         CancellationToken ct
     )
     {
@@ -133,7 +135,7 @@ public static class UserEndpoints
     }
 
     private static async Task<Results<Ok<Result<UserDto>>, UnauthorizedHttpResult>> GetSelf(
-        IUserAccessor userContextService,
+        IAuthorizedUserAccessor userContextService,
         CancellationToken ct
     )
     {
@@ -144,16 +146,21 @@ public static class UserEndpoints
         return TypedResults.Ok(new Result<UserDto>(dto));
     }
 
-    private static async Task<Results<Ok<Result>, BadRequest<Result>, UnauthorizedHttpResult>> UpdatePassword(
+    private static async
+        Task<Results<Ok<Result>, BadRequest<Result>, InternalServerError<Result>, UnauthorizedHttpResult>>
+        UpdatePassword(
         [FromBody]
         UserPasswordUpdatePayload request,
         UserService userService,
         AuthEventService authEventService,
-        IUserAccessor userContextService,
+        SessionService sessionService,
+        AuthenticationOptionService authOptions,
+        SessionCookieHandler cookieHandler,
+        IAuthorizedUserAccessor userAccessor,
         HttpContext ctx
     )
     {
-        var user = await userContextService.GetUserAsync(ctx.RequestAborted);
+        var user = await userAccessor.GetUserAsync(ctx.RequestAborted);
         var result = await userService.UpdatePasswordAsync(user, request.CurrentPassword, request.NewPassword);
 
         await authEventService.RecordAsync(
@@ -168,6 +175,18 @@ public static class UserEndpoints
             return TypedResults.BadRequest(result);
         if (result.HasErrorOfType<InvalidCredentialsException>())
             return TypedResults.Unauthorized();
+        if (result.HasError)
+            return TypedResults.InternalServerError(result);
+
+        if (userAccessor.GetAuthorizationResult().Scheme == AuthorizeType.Session)
+        {
+            var sessionId = await sessionService.CreateAsync(
+                user.Id,
+                ctx.GetUserAgent() ?? string.Empty,
+                ctx.RequestAborted
+            );
+            cookieHandler.Append(sessionId, authOptions.GetAbsoluteExpirationDate());
+        }
 
         return TypedResults.Ok(result);
     }
@@ -175,7 +194,7 @@ public static class UserEndpoints
     private static async Task<Results<Ok, BadRequest<Result>, InternalServerError<Result>>> UpdateAvatar(
         IFormFile avatar,
         UserService userService,
-        IUserAccessor userContextService,
+        IAuthorizedUserAccessor userContextService,
         CancellationToken ct
     )
     {
@@ -199,7 +218,7 @@ public static class UserEndpoints
 
     private static async Task<Results<Ok, InternalServerError<Result>>> RemoveAvatar(
         UserService userService,
-        IUserAccessor userContextService,
+        IAuthorizedUserAccessor userContextService,
         CancellationToken ct
     )
     {
@@ -263,7 +282,7 @@ public static class UserEndpoints
             [FromBody]
             UserDeletePayload payload,
             UserService userService,
-            IUserAccessor userContextService,
+            IAuthorizedUserAccessor userContextService,
             CancellationToken ct
         )
     {
@@ -337,7 +356,7 @@ public static class UserEndpoints
             [FromBody]
             UserRolePayload payload,
             UserService userService,
-            IUserAccessor userContextService,
+            IAuthorizedUserAccessor userContextService,
             CancellationToken ct
         )
     {

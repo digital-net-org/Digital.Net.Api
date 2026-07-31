@@ -120,7 +120,7 @@ public class MediaEndpointsTest
     }
 
     [Test]
-    public async Task GetMediaImage_ShouldServeUnpublished_WhenAuthenticatedWithJwt()
+    public async Task GetMediaImage_ShouldServeUnpublished_WhenAuthenticatedWithSession()
     {
         var media = ApplicationFixture
             .GetCmsContext()

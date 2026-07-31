@@ -23,7 +23,7 @@ public static class ConfigValueEndpoints
             .MapGroup("admin/config-value")
             .WithTags("ConfigValue")
             .RequireRateLimiting(RateLimiter.Policy)
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey)
+            .RequireAuthentication(AuthorizeType.Session | AuthorizeType.ApiKey)
             .RequireAdmin();
 
         controller.MapCrudSchema<DigitalContext, ConfigValue>("");

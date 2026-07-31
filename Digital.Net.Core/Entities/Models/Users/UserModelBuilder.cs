@@ -1,5 +1,5 @@
-using Digital.Net.Core.Entities.Models.ApiTokens;
 using Digital.Net.Core.Entities.Models.Documents;
+using Digital.Net.Core.Entities.Models.Sessions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Digital.Net.Core.Entities.Models.Users;
@@ -17,9 +17,9 @@ public static class UserModelBuilder
 
         builder
             .Entity<User>()
-            .HasMany<ApiToken>()
-            .WithOne(at => at.User)
-            .HasForeignKey(at => at.UserId)
+            .HasMany<Session>()
+            .WithOne(s => s.User)
+            .HasForeignKey(s => s.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder

@@ -1,13 +1,9 @@
 using System.Diagnostics;
-using System.Security.Authentication;
-using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities.Context;
-using Digital.Net.Core.Entities.Models.ApiTokens;
 using Digital.Net.Core.Entities.Models.Auth;
 using Digital.Net.Core.Http.Endpoints.Dto;
 using Digital.Net.Core.Http.Services.Authentication.Exceptions;
 using Digital.Net.Core.Http.Services.Authentication.Options;
-using Digital.Net.Core.Http.Services.Authentication.Types;
 using Digital.Net.Core.Services.Users;
 using Digital.Net.Core.Services.Users.Exceptions;
 using Digital.Net.Lib.Accessors;
@@ -18,18 +14,18 @@ using Microsoft.EntityFrameworkCore;
 namespace Digital.Net.Core.Http.Services.Authentication;
 
 public class AuthenticationService(
-    JwtService jwtService,
+    SessionService sessionService,
     AuthEventService authEventService,
     IOriginAccessor originAccessor,
     IUserAccessor userAccessor,
     DigitalContext context
 )
 {
-    public async Task<Result<(string bearer, string refresh)>> LoginAsync(LoginPayload payload)
+    public async Task<Result<string>> LoginAsync(LoginPayload payload)
     {
         var startedAt = Stopwatch.GetTimestamp();
-        
-        var result = new Result<(string, string)>((string.Empty, string.Empty));
+
+        var result = new Result<string>(string.Empty);
         var origin = originAccessor.GetOrigin();
         if (string.IsNullOrWhiteSpace(origin.IpAddress))
             return result.AddError(new IpNotFound());
@@ -66,53 +62,26 @@ public class AuthenticationService(
         if (result.HasError || user is null)
             return result;
 
-        var bearer = jwtService.GenerateBearerToken(user.Id, origin.UserAgent ?? string.Empty);
-        var refresh = await jwtService.GenerateRefreshTokenAsync(user.Id, origin.UserAgent ?? string.Empty);
-        result.Value = (bearer, refresh);
+        result.Value = await sessionService.CreateAsync(user.Id, origin.UserAgent ?? string.Empty);
         return result;
     }
 
-    public async Task<Result<(string bearer, string refresh)>> RefreshTokensAsync(string? refreshToken,
-        string? userAgent = null)
-    {
-        var result = new Result<(string, string)>((string.Empty, string.Empty));
-        var hashedToken = ApiToken.Hash(refreshToken ?? string.Empty);
-        var apiToken = await context.ApiTokens.FirstOrDefaultAsync(a => a.Key == hashedToken);
-        if (apiToken is null)
-            return result.AddError(new InvalidTokenException());
-        if (apiToken.UserAgent != (userAgent ?? string.Empty))
-            return result.AddError(new InvalidTokenException());
-
-        var tokenResult = await jwtService.AuthorizeTokenAsync(refreshToken, TokenType.Refresh);
-        result.Merge(tokenResult);
-
-        if (result.HasError)
-            return result;
-
-        await jwtService.RevokeTokenAsync(refreshToken!);
-        var bearer = jwtService.GenerateBearerToken(tokenResult.UserId, userAgent ?? string.Empty);
-        var refresh = await jwtService.GenerateRefreshTokenAsync(tokenResult.UserId, userAgent ?? string.Empty);
-        result.Value = (bearer, refresh);
-        return result;
-    }
-
-    public async Task<Result> LogoutAsync(string refreshToken)
+    public async Task<Result> LogoutAsync(string sessionId)
     {
         var result = new Result();
         var origin = originAccessor.GetOrigin();
         var userId = userAccessor.GetUserId();
-        await jwtService.RevokeTokenAsync(refreshToken);
+        await sessionService.RevokeAsync(sessionId);
         await authEventService.RecordAsync(AuthEventType.Logout, true, origin.IpAddress, origin.UserAgent, userId);
         return result;
     }
 
-    public async Task<Result> LogoutAllAsync(string refreshToken)
+    public async Task<Result> LogoutAllAsync()
     {
         var result = new Result();
         var origin = originAccessor.GetOrigin();
-        var userId = (await context.ApiTokens.FirstOrDefaultAsync(u => u.Key == ApiToken.Hash(refreshToken)))?.UserId;
-        if (userId is null) return result.AddError(new AuthenticationException());
-        await jwtService.RevokeAllTokensAsync(userId.Value);
+        var userId = userAccessor.GetUserId();
+        await sessionService.RevokeAllAsync(userId);
         await authEventService.RecordAsync(AuthEventType.LogoutAll, true, origin.IpAddress, origin.UserAgent, userId);
         return result;
     }

@@ -91,7 +91,7 @@ public class MutationTrackingInterceptor(IServiceProvider serviceProvider) : Sav
         if (entries.Count == 0) return;
 
         var origin = serviceProvider.GetRequiredService<IOriginAccessor>().TryGetOrigin();
-        var userId = serviceProvider.GetRequiredService<ICurrentUserAccessor>().TryGetUserId();
+        var userId = serviceProvider.GetRequiredService<IUserAccessor>().TryGetUserId();
         var now = DateTime.UtcNow;
 
         var mutations = entries.Select(entry =>

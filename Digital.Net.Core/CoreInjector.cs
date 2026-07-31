@@ -1,5 +1,3 @@
-using System.Text;
-using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Services.ApiKeys;
 using Digital.Net.Core.Services.Documents;
@@ -42,10 +40,9 @@ public static class CoreInjector
     {
         var mandatorySettings = new[]
         {
-            CoreSettings.DomainKey,
+            CoreSettings.ApplicationDomainKey,
+            CoreSettings.ApplicationKeyKey,
             CoreSettings.ConnectionStringKey,
-            CoreSettings.JwtSecretKey,
-            CoreSettings.ApplicationKeyKey
         };
 
         foreach (var setting in mandatorySettings)
@@ -55,10 +52,20 @@ public static class CoreInjector
                 throw new NullReferenceException($"Missing mandatory configuration section: {setting}");
         }
 
-        var jwtSecret = builder.Configuration.GetSection(CoreSettings.JwtSecretKey).Value!;
-        if (Encoding.UTF8.GetByteCount(jwtSecret) < CoreSettings.MinJwtSecretBytes)
+        var allowedOrigins = builder.Configuration.Get<string[]>(CoreSettings.CorsAllowedOriginsKey) ?? [];
+        if (allowedOrigins.Length == 0 || allowedOrigins.Any(string.IsNullOrWhiteSpace))
+            throw new NullReferenceException(
+                $"Missing mandatory configuration section: {CoreSettings.CorsAllowedOriginsKey}"
+            );
+
+        var idle = builder.Configuration.Get<long?>(CoreSettings.SessionIdleExpirationKey)
+                   ?? CoreSettings.DefaultSessionIdleExpiration;
+        var absolute = builder.Configuration.Get<long?>(CoreSettings.SessionAbsoluteExpirationKey)
+                       ?? CoreSettings.DefaultSessionAbsoluteExpiration;
+
+        if (idle > absolute)
             throw new InvalidOperationException(
-                $"{CoreSettings.JwtSecretKey} must be at least {CoreSettings.MinJwtSecretBytes} bytes long."
+                $"{CoreSettings.SessionIdleExpirationKey} must not exceed {CoreSettings.SessionAbsoluteExpirationKey}."
             );
 
         return builder;

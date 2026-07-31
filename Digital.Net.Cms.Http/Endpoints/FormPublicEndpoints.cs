@@ -28,7 +28,7 @@ public static class FormPublicEndpoints
             .MapGroup("cms/forms/public")
             .WithTags("CMS.FormsPublic")
             .RequireRateLimiting(RateLimiter.Policy)
-            .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
+            .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Session | AuthorizeType.ApiKey);
 
         publicApi
             .MapGet("{id:guid}/definition", GetFormDefinition)
@@ -44,7 +44,7 @@ public static class FormPublicEndpoints
             .MapPost("{id:guid}/submit", SubmitForm)
             .WithSummary("SubmitForm")
             .WithDescription("Submits values for a published form. Validates all fields server-side.")
-            .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
+            .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Session | AuthorizeType.ApiKey);
 
         return app;
     }

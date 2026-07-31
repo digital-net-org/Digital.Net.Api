@@ -3,16 +3,14 @@ using System.Text.Json;
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Models.Forms;
-using Digital.Net.Lib.Entities.Exceptions;
-using Digital.Net.Lib.Entities.Projection;
 using Digital.Net.Core.Http.Security;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Core.Http.Services.Pagination.Extensions;
+using Digital.Net.Lib.Entities.Exceptions;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.Predicates;
-using Digital.Net.Lib.String;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -33,7 +31,7 @@ public static class FormEndpoints
             .MapGroup("cms/forms")
             .WithTags("CMS.Forms")
             .RequireRateLimiting(RateLimiter.Policy)
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
+            .RequireAuthentication(AuthorizeType.Session | AuthorizeType.ApiKey);
 
         form.MapCrudSchema<CmsContext, Form>();
         form.MapCrudGet<CmsContext, Form, FormDto>();
@@ -65,7 +63,7 @@ public static class FormEndpoints
             .MapGroup("cms/forms/submissions")
             .WithTags("CMS.FormsSubmissions")
             .RequireRateLimiting(RateLimiter.Policy)
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
+            .RequireAuthentication(AuthorizeType.Session | AuthorizeType.ApiKey);
 
         submissions.MapCrudGet<CmsContext, FormSubmission, FormSubmissionDto>();
         submissions.MapPaginationGet<CmsContext, FormSubmission, FormSubmissionDto, FormSubmissionQuery>(

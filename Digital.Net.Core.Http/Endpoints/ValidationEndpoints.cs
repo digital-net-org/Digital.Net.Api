@@ -30,7 +30,7 @@ public static class ValidationEndpoints
                 "/pattern/username",
                 () => TypedResults.Ok(new Result<string>(RegularExpressions.UsernamePattern))
             )
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey)
+            .RequireAuthentication(AuthorizeType.Session | AuthorizeType.ApiKey)
             .WithSummary("GetUsernamePattern")
             .WithDescription("Get the username pattern as a string. This is designed to validate usernames.");
 
@@ -39,7 +39,7 @@ public static class ValidationEndpoints
                 "/pattern/password",
                 () => TypedResults.Ok(new Result<string>(RegularExpressions.PasswordPattern))
             )
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey)
+            .RequireAuthentication(AuthorizeType.Session | AuthorizeType.ApiKey)
             .WithSummary("GetPasswordPattern")
             .WithDescription("Get the password pattern as a string. This is designed to validate passwords.");
 
@@ -48,7 +48,7 @@ public static class ValidationEndpoints
                 "/size/avatar",
                 () => TypedResults.Ok(new Result<long>(CoreSettings.DefaultMaxAvatarSize))
             )
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey)
+            .RequireAuthentication(AuthorizeType.Session | AuthorizeType.ApiKey)
             .WithSummary("GetAvatarSizeLimit")
             .WithDescription("Get the maximum allowed size for avatar images in bytes.");
 
@@ -57,7 +57,7 @@ public static class ValidationEndpoints
                 "/pattern/api-key-name",
                 () => TypedResults.Ok(new Result<string>(RegularExpressions.ApiKeyNamePattern))
             )
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey)
+            .RequireAuthentication(AuthorizeType.Session | AuthorizeType.ApiKey)
             .WithSummary("GetApiKeyNamePattern")
             .WithDescription("Get the API key name pattern as a string. This is designed to validate API key names.");
 

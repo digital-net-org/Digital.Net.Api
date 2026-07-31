@@ -56,6 +56,7 @@ public class ClientIpResolutionTest
             }
         );
         var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add(AuthenticationStaticOptions.CsrfHeaderAccessor, "digital-net");
         client.DefaultRequestHeaders.Add(TestRemoteIpStartupFilter.Header, "203.0.113.30");
         client.DefaultRequestHeaders.Add(ForwardedForHeader, "198.51.100.41, 198.51.100.42");
         var user = ApplicationFixture.CreateUser();
@@ -67,9 +68,11 @@ public class ClientIpResolutionTest
         await Assert.That(GetLastLoginEvent(user).IpAddress).EqualTo("198.51.100.42");
     }
 
+    // Not ApplicationFixture.CreateClient(): these tests need a fixed connection IP, not a random one.
     private HttpClient CreateClientWithConnectionIp(string ipAddress)
     {
         var client = ApplicationFixture.Factory.CreateClient();
+        client.DefaultRequestHeaders.Add(AuthenticationStaticOptions.CsrfHeaderAccessor, "digital-net");
         client.DefaultRequestHeaders.Add(TestRemoteIpStartupFilter.Header, ipAddress);
         return client;
     }

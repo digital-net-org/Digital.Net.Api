@@ -5,9 +5,9 @@ using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Http.Services;
 using Digital.Net.Cms.Models.Medias;
 using Digital.Net.Cms.Services;
-using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Http.Security;
+using Digital.Net.Core.Http.Services.Authentication.Accessor;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Core.Http.Services.Documents;
@@ -35,7 +35,7 @@ public static class MediaEndpoints
             .MapGroup("cms/media")
             .WithTags("CMS.Media")
             .RequireRateLimiting(RateLimiter.Policy)
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
+            .RequireAuthentication(AuthorizeType.Session | AuthorizeType.ApiKey);
 
         userRoutes.MapCrudSchema<CmsContext, Media>();
 
@@ -76,7 +76,7 @@ public static class MediaEndpoints
 
         userRoutes
             .MapPost("", UploadMedia)
-            .DisableAntiforgery()
+            .DisableAntiforgery() // No ASP.NET antiforgery pipeline here: would throw if enabled
             .RequireRateLimiting(RateLimiter.UploadPolicy)
             .WithSummary("Upload")
             .WithDescription("Uploads a new media image.");
@@ -113,7 +113,7 @@ public static class MediaEndpoints
                 "Serves a media image with optional on-demand resizing and compression. "
                 + "Supports query parameters: w (width), q (quality 0-100, default 100)."
             )
-            .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
+            .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Session | AuthorizeType.ApiKey);
 
         return app;
     }
@@ -146,7 +146,7 @@ public static class MediaEndpoints
         string? alt,
         IDocumentService documentService,
         CrudService<CmsContext, Media> crudService,
-        IUserAccessor userContextService,
+        IAuthorizedUserAccessor userContextService,
         CancellationToken ct
     )
     {
@@ -216,7 +216,7 @@ public static class MediaEndpoints
         CmsContext context,
         MediaService mediaService,
         DocumentCacheService documentCacheService,
-        IUserAccessor userContextService,
+        IAuthorizedUserAccessor userContextService,
         CancellationToken ct
     )
     {
@@ -224,7 +224,7 @@ public static class MediaEndpoints
         if (media is null)
             return Results.NotFound();
 
-        // Unpublished media: 404 for Application auth, accessible for JWT/ApiKey
+        // Unpublished media: 404 for Application auth, accessible for Session/ApiKey
         if (!media.Published)
             try
             {

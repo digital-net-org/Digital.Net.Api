@@ -1,6 +1,7 @@
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.ApiKeys;
 using Digital.Net.Core.Entities.Models.Documents;
+using Digital.Net.Core.Entities.Models.Sessions;
 using Digital.Net.Core.Services.ApiKeys;
 using Digital.Net.Core.Services.Documents;
 using Digital.Net.Core.Services.Documents.Exceptions;
@@ -71,6 +72,44 @@ public class UserServiceTest : DbServiceTest<DigitalContext>
         await Assert.That(keys.Count).IsEqualTo(2);
         await Assert.That(keys.All(k => k.ExpiredAt <= DateTime.UtcNow)).IsTrue();
     }
+
+    [Test]
+    public async Task UpdatePasswordAsync_RevokesAllSessions()
+    {
+        var user = Context.BuildTestUser();
+        var other = Context.BuildTestUser();
+        await Context.Sessions.AddAsync(NewSession(user.Id));
+        await Context.Sessions.AddAsync(NewSession(user.Id));
+        await Context.Sessions.AddAsync(NewSession(other.Id));
+        await Context.SaveChangesAsync();
+
+        var result = await _service.UpdatePasswordAsync(user, TestUserFactory.TestUserPassword, "NewPassword123!");
+        await Assert.That(result.HasError).IsFalse();
+
+        await Assert.That(await Context.Sessions.CountAsync(s => s.UserId == user.Id)).IsEqualTo(0);
+        await Assert.That(await Context.Sessions.CountAsync(s => s.UserId == other.Id)).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task UpdatePasswordAsync_KeepsSessions_WhenTheCurrentPasswordIsWrong()
+    {
+        var user = Context.BuildTestUser();
+        await Context.Sessions.AddAsync(NewSession(user.Id));
+        await Context.SaveChangesAsync();
+
+        var result = await _service.UpdatePasswordAsync(user, "wrong password", "NewPassword123!");
+        await Assert.That(result.HasError).IsTrue();
+
+        await Assert.That(await Context.Sessions.CountAsync(s => s.UserId == user.Id)).IsEqualTo(1);
+    }
+
+    private static Session NewSession(Guid userId) => new(
+        userId,
+        Session.Hash(Guid.NewGuid().ToString("N")),
+        "agent",
+        DateTime.UtcNow.AddHours(2),
+        DateTime.UtcNow.AddDays(7)
+    );
 
     [Test]
     public async Task UpdateUserStatusAsync_RevokesApiKeys_WhenDeactivating()

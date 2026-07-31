@@ -1,4 +1,3 @@
-using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Http.Endpoints.Dto;
 using Digital.Net.Core.Http.Security;
 using Digital.Net.Core.Http.Services.Authentication;
@@ -23,7 +22,8 @@ public static class AuthenticationEndpoints
         var controller = app
             .MapGroup("authentication/user")
             .WithTags("Authentication")
-            .RequireRateLimiting(RateLimiter.Policy);
+            .RequireRateLimiting(RateLimiter.Policy)
+            .RequireCsrfHeader();
 
         controller
             .MapPost("login", Login)
@@ -37,47 +37,38 @@ public static class AuthenticationEndpoints
 
         controller
             .MapPost("logout", Logout)
-            .RequireAuthentication(AuthorizeType.Jwt)
+            .RequireAuthentication(AuthorizeType.Session)
             .WithSummary("Logout")
             .WithDescription("Logout user's current session.");
 
         controller
             .MapPost("logout-all", LogoutAll)
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey)
+            .RequireAuthentication(AuthorizeType.Session | AuthorizeType.ApiKey)
             .WithSummary("LogoutAll")
             .WithDescription("Logout all user sessions on all devices.");
-
-        controller
-            .MapPost("refresh", RefreshTokens)
-            .WithSummary("RefreshTokens")
-            .WithDescription("Refreshes JWT and refresh token.");
 
         return app;
     }
 
-    private static async Task<Results<Ok<Result<string>>, UnauthorizedHttpResult, StatusCodeHttpResult>> Login(
+    private static async Task<Results<Ok<Result>, UnauthorizedHttpResult, StatusCodeHttpResult>> Login(
         [FromBody]
         LoginPayload request,
         AuthenticationService service,
         AuthenticationOptionService opts,
+        SessionCookieHandler cookieHandler,
         HttpContext ctx
     )
     {
-        var result = new Result<string>();
+        var result = new Result();
         var loginRes = await service.LoginAsync(request);
         result.Merge(loginRes);
 
         if (result.Errors.Any(e => e.Reference == new TooManyAttemptsException().GetReference()))
             return TypedResults.StatusCode(429);
-        if (result.HasError || string.IsNullOrEmpty(loginRes.Value.bearer))
+        if (result.HasError || string.IsNullOrEmpty(loginRes.Value))
             return TypedResults.Unauthorized();
 
-        ctx.Response.Cookies.Append(
-            opts.CookieName,
-            loginRes.Value.refresh,
-            BuildCookieOptions(opts.GetRefreshTokenExpirationDate())
-        );
-        result.Value = loginRes.Value.bearer;
+        cookieHandler.Append(loginRes.Value, opts.GetAbsoluteExpirationDate());
         return TypedResults.Ok(result);
     }
 
@@ -92,71 +83,26 @@ public static class AuthenticationEndpoints
         return TypedResults.Ok(result);
     }
 
-    private static async Task<Results<Ok<Result<string>>, UnauthorizedHttpResult>> RefreshTokens(
+    private static async Task<NoContent> Logout(
         AuthenticationService service,
         AuthenticationOptionService opts,
-        IOriginAccessor originAccessor,
+        SessionCookieHandler cookieHandler,
         HttpContext ctx
     )
     {
-        var result = new Result<string>();
-        var userAgent = originAccessor.GetOrigin().UserAgent ?? string.Empty;
-        var cookie = ctx.Request.Cookies[opts.CookieName];
-
-        if (string.IsNullOrEmpty(cookie))
-            return TypedResults.Unauthorized();
-
-        var refreshRes = await service.RefreshTokensAsync(cookie, userAgent);
-
-        result.Merge(refreshRes);
-        var (bearerToken, refresh) = refreshRes.Value;
-
-        if (result.HasError || string.IsNullOrEmpty(bearerToken))
-            return TypedResults.Unauthorized();
-
-        ctx.Response.Cookies.Append(
-            opts.CookieName,
-            refresh,
-            BuildCookieOptions(opts.GetRefreshTokenExpirationDate())
-        );
-
-        result.Value = bearerToken;
-        return TypedResults.Ok(result);
-    }
-
-    private static async Task<Results<NoContent, UnauthorizedHttpResult, BadRequest>> Logout(
-        AuthenticationService service,
-        AuthenticationOptionService opts,
-        IUserAccessor userCtx,
-        HttpContext ctx
-    )
-    {
-        var cookie = ctx.Request.Cookies[opts.CookieName];
-        if (string.IsNullOrEmpty(cookie)) return TypedResults.BadRequest();
-        await service.LogoutAsync(cookie);
-        ctx.Response.Cookies.Delete(opts.CookieName);
+        await service.LogoutAsync(ctx.Request.Cookies[opts.CookieName]!);
+        cookieHandler.Delete();
         return TypedResults.NoContent();
     }
 
-    private static async Task<Results<NoContent, UnauthorizedHttpResult>> LogoutAll(
+    private static async Task<NoContent> LogoutAll(
         AuthenticationService service,
-        AuthenticationOptionService opts,
+        SessionCookieHandler cookieHandler,
         HttpContext ctx
     )
     {
-        var cookie = ctx.Request.Cookies[opts.CookieName];
-        if (string.IsNullOrEmpty(cookie)) return TypedResults.Unauthorized();
-        await service.LogoutAllAsync(cookie);
-        ctx.Response.Cookies.Delete(opts.CookieName);
+        await service.LogoutAllAsync();
+        cookieHandler.Delete();
         return TypedResults.NoContent();
     }
-
-    private static CookieOptions BuildCookieOptions(DateTime expiration) => new()
-    {
-        HttpOnly = true,
-        Secure = true,
-        // Lax, not None: no cross-site need, less CSRF surface => everything on the same domain
-        SameSite = SameSiteMode.Lax, 
-        Expires = expiration
-    };
 }

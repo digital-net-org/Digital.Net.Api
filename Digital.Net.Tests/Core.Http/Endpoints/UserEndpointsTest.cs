@@ -59,6 +59,27 @@ public class UserEndpointsTest
     }
 
     [Test]
+    public async Task UpdatePassword_ShouldRenewTheCallerSession_AndDropTheOthers()
+    {
+        var (user, client) = await CreateAuthenticatedUserAsync();
+        var otherDevice = ApplicationFixture.CreateClient();
+        await otherDevice.Login(user);
+
+        var response = await client.UpdatePassword(TestUserFactory.TestUserPassword, "NewPassword123!");
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+
+        // The caller is handed a brand new session rather than being kicked out.
+        var renewed = response.TryGetCookieValue(AuthenticationApi.CookieName);
+        await Assert.That(renewed).IsNotNull();
+        client.SetCookie(AuthenticationApi.CookieName, renewed!);
+        await Assert.That((await client.TestSessionAuthorization()).StatusCode).EqualTo(HttpStatusCode.OK);
+
+        // Any other session — a stolen cookie included — is gone.
+        await Assert.That((await otherDevice.TestSessionAuthorization()).StatusCode)
+            .EqualTo(HttpStatusCode.Unauthorized);
+    }
+
+    [Test]
     public async Task UpdatePassword_ShouldRecordAuthEvent_WhenSuccessful()
     {
         var (user, client) = await CreateAuthenticatedUserAsync();

@@ -1,6 +1,5 @@
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Models;
-using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Auth;
 using Digital.Net.Core.Entities.Models.Documents;
@@ -152,7 +151,6 @@ public class MutationTrackingInterceptorTest : UnitTest
         var provider = new ServiceCollection()
             .AddSingleton<IOriginAccessor>(new StubOriginAccessor(StubIp, StubUserAgent))
             .AddSingleton<IUserAccessor>(new StubUserAccessor(StubUserId))
-            .AddSingleton<ICurrentUserAccessor>(sp => sp.GetRequiredService<IUserAccessor>())
             .AddSingleton(new MutationBroadcaster(NullLogger<MutationBroadcaster>.Instance))
             .BuildServiceProvider();
 
@@ -195,6 +193,5 @@ public class MutationTrackingInterceptorTest : UnitTest
     {
         public Guid GetUserId() => userId ?? throw new InvalidOperationException();
         public Guid? TryGetUserId() => userId;
-        public Task<User> GetUserAsync(CancellationToken ct = default) => throw new NotSupportedException();
     }
 }

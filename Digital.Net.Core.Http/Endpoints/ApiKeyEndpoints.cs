@@ -1,8 +1,8 @@
-using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Http.Endpoints.Dto;
 using Digital.Net.Core.Http.Security;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Core.Services.ApiKeys;
+using Digital.Net.Lib.Accessors;
 using Digital.Net.Lib.Messages;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -20,11 +20,11 @@ public static class ApiKeyEndpoints
             .MapGroup("/user/self/api-key")
             .WithTags("User")
             .RequireRateLimiting(RateLimiter.Policy)
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
+            .RequireAuthentication(AuthorizeType.Session | AuthorizeType.ApiKey);
 
         group
             .MapPost("", Create)
-            .RequireAuthentication(AuthorizeType.Jwt)
+            .RequireAuthentication(AuthorizeType.Session)
             .WithSummary("CreateApiKey")
             .WithDescription("Generates a new API key. The plaintext key is returned only once.");
 

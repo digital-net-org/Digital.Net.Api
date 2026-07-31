@@ -20,7 +20,7 @@ public static class ArticlePublicEndpoints
             .MapGroup("cms/articles/public")
             .WithTags("CMS.Articles.Public")
             .RequireRateLimiting(RateLimiter.Policy)
-            .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
+            .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Session | AuthorizeType.ApiKey);
 
         publicController
             .MapGet("", GetPublishedArticles)

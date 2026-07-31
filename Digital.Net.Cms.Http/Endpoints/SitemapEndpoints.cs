@@ -17,7 +17,7 @@ public static class SitemapEndpoints
             .MapGroup("cms/sitemaps")
             .WithTags("CMS.Sitemaps")
             .RequireRateLimiting(RateLimiter.Policy)
-            .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
+            .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Session | AuthorizeType.ApiKey);
 
         controller
             .MapGet("data", GetSitemapData)

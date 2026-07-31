@@ -26,7 +26,7 @@ public static class ArticleEndpoints
             .MapGroup("cms/articles")
             .WithTags("CMS.Articles")
             .RequireRateLimiting(RateLimiter.Policy)
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
+            .RequireAuthentication(AuthorizeType.Session | AuthorizeType.ApiKey);
 
         controller
             .MapGet("slug/availability", GetSlugAvailability)

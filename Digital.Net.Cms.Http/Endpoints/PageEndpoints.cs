@@ -6,13 +6,13 @@ using Digital.Net.Cms.Http.Services;
 using Digital.Net.Cms.Models;
 using Digital.Net.Cms.Models.Articles;
 using Digital.Net.Cms.Models.Pages;
-using Digital.Net.Core.Accessors;
-using Digital.Net.Lib.Entities.Exceptions;
 using Digital.Net.Core.Http.Security;
 using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Core.Http.Services.Pagination.Extensions;
 using Digital.Net.Core.Services.Templating;
+using Digital.Net.Lib.Accessors;
+using Digital.Net.Lib.Entities.Exceptions;
 using Digital.Net.Lib.Exceptions.types;
 using Digital.Net.Lib.Messages;
 using Digital.Net.Lib.Predicates;
@@ -33,7 +33,7 @@ public static class PageEndpoints
             .MapGroup("cms/pages")
             .WithTags("CMS.Pages")
             .RequireRateLimiting(RateLimiter.Policy)
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
+            .RequireAuthentication(AuthorizeType.Session | AuthorizeType.ApiKey);
 
         controller
             .MapGet("path/availability", GetPathAvailability)

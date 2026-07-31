@@ -6,22 +6,28 @@ namespace Digital.Net.Core.Http.Bootstrap;
 
 public static class CorsPolicyInjector
 {
+    /// <summary>
+    ///     Restricts CORS to the explicitly declared origins. Nothing is inferred: an unlisted origin is
+    ///     unreachable, and that list is what the CSRF header check ultimately rests on.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    ///     At least one origin must be declared in the configuration or this will fail.
+    /// </exception>
     public static WebApplicationBuilder AddDefaultCorsPolicy(this WebApplicationBuilder builder)
     {
-        var domain = builder.Configuration.GetOrThrow<string>(CoreSettings.DomainKey);
-        var allowedOrigins = new List<string> { $"https://{domain}" };
-
-        allowedOrigins.AddRange(
-            builder.Configuration.Get<string[]>(CoreSettings.CorsAllowedOriginsKey)
-            ?? []
-        );
+        var allowedOrigins = builder.Configuration.Get<string[]>(CoreSettings.CorsAllowedOriginsKey) ?? [];
+        if (allowedOrigins.Length == 0)
+            throw new InvalidOperationException(
+                $"{CoreSettings.CorsAllowedOriginsKey} must declare at least one origin: requests carry "
+                + "credentials, so no browser client can reach the API without it."
+            );
 
         builder.Services.AddCors(options =>
         {
             options.AddDefaultPolicy(policyBuilder =>
             {
                 policyBuilder
-                    .WithOrigins(allowedOrigins.ToArray())
+                    .WithOrigins(allowedOrigins)
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials();

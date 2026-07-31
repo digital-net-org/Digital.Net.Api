@@ -1,6 +1,7 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace Digital.Net.Tests.Core.Http;
@@ -9,32 +10,31 @@ public static class HttpContentExtensions
 {
     public const string SetCookieHeader = "Set-Cookie";
     public const string CookieHeader = "Cookie";
-    public const string BearerAuthorization = "Bearer";
-    
+
     public static async Task<T> ReadContentAsync<T>(this HttpContent content)
     {
         var value = await content.ReadAsStringAsync();
         return HttpContentSerializer.Deserialize<T>(value);
     }
 
-    public static string? TryGetHeaderValue(this HttpResponseMessage responseMessage, string key)
+    /// <summary>Every Set-Cookie directive of the response, attributes included.</summary>
+    public static IEnumerable<string> GetSetCookies(this HttpResponseMessage response) =>
+        response.Headers.TryGetValues(SetCookieHeader, out var values) ? values : [];
+
+    /// <summary>The named cookie's raw directive, or null when the response does not set it.</summary>
+    public static string? TryGetSetCookie(this HttpResponseMessage response, string name) =>
+        response.GetSetCookies().FirstOrDefault(c => c.StartsWith($"{name}=", StringComparison.Ordinal));
+
+    /// <summary>The named cookie's value alone. Empty on a deletion directive.</summary>
+    public static string? TryGetCookieValue(this HttpResponseMessage response, string name) =>
+        response.TryGetSetCookie(name)?.Split(';')[0][(name.Length + 1)..];
+
+    public static void SetCookie(this HttpClient client, string name, string value)
     {
-        try
-        {
-            return responseMessage.Headers.GetValues(key).FirstOrDefault();
-        }
-        catch
-        {
-            return null;
-        }
+        client.DefaultRequestHeaders.Remove(CookieHeader);
+        client.DefaultRequestHeaders.Add(CookieHeader, $"{name}={value}");
     }
 
-    public static string? TryGetCookie(this HttpResponseMessage response) =>
-        response.TryGetHeaderValue(SetCookieHeader);
-
-    public static void AddCookie(this HttpClient client, string cookie) =>
-        client.DefaultRequestHeaders.Add(CookieHeader, cookie);
-
-    public static void AddAuthorization(this HttpClient client, string token) =>
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(BearerAuthorization, token);
+    public static void ClearCookies(this HttpClient client) =>
+        client.DefaultRequestHeaders.Remove(CookieHeader);
 }

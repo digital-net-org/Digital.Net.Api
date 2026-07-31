@@ -17,6 +17,33 @@
 Digital.Net is a .NET 10 / ASP.NET Core framework that bootstraps a REST API with batteries included: 
 authentication, user management, generic CRUD services, audit logging, document storage, rate limiting, and much more.
 
+## Authentication
+
+Three schemes coexist, resolved in this order by the authorization filter:
+
+| Scheme | Carrier | For |
+|---|---|---|
+| `ApiKey` | `DN-Api-Key` header | machine-to-machine, per user |
+| `Session` | `dn_session` cookie | browser clients (the back-office) |
+| `Application` | `DN-Application-Key` header | one trusted server-side consumer |
+
+**Sessions are opaque and server-side.** `POST authentication/user/login` stores a CSPRNG id hashed
+with SHA-256 in the `Session` table and returns it only through a `Set-Cookie` — `HttpOnly`, `Secure`,
+`Path=/`, no `Domain` (host-only on the API host). The body carries no identity: `GET user/self` is the
+single source of truth. Nothing reaches JavaScript, so an XSS cannot steal a session.
+
+A session has two deadlines: an **idle** one that slides as it is used (at most one write per 10 min)
+and an **absolute** one that is never extended. Revocation is immediate — logout deletes the row, and
+the next request is rejected. A password change drops every session of the account and issues a fresh
+one to the caller.
+
+**CSRF.** A cookie is attached by the browser on its own, so every *mutating* request authenticated by
+session must also carry the `DN-Requested-With` header. Only its presence is checked: a cross-site
+context cannot set a custom header without a preflight, which the CORS policy grants to
+`CorsAllowedOrigins` alone. Safe methods (GET/HEAD/OPTIONS) are exempt, so `<img src>` and the SSE
+stream keep working, and machine-to-machine schemes are exempt too — their holder is not a browser.
+Rejection answers **403**, never 401, so a transport bug is not mistaken for an expired session.
+
 ## Getting Started (contributors)
 ### Prerequisites
 
@@ -73,25 +100,27 @@ Loading order:
 
 The table below lists **every** configuration accessor read by the framework.
 Hierarchical keys use `:` in `appsettings.*.json`; as real OS environment
-variables replace `:` with `__` (e.g. `Auth:JwtSecret` → `Auth__JwtSecret`,
+variables replace `:` with `__` (e.g. `Auth:ApplicationKey` → `Auth__ApplicationKey`,
 `Database:ConnectionString` → `Database__ConnectionString`).
 
-`Domain`, `Database:ConnectionString`, `Auth:JwtSecret` and `Auth:ApplicationKey`
-are **validated at startup**: the host throws if any of them is missing or blank.
+`ApplicationDomain`, `CorsAllowedOrigins`, `Database:ConnectionString` and
+`Auth:ApplicationKey` are **validated at startup**: the host throws if any of them is
+missing or blank. It also throws when
+`Auth:SessionIdleExpiration` exceeds `Auth:SessionAbsoluteExpiration`, which would
+silently disable the idle window.
 
 | Accessor                                                                                                                                                                                                                                                                                                            | Type       | Default value            |
 |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|--------------------------|
 | ___ASPNETCORE_ENVIRONMENT___<br/>Runtime profile. Selects the `appsettings.{Environment}.json` file and toggles env-specific behaviour: the Scalar UI and OpenAPI document are exposed only in `Development`, and the rate limiter is disabled in `Test`. One of `Development` / `Staging` / `Production` / `Test`. | `string`   | `Development`            |
 | ___ApplicationName___<br/>Name of your application, returned by the `GET /` endpoint.                                                                                                                                                                                                                               | `string`   | `""`                     |
-| ___Domain___<br/>Application domain. Used to **prefix the refresh cookie**, set the JWT **Audience/Issuer**, and add every subdomain to the allowed **CORS** origins.                                                                                                                                               | `string`   | **Mandatory**            |
-| ___CorsAllowedOrigins___<br/>Extra origins added to the allowed **CORS** policy _(`Domain` and its subdomains are already added automatically)_.                                                                                                                                                                    | `string[]` | `[]`                     |
+| ___ApplicationDomain___<br/>Registrable domain the application lives under, e.g. `safaridigital.fr` (`localhost` in dev). Never used to allow anything by itself — it only tells whether an allowed origin is same-site with the API, which decides the session cookie's `SameSite`.                                | `string`   | **Mandatory**            |
+| ___CorsAllowedOrigins___<br/>The **only** origins allowed by the **CORS** policy — nothing is inferred. An empty list is refused: with credentialed requests, no browser client could reach the API.                                                                                                                | `string[]` | **Mandatory**            |
 | ___Database:ConnectionString___<br/>Postgres connection string, e.g. `"Host=host;Port=5432;Database=db;Username=usr;Password=psw"`. Shared by every context (each uses its own schema).                                                                                                                             | `string`   | **Mandatory**            |
 | ___FileSystemPath___<br/>Directory where uploaded files (documents, media) are stored.                                                                                                                                                                                                                              | `string`   | `"/digital_net_storage"` |
-| ___Auth:JwtSecret___<br/>HMAC-SHA256 signing secret for JWTs. Must be at least 32 bytes (UTF-8).                                                                                                                                                                                                                    | `string`   | **Mandatory**            |
 | ___Auth:ApplicationKey___<br/>Shared secret for system-to-system **Application** authentication (e.g. a Next.js frontend), sent via the `DN-Application-Key` header.                                                                                                                                                | `string`   | **Mandatory**            |
-| ___Auth:JwtBearerExpiration___<br/>Bearer (access) token lifetime, in milliseconds.                                                                                                                                                                                                                                 | `number`   | `300000` _(5 min)_       |
-| ___Auth:JwtRefreshExpiration___<br/>Refresh token lifetime, in milliseconds.                                                                                                                                                                                                                                        | `number`   | `3600000` _(1 h)_        |
-| ___Audit:RetentionDays___<br/>Retention window, in days, for audit data. The background `RetentionPurgeService` deletes `EntityMutation` (all schemas) and `AuthEvent` rows older than this (expired `ApiToken`s are purged regardless).                                                                            | `number`   | `90`                     |
+| ___Auth:SessionIdleExpiration___<br/>How long a session survives without being used, in milliseconds. Slides forward as the session is used, at most once per 10 min.                                                                                                                                               | `number`   | `7200000` _(2 h)_        |
+| ___Auth:SessionAbsoluteExpiration___<br/>Hard session lifetime, in milliseconds. Never extended, however active the session is. Also the session cookie's `Expires`.                                                                                                                                                | `number`   | `604800000` _(7 d)_      |
+| ___Audit:RetentionDays___<br/>Retention window, in days, for audit data. The background `RetentionPurgeService` deletes `EntityMutation` (all schemas) and `AuthEvent` rows older than this (expired `Session`s are purged regardless).                                                                             | `number`   | `90`                     |
 | ___ForwardedHeaders:KnownProxies___<br/>IP addresses of the reverse proxies trusted to set `X-Forwarded-For` / `X-Forwarded-Proto`. When neither this nor `ForwardedHeaders:KnownIPNetworks` is set, the headers are **ignored** and the TCP connection address is used.                                            | `string[]` | `[]`                     |
 | ___ForwardedHeaders:KnownIPNetworks___<br/>Same trust list as `ForwardedHeaders:KnownProxies`, expressed as CIDR ranges (e.g. `"172.18.0.0/16"` for a Docker network where the reverse proxy gets a dynamic address).                                                                                               | `string[]` | `[]`                     |
 | ___ForwardedHeaders:ForwardLimit___<br/>Number of proxy hops in front of the API (1 = a single reverse proxy). Only that many entries of `X-Forwarded-For` are consumed, so the client-supplied part of the header is never trusted.                                                                                | `number`   | `1`                      |

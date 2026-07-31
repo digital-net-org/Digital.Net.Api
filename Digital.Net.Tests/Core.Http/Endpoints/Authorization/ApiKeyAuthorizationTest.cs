@@ -72,13 +72,13 @@ public class ApiKeyAuthorizationTest
     }
 
     [Test]
-    public async Task CreateApiKey_ShouldSucceed_WhenAuthenticatedWithJwt()
+    public async Task CreateApiKey_ShouldSucceed_WhenAuthenticatedWithSession()
     {
         var user = ApplicationFixture.CreateUser(new TestUserPayload { IsActive = true });
         var client = ApplicationFixture.CreateClient();
         await client.Login(user);
         var response = await client.PostAsJsonAsync(
-            "/user/self/api-key", new { Name = "jwt-key", ExpiredAt = (DateTime?)null });
+            "/user/self/api-key", new { Name = "session-key", ExpiredAt = (DateTime?)null });
         await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
     }
 

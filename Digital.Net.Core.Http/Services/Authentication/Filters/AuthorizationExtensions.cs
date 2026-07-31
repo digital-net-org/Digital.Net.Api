@@ -1,8 +1,8 @@
 using System.Security.Cryptography;
 using System.Text;
-using Digital.Net.Core.Accessors;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.ApiKeys;
+using Digital.Net.Core.Http.Services.Authentication.Accessor;
 using Digital.Net.Core.Http.Services.Authentication.Exceptions;
 using Digital.Net.Core.Http.Services.Authentication.Options;
 using Digital.Net.Core.Http.Services.Authentication.Types;
@@ -32,7 +32,7 @@ public static class AuthorizationExtensions
     /// <example>
     ///     <code>
     ///     var group = app.MapGroup("authentication/user").WithTags("Authentication");
-    ///     group.MapPost("route", Action1).RequireAuthentication(AuthorizeType.Jwt);
+    ///     group.MapPost("route", Action1).RequireAuthentication(AuthorizeType.Session);
     /// </code>
     /// </example>
     public static RouteHandlerBuilder RequireAuthentication(this RouteHandlerBuilder builder, AuthorizeType type) =>
@@ -52,7 +52,7 @@ public static class AuthorizationExtensions
     /// <example>
     ///     <code>
     ///     var group = app.MapGroup("authentication/user")
-    ///         .RequireAuthentication(AuthorizeType.Jwt)
+    ///         .RequireAuthentication(AuthorizeType.Session)
     ///         .WithTags("Authentication");
     /// </code>
     /// </example>
@@ -83,10 +83,25 @@ public static class AuthorizationExtensions
         EndpointFilterDelegate next
     )
     {
-        var contextService = context.HttpContext.RequestServices.GetRequiredService<IUserAccessor>();
+        var contextService = context.HttpContext.RequestServices.GetRequiredService<IAuthorizedUserAccessor>();
         var user = await contextService.GetUserAsync(context.HttpContext.RequestAborted);
         return user.IsAdmin ? await next(context) : Results.StatusCode(403);
     }
+
+    /// <summary>
+    ///     Rejects mutating requests that lack the custom header, whatever the authorization scheme. Meant for
+    ///     public routes, which have no authentication filter to carry the check.
+    /// </summary>
+    public static RouteGroupBuilder RequireCsrfHeader(this RouteGroupBuilder builder) =>
+        builder.AddEndpointFilter(CreateCsrfFilter);
+
+    private static async ValueTask<object?> CreateCsrfFilter(
+        EndpointFilterInvocationContext ctx,
+        EndpointFilterDelegate next
+    ) =>
+        IsSafeMethod(ctx.HttpContext.Request.Method) || ctx.HttpContext.HasCsrfHeader()
+            ? await next(ctx)
+            : Results.StatusCode(403);
 
     private static async ValueTask<object?> CreateAuthenticationFilter(
         EndpointFilterInvocationContext ctx,
@@ -95,70 +110,97 @@ public static class AuthorizationExtensions
     )
     {
         var dbCtx = ctx.HttpContext.RequestServices.GetRequiredService<DigitalContext>();
-        var jwtService = ctx.HttpContext.RequestServices.GetRequiredService<JwtService>();
         var config = ctx.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
+        var authOptions = ctx.HttpContext.RequestServices.GetRequiredService<AuthenticationOptionService>();
+        var userAccessor = ctx.HttpContext.RequestServices.GetRequiredService<IAuthorizedUserAccessor>();
         var result = new AuthorizationResult();
 
         if (type.HasFlag(AuthorizeType.ApiKey))
+        {
             result.Merge(
                 await AuthorizeApiKeyAsync(
                     dbCtx,
                     ctx.HttpContext.Request.Headers[AuthenticationStaticOptions.ApiKeyHeaderAccessor].FirstOrDefault(),
                     ctx.HttpContext.RequestAborted
                 ));
-        if (type.HasFlag(AuthorizeType.JwtRefreshOnly) && !result.IsAuthorized)
-        {
-            var authOptions = ctx.HttpContext.RequestServices.GetRequiredService<AuthenticationOptionService>();
-            result.Merge(await jwtService.AuthorizeTokenAsync(
-                ctx.HttpContext.Request.Cookies[authOptions.CookieName],
-                TokenType.Refresh,
-                ctx.HttpContext.RequestAborted)
-            );
         }
 
-        if (type.HasFlag(AuthorizeType.Jwt) && !result.IsAuthorized)
+        if (type.HasFlag(AuthorizeType.Session) && !result.IsAuthorized)
+        {
+            var sessionService = ctx.HttpContext.RequestServices.GetRequiredService<SessionService>();
             result.Merge(
-                await jwtService.AuthorizeTokenAsync(
-                    ctx.HttpContext.Request.Headers.Authorization.FirstOrDefault()?.Split(" ").Last(),
-                    TokenType.Access,
+                await sessionService.AuthorizeAsync(
+                    ctx.HttpContext.Request.Cookies[authOptions.CookieName],
                     ctx.HttpContext.RequestAborted
                 ));
+        }
+        
         if (type.HasFlag(AuthorizeType.Application) && !result.IsAuthorized)
+        {
             result.Merge(
                 AuthorizeApplication(
                     config,
                     ctx.HttpContext.Request.Headers[AuthenticationStaticOptions.ApplicationKeyHeaderAccessor]
                         .FirstOrDefault()
                 ));
-
+        }
+        
         if (!result.IsAuthorized)
+        {
+            ctx.HttpContext.RequestServices.GetRequiredService<SessionCookieHandler>().Delete();
             return Results.StatusCode(401);
-        if (result.IsForbidden)
+        }
+
+        if (
+            result.IsForbidden || (
+                result.Scheme is AuthorizeType.Session
+                && !IsSafeMethod(ctx.HttpContext.Request.Method)
+                && !ctx.HttpContext.HasCsrfHeader()
+            )
+        )
+        {
             return Results.StatusCode(403);
+        }
 
-        ctx.HttpContext.Items[AuthenticationStaticOptions.ApiContextAuthorizationKey] = result;
-
+        userAccessor.SetAuthorizationResult(result);
         return await next(ctx);
     }
+
+    private static bool IsSafeMethod(string method) =>
+        HttpMethods.IsGet(method) || HttpMethods.IsHead(method) || HttpMethods.IsOptions(method);
+
+    /// <summary>
+    ///     Check if the CSRF Header is present in the request.
+    /// </summary>
+    /// <remarks>
+    ///     Presence is the whole check: a cross-site request cannot set a custom header without a preflight that
+    ///     the CORS policy would refuse. The value isn't a secret and does not add any cryptographic strength.
+    ///     See the OWASP recommendations for further information:
+    ///     https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#employing-custom-request-headers-for-ajaxapi
+    /// </remarks>
+    /// <param name="ctx">The current request context.</param>
+    public static bool HasCsrfHeader(this HttpContext ctx) =>
+        !string.IsNullOrEmpty(ctx.Request.Headers[AuthenticationStaticOptions.CsrfHeaderAccessor]);
 
     private static AuthorizationResult AuthorizeApplication(IConfiguration config, string? key)
     {
         var result = new AuthorizationResult();
         var configuredKey = config.Get<string>(CoreSettings.ApplicationKeyKey);
-        if (string.IsNullOrWhiteSpace(configuredKey) || string.IsNullOrEmpty(key) || !IsSameKey(key, configuredKey))
+        if (string.IsNullOrWhiteSpace(configuredKey) || string.IsNullOrEmpty(key)) 
             return result.AddError(new InvalidTokenException());
+
+        var isSameKey = CryptographicOperations.FixedTimeEquals(
+            SHA256.HashData(Encoding.UTF8.GetBytes(key)),
+            SHA256.HashData(Encoding.UTF8.GetBytes(configuredKey))
+        );
+        if (!isSameKey)
+            return result.AddError(new InvalidTokenException());
+        
         result.Authorize(Guid.Empty);
+        result.Scheme = AuthorizeType.Application;
         return result;
     }
-
-    private static bool IsSameKey(string candidate, string expected) =>
-        // Compares two shared keys without leaking their content through timing. Hashing first keeps the
-        // comparison on fixed-size buffers, so the key length does not leak either.
-        CryptographicOperations.FixedTimeEquals(
-            SHA256.HashData(Encoding.UTF8.GetBytes(candidate)),
-            SHA256.HashData(Encoding.UTF8.GetBytes(expected))
-        );
-
+    
     private static async Task<AuthorizationResult> AuthorizeApiKeyAsync(
         DigitalContext dbCtx,
         string? key,
@@ -181,6 +223,7 @@ public static class AuthorizationExtensions
             return result.AddError(new InvalidTokenException());
 
         result.Authorize(user.Id);
+        result.Scheme = AuthorizeType.ApiKey;
         return result;
     }
 }

@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Digital.Net.Core;
 using Digital.Net.Core.Entities.Context;
 using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Core.Http.Services.Authentication;
+using Digital.Net.Core.Http.Services.Authentication.Options;
 using Digital.Net.Lib.Configuration;
 using Digital.Net.Lib.Environment;
 using Digital.Net.Tests.Core.Factories.Data;
@@ -19,6 +21,9 @@ namespace Digital.Net.Tests.Core.Factories;
 
 public class ApplicationFactory : WebApplicationFactory<DigitalProgram>
 {
+    public const string TestDomain = "domain.test";
+    public const string TestOrigin = "https://bo.domain.test";
+
     private readonly Dictionary<string, string?> _testSettings;
 
     public ApplicationFactory(string connectionString, IDictionary<string, string?>? settings = null)
@@ -27,11 +32,11 @@ public class ApplicationFactory : WebApplicationFactory<DigitalProgram>
 
         _testSettings = new Dictionary<string, string?>
         {
-            { CoreSettings.DomainKey, "domain.test" },
+            { CoreSettings.ApplicationDomainKey, TestDomain },
+            { $"{CoreSettings.CorsAllowedOriginsKey}:0", TestOrigin },
             { CoreSettings.ConnectionStringKey, connectionString },
             { CoreSettings.FileSystemPathKey, ".test_storage" },
             { CoreSettings.ApplicationKeyKey, "test-application-secret-key-for-integration-tests" },
-            { CoreSettings.JwtSecretKey, "test-jwt-secret-key-must-be-at-least-46-characters-long-for-hs256" },
             { "Logging:LogLevel:Default", "None" },
             { "Logging:LogLevel:Microsoft", "None" }
         };
@@ -79,9 +84,13 @@ public class ApplicationFactory : WebApplicationFactory<DigitalProgram>
     public User CreateUser(TestUserPayload? userDto = null) => GetContext().BuildTestUser(userDto);
 
     /// <summary>
-    ///     Authenticates a user and configures the provided HTTP client with a Bearer token
-    ///     using the user's credentials.
+    ///     Opens a session for a user and attaches its cookie to the client, bypassing the login endpoint.
+    ///     Returns the session id so tests can tamper with the stored row (expiry, revocation).
     /// </summary>
-    public void AsLogged(HttpClient client, User user) =>
-        client.AddAuthorization(GetService<JwtService>().GenerateBearerToken(user.Id, string.Empty));
+    public async Task<string> AsLoggedAsync(HttpClient client, User user)
+    {
+        var sessionId = await GetService<SessionService>().CreateAsync(user.Id, string.Empty);
+        client.SetCookie(GetService<AuthenticationOptionService>().CookieName, sessionId);
+        return sessionId;
+    }
 }

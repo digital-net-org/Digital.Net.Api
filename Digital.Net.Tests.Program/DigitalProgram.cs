@@ -36,28 +36,37 @@ public sealed class DigitalProgram
             .WithTags("Test");
 
         controller
-            .MapGet("/jwt", () => Results.Ok())
-            .RequireAuthentication(AuthorizeType.Jwt);
+            .MapGet("/session", () => Results.Ok())
+            .RequireAuthentication(AuthorizeType.Session);
 
         controller
             .MapGet("/api-key", () => Results.Ok())
             .RequireAuthentication(AuthorizeType.ApiKey);
 
         controller
-            .MapGet("/refresh", () => Results.Ok())
-            .RequireAuthentication(AuthorizeType.JwtRefreshOnly);
+            .MapGet("/any", () => Results.Ok())
+            .RequireAuthentication(AuthorizeType.Session | AuthorizeType.ApiKey);
+
+        // Mutating counterparts, so the CSRF check can be exercised per scheme.
+        controller
+            .MapMethods("/session-mutation", ["POST", "PUT", "PATCH", "DELETE"], () => Results.Ok())
+            .RequireAuthentication(AuthorizeType.Session);
 
         controller
-            .MapGet("/any", () => Results.Ok())
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
+            .MapPost("/api-key-mutation", () => Results.Ok())
+            .RequireAuthentication(AuthorizeType.ApiKey);
+
+        controller
+            .MapPost("/application-mutation", () => Results.Ok())
+            .RequireAuthentication(AuthorizeType.Application);
 
         controller
             .MapGet("/application", () => Results.Ok())
-            .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
+            .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Session | AuthorizeType.ApiKey);
 
         controller
             .MapGet("/admin", () => Results.Ok())
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey)
+            .RequireAuthentication(AuthorizeType.Session | AuthorizeType.ApiKey)
             .RequireAdmin();
 
         return app;

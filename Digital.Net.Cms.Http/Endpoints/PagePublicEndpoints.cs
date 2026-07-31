@@ -21,7 +21,7 @@ public static class PagePublicEndpoints
             .MapGroup("cms/pages/public")
             .WithTags("CMS.Pages.Public")
             .RequireRateLimiting(RateLimiter.Policy)
-            .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Jwt | AuthorizeType.ApiKey);
+            .RequireAuthentication(AuthorizeType.Application | AuthorizeType.Session | AuthorizeType.ApiKey);
 
         publicController
             .MapPost("build", BuildPublicPage)

@@ -4,7 +4,6 @@ namespace Digital.Net.Core.Http.Services.Authentication.Filters;
 public enum AuthorizeType
 {
     ApiKey = 1,
-    Jwt = 2,
-    Application = 4,
-    JwtRefreshOnly = 8
+    Session = 2,
+    Application = 4
 }

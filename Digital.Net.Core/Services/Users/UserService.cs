@@ -30,7 +30,8 @@ public class UserService(
             return result.AddError(new PasswordMalformedException());
 
         result.Merge(await apiKeyService.RevokeUserKeysAsync(user.Id));
-        
+        await context.Sessions.Where(s => s.UserId == user.Id).ExecuteDeleteAsync();
+
         user.Password = UserPassword.Hash(newPassword);
         context.Users.Update(user);
         await context.SaveChangesAsync();

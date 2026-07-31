@@ -4,8 +4,6 @@ using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Http.Services;
 using Digital.Net.Cms.Models;
 using Digital.Net.Cms.Models.Pages;
-using Digital.Net.Core.Accessors;
-using Digital.Net.Core.Entities.Models.Users;
 using Digital.Net.Core.Http.Services.Crud;
 using Digital.Net.Lib.Accessors;
 using Digital.Net.Lib.Entities.Context;
@@ -72,7 +70,6 @@ public class MutationParentTouchTest : UnitTest, IAsyncInitializer
         var provider = new ServiceCollection()
             .AddSingleton<IOriginAccessor>(new StubOriginAccessor())
             .AddSingleton<IUserAccessor>(new StubUserAccessor())
-            .AddSingleton<ICurrentUserAccessor>(sp => sp.GetRequiredService<IUserAccessor>())
             .AddSingleton(new MutationBroadcaster(NullLogger<MutationBroadcaster>.Instance))
             .BuildServiceProvider();
 
@@ -94,6 +91,5 @@ public class MutationParentTouchTest : UnitTest, IAsyncInitializer
     {
         public Guid GetUserId() => throw new InvalidOperationException();
         public Guid? TryGetUserId() => null;
-        public Task<User> GetUserAsync(CancellationToken ct = default) => throw new NotSupportedException();
     }
 }

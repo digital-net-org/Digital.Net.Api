@@ -62,14 +62,31 @@ public class ApplicationFixture : IAsyncInitializer, IAsyncDisposable
     
     /// <summary>
     ///     Creates and configures an HttpClient instance to interact with the application's services with a unique
-    ///     connection IP (see <see cref="TestRemoteIpStartupFilter" />).
+    ///     connection IP (see <see cref="TestRemoteIpStartupFilter" />). Mirrors the SDK by always sending the CSRF
+    ///     header.
     /// </summary>
     public HttpClient CreateClient()
+    {
+        var client = CreateClientWithoutCsrfHeader();
+        client.DefaultRequestHeaders.Add(AuthenticationStaticOptions.CsrfHeaderAccessor, "digital-net");
+        return client;
+    }
+
+    /// <summary>
+    ///     Same as <see cref="CreateClient" /> without the CSRF header, to exercise its enforcement.
+    /// </summary>
+    public HttpClient CreateClientWithoutCsrfHeader()
     {
         var client = Factory.CreateClient();
         AddTestRemoteIp(client);
         return client;
     }
+
+    /// <summary>
+    ///     Opens a session for a user without going through the login endpoint. See
+    ///     <see cref="ApplicationFactory.AsLoggedAsync" />.
+    /// </summary>
+    public Task<string> AsLoggedAsync(HttpClient client, User user) => Factory.AsLoggedAsync(client, user);
 
     /// <summary>
     ///     Creates an HttpClient pre-configured with the Application key header for Application-authenticated endpoints.
@@ -96,7 +113,7 @@ public class ApplicationFixture : IAsyncInitializer, IAsyncDisposable
 
     /// <summary>
     ///     Creates a test user. The internal DbContext is disposed before returning so the
-    ///     Npgsql pooled connection is released — important under parallel test load.
+    ///     Npgsql pooled connection is released.
     /// </summary>
     public User CreateUser(TestUserPayload? userDto = null)
     {

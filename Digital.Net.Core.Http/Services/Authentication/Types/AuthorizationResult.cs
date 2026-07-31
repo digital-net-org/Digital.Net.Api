@@ -1,3 +1,4 @@
+using Digital.Net.Core.Http.Services.Authentication.Filters;
 using Digital.Net.Lib.Messages;
 
 namespace Digital.Net.Core.Http.Services.Authentication.Types;
@@ -7,6 +8,7 @@ public class AuthorizationResult : Result
     public Guid UserId { get; set; } = Guid.Empty;
     public bool IsForbidden { get; set; }
     public bool IsAuthorized { get; set; }
+    public AuthorizeType? Scheme { get; set; }
 
     public void Forbid() => IsForbidden = true;
 
@@ -25,11 +27,12 @@ public class AuthorizationResult : Result
             IsAuthorized = authResult.IsAuthorized;
             IsForbidden = authResult.IsForbidden;
             UserId = authResult.UserId != Guid.Empty ? authResult.UserId : UserId;
+            Scheme = authResult.Scheme ?? Scheme;
         }
         return this;
     }
 
-    public AuthorizationResult AddError(Exception e)
+    public new AuthorizationResult AddError(Exception e)
     {
         base.AddError(e);
         return this;

@@ -22,7 +22,7 @@ public static class TagEndpoints
             .MapGroup("cms/tags")
             .WithTags("CMS.Tags")
             .RequireRateLimiting(RateLimiter.Policy)
-            .RequireAuthentication(AuthorizeType.Jwt | AuthorizeType.ApiKey);
+            .RequireAuthentication(AuthorizeType.Session | AuthorizeType.ApiKey);
 
         controller.MapCrudSchema<CmsContext, Tag>();
         controller.MapCrudGet<CmsContext, Tag, TagDto>();
