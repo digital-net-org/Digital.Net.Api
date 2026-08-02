@@ -33,6 +33,8 @@ public class Form : Entity
     [RegexValidation(RegularExpressions.PagePathPattern)]
     public string? Path { get; set; }
 
+    [ChildSchema]
     public virtual List<FormField> Fields { get; set; } = [];
+
     public virtual List<FormSubmission> Submissions { get; set; } = [];
 }

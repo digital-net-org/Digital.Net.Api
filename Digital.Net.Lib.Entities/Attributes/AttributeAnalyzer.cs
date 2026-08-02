@@ -93,4 +93,10 @@ public static class AttributeAnalyzer<T>
 
     public static IReadOnlyList<string>? GetOneOf(PropertyInfo property) =>
         property.GetCustomAttribute<OneOfAttribute>()?.Values;
+
+    public static bool HasChildSchema(string propertyName) =>
+        typeof(T).GetProperty(propertyName)?.GetCustomAttribute<ChildSchemaAttribute>() is not null;
+
+    public static bool HasChildSchema(PropertyInfo property) =>
+        property.GetCustomAttribute<ChildSchemaAttribute>() is not null;
 }

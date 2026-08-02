@@ -3,21 +3,59 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using Digital.Net.Lib.Entities.Attributes;
 using Digital.Net.Lib.Entities.Exceptions;
+using Digital.Net.Lib.Entities.Pivots;
 
 namespace Digital.Net.Lib.Entities.Models;
+
+/// <summary>
+///     Serialized shape of an entity property schema, shared by every closed
+///     <see cref="SchemaProperty{T}" /> so child schemas can be embedded regardless of their entity type.
+/// </summary>
+public abstract class SchemaProperty
+{
+    public string Name { get; init; } = null!;
+    public string Path { get; init; } = null!;
+    public string Type { get; init; } = null!;
+    public bool IsReadOnly { get; init; }
+    public bool IsSecret { get; init; }
+    public bool IsRequired { get; init; }
+    public bool IsUnique { get; init; }
+    public bool IsTemplatable { get; init; }
+    public int? MaxLength { get; init; }
+    public bool IsIdentity { get; init; }
+    public bool IsForeignKey { get; init; }
+    public string? RegexValidation { get; init; }
+    public IReadOnlyList<string>? OneOfValues { get; init; }
+    public string[]? EnumValues { get; init; }
+
+    /// <summary>
+    ///     Child entity schema embedded on <c>Collection</c> properties whose rows are edited inline
+    ///     with the parent: Cascade pivots and navigations carrying <see cref="ChildSchemaAttribute" />.
+    ///     Null on scalar properties and on collections managed outside the parent payload.
+    /// </summary>
+    public IReadOnlyList<SchemaProperty>? Children { get; internal set; }
+}
 
 /// <summary>
 ///     Schema describing an entity property.
 /// </summary>
 /// <typeparam name="T">The model of the entity</typeparam>
-public class SchemaProperty<T>
+public class SchemaProperty<T> : SchemaProperty
     where T : class, IEntity
 {
+    private const string CollectionType = "Collection";
+
     private static readonly IReadOnlyList<SchemaProperty<T>> Cached =
         typeof(T).GetProperties().Select(property => new SchemaProperty<T>(property)).ToArray();
 
+    // Full serialized schema: property-backed entries plus one synthetic Collection entry per
+    // Cascade pivot targeting T. Lazy so resolving child schemas never runs during type init.
+    private static readonly Lazy<IReadOnlyList<SchemaProperty<T>>> Schema = new(BuildSchema);
+
     private readonly Func<T, object?> _getter;
     private readonly Regex? _regex;
+    private readonly Type? _childType;
+    private readonly bool _embedChildren;
 
     public SchemaProperty(PropertyInfo propertyInfo)
     {
@@ -37,7 +75,15 @@ public class SchemaProperty<T>
         _getter = BuildGetter(propertyInfo);
 
         var underlying = Nullable.GetUnderlyingType(propertyInfo.PropertyType) ?? propertyInfo.PropertyType;
-        if (underlying.IsEnum)
+        var elementType = GetEntityCollectionElement(underlying);
+        if (elementType is not null)
+        {
+            Type = CollectionType;
+            EnumValues = null;
+            _childType = elementType;
+            _embedChildren = AttributeAnalyzer<T>.HasChildSchema(propertyInfo);
+        }
+        else if (underlying.IsEnum)
         {
             Type = "Enum";
             EnumValues = Enum.GetNames(underlying);
@@ -49,25 +95,22 @@ public class SchemaProperty<T>
         }
     }
 
-    public string Name { get; }
-    public string Path { get; }
-    public string Type { get; }
-    public bool IsReadOnly { get; }
-    public bool IsSecret { get; }
-    public bool IsRequired { get; }
-    public bool IsUnique { get; }
-    public bool IsTemplatable { get; }
-    public int? MaxLength { get; }
-    public bool IsIdentity { get; }
-    public bool IsForeignKey { get; }
-    public string? RegexValidation { get; }
-    public IReadOnlyList<string>? OneOfValues { get; }
-    public string[]? EnumValues { get; }
+    private SchemaProperty(string virtualPath, Type childType)
+    {
+        var accessor = virtualPath.TrimStart('/');
+        Name = char.ToUpperInvariant(accessor[0]) + accessor[1..];
+        Path = accessor;
+        Type = CollectionType;
+        _childType = childType;
+        _embedChildren = true;
+        _getter = static _ => null;
+    }
 
     /// <summary>
-    ///     Get a schema of the entity describing its properties. Built once per closed type and shared.
+    ///     Get a schema of the entity describing its properties, including its inline-edited child
+    ///     collections (see <see cref="SchemaProperty.Children" />). Built once per closed type and shared.
     /// </summary>
-    public static IReadOnlyList<SchemaProperty<T>> Get() => Cached;
+    public static IReadOnlyList<SchemaProperty<T>> Get() => Schema.Value;
 
     /// <summary>
     ///     Validate an <see cref="Entity" /> payload for an EFCore creation.
@@ -111,6 +154,56 @@ public class SchemaProperty<T>
         // IsSecret act as read-only to avoid advertising which fields are secrets.
         if (IsIdentity || IsReadOnly || IsSecret)
             throw new EntityValidationException($"{path}: This field is read-only.");
+    }
+
+    private static IReadOnlyList<SchemaProperty<T>> BuildSchema()
+    {
+        foreach (var property in Cached)
+            if (property is { _embedChildren: true, _childType: not null })
+                property.Children = OwnPropertiesOf(property._childType);
+
+        var pivots = ScanCascadePivots();
+        return pivots.Count == 0 ? Cached : [.. Cached, .. pivots];
+    }
+
+    // Pivots live in the same assembly as their parent entity; the scan is bounded on purpose.
+    private static List<SchemaProperty<T>> ScanCascadePivots()
+    {
+        var entries = new List<SchemaProperty<T>>();
+        foreach (var type in PivotReflection.SafeGetTypes(typeof(T).Assembly))
+        {
+            if (type is not { IsClass: true, IsAbstract: false })
+                continue;
+            var resolution = type.GetCustomAttribute<PivotResolutionAttribute>();
+            if (resolution is null || resolution.Mode != Ownership.Cascade)
+                continue;
+            if (!PivotReflection.TryExtractArgs(type, out var parentType, out var childType) || parentType != typeof(T))
+                continue;
+            entries.Add(new SchemaProperty<T>(resolution.VirtualPath, childType) { Children = OwnPropertiesOf(childType) });
+        }
+
+        return entries.OrderBy(e => e.Name, StringComparer.Ordinal).ToList();
+    }
+
+    // Embedded child schemas stay one level deep: the child's property-backed entries, without
+    // resolving the child's own pivots.
+    private static IReadOnlyList<SchemaProperty> OwnPropertiesOf(Type entityType)
+    {
+        var field = typeof(SchemaProperty<>)
+                        .MakeGenericType(entityType)
+                        .GetField(nameof(Cached), BindingFlags.NonPublic | BindingFlags.Static)
+                    ?? throw new InvalidOperationException($"SchemaProperty<{entityType.Name}>.Cached not found.");
+        return (IReadOnlyList<SchemaProperty>)field.GetValue(null)!;
+    }
+
+    private static Type? GetEntityCollectionElement(Type propertyType)
+    {
+        if (!propertyType.IsGenericType || propertyType.GenericTypeArguments.Length != 1)
+            return null;
+        var element = propertyType.GenericTypeArguments[0];
+        if (!typeof(IEntity).IsAssignableFrom(element))
+            return null;
+        return typeof(IEnumerable<>).MakeGenericType(element).IsAssignableFrom(propertyType) ? element : null;
     }
 
     // Compiled accessor (boxed) so Validate reads values without a per-call GetValue reflection hit.

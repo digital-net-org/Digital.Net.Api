@@ -35,7 +35,7 @@ public static class PivotsInjector
             throw new ArgumentException("At least one assembly is required.", nameof(assemblies));
 
         var allTypes = assemblies
-            .SelectMany(SafeGetTypes)
+            .SelectMany(PivotReflection.SafeGetTypes)
             .Where(t => t is { IsClass: true, IsAbstract: false })
             .ToList();
 
@@ -45,7 +45,7 @@ public static class PivotsInjector
 
         foreach (var pivotType in allTypes)
         {
-            if (!TryExtractPivotArgs(pivotType, out var parentType, out var childType)) continue;
+            if (!PivotReflection.TryExtractArgs(pivotType, out var parentType, out var childType)) continue;
             if (pivotType.GetCustomAttribute<PivotResolutionAttribute>() is null) continue;
 
             var dtoType = FindMatchingDto(dtoTypes, pivotType, childType);
@@ -76,36 +76,4 @@ public static class PivotsInjector
 
     private static bool IsPivotPayloadInterface(Type i) =>
         i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IPivotPayload<,,>);
-
-    private static bool TryExtractPivotArgs(Type pivotType, out Type parentType, out Type childType)
-    {
-        var current = pivotType.BaseType;
-        while (current is not null)
-        {
-            if (current.IsGenericType && current.GetGenericTypeDefinition() == typeof(Pivot<,>))
-            {
-                parentType = current.GenericTypeArguments[0];
-                childType = current.GenericTypeArguments[1];
-                return true;
-            }
-
-            current = current.BaseType;
-        }
-
-        parentType = null!;
-        childType = null!;
-        return false;
-    }
-
-    private static IEnumerable<Type> SafeGetTypes(Assembly assembly)
-    {
-        try
-        {
-            return assembly.GetTypes();
-        }
-        catch (ReflectionTypeLoadException ex)
-        {
-            return ex.Types.OfType<Type>();
-        }
-    }
 }

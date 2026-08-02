@@ -39,7 +39,6 @@ public static class FormEndpoints
         form.MapCrudPost<CmsContext, Form, FormCreatePayload>();
         form.MapCrudDelete<CmsContext, Form>();
         form.MapCrudPatch<CmsContext, Form>();
-        form.MapCrudSchema<CmsContext, FormField>("fields");
 
         form
             .MapPost("{formId:guid}/fields", CreateFormField)
