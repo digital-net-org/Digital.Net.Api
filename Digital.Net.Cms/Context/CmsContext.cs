@@ -24,7 +24,6 @@ public class CmsContext(DbContextOptions<CmsContext> options) : DbContext(option
     public DbSet<Tag> Tags { get; init; }
     public DbSet<Sheet> Sheets { get; init; }
     public DbSet<PageSheet> PageSheets { get; init; }
-    public DbSet<PageMedia> PageMedia { get; init; }
     public DbSet<OpenGraphEntry> OpenGraphEntries { get; init; }
     public DbSet<PageOpenGraph> PageOpenGraphs { get; init; }
     public DbSet<Media> Media { get; init; }

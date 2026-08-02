@@ -60,7 +60,7 @@ public static class MediaEndpoints
             .WithSummary("GetMediaLabels")
             .WithDescription(
                 "Returns the distinct, alphabetically-sorted list of labels currently in use across all " +
-                "ArticleMedia and PageMedia pivots. Optional 'search' querystring narrows the result with a " +
+                "ArticleMedia pivots. Optional 'search' querystring narrows the result with a " +
                 "case-insensitive LIKE filter."
             );
 

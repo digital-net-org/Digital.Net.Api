@@ -13,14 +13,10 @@ public class MediaLabelService(
         var result = new Result<List<string>>();
         try
         {
-            var articleLabels = context.ArticleMedia
-                .Where(p => p.Label != null && p.Label != "")
-                .Select(p => p.Label!);
-            var pageLabels = context.PageMedia
+            var query = context.ArticleMedia
                 .Where(p => p.Label != null && p.Label != "")
                 .Select(p => p.Label!);
 
-            var query = articleLabels.Union(pageLabels);
             if (!string.IsNullOrWhiteSpace(search))
             {
                 var needle = search.Trim().ToLowerInvariant();

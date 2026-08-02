@@ -50,7 +50,6 @@ public class MutationTrackingPerimeterTest
         await Assert.That(typeof(IUntrackedEntity).IsAssignableFrom(type)).IsTrue();
 
     [Test]
-    [Arguments(typeof(PageMedia))]
     [Arguments(typeof(PageSheet))]
     [Arguments(typeof(PageOpenGraph))]
     [Arguments(typeof(ArticleTag))]
