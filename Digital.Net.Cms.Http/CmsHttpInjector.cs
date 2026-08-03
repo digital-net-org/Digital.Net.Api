@@ -19,6 +19,7 @@ public static class CmsHttpInjector
     {
         builder.Services
             .AddScoped<PagePublicService>()
+            .AddScoped<PageTemplateResolver>()
             .AddScoped<ArticleService>()
             .AddScoped<MediaLabelService>()
             .AddScoped<SitemapService>()

@@ -23,6 +23,9 @@ public static class PageApi
         return await client.GetAsync(url);
     }
 
+    public static async Task<HttpResponseMessage> GetPageTemplate(this HttpClient client, string path) =>
+        await client.GetAsync($"{BaseUrl}/template?path={Uri.EscapeDataString(path)}");
+
     public static async Task<HttpResponseMessage> GetPageSheets(this HttpClient client, Guid pageId) =>
         await client.GetAsync($"{BaseUrl}/{pageId}/sheets");
 

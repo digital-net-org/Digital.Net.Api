@@ -192,4 +192,52 @@ public class SitemapServiceTest : UnitTest, IAsyncInitializer
 
         await Assert.That(entries.Any(e => e.Path.StartsWith(prefix))).IsFalse();
     }
+
+    [Test]
+    public async Task GetEntries_ShouldPreferDedicatedPage_OverTemplateExpansion()
+    {
+        var prefix = "/" + Unique("dedup");
+        var page = _context.BuildTestPage(path: $"{prefix}/:slug", published: true, indexed: true, entityType: PageEntityType.Article);
+        var slug = Unique("art");
+        _context.BuildTestArticle(slug: slug, published: true, pageId: page.Id);
+        var dedicated = _context.BuildTestPage(path: $"{prefix}/{slug}", published: true, indexed: true);
+
+        var sentinel = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        await _context.Pages.Where(p => p.Id == dedicated.Id)
+            .ExecuteUpdateAsync(s => s.SetProperty(p => p.UpdatedAt, sentinel));
+
+        var entries = await _service.GetEntriesAsync();
+        var matches = entries.Where(e => e.Path == $"{prefix}/{slug}").ToList();
+
+        await Assert.That(matches.Count).IsEqualTo(1);
+        await Assert.That(matches[0].UpdatedAt).IsEqualTo(sentinel);
+    }
+
+    [Test]
+    public async Task GetEntries_ShouldExcludeExpandedPath_WhenDedicatedPageNotIndexed()
+    {
+        var prefix = "/" + Unique("noidx");
+        var page = _context.BuildTestPage(path: $"{prefix}/:slug", published: true, indexed: true, entityType: PageEntityType.Article);
+        var slug = Unique("art");
+        _context.BuildTestArticle(slug: slug, published: true, pageId: page.Id);
+        _context.BuildTestPage(path: $"{prefix}/{slug}", published: true, indexed: false);
+
+        var entries = await _service.GetEntriesAsync();
+
+        await Assert.That(entries.Any(e => e.Path == $"{prefix}/{slug}")).IsFalse();
+    }
+
+    [Test]
+    public async Task GetEntries_ShouldKeepExpandedPath_WhenDedicatedPageUnpublished()
+    {
+        var prefix = "/" + Unique("unpub");
+        var page = _context.BuildTestPage(path: $"{prefix}/:slug", published: true, indexed: true, entityType: PageEntityType.Article);
+        var slug = Unique("art");
+        _context.BuildTestArticle(slug: slug, published: true, pageId: page.Id);
+        _context.BuildTestPage(path: $"{prefix}/{slug}", published: false, indexed: true);
+
+        var entries = await _service.GetEntriesAsync();
+
+        await Assert.That(entries.Count(e => e.Path == $"{prefix}/{slug}")).IsEqualTo(1);
+    }
 }

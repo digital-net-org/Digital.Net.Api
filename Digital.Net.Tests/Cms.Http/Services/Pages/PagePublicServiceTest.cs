@@ -24,7 +24,7 @@ public class PagePublicServiceTest : UnitTest, IAsyncInitializer
     {
         await DbFixture.EnsureCreatedAsync<CmsContext>();
         _context = DbFixture.CreateContext<CmsContext>();
-        _service = new PagePublicService(_context);
+        _service = new PagePublicService(_context, new PageTemplateResolver(_context));
     }
 
     private static PageBuildPayload Build(string path, PageEntityType? type = null, string? slug = null) =>
@@ -536,5 +536,322 @@ public class PagePublicServiceTest : UnitTest, IAsyncInitializer
             BuildSheet(sheet.Id, page.Path, PageEntityType.Article, "ghost-" + Guid.NewGuid().ToString("N")[..8]));
 
         await Assert.That(result.HasErrorOfType<InvalidPagePathException>()).IsTrue();
+    }
+
+    private (Page template, Page dedicated) SeedTemplateAndDedicatedPage(
+        string? templateTitle = null,
+        string? templateDescription = null,
+        string? dedicatedTitle = null,
+        string? dedicatedDescription = null,
+        PageEntityType? templateEntityType = null,
+        bool templatePublished = true
+    )
+    {
+        var prefix = $"/inh-{TestId}-{Guid.NewGuid().ToString("N")[..6]}";
+        var template = new Page
+        {
+            Path = $"{prefix}/:slug",
+            Published = templatePublished,
+            Indexed = true,
+            EntityType = templateEntityType,
+            Title = templateTitle,
+            Description = templateDescription
+        };
+        var dedicated = new Page
+        {
+            Path = $"{prefix}/child",
+            Published = true,
+            Indexed = true,
+            Title = dedicatedTitle,
+            Description = dedicatedDescription
+        };
+        _context.Pages.AddRange(template, dedicated);
+        _context.SaveChanges();
+        return (template, dedicated);
+    }
+
+    [Test]
+    public async Task BuildPage_InheritsTemplateValues_WhenDedicatedFieldIsEmpty()
+    {
+        var (_, dedicated) = SeedTemplateAndDedicatedPage(
+            templateTitle: "Template title",
+            templateDescription: "Template desc",
+            dedicatedDescription: "Own desc"
+        );
+
+        var result = await _service.BuildPublicPage(Build(dedicated.Path));
+
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(result.Value!.Title).IsEqualTo("Template title");
+        await Assert.That(result.Value!.Description).IsEqualTo("Own desc");
+    }
+
+    [Test]
+    public async Task BuildPage_PrefersFewestDynamicSlugs_WhenSeveralTemplatesMatch()
+    {
+        var prefix = $"/spec-{TestId}-{Guid.NewGuid().ToString("N")[..6]}";
+        _context.Pages.Add(new Page { Path = $"{prefix}/:a/:b", Published = true, Title = "broad" });
+        _context.Pages.Add(new Page { Path = $"{prefix}/foo/:b", Published = true, Title = "narrow" });
+        _context.SaveChanges();
+
+        var result = await _service.BuildPublicPage(Build($"{prefix}/foo/bar"));
+
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(result.Value!.Title).IsEqualTo("narrow");
+    }
+
+    [Test]
+    public async Task BuildPage_PrefersLongestPath_WhenSpecificityTies()
+    {
+        var prefix = $"/tie-{TestId}-{Guid.NewGuid().ToString("N")[..6]}";
+        _context.Pages.Add(new Page { Path = $"{prefix}/:a/x", Published = true, Title = "short" });
+        _context.Pages.Add(new Page { Path = $"{prefix}/foo/:b", Published = true, Title = "long" });
+        _context.SaveChanges();
+
+        var result = await _service.BuildPublicPage(Build($"{prefix}/foo/x"));
+
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(result.Value!.Title).IsEqualTo("long");
+    }
+
+    [Test]
+    public async Task BuildPage_FallsBackToTemplate_WhenNoDedicatedPage()
+    {
+        var (pattern, slug) = SeedArticleAndTemplatedPage();
+        var realPath = pattern.Replace(":slug", slug);
+
+        var result = await _service.BuildPublicPage(Build(realPath, PageEntityType.Article, slug));
+
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(result.Value!.Title).IsEqualTo("Blog: Hello World");
+    }
+
+    [Test]
+    public async Task BuildPage_ServesDedicatedPage_WhenInterpolationSourceMissing()
+    {
+        var (_, dedicated) = SeedTemplateAndDedicatedPage(
+            templateTitle: "Blog: {{ article.title }}",
+            templateEntityType: PageEntityType.Article
+        );
+
+        var result = await _service.BuildPublicPage(
+            Build(dedicated.Path, PageEntityType.Article, "ghost-" + Guid.NewGuid().ToString("N")[..8]));
+
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(result.Value!.Title).IsEqualTo("Blog: {{ article.title }}");
+    }
+
+    [Test]
+    public async Task BuildPage_HydratesInheritedValues_FromTemplateArticle()
+    {
+        var (template, dedicated) = SeedTemplateAndDedicatedPage(
+            templateTitle: "Blog: {{ article.title }}",
+            templateEntityType: PageEntityType.Article
+        );
+        var slug = "child-" + Guid.NewGuid().ToString("N")[..8];
+        _context.Articles.Add(new Article
+        {
+            Slug = slug,
+            Title = "Hello World",
+            Description = "D",
+            Content = "C",
+            PublishedAt = DateTime.UtcNow,
+            PageId = template.Id
+        });
+        _context.SaveChanges();
+
+        var result = await _service.BuildPublicPage(Build(dedicated.Path, PageEntityType.Article, slug));
+
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(result.Value!.Title).IsEqualTo("Blog: Hello World");
+    }
+
+    [Test]
+    public async Task BuildPage_ReturnsInvalidPagePath_WhenTemplateOnly_AndSourceMissing()
+    {
+        var (pattern, _) = SeedArticleAndTemplatedPage();
+        var realPath = pattern.Replace(":slug", "ghost-" + Guid.NewGuid().ToString("N")[..8]);
+
+        var result = await _service.BuildPublicPage(
+            Build(realPath, PageEntityType.Article, "ghost-" + Guid.NewGuid().ToString("N")[..8]));
+
+        await Assert.That(result.HasErrorOfType<InvalidPagePathException>()).IsTrue();
+    }
+
+    [Test]
+    public async Task BuildPage_ReturnsInvalidPageType_WhenInheritedEntityTypeMissingFromPayload()
+    {
+        var (_, dedicated) = SeedTemplateAndDedicatedPage(templateEntityType: PageEntityType.Article);
+
+        var result = await _service.BuildPublicPage(Build(dedicated.Path));
+
+        await Assert.That(result.HasErrorOfType<InvalidPageTypeException>()).IsTrue();
+    }
+
+    [Test]
+    public async Task BuildPage_IgnoresUnpublishedTemplate()
+    {
+        var (_, dedicated) = SeedTemplateAndDedicatedPage(
+            templateTitle: "Template title",
+            templatePublished: false
+        );
+
+        var result = await _service.BuildPublicPage(Build(dedicated.Path));
+
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(result.Value!.Title).IsNull();
+    }
+
+    [Test]
+    public async Task BuildPage_ReturnsInvalidPagePath_WhenOnlyUnpublishedTemplateMatches()
+    {
+        var prefix = $"/unp-tpl-{TestId}-{Guid.NewGuid().ToString("N")[..6]}";
+        _context.Pages.Add(new Page { Path = $"{prefix}/:slug", Published = false });
+        _context.SaveChanges();
+
+        var result = await _service.BuildPublicPage(Build($"{prefix}/anything"));
+
+        await Assert.That(result.HasErrorOfType<InvalidPagePathException>()).IsTrue();
+    }
+
+    [Test]
+    public async Task BuildPage_MergesOpenGraph_PerProperty()
+    {
+        var (template, dedicated) = SeedTemplateAndDedicatedPage();
+        SeedOpenGraphEntries(template.Id,
+            ("og:title", "Template title"),
+            ("og:image", "img-1"),
+            ("og:image", "img-2")
+        );
+        SeedOpenGraphEntries(dedicated.Id, ("og:title", "Own title"));
+
+        var result = await _service.BuildPublicPage(Build(dedicated.Path));
+
+        await Assert.That(result.HasError).IsFalse();
+        var og = result.Value!.OpenGraph;
+        await Assert.That(og.Count).IsEqualTo(3);
+        await Assert.That(og[0].Property).IsEqualTo("og:image");
+        await Assert.That(og[0].Content).IsEqualTo("img-1");
+        await Assert.That(og[1].Property).IsEqualTo("og:image");
+        await Assert.That(og[1].Content).IsEqualTo("img-2");
+        await Assert.That(og[2].Property).IsEqualTo("og:title");
+        await Assert.That(og[2].Content).IsEqualTo("Own title");
+    }
+
+    [Test]
+    public async Task GetPageSheetInfos_ListsTemplateSheetsFirst()
+    {
+        var (template, dedicated) = SeedTemplateAndDedicatedPage();
+        var inherited = _context.BuildTestSheet(name: "inherited", published: true);
+        var own = _context.BuildTestSheet(name: "own", published: true);
+        _context.BuildTestPageSheet(template.Id, inherited.Id);
+        _context.BuildTestPageSheet(dedicated.Id, own.Id);
+
+        var result = await _service.GetPageSheetInfos(dedicated.Id);
+
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(result.Value!.Count).IsEqualTo(2);
+        await Assert.That(result.Value![0].Name).IsEqualTo("inherited");
+        await Assert.That(result.Value![1].Name).IsEqualTo("own");
+    }
+
+    [Test]
+    public async Task GetPageSheetInfos_ExcludesUnpublishedTemplateSheets()
+    {
+        var (template, dedicated) = SeedTemplateAndDedicatedPage();
+        var unpublished = _context.BuildTestSheet(name: "unpublished", published: false);
+        _context.BuildTestPageSheet(template.Id, unpublished.Id);
+
+        var result = await _service.GetPageSheetInfos(dedicated.Id);
+
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(result.Value!).IsEmpty();
+    }
+
+    [Test]
+    public async Task GetPageSheetInfos_DedupsSheetsSharedWithTemplate()
+    {
+        var (template, dedicated) = SeedTemplateAndDedicatedPage();
+        var inherited = _context.BuildTestSheet(name: "inherited", published: true);
+        var shared = _context.BuildTestSheet(name: "shared", published: true);
+        _context.BuildTestPageSheet(template.Id, inherited.Id);
+        _context.BuildTestPageSheet(template.Id, shared.Id, 1);
+        _context.BuildTestPageSheet(dedicated.Id, shared.Id);
+
+        var result = await _service.GetPageSheetInfos(dedicated.Id);
+
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(result.Value!.Count).IsEqualTo(2);
+        await Assert.That(result.Value![0].Name).IsEqualTo("inherited");
+        await Assert.That(result.Value![1].Name).IsEqualTo("shared");
+    }
+
+    [Test]
+    public async Task GetPageSheetInfos_DoesNotInherit_WhenPageIsTemplate()
+    {
+        var (template, _) = SeedTemplateAndDedicatedPage();
+        var own = _context.BuildTestSheet(name: "own", published: true);
+        _context.BuildTestPageSheet(template.Id, own.Id);
+
+        var result = await _service.GetPageSheetInfos(template.Id);
+
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(result.Value!.Count).IsEqualTo(1);
+        await Assert.That(result.Value![0].Name).IsEqualTo("own");
+    }
+
+    [Test]
+    public async Task BuildPageSheet_ServesTemplateSheet_OnDedicatedPagePath()
+    {
+        var (template, dedicated) = SeedTemplateAndDedicatedPage();
+        var sheet = _context.BuildTestSheet(type: "css", content: "body { color: red; }", published: true);
+        _context.BuildTestPageSheet(template.Id, sheet.Id);
+
+        var result = await _service.BuildPublicPageSheetResource(BuildSheet(sheet.Id, dedicated.Path));
+
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(result.Value.contentType).IsEqualTo("text/css");
+        await Assert.That(result.Value.content).IsEqualTo("body { color: red; }");
+    }
+
+    [Test]
+    public async Task BuildPageSheet_ReturnsInvalidPagePath_WhenTemplateSheetUnpublished()
+    {
+        var (template, dedicated) = SeedTemplateAndDedicatedPage();
+        var sheet = _context.BuildTestSheet(published: false);
+        _context.BuildTestPageSheet(template.Id, sheet.Id);
+
+        var result = await _service.BuildPublicPageSheetResource(BuildSheet(sheet.Id, dedicated.Path));
+
+        await Assert.That(result.HasErrorOfType<InvalidPagePathException>()).IsTrue();
+    }
+
+    [Test]
+    public async Task BuildPageSheet_HydratesTemplateSheet_FromTemplateArticle()
+    {
+        var (template, dedicated) = SeedTemplateAndDedicatedPage(templateEntityType: PageEntityType.Article);
+        var sheet = _context.BuildTestSheet(
+            type: "html",
+            content: "<p>{{ article.title }}</p>",
+            published: true
+        );
+        _context.BuildTestPageSheet(template.Id, sheet.Id);
+        var slug = "sheet-" + Guid.NewGuid().ToString("N")[..8];
+        _context.Articles.Add(new Article
+        {
+            Slug = slug,
+            Title = "Hello World",
+            Description = "D",
+            Content = "C",
+            PublishedAt = DateTime.UtcNow,
+            PageId = template.Id
+        });
+        _context.SaveChanges();
+
+        var result = await _service.BuildPublicPageSheetResource(
+            BuildSheet(sheet.Id, dedicated.Path, PageEntityType.Article, slug));
+
+        await Assert.That(result.HasError).IsFalse();
+        await Assert.That(result.Value.content).IsEqualTo("<p>Hello World</p>");
     }
 }

@@ -1,6 +1,7 @@
 using Digital.Net.Cms.Context;
 using Digital.Net.Cms.Http.Dto;
 using Digital.Net.Cms.Http.Exceptions;
+using Digital.Net.Cms.Models;
 using Digital.Net.Cms.Models.Pages;
 using Digital.Net.Lib.Entities.Models;
 using Digital.Net.Core.Services.Templating;
@@ -11,7 +12,8 @@ using Microsoft.EntityFrameworkCore;
 namespace Digital.Net.Cms.Http.Services;
 
 public class PagePublicService(
-    CmsContext context
+    CmsContext context,
+    PageTemplateResolver templateResolver
 )
 {
     public async Task<Result<List<PageSheetInfoDto>>> GetPageSheetInfos(Guid id)
@@ -19,22 +21,22 @@ public class PagePublicService(
         var result = new Result<List<PageSheetInfoDto>>();
         try
         {
-            var pageExists = await context.Pages.AnyAsync(p => p.Id == id);
-            if (!pageExists)
-                throw new ResourceNotFoundException();
+            var page = await context.Pages
+                           .AsNoTracking()
+                           .FirstOrDefaultAsync(p => p.Id == id)
+                       ?? throw new ResourceNotFoundException();
 
-            result.Value = await context.PageSheets
-                .AsNoTracking()
-                .Include(ps => ps.Child)
-                .Where(ps => ps.ParentId == id && ps.Child.Published == true)
-                .OrderBy(ps => ps.Order)
-                .Select(ps => new PageSheetInfoDto
-                {
-                    Id = ps.ChildId,
-                    Name = ps.Child.Name,
-                    Type = ps.Child.Type
-                })
-                .ToListAsync();
+            var own = await GetPublishedSheetInfosAsync(page.Id);
+            var template = await templateResolver.ResolveAsync(page.Path);
+            if (template is null)
+            {
+                result.Value = own;
+                return result;
+            }
+
+            var ownIds = own.Select(s => s.Id).ToHashSet();
+            var inherited = await GetPublishedSheetInfosAsync(template.Id);
+            result.Value = inherited.Where(s => !ownIds.Contains(s.Id)).Concat(own).ToList();
         }
         catch (Exception ex)
         {
@@ -49,21 +51,22 @@ public class PagePublicService(
         var result = new Result<PagePublicDto>();
         try
         {
-            var (page, sources) = await ResolvePageAndSourcesAsync(payload, ct);
+            var (page, template, sources) = await ResolvePageAndSourcesAsync(payload, ct);
+
+            var openGraph = await GetOpenGraphEntriesAsync(page.Id, ct);
+            if (template is not null)
+            {
+                var overridden = openGraph.Select(e => e.Property).ToHashSet();
+                var inherited = await GetOpenGraphEntriesAsync(template.Id, ct);
+                openGraph = inherited.Where(e => !overridden.Contains(e.Property)).Concat(openGraph).ToList();
+            }
+
             if (sources is not null)
+            {
                 TemplateInterpolator.HydrateInPlace(page, sources);
-
-            var openGraph = await context.PageOpenGraphs
-                .AsNoTracking()
-                .Include(po => po.Child)
-                .Where(po => po.ParentId == page.Id)
-                .OrderBy(po => po.Order)
-                .Select(po => po.Child)
-                .ToListAsync(ct);
-
-            if (sources is not null)
                 foreach (var entry in openGraph)
                     TemplateInterpolator.HydrateInPlace(entry, sources);
+            }
 
             result.Value = new PagePublicDto(page)
             {
@@ -88,12 +91,13 @@ public class PagePublicService(
         var result = new Result<(string contentType, string content)>();
         try
         {
-            var (page, sources) = await ResolvePageAndSourcesAsync(payload, ct);
+            var (page, template, sources) = await ResolvePageAndSourcesAsync(payload, ct);
+            var pageIds = template is null ? new[] { page.Id } : new[] { page.Id, template.Id };
             var pageSheet = await context.PageSheets
                 .AsNoTracking()
                 .Include(ps => ps.Child)
                 .FirstOrDefaultAsync(
-                    ps => ps.ParentId == page.Id
+                    ps => pageIds.Contains(ps.ParentId)
                           && ps.ChildId == payload.SheetId
                           && ps.Child.Published,
                     ct
@@ -121,53 +125,106 @@ public class PagePublicService(
         return result;
     }
 
-    private async Task<(Page page, IReadOnlyDictionary<string, object>? sources)> ResolvePageAndSourcesAsync(
-        PageBuildPayload payload,
-        CancellationToken ct
-    )
+    /// <summary>
+    ///     Three-step resolution: the published page whose Path is exactly the requested one, otherwise
+    ///     the most specific published template covering it, otherwise 404. When a dedicated page is
+    ///     covered by a template, the template is returned alongside for merging.
+    /// </summary>
+    private async Task<(Page page, Page? template, IReadOnlyDictionary<string, object>? sources)>
+        ResolvePageAndSourcesAsync(
+            PageBuildPayload payload,
+            CancellationToken ct
+        )
     {
         if (string.IsNullOrWhiteSpace(payload.Path))
             throw new InvalidPagePathException();
 
-        var page = await context.Pages
+        var dedicated = await context.Pages
             .AsNoTracking()
             .Where(p => p.Path == payload.Path && p.Published)
-            .FirstOrDefaultAsync(ct) ?? throw new InvalidPagePathException();
+            .FirstOrDefaultAsync(ct);
 
-        if (payload.PageType != page.EntityType)
+        var template = await templateResolver.ResolveAsync(payload.Path, ct);
+        var page = dedicated ?? template ?? throw new InvalidPagePathException();
+        if (dedicated is null)
+            template = null;
+
+        var entityType = page.EntityType ?? template?.EntityType;
+        if (payload.PageType != entityType)
             throw new InvalidPageTypeException();
 
         IReadOnlyDictionary<string, object>? sources = null;
-        if (page.EntityType is not null && !string.IsNullOrEmpty(payload.PageSlug))
+        if (entityType is not null && !string.IsNullOrEmpty(payload.PageSlug))
         {
-            var source = await ResolveSourceAsync(page, payload.PageSlug, ct)
-                         ?? throw new InvalidPagePathException();
-            sources = new Dictionary<string, object>
-            {
-                [source.GetCanonicalType().Name.ToLowerInvariant()] = source
-            };
+            var owner = page.EntityType is not null ? page : template!;
+            var source = await ResolveSourceAsync(owner, entityType.Value, payload.PageSlug, ct);
+            // A static dedicated page stands on its own: a missing interpolation source only
+            // 404s when a template answers (unknown article slugs must keep returning 404).
+            var servesDedicatedPage = dedicated is not null && !PagePathAnalyzer.HasDynamicSlug(dedicated.Path);
+            if (source is null && !servesDedicatedPage)
+                throw new InvalidPagePathException();
+            if (source is not null)
+                sources = new Dictionary<string, object>
+                {
+                    [source.GetCanonicalType().Name.ToLowerInvariant()] = source
+                };
         }
 
-        return (page, sources);
+        if (template is not null)
+            MergeTemplateValues(page, template);
+
+        return (page, template, sources);
     }
 
+    private static void MergeTemplateValues(Page page, Page template)
+    {
+        if (string.IsNullOrWhiteSpace(page.Title))
+            page.Title = template.Title;
+        if (string.IsNullOrWhiteSpace(page.Description))
+            page.Description = template.Description;
+        if (string.IsNullOrWhiteSpace(page.JsonLd))
+            page.JsonLd = template.JsonLd;
+        if (string.IsNullOrWhiteSpace(page.Redirect))
+            page.Redirect = template.Redirect;
+    }
+
+    private Task<List<PageSheetInfoDto>> GetPublishedSheetInfosAsync(Guid pageId) =>
+        context.PageSheets
+            .AsNoTracking()
+            .Include(ps => ps.Child)
+            .Where(ps => ps.ParentId == pageId && ps.Child.Published == true)
+            .OrderBy(ps => ps.Order)
+            .Select(ps => new PageSheetInfoDto
+            {
+                Id = ps.ChildId,
+                Name = ps.Child.Name,
+                Type = ps.Child.Type
+            })
+            .ToListAsync();
+
+    private Task<List<OpenGraphEntry>> GetOpenGraphEntriesAsync(Guid pageId, CancellationToken ct) =>
+        context.PageOpenGraphs
+            .AsNoTracking()
+            .Include(po => po.Child)
+            .Where(po => po.ParentId == pageId)
+            .OrderBy(po => po.Order)
+            .Select(po => po.Child)
+            .ToListAsync(ct);
+
     private async Task<Entity?> ResolveSourceAsync(
-        Page page,
+        Page owner,
+        PageEntityType entityType,
         string slug,
         CancellationToken ct = default
-    )
+    ) => entityType switch
     {
-        var result = page.EntityType switch
-        {
-            PageEntityType.Article => await context.Articles
-                .AsNoTracking()
-                .FirstOrDefaultAsync(
-                    a => a.Slug == slug
-                         && a.PublishedAt != null
-                         && a.PageId == page.Id,
-                    ct),
-            _ => null
-        };
-        return result ?? throw new InvalidPagePathException();
-    }
+        PageEntityType.Article => await context.Articles
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                a => a.Slug == slug
+                     && a.PublishedAt != null
+                     && a.PageId == owner.Id,
+                ct),
+        _ => null
+    };
 }

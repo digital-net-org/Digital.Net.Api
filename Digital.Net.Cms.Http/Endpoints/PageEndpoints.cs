@@ -43,6 +43,14 @@ public static class PageEndpoints
                 "ExcludeId scopes out a specific id (edition case)."
             );
 
+        controller
+            .MapGet("template", GetPageTemplate)
+            .WithSummary("GetPageTemplate")
+            .WithDescription(
+                "Resolves the published dynamic page whose pattern covers the given path — the template " +
+                "the page at this path inherits from. Returns a null value when no template applies."
+            );
+
         controller.MapCrudSchema<CmsContext, Page>();
         controller
             .MapGet("open-graph-values/schema", GetOpenGraphSchema)
@@ -85,6 +93,33 @@ public static class PageEndpoints
             .WithDescription("Retrieves every OpenGraph entry owned by the page, ordered by index.");
 
         return app;
+    }
+
+    private static async Task<Ok<Result<PageDto?>>> GetPageTemplate(
+        [FromQuery]
+        string path,
+        PageTemplateResolver templateResolver,
+        CancellationToken ct
+    )
+    {
+        var template = await templateResolver.ResolveAsync(path, ct);
+        var dto = template is null
+            ? null
+            : new PageDto
+            {
+                Id = template.Id,
+                Path = template.Path,
+                EntityType = template.EntityType,
+                Published = template.Published,
+                Indexed = template.Indexed,
+                Title = template.Title,
+                Description = template.Description,
+                JsonLd = template.JsonLd,
+                Redirect = template.Redirect,
+                CreatedAt = template.CreatedAt,
+                UpdatedAt = template.UpdatedAt
+            };
+        return TypedResults.Ok(new Result<PageDto?>(dto));
     }
 
     private static async Task<Ok<Result<bool>>> GetPathAvailability(

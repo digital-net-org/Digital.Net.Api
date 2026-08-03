@@ -12,18 +12,28 @@ public class SitemapService(CmsContext context)
     {
         var pages = await context.Pages
             .AsNoTracking()
-            .Where(p => p.Published && p.Indexed)
+            .Where(p => p.Published)
             .ToListAsync();
 
+        // A published dedicated page owns its path: it decides its own sitemap presence,
+        // so template expansions never re-list it (even when it opted out via Indexed).
+        var dedicatedPaths = pages
+            .Where(p => !PagePathAnalyzer.HasDynamicSlug(p.Path))
+            .Select(p => p.Path)
+            .ToHashSet();
+
         var entries = new List<SitemapEntryDto>();
-        foreach (var page in pages)
+        var seen = new HashSet<string>();
+        foreach (var page in pages.Where(p => p.Indexed))
         {
             if (!PagePathAnalyzer.HasDynamicSlug(page.Path))
             {
-                entries.Add(new SitemapEntryDto { Path = page.Path, UpdatedAt = page.UpdatedAt });
+                if (seen.Add(page.Path))
+                    entries.Add(new SitemapEntryDto { Path = page.Path, UpdatedAt = page.UpdatedAt });
                 continue;
             }
-            entries.AddRange(await ResolveDynamicPageAsync(page));
+            entries.AddRange((await ResolveDynamicPageAsync(page))
+                .Where(e => !dedicatedPaths.Contains(e.Path) && seen.Add(e.Path)));
         }
 
         return entries;

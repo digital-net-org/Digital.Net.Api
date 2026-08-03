@@ -68,6 +68,48 @@ public class PageEndpointsTest
     }
 
     [Test]
+    public async Task GetPageTemplate_ShouldReturnTemplate_WhenPatternCoversPath()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var prefix = "/tpl-" + Guid.NewGuid().ToString("N")[..8];
+        var template = CreateTestPage($"{prefix}/:slug", published: true);
+
+        var response = await client.GetPageTemplate($"{prefix}/some-page");
+        var result = await response.Content.ReadFromJsonAsync<Result<PageDto?>>();
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+        await Assert.That(result!.Value).IsNotNull();
+        await Assert.That(result.Value!.Id).IsEqualTo(template.Id);
+        await Assert.That(result.Value!.Path).IsEqualTo(template.Path);
+    }
+
+    [Test]
+    public async Task GetPageTemplate_ShouldReturnNull_WhenNoTemplateMatches()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+
+        var response = await client.GetPageTemplate("/orphan-" + Guid.NewGuid().ToString("N")[..8]);
+        var result = await response.Content.ReadFromJsonAsync<Result<PageDto?>>();
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+        await Assert.That(result!.Value).IsNull();
+    }
+
+    [Test]
+    public async Task GetPageTemplate_ShouldReturnNull_WhenPathIsDynamic()
+    {
+        var client = await CreateAuthenticatedClientAsync();
+        var prefix = "/dyn-" + Guid.NewGuid().ToString("N")[..8];
+        CreateTestPage($"{prefix}/:slug", published: true);
+
+        var response = await client.GetPageTemplate($"{prefix}/:slug");
+        var result = await response.Content.ReadFromJsonAsync<Result<PageDto?>>();
+
+        await Assert.That(response.StatusCode).EqualTo(HttpStatusCode.OK);
+        await Assert.That(result!.Value).IsNull();
+    }
+
+    [Test]
     public async Task PatchPage_ShouldOrchestrateSheetsAndOpenGraph_InSameTransaction()
     {
         var client = await CreateAuthenticatedClientAsync();
